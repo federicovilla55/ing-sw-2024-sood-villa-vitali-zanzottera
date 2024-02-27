@@ -13,6 +13,6 @@ Final Project of Software Engineering at Polytechnic University of Milan. A.Y. 2
 ### Team GC23
 
 - Federico Villa (10768872): federico5.villa@mail.polimi.it
-- Aryan Sood
+- Aryan Sood (10847706): aryan.sood@mail.polimi.it
 - Matteo Vitali
 - Marco Zanzottera
