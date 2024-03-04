@@ -11,12 +11,10 @@ public class PatternEffect implements GoalEffect{
     private final List<Tuple<Integer, Integer>> direction;
     private final List<Symbol> requiredSymbol;
 
-    public PatternEffect(int cardValue, List<Tuple<Integer, Integer>> direction, List<Symbol> requiredSymbol){
-
+    protected PatternEffect(int cardValue, List<Tuple<Integer, Integer>> direction, List<Symbol> requiredSymbol){
         this.cardValue = cardValue;
         this.direction = direction;
         this.requiredSymbol = requiredSymbol;
-
     }
 
     @Override
@@ -26,11 +24,9 @@ public class PatternEffect implements GoalEffect{
 
     @Override
     public String getEffectDescription(){
-
         return "Type: goal card based on card pattern" +
                "Points per pattern: " + String.valueOf(this.cardValue) +
                "Pattern required: " + "... qualcosa ...";
-
     }
 
 }

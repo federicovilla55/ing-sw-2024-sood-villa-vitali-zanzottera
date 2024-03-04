@@ -9,11 +9,9 @@ public class SymbolEffect implements GoalEffect{
     private final HashMap<Symbol, Integer> requiredSymbol;
     private final int effectValue;
 
-    public SymbolEffect(HashMap<Symbol, Integer> requiredSymbol, int effectValue){
-
+    protected SymbolEffect(HashMap<Symbol, Integer> requiredSymbol, int effectValue){
         this.requiredSymbol = requiredSymbol;
         this.effectValue = effectValue;
-
     }
 
     @Override
