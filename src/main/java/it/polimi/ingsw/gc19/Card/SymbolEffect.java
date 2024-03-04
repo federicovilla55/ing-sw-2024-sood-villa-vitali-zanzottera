@@ -18,7 +18,7 @@ public class SymbolEffect implements GoalEffect{
     public String getEffectDescription(){
 
         return "Type: goal card based on symbols" +
-               "Points per pattern: " + String.valueOf(this.effectValue) +
+               "Points per pattern: " + this.effectValue +
                "Required pattern: " + this.requiredSymbol.toString();
 
     }
