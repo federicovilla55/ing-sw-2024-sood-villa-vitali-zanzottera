@@ -7,24 +7,18 @@ public class GoalCard extends Card{
     private final GoalEffect goalEffect;
 
     protected GoalCard(String cardCode, GoalEffect goalEffect){
-
         super(cardCode);
         this.goalEffect = goalEffect;
-
     }
 
     @Override
     public String getCardDescription(){
-
         return this.goalEffect.getEffectDescription();
-
     }
 
     @Override
-    public int countPoints(Station station) {
-
+    public int countPoints(Station station){
         return this.goalEffect.countPoints(station);
-
     }
 
 }
