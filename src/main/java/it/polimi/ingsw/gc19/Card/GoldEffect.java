@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Card;
 
+import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Station.Station;
 
 import java.util.HashMap;
