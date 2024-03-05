@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Card;
 
+import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Station.Station;
 
 import java.util.HashMap;
@@ -26,9 +27,17 @@ public class SymbolEffect implements GoalEffect{
     @Override
     public int countPoints(Station station){
 
-        //TODO: implement method
-
-        return 0;
+        return this.effectValue * station.getVisibleSymbolsInStation().entrySet().stream()
+                                       .mapToInt(s -> {
+                                           if (requiredSymbol.get(s.getKey()) != 0){
+                                               return s.getValue() / requiredSymbol.get(s.getKey());
+                                           }
+                                           else{
+                                               return 0;
+                                           }
+                                       })
+                                       .min()
+                                       .orElse(0);
 
     }
 
