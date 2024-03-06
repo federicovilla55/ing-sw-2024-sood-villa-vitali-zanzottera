@@ -1,12 +1,9 @@
 package it.polimi.ingsw.gc19.Card;
 
-import it.polimi.ingsw.gc19.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Enums.Resource;
+import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Station.Station;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 public class PlayableCard extends Card{
 
@@ -20,7 +17,7 @@ public class PlayableCard extends Card{
 
     //Back card attributes
     private CornerValue[][] backGridConfiguration;
-    private ArrayList<Resource> permanentResources;
+    private ArrayList<Symbol> permanentResources;
 
     //Card state
     private CardState cardState;
@@ -57,7 +54,7 @@ public class PlayableCard extends Card{
     }
 
     public int countPoints(Station station){
-        return this.cardState.countPoints(station);
+        return this.cardState.countPoints(station, this);
     }
 
     public void swapCard(){
@@ -86,8 +83,9 @@ public class PlayableCard extends Card{
         public CornerValue getDownLeft();
         public CornerValue getDownRight();
         public boolean isPlaceable(Station station);
-        public int countPoints(Station station);
+        public int countPoints(Station station, PlayableCard card);
         public CardOrientation getState();
+        public HashMap<Symbol, Integer> getHashMapSymbols();
 
     }
 
@@ -124,15 +122,42 @@ public class PlayableCard extends Card{
 
         @Override
         public boolean isPlaceable(Station station){
-            //TODO : implement method isPlaceable
-            return false;
+            for(Symbol s : Symbol.values()){
+                if(station.getVisibleSymbolsInStation().get(s) < requiredSymbolToPlace.get(s)){
+                    return false;
+                }
+            }
+            return true;
         }
 
         @Override
-        public int countPoints(Station station){
-            //TODO : implement method countPoints
-            return 0;
+        public int countPoints(Station station, PlayableCard card){
+            return playableEffect.countPoints(station, card);
         }
+
+        public HashMap<Symbol, Integer> getHashMapSymbols(){
+            HashMap<Symbol, Integer> symbolHashMap = new HashMap<>();
+
+            for(Symbol s : Symbol.getObjects()){
+                symbolHashMap.put(s, 0);
+            }
+
+            for(Symbol s : Symbol.getResources()){
+                symbolHashMap.put(s, 0);
+            }
+
+            for(CornerValue[] row : frontGridConfiguration){
+                for(CornerValue c : row){
+                    if(c.hasSymbol()){
+                        symbolHashMap.compute((Symbol) c, (k, v) -> v + 1);
+                    }
+                }
+            }
+
+            return symbolHashMap;
+
+        }
+
     }
 
     class CardDown implements CardState{
@@ -172,8 +197,39 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public int countPoints(Station station){
+        public int countPoints(Station station, PlayableCard card){
             return 0;
         }
+
+        @Override
+        public HashMap<Symbol, Integer> getHashMapSymbols(){
+
+            HashMap<Symbol, Integer> symbolHashMap = new HashMap<>();
+
+            for(Symbol s : Symbol.getObjects()){
+                symbolHashMap.put(s, 0);
+            }
+
+            for(Symbol s : Symbol.getResources()){
+                symbolHashMap.put(s, 0);
+            }
+
+            for(Symbol s : permanentResources){
+                symbolHashMap.compute(s, (k, v) -> v + 1);
+            }
+
+            for(CornerValue[] row : backGridConfiguration){
+                for(CornerValue c : row){
+                    if(c.hasSymbol()){
+                        symbolHashMap.compute((Symbol) c, (k, v) -> v + 1);
+                    }
+                }
+            }
+
+            return symbolHashMap;
+
+        }
+
     }
+
 }

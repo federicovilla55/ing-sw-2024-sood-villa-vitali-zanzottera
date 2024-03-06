@@ -18,7 +18,7 @@ public class GoalCard extends Card{
 
     @Override
     public int countPoints(Station station){
-        return this.goalEffect.countPoints(station);
+        return this.goalEffect.countPoints(station, this);
     }
 
 }

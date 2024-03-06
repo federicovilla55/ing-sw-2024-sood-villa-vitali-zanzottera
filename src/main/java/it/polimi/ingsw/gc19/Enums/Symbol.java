@@ -13,7 +13,6 @@ public enum Symbol implements CornerValue {
 
     public static EnumSet<Symbol> getObjects(){
         return EnumSet.of(INK, SCROLL, FEATHER);
-
     }
 
     @Override

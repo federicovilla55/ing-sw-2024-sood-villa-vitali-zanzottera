@@ -25,19 +25,19 @@ public class SymbolEffect implements GoalEffect{
     }
 
     @Override
-    public int countPoints(Station station){
+    public int countPoints(Station station, GoalCard card){
 
         return this.effectValue * station.getVisibleSymbolsInStation().entrySet().stream()
-                                       .mapToInt(s -> {
-                                           if (requiredSymbol.get(s.getKey()) != 0){
-                                               return s.getValue() / requiredSymbol.get(s.getKey());
-                                           }
-                                           else{
-                                               return 0;
-                                           }
-                                       })
-                                       .min()
-                                       .orElse(0);
+                                                                                 .mapToInt(s -> {
+                                                                                       if (requiredSymbol.get(s.getKey()) != 0){
+                                                                                           return s.getValue() / requiredSymbol.get(s.getKey());
+                                                                                       }
+                                                                                       else{
+                                                                                           return 0;
+                                                                                       }
+                                                                                 })
+                                                                                 .min()
+                                                                                 .orElse(0);
 
     }
 

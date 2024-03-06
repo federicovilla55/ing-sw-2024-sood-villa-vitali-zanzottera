@@ -19,7 +19,7 @@ public class PatternEffect implements GoalEffect{
     }
 
     @Override
-    public int countPoints(Station station){
+    public int countPoints(Station station, GoalCard card){
         return 0; //TODO: implement method
     }
 
