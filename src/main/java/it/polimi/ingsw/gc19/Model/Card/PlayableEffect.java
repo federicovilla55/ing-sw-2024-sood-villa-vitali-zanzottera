@@ -4,5 +4,5 @@ import it.polimi.ingsw.gc19.Station.Station;
 
 public interface PlayableEffect{
     String getEffectDescription();
-    int countPoints(Station station);
+    int countPoints(Station station, PlayableCard card);
 }

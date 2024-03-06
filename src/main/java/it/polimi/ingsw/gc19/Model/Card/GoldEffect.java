@@ -16,7 +16,7 @@ public class GoldEffect implements PlayableEffect{
     }
 
     @Override
-    public int countPoints(Station station){
+    public int countPoints(Station station, PlayableCard card){
 
         return this.cardValue * station.getVisibleSymbolsInStation().entrySet().stream()
                                        .mapToInt(s -> {
