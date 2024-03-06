@@ -18,5 +18,12 @@ public class ClientController {
         }
         List_Player.add(new_player);
     }
-    
+
+    public void CreateGame(Player player_id){ // parameter pass also metadata of game
+
+    }
+
+    public void AddToGame(Player player_id){ //as parameter pass also game to join and list of all games
+
+    }
 }
