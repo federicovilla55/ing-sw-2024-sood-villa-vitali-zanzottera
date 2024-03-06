@@ -1,6 +1,4 @@
-package it.polimi.ingsw.gc19.Deck;
-
-import it.polimi.ingsw.gc19.Card.Card;
+package it.polimi.ingsw.gc19.Model.Deck;
 
 public class EmptyDeckException extends Exception{
 

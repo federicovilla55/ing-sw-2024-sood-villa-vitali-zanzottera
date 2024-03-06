@@ -1,6 +1,6 @@
-package it.polimi.ingsw.gc19.Deck;
+package it.polimi.ingsw.gc19.Model.Deck;
 
-import it.polimi.ingsw.gc19.Card.*;
+import it.polimi.ingsw.gc19.Model.Card.*;
 
 import java.util.ArrayList;
 import java.util.Random;

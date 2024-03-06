@@ -1,8 +1,8 @@
-package it.polimi.ingsw.gc19.Card;
+package it.polimi.ingsw.gc19.Model.Card;
 
-import it.polimi.ingsw.gc19.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Enums.Resource;
+import it.polimi.ingsw.gc19.Model.Enums.CardOrientation;
+import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Model.Enums.Resource;
 import it.polimi.ingsw.gc19.Station.Station;
 
 import java.util.ArrayList;
