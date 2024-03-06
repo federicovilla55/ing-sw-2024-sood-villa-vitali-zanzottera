@@ -1,10 +1,10 @@
-package it.polimi.ingsw.gc19.Station;
+package it.polimi.ingsw.gc19.Model.Station;
 
-import it.polimi.ingsw.gc19.Card.Card;
-import it.polimi.ingsw.gc19.Card.GoalCard;
-import it.polimi.ingsw.gc19.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Enums.Direction;
-import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Card.Card;
+import it.polimi.ingsw.gc19.Model.Card.GoalCard;
+import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Enums.Direction;
+import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 import it.polimi.ingsw.gc19.Tuple.Tuple;
 
 import java.util.HashMap;
@@ -73,7 +73,7 @@ public class CardSchema{
     }
 
     public boolean isPlaceable(PlayableCard anchor, Direction direction){
-
+        return false;
     }
 
     public Card[][] getCardSchema() {

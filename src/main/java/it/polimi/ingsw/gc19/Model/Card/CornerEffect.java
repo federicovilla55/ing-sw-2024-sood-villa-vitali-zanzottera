@@ -1,9 +1,9 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
-import it.polimi.ingsw.gc19.Enums.Direction;
-import it.polimi.ingsw.gc19.Station.InvalidAnchorException;
-import it.polimi.ingsw.gc19.Station.InvalidCardException;
-import it.polimi.ingsw.gc19.Station.Station;
+import it.polimi.ingsw.gc19.Model.Enums.Direction;
+import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
+import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
+import it.polimi.ingsw.gc19.Model.Station.Station;
 
 public class CornerEffect implements PlayableEffect{
 
@@ -16,12 +16,12 @@ public class CornerEffect implements PlayableEffect{
     @Override
     public int countPoints(Station station, PlayableCard card){
         int numCop = 0;
-        for(Direction d :Direction.getCornerDirection()){
+        for(Direction d : Direction.getCornerDirection()){
             try{
                 station.getCardWithAnchor(card, d);
                 numCop++;
             }
-            catch(InvalidCardException | NullPointerException | InvalidAnchorException exception) {};
+            catch(NullPointerException exception) {};
         }
         return numCop * this.cardValue;
     }
