@@ -56,6 +56,10 @@ public class PlayableCard extends Card{
         return this.cardState.getPermanentResources();
     }
 
+    public HashMap<Symbol, Integer> getHashMapSymbols(){
+        return this.cardState.getHashMapSymbols();
+    }
+
     public void swapCard(){
         this.cardState.swap();
     }
