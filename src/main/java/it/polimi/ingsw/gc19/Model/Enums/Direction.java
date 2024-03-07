@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.Model.Enums;
 import java.util.EnumSet;
 
 public enum Direction{
-    UP(0, 1), DOWN(0, -1), LEFT(-1, 0), RIGHT(1, 0), UP_LEFT(-1, 1), UP_RIGHT(1, 1), DOWN_RIGHT(1, -1), DOWN_LEFT(-1, -1);
+    UP_LEFT(1, 0), UP_RIGHT(1, 1), DOWN_RIGHT(0, 1), DOWN_LEFT(0, 0);
 
     private final int x;
     private final int y;
@@ -11,10 +11,6 @@ public enum Direction{
     private Direction(int x, int y){
         this.x = x;
         this.y = y;
-    }
-
-    public static EnumSet<Direction> getCornerDirection(){
-        return EnumSet.of(UP_LEFT, UP_RIGHT,DOWN_LEFT, DOWN_RIGHT);
     }
 
     public int getX(){
