@@ -1,9 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
 
-import it.polimi.ingsw.gc19.Model.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Model.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Enums.*;
 
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
@@ -24,37 +22,30 @@ public class PlayableCard extends Card{
     private ArrayList<Symbol> permanentResources;
 
     //Card state
-    private CardState cardState;
+    private CardState cardState = new CardUp();
 
     protected PlayableCard(String cardCode) {
         super(cardCode);
-    }
-
-    public void setCardState(CardState cardState){
-        this.cardState = cardState;
     }
 
     //Methods exposed by PlayableCard externally
     public PlayableCardType getCardType(){
         return this.cardType;
     }
-    public CornerValue getUpLeft(){
-        return this.cardState.getUpLeft();
-    }
-    public CornerValue getUpRight(){
-        return this.cardState.getUpRight();
+    public CornerValue getCornerByDirection(Direction direction){
+        return this.cardState.getCornerByDirection(direction);
     }
 
-    public CornerValue getDownLeft(){
-        return this.cardState.getDownLeft();
+    public CornerValue getCornerByCoords(int x, int y){
+        return this.cardState.getCornerByCoords(x, y);
     }
 
-    public CornerValue getDownRight() {
-        return this.cardState.getDownRight();
+    public boolean enoughResourceToBePlaced(Station station){
+        return this.cardState.enoughResourceToBePlaced(station);
     }
 
-    public boolean isPlaceable(Station station){
-        return this.cardState.isPlaceable(station);
+    public boolean canPlaceOver(Direction direction){
+        return this.cardState.canPlaceOver(direction);
     }
 
     public int countPoints(Station station){
@@ -82,12 +73,11 @@ public class PlayableCard extends Card{
     interface CardState{
 
         public void swap();
-        public CornerValue getUpLeft();
-        public CornerValue getUpRight();
-        public CornerValue getDownLeft();
-        public CornerValue getDownRight();
-        public boolean isPlaceable(Station station);
+        public CornerValue getCornerByDirection(Direction direction);
+        public CornerValue getCornerByCoords(int x, int y);
+        public boolean enoughResourceToBePlaced(Station station);
         public int countPoints(Station station, PlayableCard card);
+        public boolean canPlaceOver(Direction direction);
         public CardOrientation getState();
         public HashMap<Symbol, Integer> getHashMapSymbols();
 
@@ -100,23 +90,13 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public CornerValue getUpLeft(){
-            return frontGridConfiguration[1][0];
+        public CornerValue getCornerByDirection(Direction direction){
+            return frontGridConfiguration[direction.getX()][direction.getY()];
         }
 
         @Override
-        public CornerValue getUpRight(){
-            return frontGridConfiguration[1][1];
-        }
-
-        @Override
-        public CornerValue getDownLeft(){
-            return frontGridConfiguration[0][0];
-        }
-
-        @Override
-        public CornerValue getDownRight(){
-            return frontGridConfiguration[0][1];
+        public CornerValue getCornerByCoords(int x, int y){
+            return frontGridConfiguration[x][y];
         }
 
         @Override
@@ -125,13 +105,17 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public boolean isPlaceable(Station station){
+        public boolean enoughResourceToBePlaced(Station station){
             for(Symbol s : Symbol.values()){
                 if(station.getVisibleSymbolsInStation().get(s) < requiredSymbolToPlace.get(s)){
                     return false;
                 }
             }
             return true;
+        }
+        @Override
+        public boolean canPlaceOver(Direction direction){
+            return frontGridConfiguration[direction.getX()][direction.getY()] == EmptyCorner.EMPTY;
         }
 
         @Override
@@ -171,23 +155,13 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public CornerValue getUpLeft(){
-            return backGridConfiguration[1][0];
+        public CornerValue getCornerByDirection(Direction direction){
+            return backGridConfiguration[direction.getX()][direction.getY()];
         }
 
         @Override
-        public CornerValue getUpRight(){
-            return backGridConfiguration[1][1];
-        }
-
-        @Override
-        public CornerValue getDownLeft(){
-            return backGridConfiguration[0][0];
-        }
-
-        @Override
-        public CornerValue getDownRight(){
-            return backGridConfiguration[0][1];
+        public CornerValue getCornerByCoords(int x, int y){
+            return backGridConfiguration[x][y];
         }
 
         @Override
@@ -196,13 +170,18 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public boolean isPlaceable(Station station){
+        public boolean enoughResourceToBePlaced(Station station){
             return true;
         }
 
         @Override
         public int countPoints(Station station, PlayableCard card){
             return 0;
+        }
+
+        @Override
+        public boolean canPlaceOver(Direction direction){
+            return backGridConfiguration[direction.getX()][direction.getY()] == EmptyCorner.EMPTY;
         }
 
         @Override
