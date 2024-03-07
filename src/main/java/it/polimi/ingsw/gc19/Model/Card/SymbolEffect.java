@@ -25,7 +25,7 @@ public class SymbolEffect implements GoalEffect{
     }
 
     @Override
-    public int countPoints(Station station, GoalCard card){
+    public int countPoints(Station station){
 
         return this.effectValue * station.getVisibleSymbolsInStation().entrySet().stream()
                                                                                  .mapToInt(s -> {
