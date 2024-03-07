@@ -52,6 +52,10 @@ public class PlayableCard extends Card{
         return this.cardState.countPoints(station, this);
     }
 
+    public ArrayList<Symbol> getPermanentResources(){
+        return this.cardState.getPermanentResources();
+    }
+
     public void swapCard(){
         this.cardState.swap();
     }
@@ -79,11 +83,12 @@ public class PlayableCard extends Card{
         public int countPoints(Station station, PlayableCard card);
         public boolean canPlaceOver(Direction direction);
         public CardOrientation getState();
+        public ArrayList<Symbol> getPermanentResources();
         public HashMap<Symbol, Integer> getHashMapSymbols();
 
     }
 
-    class CardUp implements CardState{
+    private class CardUp implements CardState{
         @Override
         public void swap(){
             cardState = new CardDown();
@@ -123,6 +128,12 @@ public class PlayableCard extends Card{
             return playableEffect.countPoints(station, card);
         }
 
+        @Override
+        public ArrayList<Symbol> getPermanentResources() {
+            return new ArrayList<>();
+        }
+
+        @Override
         public HashMap<Symbol, Integer> getHashMapSymbols(){
             HashMap<Symbol, Integer> symbolHashMap = new HashMap<>();
 
@@ -148,7 +159,7 @@ public class PlayableCard extends Card{
 
     }
 
-    class CardDown implements CardState{
+    private class CardDown implements CardState{
         @Override
         public void swap(){
             cardState = new CardUp();
@@ -182,6 +193,11 @@ public class PlayableCard extends Card{
         @Override
         public boolean canPlaceOver(Direction direction){
             return backGridConfiguration[direction.getX()][direction.getY()] == EmptyCorner.EMPTY;
+        }
+
+        @Override
+        public ArrayList<Symbol> getPermanentResources() {
+            return permanentResources;
         }
 
         @Override
