@@ -62,20 +62,18 @@ public class Station{
         PlayableCard sharingCorner;
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
             placeCard(anchor, toPlace, direction);
+            updatePoints(toPlace);
             for(Symbol s : Symbol.values()){
                 this.visibleSymbolsInStation.put(s, this.visibleSymbolsInStation.get(s) + toPlace.getHashMapSymbols().get(s));
             }
-            placeCard(anchor, toPlace, direction);
             for(Direction d : Direction.values()){
                 try{
                     sharingCorner = getCardSchema().getCardWithAnchor(toPlace, d);
                     if(toPlace.getCornerByDirection(d) != EmptyCorner.EMPTY) this.visibleSymbolsInStation.compute((Symbol) anchor.getCornerByDirection(d), (k, v) -> v - 1);
                 }
                 catch(Exception ignored){};
-
             }
         }
-        updatePoints(toPlace);
     }
 
     public ArrayList<PlayableCard> getCardsInHand(){
