@@ -1,7 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
-import it.polimi.ingsw.gc19.Station.Station;
+import it.polimi.ingsw.gc19.Model.Station.Station;
 
 import java.util.HashMap;
 
@@ -16,7 +16,7 @@ public class GoldEffect implements PlayableEffect{
     }
 
     @Override
-    public int countPoints(Station station){
+    public int countPoints(Station station, PlayableCard card){
 
         return this.cardValue * station.getVisibleSymbolsInStation().entrySet().stream()
                                        .mapToInt(s -> {

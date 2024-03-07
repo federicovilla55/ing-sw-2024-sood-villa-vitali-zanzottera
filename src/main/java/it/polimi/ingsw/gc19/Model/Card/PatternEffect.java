@@ -2,7 +2,7 @@ package it.polimi.ingsw.gc19.Model.Card;
 
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
-import it.polimi.ingsw.gc19.Station.Station;
+import it.polimi.ingsw.gc19.Model.Station.Station;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class PatternEffect implements GoalEffect{
     }
 
     @Override
-    public int countPoints(Station station){
+    public int countPoints(Station station, GoalCard card){
         return 0; //TODO: implement method
     }
 

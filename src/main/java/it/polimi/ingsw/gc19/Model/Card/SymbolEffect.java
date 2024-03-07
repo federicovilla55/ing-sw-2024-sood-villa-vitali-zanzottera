@@ -1,7 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
-import it.polimi.ingsw.gc19.Station.Station;
+import it.polimi.ingsw.gc19.Model.Station.Station;
 
 import java.util.HashMap;
 
@@ -25,19 +25,19 @@ public class SymbolEffect implements GoalEffect{
     }
 
     @Override
-    public int countPoints(Station station){
+    public int countPoints(Station station, GoalCard card){
 
         return this.effectValue * station.getVisibleSymbolsInStation().entrySet().stream()
-                                       .mapToInt(s -> {
-                                           if (requiredSymbol.get(s.getKey()) != 0){
-                                               return s.getValue() / requiredSymbol.get(s.getKey());
-                                           }
-                                           else{
-                                               return 0;
-                                           }
-                                       })
-                                       .min()
-                                       .orElse(0);
+                                                                                 .mapToInt(s -> {
+                                                                                       if (requiredSymbol.get(s.getKey()) != 0){
+                                                                                           return s.getValue() / requiredSymbol.get(s.getKey());
+                                                                                       }
+                                                                                       else{
+                                                                                           return 0;
+                                                                                       }
+                                                                                 })
+                                                                                 .min()
+                                                                                 .orElse(0);
 
     }
 

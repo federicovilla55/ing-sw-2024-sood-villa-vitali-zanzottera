@@ -1,10 +1,10 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
-import it.polimi.ingsw.gc19.Station.Station;
+import it.polimi.ingsw.gc19.Model.Station.Station;
 
 public interface GoalEffect{
 
-    public int countPoints(Station station);
+    public int countPoints(Station station, GoalCard card);
     public String getEffectDescription();
 
 }

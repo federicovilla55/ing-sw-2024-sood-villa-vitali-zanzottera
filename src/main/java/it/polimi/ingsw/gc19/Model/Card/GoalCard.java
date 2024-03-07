@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
-import it.polimi.ingsw.gc19.Station.Station;
+import it.polimi.ingsw.gc19.Model.Station.Station;
 
 public class GoalCard extends Card{
 
@@ -18,7 +18,7 @@ public class GoalCard extends Card{
 
     @Override
     public int countPoints(Station station){
-        return this.goalEffect.countPoints(station);
+        return this.goalEffect.countPoints(station, this);
     }
 
 }
