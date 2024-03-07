@@ -16,12 +16,12 @@ public class CornerEffect implements PlayableEffect{
     @Override
     public int countPoints(Station station, PlayableCard card){
         int numCop = 0;
-        for(Direction d : Direction.getCornerDirection()){
+        for(Direction d : Direction.values()){
             try{
-                station.getCardWithAnchor(card, d);
+                station.getCardSchema().getCardWithAnchor(card, d);
                 numCop++;
             }
-            catch(NullPointerException exception) {};
+            catch(Exception ignored){};
         }
         return numCop * this.cardValue;
     }

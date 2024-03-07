@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
+import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Station.Station;
@@ -27,16 +28,16 @@ public class PatternEffect implements GoalEffect{
         boolean found;
         int nextI, nextK, numOfCard;
 
-        for(int i = 0; i < 40; i++){
-            for(int k =0; k < 40; k++){
+        for(int i = 0; i < ImportantConstants.gridDimension; i++){
+            for(int k =0; k < ImportantConstants.gridDimension; k++){
                 usedCards[i][k] = true;
             }
         }
 
         numPattern = 0;
 
-        for(int i = 0; i < 40;i++){
-            for(int k = 0; k < 40; k++){
+        for(int i = 0; i < ImportantConstants.gridDimension;i++){
+            for(int k = 0; k < ImportantConstants.gridDimension; k++){
                 found = true;
                 nextI = i;
                 nextK = k;
@@ -71,7 +72,8 @@ public class PatternEffect implements GoalEffect{
     public String getEffectDescription(){
         return "Type: goal card based on card pattern" +
                "Points per pattern: " + this.cardValue +
-               "Pattern required: " + "... qualcosa ...";
+               "Pattern moves required starting from a card: " + this.moves.toString() +
+               "Patter resource required: " + this.requiredSymbol.toString();
     }
 
 }
