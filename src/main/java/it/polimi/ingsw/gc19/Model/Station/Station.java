@@ -1,9 +1,11 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
 import it.polimi.ingsw.gc19.Model.Card.Card;
+import it.polimi.ingsw.gc19.Model.Card.CornerValue;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
+import it.polimi.ingsw.gc19.Model.Enums.EmptyCorner;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 
 import java.util.ArrayList;
@@ -11,7 +13,7 @@ import java.util.HashMap;
 
 public class Station{
 
-    private final ArrayList<Card> cardsInStation;
+    private final ArrayList<PlayableCard> cardsInStation;
     private final HashMap<Symbol, Integer> visibleSymbolsInStation;
     private GoalCard privateGoalCard;
     private int numPoints;
@@ -22,10 +24,7 @@ public class Station{
         this.privateGoalCard = null;
         this.visibleSymbolsInStation = new HashMap<>();
 
-        for(Symbol s : Symbol.getResources()){
-            this.visibleSymbolsInStation.put(s, 0);
-        }
-        for(Symbol s : Symbol.getObjects()){
+        for(Symbol s : Symbol.values()){
             this.visibleSymbolsInStation.put(s, 0);
         }
 
@@ -43,25 +42,44 @@ public class Station{
         this.privateGoalCard = privateGoalCard;
     }
 
-    public void updatePoints(){
-
+    public void updatePoints(Card card){
+        numPoints = numPoints + card.countPoints(this);
     }
 
     public CardSchema getCardSchema() {
         return this.cardSchema;
     }
 
-    public boolean cardIsPlaceable(Card anchor, Direction direction){ /*Controlli su NullPointerException, ancora invalida, direction invalida da far fare al controllore*/
-        return false;
+    public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidPositionException, InvalidAnchorException{
+        /*Controlli su NullPointerException, ancora invalida, direction invalida da far fare al controllore*/
+        if(!this.cardsInStation.contains(toPlace)){
+            throw new InvalidCardException();
+        }
+        return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this) && anchor.canPlaceOver(direction);
     }
 
-    public Card getCardWithAnchor(PlayableCard card, Direction d) {
-        return null;
+    public void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidPositionException, InvalidAnchorException{
+        PlayableCard sharingCorner;
+        if(this.cardIsPlaceable(anchor, toPlace, direction)){
+            placeCard(anchor, toPlace, direction);
+            for(Symbol s : Symbol.values()){
+                this.visibleSymbolsInStation.put(s, this.visibleSymbolsInStation.get(s) + toPlace.getHashMapSymbols().get(s));
+            }
+            placeCard(anchor, toPlace, direction);
+            for(Direction d : Direction.values()){
+                try{
+                    sharingCorner = getCardSchema().getCardWithAnchor(toPlace, d);
+                    if(toPlace.getCornerByDirection(d) != EmptyCorner.EMPTY) this.visibleSymbolsInStation.compute((Symbol) anchor.getCornerByDirection(d), (k, v) -> v - 1);
+                }
+                catch(Exception ignored){};
+
+            }
+        }
+        updatePoints(toPlace);
     }
 
-    //questo metodo potrebbe essere un esempio di ciò che può fare il controllore
-    /*public boolean cardInStation(Card card){
-        return  this.cardsInStation.stream().anyMatch(card::equals) ||
-                Arrays.stream(this.cardSchema).map(x -> Arrays.stream(x)).anyMatch(card::equals);
-    }*/
+    public ArrayList<PlayableCard> getCardsInHand(){
+        return this.cardsInStation;
+    }
+
 }
