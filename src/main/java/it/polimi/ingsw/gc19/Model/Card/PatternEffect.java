@@ -1,6 +1,5 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
-import it.polimi.ingsw.gc19.Model.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Station.Station;
@@ -71,7 +70,7 @@ public class PatternEffect implements GoalEffect{
     @Override
     public String getEffectDescription(){
         return "Type: goal card based on card pattern" +
-               "Points per pattern: " + String.valueOf(this.cardValue) +
+               "Points per pattern: " + this.cardValue +
                "Pattern required: " + "... qualcosa ...";
     }
 
