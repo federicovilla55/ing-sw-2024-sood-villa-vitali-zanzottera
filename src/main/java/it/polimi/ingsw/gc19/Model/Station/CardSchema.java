@@ -42,11 +42,11 @@ public class CardSchema{
     }
 
     public int getX(PlayableCard card) throws InvalidCardException{
-        return getCoords(card).getX();
+        return getCoords(card).x();
     }
 
     public int getY(PlayableCard card) throws InvalidCardException{
-        return getCoords(card).getY();
+        return getCoords(card).y();
     }
 
     public boolean checkCoords(int x, int y){
@@ -58,29 +58,29 @@ public class CardSchema{
             throw new InvalidAnchorException();
         }
         Tuple<Integer, Integer> coords = this.cardPosition.get(anchor);
-        if(!checkCoords(coords.getX() + dir.getX(), coords.getY() + dir.getY())){
+        if(!checkCoords(coords.x() + dir.getX(), coords.y() + dir.getY())){
             throw new InvalidPositionException();
         }
-        if(this.cardSchema[coords.getX()][coords.getY()] == null){
+        if(this.cardSchema[coords.x()][coords.y()] == null){
             throw new NoCardException();
         }
-        return this.cardSchema[coords.getX()][coords.getY()];
+        return this.cardSchema[coords.x()][coords.y()];
     }
 
     public boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException, InvalidPositionException{
         if(!this.cardPosition.containsKey(anchor)){
             throw new InvalidAnchorException();
         }
-        if(!checkCoords(this.cardPosition.get(anchor).getX() + direction.getX(), this.cardPosition.get(anchor).getY() + direction.getY())){
+        if(!checkCoords(this.cardPosition.get(anchor).x() + direction.getX(), this.cardPosition.get(anchor).y() + direction.getY())){
             throw new InvalidPositionException();
         }
-        return this.cardSchema[this.cardPosition.get(anchor).getX() + direction.getX()][this.cardPosition.get(anchor).getY() + direction.getY()] == null;
+        return this.cardSchema[this.cardPosition.get(anchor).x() + direction.getX()][this.cardPosition.get(anchor).y() + direction.getY()] == null;
     }
 
     public void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction){
         Tuple<Integer, Integer> coords = this.cardPosition.get(anchor);
-        this.cardSchema[coords.getX() + direction.getX()][coords.getY() + direction.getY()] = toPlace;
-        this.cardPosition.put(toPlace, new Tuple<>(coords.getX() + direction.getX(), coords.getY() + direction.getY()));
+        this.cardSchema[coords.x() + direction.getX()][coords.y() + direction.getY()] = toPlace;
+        this.cardPosition.put(toPlace, new Tuple<>(coords.x() + direction.getX(), coords.y() + direction.getY()));
     }
 
     public boolean cardIsInSchema(PlayableCard card){
