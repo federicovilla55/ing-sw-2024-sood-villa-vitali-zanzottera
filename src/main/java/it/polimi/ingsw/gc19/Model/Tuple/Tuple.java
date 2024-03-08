@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Tuple;
+package it.polimi.ingsw.gc19.Model.Tuple;
 
 import it.polimi.ingsw.gc19.Enums.Symbol;
 
