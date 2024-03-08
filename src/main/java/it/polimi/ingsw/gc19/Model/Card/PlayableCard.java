@@ -7,15 +7,58 @@ import it.polimi.ingsw.gc19.Model.Station.Station;
 
 import java.util.*;
 
+/**
+ * This class represents a single playable card
+ */
 public class PlayableCard extends Card{
 
+    /**
+     * This attribute represents card type: Initial, Resource or Gold
+     */
     private PlayableCardType cardType;
+
+    /**
+     * This attribute represents a 2x2 matrix used to store
+     * information about the four front corners of the card.
+     * A corner can be NOT_AVAILABLE, EMPTY or can contain a
+     * symbol: ANIMAL, VEGETABLE, INSECT, MUSHROOM, INK,
+     * FEATHER, SCROLL
+     */
     private CornerValue[][] frontGridConfiguration;
+
+    /** Symbols and quantity that a player needs to have to
+     * place the card in the UP state in his station.
+     */
     private HashMap<Symbol, Integer> requiredSymbolToPlace;
+
+    /**
+     * This attribute represents a 2x2 matrix used to store
+     * information about the four back corners of the card.
+     * A corner can be NOT_AVAILABLE, EMPTY or can contain a
+     * symbol: ANIMAL, VEGETABLE, INSECT, MUSHROOM, INK,
+     * FEATHER, SCROLL
+     */
     private CornerValue[][] backGridConfiguration;
+    /**
+     * This attribute represents permanent resources
+     * positioned at the center of the back of the card.
+     * This resource can not be covered.
+     */
     private ArrayList<Symbol> permanentResources;
+
+    /**
+     * This attribute represents the state of a card,
+     * if it is on the front or on the back.
+     */
     private CardState cardState;
 
+    /**
+     * This attribute represents the effect that a playable
+     * card has, that is activated when the card is
+     * positioned in a station in the UP state.
+     * To see various effects, see classes that
+     * implements PlayableEffect
+     */
     @JsonTypeInfo(
             use = JsonTypeInfo.Id.NAME,
             include = JsonTypeInfo.As.PROPERTY,
@@ -27,7 +70,6 @@ public class PlayableCard extends Card{
             @JsonSubTypes.Type(value = SymbolEffect.class, name = "symbol")
     })
     private PlayableEffect playableEffect;
-
     @JsonCreator
     public PlayableCard(
             @JsonProperty("code") String cardCode,
@@ -48,38 +90,92 @@ public class PlayableCard extends Card{
         this.cardState = new CardDown();
     }
 
+    /**
+     * This constructor creates a playable card
+     * @param cardCode the code that uniquely identifies a card in a game
+     */
     protected PlayableCard(String cardCode) {
         super(cardCode);
     }
 
+    //Methods exposed by PlayableCard externally
+
+    /**
+     * This method returns the type of the card
+     * @return this.cardType
+     */
     public PlayableCardType getCardType(){
         return this.cardType;
     }
 
+    /**
+     * This method returns a specified card corner given a position
+     * @param position a position among UP_LEFT, UP_RIGHT, DOWN_RIGHT, DOWN_LEFT
+     * @return CornerValue type of specified corner
+     */
     public CornerValue getCorner(CornerPosition position){
         return this.cardState.getCorner(position);
     }
 
+    /**
+     * This method returns true if and only if the station passed as
+     * parameter has enough resources to place this card. If the card is
+     * on the back this is always true.
+     * @param station the station where to check for resources
+     * @return true if and only if the resources in station
+     * are enough
+     */
     public boolean enoughResourceToBePlaced(Station station){
         return this.cardState.enoughResourceToBePlaced(station);
     }
 
+    /**
+     * This method returns true if and only if the specified corner is valid to
+     * place a card on top of it
+     * @param position a position among UP_LEFT, UP_RIGHT, DOWN_RIGHT, DOWN_LEFT
+     * @return true if and only if the corner of chosen position is different
+     * from NOT_AVAILABLE
+     */
     public boolean canPlaceOver(CornerPosition position){
         return this.cardState.canPlaceOver(position);
     }
 
+    /**
+     * This method returns the points gained by the card effect
+     * after its placement in a station. If the card is on the back,
+     * this method returns 0
+     * @param station the station where the card is placed
+     * @return the points the card gives based on its effect
+     * when placed
+     */
     public int countPoints(Station station){
         return this.cardState.countPoints(station);
     }
 
+    /**
+     * This method returns permanent resources on the visible side
+     * of the card depending on its state
+     * @return ArrayList of Symbol of resources in the center
+     * of the card (it is always empty when the card is on front)
+     */
     public ArrayList<Symbol> getPermanentResources(){
         return this.cardState.getPermanentResources();
     }
 
+    /**
+     * This method computes symbols on the visible side of the card
+     * depending on its state
+     * @return HashMap of key Symbol and value Integer of symbols and their
+     * quantities on the visible side of the card
+     */
     public HashMap<Symbol, Integer> getHashMapSymbols(){
         return this.cardState.getHashMapSymbols();
     }
 
+    /**
+     * This method flips the card, switching between UP and DOWN
+     * states
+     */
     public void swapCard(){
         this.cardState.swap();
     }
@@ -94,23 +190,85 @@ public class PlayableCard extends Card{
                 "Permanent resources: " + permanentResources.toString();
     }
 
+    /**
+     * This method returns CardOrientation.UP or CardOrientation.DOWN
+     * if the card is either in a state or the other
+     * @return CardOrientation.UP if cardState is dynamically CardUp,
+     * or CardOrientation.DOWN if cardState is dynamically CardDown
+     */
     public CardOrientation getCardOrientation(){
         return cardState.getState();
     }
 
+    /**
+     * This interface is the state of a card, either up or down
+     */
     private interface CardState{
 
+        /**
+         * This method switches the card state, if up to down,
+         * if down to up
+         */
         void swap();
+
+        /**
+         * This method returns a specified card corner given a position
+         * @param position a position among UP_LEFT, UP_RIGHT, DOWN_RIGHT, DOWN_LEFT
+         * @return CornerValue type of specified corner
+         */
         CornerValue getCorner(CornerPosition position);
-        boolean enoughResourceToBePlaced(Station station);
-        int countPoints(Station station);
-        public boolean canPlaceOver(CornerPosition position);
-        public CardOrientation getState();
-        public ArrayList<Symbol> getPermanentResources();
-        public HashMap<Symbol, Integer> getHashMapSymbols();
+
+        /**
+         * This method returns true if and only if the station passed as
+         * parameter has enough resources to place this card. If the card is
+         * on the back this is always true.
+         * @param station the station where to check for resources
+         * @return true if and only if the resources in station
+         * are enough
+         */
+        boolean enoughResourceToBePlaced(Station station);        /**
+         * This method returns the points gained by the card effect
+         * after its placement in a station. If the card is on the back,
+         * this method returns 0
+         * @param station the station where the card is placed
+         * @return the points the card gives based on its effect
+         * when placed
+         */
+        int countPoints(Station station);        /**
+         * This method returns true if and only if the specified corner is valid to
+         * place a card on top of it
+         * @param position a position among UP_LEFT, UP_RIGHT, DOWN_RIGHT, DOWN_LEFT
+         * @return true if and only if the corner of chosen position is different
+         * from NOT_AVAILABLE
+         */
+        boolean canPlaceOver(CornerPosition position);
+        /**
+         * This method returns CardOrientation.UP or CardOrientation.DOWN
+         * if the card is either in a state or the other
+         * @return CardOrientation.UP if cardState is dynamically CardUp,
+         * or CardOrientation.DOWN id cardState is dynamically CardDown
+         */
+        CardOrientation getState();
+        /**
+         * This method returns permanent resources on the visible side
+         * of the card depending on its state
+         * @return ArrayList<Symbol> of resources in the center
+         * of the card (it is always empty when the card is on front)
+         */
+        ArrayList<Symbol> getPermanentResources();
+        /**
+         * This method computes symbols on the visible side of the card
+         * depending on its state
+         * @return HashMap\<Symbol, Integer\> of symbols and their
+         * quantities on the visible side of the card
+         */
+        HashMap<Symbol, Integer> getHashMapSymbols();
 
     }
 
+    /**
+     * This class implements the up state of the card
+     */
     private class CardUp implements CardState{
         @Override
         public void swap(){
@@ -170,6 +328,9 @@ public class PlayableCard extends Card{
 
     }
 
+    /**
+     * This class implements the up state of the card
+     */
     private class CardDown implements CardState{
         @Override
         public void swap(){
