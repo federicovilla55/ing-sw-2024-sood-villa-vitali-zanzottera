@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Deck.Deck;
 import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
 import it.polimi.ingsw.gc19.Model.Enums.Color;
+import it.polimi.ingsw.gc19.Model.Player.NameAlreadyInUseException;
 import it.polimi.ingsw.gc19.Model.Player.Player;
 import it.polimi.ingsw.gc19.Model.Player.PlayerNotFoundException;
 import it.polimi.ingsw.gc19.Model.Station.Station;
@@ -47,9 +48,14 @@ public class Game {
         // @todo: keep track of turns and game states.
     }
 
-    public void createNewPlayer(String name){
-        // @todo: understand whether the case in which two
-        //  players have chosen the same name should be handled.
+    public void createNewPlayer(String name) throws NameAlreadyInUseException {
+        //  case in which two players have chosen the same name.
+        for(Player p : players){
+            if(p.getName().equals(name)){
+                throw new NameAlreadyInUseException("Nickname already used.");
+            }
+        }
+
         Player player = new Player(name);
         players.add(player);
         stations.put(player, new Station());
@@ -73,12 +79,7 @@ public class Game {
         return stations.get(p);
     }
     public ArrayList<Station> getStations(){
-        ArrayList<Station> allStations = new ArrayList<Station>();
-        for(Player p : players){
-            allStations.add(stations.get(p));
-        }
-        //stations.values();
-        return allStations;
+        return new ArrayList<>(stations.values());
     }
     public void setActivePlayer(Player p){
         this.activePlayer = p;
