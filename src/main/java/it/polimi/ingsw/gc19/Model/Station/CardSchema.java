@@ -11,10 +11,18 @@ import java.util.Set;
 
 public class CardSchema{
     private final PlayableCard[][] cardSchema;
+    private final int[][] cardOverlap;
     private final HashMap<PlayableCard, Tuple<Integer, Integer>> cardPosition;
 
     public CardSchema(){
         this.cardSchema = new PlayableCard[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
+        this.cardOverlap = new int[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
+        for(int i = 0; i < ImportantConstants.gridDimension; i++){
+            for(int k = 0; k < ImportantConstants.gridDimension; k++){
+                this.cardSchema[i][k] = null;
+                this.cardOverlap[i][k] = 0;
+            }
+        }
         this.cardPosition = new HashMap<>();
     }
 

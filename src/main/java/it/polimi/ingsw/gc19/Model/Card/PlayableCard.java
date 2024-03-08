@@ -9,29 +9,25 @@ import java.util.*;
 
 public class PlayableCard extends Card{
 
-    //Type
     private PlayableCardType cardType;
 
-    //Front card attributes
     private CornerValue[][] frontGridConfiguration;
     private PlayableEffect playableEffect;
     private HashMap<Symbol, Integer> requiredSymbolToPlace;
 
-    //Back card attributes
     private CornerValue[][] backGridConfiguration;
     private ArrayList<Symbol> permanentResources;
 
-    //Card state
     private CardState cardState = new CardUp();
 
     protected PlayableCard(String cardCode) {
         super(cardCode);
     }
 
-    //Methods exposed by PlayableCard externally
     public PlayableCardType getCardType(){
         return this.cardType;
     }
+
     public CornerValue getCorner(CornerPosition position){
         return this.cardState.getCorner(position);
     }

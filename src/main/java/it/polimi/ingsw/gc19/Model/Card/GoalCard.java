@@ -6,7 +6,7 @@ public class GoalCard extends Card{
 
     private final GoalEffect goalEffect;
 
-    protected GoalCard(String cardCode, GoalEffect goalEffect){
+    public GoalCard(String cardCode, GoalEffect goalEffect){
         super(cardCode);
         this.goalEffect = goalEffect;
     }
