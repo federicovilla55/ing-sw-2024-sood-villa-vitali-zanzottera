@@ -4,8 +4,7 @@ import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
-import it.polimi.ingsw.gc19.Model.Enums.Symbol;
-import it.polimi.ingsw.gc19.Tuple.Tuple;
+import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
 import java.util.HashMap;
 import java.util.Set;

@@ -4,7 +4,7 @@ import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Station.Station;
-import it.polimi.ingsw.gc19.Tuple.Tuple;
+import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
 import java.util.List;
 
