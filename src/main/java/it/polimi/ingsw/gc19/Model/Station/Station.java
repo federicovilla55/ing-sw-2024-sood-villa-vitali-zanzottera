@@ -54,7 +54,7 @@ public class Station{
         if(!this.cardsInStation.contains(toPlace)){
             throw new InvalidCardException();
         }
-        return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this) && anchor.canPlaceOver(direction);
+        return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this) && anchor.canPlaceOver(direction.getCornerInDirection());
     }
 
     public void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidPositionException, InvalidAnchorException{
