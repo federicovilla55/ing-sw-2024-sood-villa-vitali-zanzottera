@@ -1,7 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
 import it.polimi.ingsw.gc19.Model.Card.Card;
-import it.polimi.ingsw.gc19.Model.Card.CornerValue;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
@@ -69,7 +68,7 @@ public class Station{
             for(Direction d : Direction.values()){
                 try{
                     sharingCorner = getCardSchema().getCardWithAnchor(toPlace, d);
-                    if(toPlace.getCornerByDirection(d) != EmptyCorner.EMPTY) this.visibleSymbolsInStation.compute((Symbol) anchor.getCornerByDirection(d), (k, v) -> v - 1);
+                    if(toPlace.getCorner(d.getCornerInDirection()) != EmptyCorner.EMPTY) this.visibleSymbolsInStation.compute((Symbol) anchor.getCorner(d.getCornerInDirection()), (k, v) -> v - 1);
                 }
                 catch(Exception ignored){};
             }
