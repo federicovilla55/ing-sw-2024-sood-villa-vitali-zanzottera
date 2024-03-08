@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Tuple;
 
-import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 
 public class Tuple<T, S> {
     private final T x;
