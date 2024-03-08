@@ -4,7 +4,7 @@ import it.polimi.ingsw.gc19.Model.Station.Station;
 
 public interface GoalEffect{
 
-    public int countPoints(Station station);
-    public String getEffectDescription();
+    int countPoints(Station station);
+    String getEffectDescription();
 
 }

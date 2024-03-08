@@ -20,11 +20,9 @@ public abstract class Card{
 
     @Override
     public boolean equals(Object obj){
-
         if(obj instanceof Card cardObj){
             return cardObj.cardCode.equals(this.cardCode);
         }
-
         return false;
     }
 

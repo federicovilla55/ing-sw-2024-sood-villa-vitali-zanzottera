@@ -32,24 +32,20 @@ public class PlayableCard extends Card{
     public PlayableCardType getCardType(){
         return this.cardType;
     }
-    public CornerValue getCornerByDirection(Direction direction){
-        return this.cardState.getCornerByDirection(direction);
-    }
-
-    public CornerValue getCornerByCoords(int x, int y){
-        return this.cardState.getCornerByCoords(x, y);
+    public CornerValue getCorner(CornerPosition position){
+        return this.cardState.getCorner(position);
     }
 
     public boolean enoughResourceToBePlaced(Station station){
         return this.cardState.enoughResourceToBePlaced(station);
     }
 
-    public boolean canPlaceOver(Direction direction){
-        return this.cardState.canPlaceOver(direction);
+    public boolean canPlaceOver(CornerPosition position){
+        return this.cardState.canPlaceOver(position);
     }
 
     public int countPoints(Station station){
-        return this.cardState.countPoints(station, this);
+        return this.cardState.countPoints(station);
     }
 
     public ArrayList<Symbol> getPermanentResources(){
@@ -68,7 +64,7 @@ public class PlayableCard extends Card{
     public String getCardDescription(){
         return "Type: " + cardType +
                 "Front grid configuration: DOWN-LEFT = " + frontGridConfiguration[0][0] + " UP-LEFT = " + frontGridConfiguration[1][0] + " UP-RIGHT = " + frontGridConfiguration[1][1] + " DOWN-RIGHT = " + frontGridConfiguration[0][1] +
-                "Front face effect: " + this.playableEffect.getEffectDescription() +
+                this.playableEffect.getEffectDescription() +
                 "Required symbols to place front: " + this.requiredSymbolToPlace.toString() +
                 "Back grid configuration: DOWN-LEFT = " + backGridConfiguration[0][0] + " UP-LEFT = " + backGridConfiguration[1][0] + " UP-RIGHT = " + backGridConfiguration[1][1] + " DOWN-RIGHT = " + backGridConfiguration[0][1] +
                 "Permanent resources: " + permanentResources.toString();
@@ -78,14 +74,13 @@ public class PlayableCard extends Card{
         return cardState.getState();
     }
 
-    interface CardState{
+    private interface CardState{
 
-        public void swap();
-        public CornerValue getCornerByDirection(Direction direction);
-        public CornerValue getCornerByCoords(int x, int y);
-        public boolean enoughResourceToBePlaced(Station station);
-        public int countPoints(Station station, PlayableCard card);
-        public boolean canPlaceOver(Direction direction);
+        void swap();
+        CornerValue getCorner(CornerPosition position);
+        boolean enoughResourceToBePlaced(Station station);
+        int countPoints(Station station);
+        public boolean canPlaceOver(CornerPosition position);
         public CardOrientation getState();
         public ArrayList<Symbol> getPermanentResources();
         public HashMap<Symbol, Integer> getHashMapSymbols();
@@ -99,13 +94,8 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public CornerValue getCornerByDirection(Direction direction){
-            return frontGridConfiguration[direction.getX()][direction.getY()];
-        }
-
-        @Override
-        public CornerValue getCornerByCoords(int x, int y){
-            return frontGridConfiguration[x][y];
+        public CornerValue getCorner(CornerPosition position){
+            return frontGridConfiguration[position.getX()][position.getY()];
         }
 
         @Override
@@ -123,13 +113,13 @@ public class PlayableCard extends Card{
             return true;
         }
         @Override
-        public boolean canPlaceOver(Direction direction){
-            return frontGridConfiguration[direction.getX()][direction.getY()] == EmptyCorner.EMPTY;
+        public boolean canPlaceOver(CornerPosition position){
+            return frontGridConfiguration[position.getX()][position.getY()] != NotAvailableCorner.NOT_AVAILABLE;
         }
 
         @Override
-        public int countPoints(Station station, PlayableCard card){
-            return playableEffect.countPoints(station, card);
+        public int countPoints(Station station){
+            return playableEffect.countPoints(station);
         }
 
         @Override
@@ -140,15 +130,9 @@ public class PlayableCard extends Card{
         @Override
         public HashMap<Symbol, Integer> getHashMapSymbols(){
             HashMap<Symbol, Integer> symbolHashMap = new HashMap<>();
-
-            for(Symbol s : Symbol.getObjects()){
+            for(Symbol s : Symbol.values()){
                 symbolHashMap.put(s, 0);
             }
-
-            for(Symbol s : Symbol.getResources()){
-                symbolHashMap.put(s, 0);
-            }
-
             for(CornerValue[] row : frontGridConfiguration){
                 for(CornerValue c : row){
                     if(c.hasSymbol()){
@@ -156,9 +140,7 @@ public class PlayableCard extends Card{
                     }
                 }
             }
-
             return symbolHashMap;
-
         }
 
     }
@@ -170,13 +152,8 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public CornerValue getCornerByDirection(Direction direction){
-            return backGridConfiguration[direction.getX()][direction.getY()];
-        }
-
-        @Override
-        public CornerValue getCornerByCoords(int x, int y){
-            return backGridConfiguration[x][y];
+        public CornerValue getCorner(CornerPosition position){
+            return backGridConfiguration[position.getX()][position.getY()];
         }
 
         @Override
@@ -190,13 +167,13 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public int countPoints(Station station, PlayableCard card){
+        public int countPoints(Station station){
             return 0;
         }
 
         @Override
-        public boolean canPlaceOver(Direction direction){
-            return backGridConfiguration[direction.getX()][direction.getY()] == EmptyCorner.EMPTY;
+        public boolean canPlaceOver(CornerPosition position){
+            return backGridConfiguration[position.getX()][position.getY()] != NotAvailableCorner.NOT_AVAILABLE;
         }
 
         @Override
@@ -206,21 +183,13 @@ public class PlayableCard extends Card{
 
         @Override
         public HashMap<Symbol, Integer> getHashMapSymbols(){
-
             HashMap<Symbol, Integer> symbolHashMap = new HashMap<>();
-
-            for(Symbol s : Symbol.getObjects()){
+            for(Symbol s : Symbol.values()){
                 symbolHashMap.put(s, 0);
             }
-
-            for(Symbol s : Symbol.getResources()){
-                symbolHashMap.put(s, 0);
-            }
-
             for(Symbol s : permanentResources){
                 symbolHashMap.compute(s, (k, v) -> v + 1);
             }
-
             for(CornerValue[] row : backGridConfiguration){
                 for(CornerValue c : row){
                     if(c.hasSymbol()){
@@ -228,9 +197,7 @@ public class PlayableCard extends Card{
                     }
                 }
             }
-
             return symbolHashMap;
-
         }
 
     }

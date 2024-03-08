@@ -22,7 +22,7 @@ public class PatternEffect implements GoalEffect{
 
     @Override
     public int countPoints(Station station){
-        boolean[][] usedCards = new boolean[40][40];
+        boolean[][] usedCards = new boolean[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
         PlayableCard currentCard;
         int numPattern;
         boolean found;
@@ -36,7 +36,7 @@ public class PatternEffect implements GoalEffect{
 
         numPattern = 0;
 
-        for(int i = 0; i < ImportantConstants.gridDimension;i++){
+        for(int i = 0; i < ImportantConstants.gridDimension; i++){
             for(int k = 0; k < ImportantConstants.gridDimension; k++){
                 found = true;
                 nextI = i;
@@ -70,8 +70,7 @@ public class PatternEffect implements GoalEffect{
 
     @Override
     public String getEffectDescription(){
-        return "Type: goal card based on card pattern" +
-               "Points per pattern: " + this.cardValue +
+        return "Points per pattern: " + this.cardValue +
                "Pattern moves required starting from a card: " + this.moves.toString() +
                "Patter resource required: " + this.requiredSymbol.toString();
     }

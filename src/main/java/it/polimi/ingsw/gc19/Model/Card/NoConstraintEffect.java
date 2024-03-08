@@ -10,13 +10,14 @@ public class NoConstraintEffect implements PlayableEffect{
     }
 
     @Override
-    public int countPoints(Station station, PlayableCard card){
+    public int countPoints(Station station){
         return cardValue;
     }
 
     @Override
     public String getEffectDescription() {
-        return cardValue + " points";
+        return "Points per pattern: " + this.cardValue +
+               "Required pattern: nothing";
     }
 
 }

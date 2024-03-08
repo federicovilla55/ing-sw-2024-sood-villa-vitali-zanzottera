@@ -12,9 +12,7 @@ public class GoalCard extends Card{
     }
 
     @Override
-    public String getCardDescription(){
-        return this.goalEffect.getEffectDescription();
-    }
+    public String getCardDescription(){return "Type: goal card " + this.goalEffect.getEffectDescription(); }
 
     @Override
     public int countPoints(Station station){
