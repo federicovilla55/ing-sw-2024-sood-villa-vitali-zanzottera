@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.Model.Card;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
-public class CornerEffect implements PlayableEffect{
+class CornerEffect implements PlayableEffect{
 
     private final int cardValue;
     private final PlayableCard cardAttached;

@@ -6,12 +6,15 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
 public class CardSchema{
     private final PlayableCard[][] cardSchema;
     private final int[][] cardOverlap;
+
+    private int currentCount;
     private final HashMap<PlayableCard, Tuple<Integer, Integer>> cardPosition;
 
     public CardSchema(){
@@ -24,6 +27,7 @@ public class CardSchema{
             }
         }
         this.cardPosition = new HashMap<>();
+        this.currentCount = 0;
     }
 
     public boolean placeCard(){
@@ -57,6 +61,11 @@ public class CardSchema{
         return getCoords(card).y();
     }
 
+    public boolean cardOverAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException {
+        Tuple<Integer, Integer> anchorCoords = getCoords(anchor);
+        return this.cardOverlap[anchorCoords.x() + dir.getX()][anchorCoords.x() + dir.getY()] > this.cardOverlap[anchorCoords.x()][anchorCoords.y()];
+    }
+
     public boolean checkCoords(int x, int y){
         return (0 <= x) && (x < ImportantConstants.gridDimension) && (0 <= y) && (y < ImportantConstants.gridDimension);
     }
@@ -88,6 +97,8 @@ public class CardSchema{
     public void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction){
         Tuple<Integer, Integer> coords = this.cardPosition.get(anchor);
         this.cardSchema[coords.x() + direction.getX()][coords.y() + direction.getY()] = toPlace;
+        this.cardOverlap[coords.x() + direction.getX()][coords.y() + direction.getY()] = this.currentCount + 1;
+        this.currentCount++;
         this.cardPosition.put(toPlace, new Tuple<>(coords.x() + direction.getX(), coords.y() + direction.getY()));
     }
 
@@ -100,7 +111,10 @@ public class CardSchema{
     }
 
     public Card[][] getCardSchema() {
-        return this.cardSchema;
+        return this.cardSchema; //implement deep copy
     }
 
+    public int[][] getCardOverlap() {
+        return Arrays.stream(this.cardOverlap).map(int[]::clone).toArray(int[][]::new);
+    }
 }

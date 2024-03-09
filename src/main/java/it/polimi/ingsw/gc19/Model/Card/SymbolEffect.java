@@ -5,7 +5,7 @@ import it.polimi.ingsw.gc19.Model.Station.Station;
 
 import java.util.HashMap;
 
-public class SymbolEffect implements GoalEffect, PlayableEffect{
+class SymbolEffect implements GoalEffect, PlayableEffect{
 
     private final HashMap<Symbol, Integer> requiredSymbol;
     private final int effectValue;

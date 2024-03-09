@@ -8,7 +8,7 @@ import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
 import java.util.List;
 
-public class PatternEffect implements GoalEffect{
+class PatternEffect implements GoalEffect{
 
     private final int cardValue;
     private final List<Tuple<Integer, Integer>> moves;
