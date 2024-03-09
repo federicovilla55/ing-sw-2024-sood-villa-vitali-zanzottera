@@ -20,39 +20,30 @@ public class Deck<cardType extends Card>{
     }
 
     public int getInitialLenOfDeck(){
-
         return this.initialLenOfDeck;
-
     }
 
     public cardType pickACard() throws EmptyDeckException{
-
         if(this.cardsInDeck.isEmpty()){
-
             throw new EmptyDeckException("You can't pick a card. Deck is empty!");
-
         }
-
         return this.cardsInDeck.remove(new Random().nextInt(cardsInDeck.size()));
+    }
 
+    public void insertCard(cardType card){
+        this.cardsInDeck.addFirst(card);
     }
 
     public boolean isEmpty(){
-
         return this.cardsInDeck.isEmpty();
-
     }
 
     public boolean cardIsInDeck(cardType cardToSearch){
-
         return this.cardsInDeck.contains(cardToSearch);
-
     }
 
     public int numberOfCardInDeck(){
-
         return this.cardsInDeck.size();
-
     }
 
 }
