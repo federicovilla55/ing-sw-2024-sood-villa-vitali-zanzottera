@@ -8,12 +8,12 @@ import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Set;
 
 public class CardSchema{
     private final PlayableCard[][] cardSchema;
     private final int[][] cardOverlap;
-
     private int currentCount;
     private final HashMap<PlayableCard, Tuple<Integer, Integer>> cardPosition;
 
@@ -100,6 +100,19 @@ public class CardSchema{
         this.cardOverlap[coords.x() + direction.getX()][coords.y() + direction.getY()] = this.currentCount + 1;
         this.currentCount++;
         this.cardPosition.put(toPlace, new Tuple<>(coords.x() + direction.getX(), coords.y() + direction.getY()));
+    }
+
+    public PlayableCard getLastPlaced(){
+        Tuple<Integer, Integer> coords = null;
+        int currMax = 0;
+        for(int i = 0, k = 0; i < ImportantConstants.gridDimension && k < ImportantConstants.gridDimension; i++, k++){
+            if(this.cardOverlap[i][k] > currMax){
+                currMax = this.cardOverlap[i][k];
+                coords = new Tuple<>(i, k);
+            }
+        }
+        if(coords == null) return null;
+        return this.cardSchema[coords.x()][coords.y()];
     }
 
     public boolean cardIsInSchema(PlayableCard card){

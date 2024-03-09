@@ -56,6 +56,11 @@ public class PlayableCard extends Card{
         this.cardState.swap();
     }
 
+    public PlayableCard howAmI(PlayableEffect goldCard) throws IllegalCallerException{
+        if(playableEffect.equals(goldCard)) return this;
+        throw new IllegalCallerException();
+    }
+
     @Override
     public String getCardDescription(){
         return "Type: " + cardType +
