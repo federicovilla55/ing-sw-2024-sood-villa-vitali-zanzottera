@@ -4,6 +4,7 @@ import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 class SymbolEffect implements GoalEffect, PlayableEffect{
 
@@ -24,17 +25,13 @@ class SymbolEffect implements GoalEffect, PlayableEffect{
 
     @Override
     public int countPoints(Station station){
-        return this.effectValue * station.getVisibleSymbolsInStation().entrySet().stream()
-                                                                                 .mapToInt(s -> {
-                                                                                       if (requiredSymbol.get(s.getKey()) != 0){
-                                                                                           return s.getValue() / requiredSymbol.get(s.getKey());
-                                                                                       }
-                                                                                       else{
-                                                                                           return 0;
-                                                                                       }
-                                                                                 })
-                                                                                 .min()
-                                                                                 .orElse(0);
+        return this.effectValue * this.requiredSymbol
+                                      .entrySet()
+                                      .stream()
+                                      .filter(e -> e.getValue() != 0)
+                                      .mapToInt(s -> station.getVisibleSymbolsInStation().get(s.getKey()) / s.getValue())
+                                      .min()
+                                      .orElse(0);
 
     }
 
