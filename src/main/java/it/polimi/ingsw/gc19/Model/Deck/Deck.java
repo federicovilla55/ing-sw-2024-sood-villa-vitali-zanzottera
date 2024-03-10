@@ -28,7 +28,7 @@ public class Deck<cardType extends Card>{
     }
 
     public cardType pickACard() throws EmptyDeckException{
-        if(this.cardsInDeck.isEmpty()){
+        if(this.isEmpty()){
             throw new EmptyDeckException("You can't pick a card. Deck is empty!");
         }
         return this.cardsInDeck.remove(new Random().nextInt(cardsInDeck.size()));
