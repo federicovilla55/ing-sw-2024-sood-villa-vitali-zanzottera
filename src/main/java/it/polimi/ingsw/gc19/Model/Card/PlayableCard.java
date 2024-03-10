@@ -1,6 +1,5 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
-
 import it.polimi.ingsw.gc19.Model.Enums.*;
 
 import it.polimi.ingsw.gc19.Model.Station.Station;
@@ -10,15 +9,14 @@ import java.util.*;
 public class PlayableCard extends Card{
 
     private PlayableCardType cardType;
-
     private CornerValue[][] frontGridConfiguration;
     private PlayableEffect playableEffect;
     private HashMap<Symbol, Integer> requiredSymbolToPlace;
-
     private CornerValue[][] backGridConfiguration;
     private ArrayList<Symbol> permanentResources;
+    private CardState cardState;
 
-    private CardState cardState = new CardUp();
+    //TODO: generate constructor for PlayableCard with JSON
 
     protected PlayableCard(String cardCode) {
         super(cardCode);
@@ -54,11 +52,6 @@ public class PlayableCard extends Card{
 
     public void swapCard(){
         this.cardState.swap();
-    }
-
-    public PlayableCard howAmI(PlayableEffect goldCard) throws IllegalCallerException{
-        if(playableEffect.equals(goldCard)) return this;
-        throw new IllegalCallerException();
     }
 
     @Override
@@ -113,6 +106,7 @@ public class PlayableCard extends Card{
             }
             return true;
         }
+
         @Override
         public boolean canPlaceOver(CornerPosition position){
             return frontGridConfiguration[position.getX()][position.getY()] != NotAvailableCorner.NOT_AVAILABLE;
