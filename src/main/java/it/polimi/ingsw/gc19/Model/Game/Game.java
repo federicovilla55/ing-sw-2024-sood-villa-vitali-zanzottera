@@ -21,7 +21,6 @@ public class Game {
     private Player activePlayer;
     private Player firstPlayer;
     private ArrayList<Color> availableColors;
-    private HashMap<Player, Station> stations;
     private Deck<GoalCard> goalDeck;
     private Deck<PlayableCard> initialDeck;
     private Deck<PlayableCard> resourceDeck;
@@ -33,7 +32,6 @@ public class Game {
     public Game(int numPlayers){
         availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
         players = new ArrayList<Player>();
-        stations = new HashMap<>();
         firstPlayer = null;
         this.numPlayers = numPlayers;
         // @todo: insert json filenames
@@ -58,11 +56,9 @@ public class Game {
 
         Player player = new Player(name);
         players.add(player);
-        stations.put(player, new Station());
     }
     public void removePlayer(Player p){
         players.remove(p);
-        stations.remove(p);
     }
     public Player getPlayerByName(String name) throws PlayerNotFoundException{
         for(Player p : players){
@@ -75,12 +71,7 @@ public class Game {
     public Player getActivePlayer(){
         return this.activePlayer;
     }
-    public Station getStationByPlayer(Player p){
-        return stations.get(p);
-    }
-    public ArrayList<Station> getStations(){
-        return new ArrayList<>(stations.values());
-    }
+
     public void setActivePlayer(Player p){
         this.activePlayer = p;
     }
@@ -107,4 +98,5 @@ public class Game {
             e.printStackTrace();
         }
     }
+
 }

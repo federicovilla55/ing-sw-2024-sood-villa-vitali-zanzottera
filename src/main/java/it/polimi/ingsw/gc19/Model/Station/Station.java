@@ -36,6 +36,10 @@ public class Station{
         return this.visibleSymbolsInStation;
     }
 
+    public void updateCardsInHand(PlayableCard toInsert){
+        this.cardsInStation.add(toInsert);
+    }
+
     //da capire meglio una volta introdotto il json
     private void setPrivateGoalCard(GoalCard privateGoalCard){
         this.privateGoalCard = privateGoalCard;
