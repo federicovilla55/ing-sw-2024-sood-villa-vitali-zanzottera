@@ -4,7 +4,7 @@ import it.polimi.ingsw.gc19.Model.Card.CornerValue;
 
 import java.util.EnumSet;
 
-public enum Symbol implements CornerValue {
+public enum Symbol implements CornerValue{
     ANIMAL, VEGETABLE, INSECT, MUSHROOM, INK, FEATHER, SCROLL;
 
     public static EnumSet<Symbol> getResources(){
