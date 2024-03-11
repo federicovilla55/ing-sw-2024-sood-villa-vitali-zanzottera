@@ -29,6 +29,8 @@ public class Game {
     private PlayableCard[] resourceCardsOnTable;
     private GoalCard[] pulicGoalCardsOnTable;
 
+    private String name;
+
     public Game(int numPlayers){
         availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
         players = new ArrayList<Player>();
@@ -97,6 +99,10 @@ public class Game {
             // @todo: how to handle exceptions?
             e.printStackTrace();
         }
+    }
+
+    private String getName() {
+        return this.name;
     }
 
 }

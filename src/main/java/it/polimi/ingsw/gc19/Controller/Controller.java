@@ -7,25 +7,25 @@ import java.util.*;
 public class Controller {
     List<Game> activeGames;
     List<Game> nonActiveGames;
-    Map<ClientPlayer, Game> clientToGame;
     Controller()
     {
-       clientToGame = new HashMap<ClientPlayer, Game>();
+
     }
     void CreateGame(ClientPlayer new_player, Game gameToCreate)
     {
-        clientToGame.put(new_player,gameToCreate);
+        new_player.gamePlay = gameToCreate;
         nonActiveGames.add(gameToCreate);
     }
 
     void JoinGame(ClientPlayer player, Game gameToJoin)
     {
-        clientToGame.put(player,gameToJoin);
+        player.gamePlay = gameToJoin;
     }
 
     void ExitNonActiveGame(ClientPlayer player, Game gameToExit)
     {
-
+        player.gamePlay = null;
+        //If game does not have players, game will be eliminated
     }
 
     void ExitActiveGame(ClientPlayer player, Game gameToExit)
@@ -33,5 +33,10 @@ public class Controller {
 
     }
 
-    
+    void Start_Game(Game gameToStart)
+    {
+        nonActiveGames.remove(gameToStart);
+        activeGames.add(gameToStart);
+    }
+
 }
