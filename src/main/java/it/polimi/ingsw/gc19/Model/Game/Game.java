@@ -101,7 +101,7 @@ public class Game {
         }
     }
 
-    private String getName() {
+    public String getName() {
         return this.name;
     }
 

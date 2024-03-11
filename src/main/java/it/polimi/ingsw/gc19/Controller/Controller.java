@@ -11,29 +11,47 @@ public class Controller {
     {
 
     }
-    void CreateGame(ClientPlayer new_player, Game gameToCreate)
+
+    private boolean CheckAlreadyExist(Game gameToCheck){
+        for(Game games : activeGames) {
+            if(gameToCheck.getName().equals(games.getName())){
+                return true;
+            }
+        }
+        for(Game games : nonActiveGames){
+            if(gameToCheck.getName().equals(games.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void CreateGame(ClientPlayer new_player, Game gameToCreate)
     {
+        if(CheckAlreadyExist(gameToCreate)){
+            return; //if with same name already exist launch exception
+        }
         new_player.gamePlay = gameToCreate;
         nonActiveGames.add(gameToCreate);
     }
 
-    void JoinGame(ClientPlayer player, Game gameToJoin)
+    public void JoinGame(ClientPlayer player, Game gameToJoin)
     {
         player.gamePlay = gameToJoin;
     }
 
-    void ExitNonActiveGame(ClientPlayer player, Game gameToExit)
+    public void ExitNonActiveGame(ClientPlayer player, Game gameToExit)
     {
         player.gamePlay = null;
         //If game does not have players, game will be eliminated
     }
 
-    void ExitActiveGame(ClientPlayer player, Game gameToExit)
+    public void ExitActiveGame(ClientPlayer player, Game gameToExit)
     {
 
     }
 
-    void Start_Game(Game gameToStart)
+    public void Start_Game(Game gameToStart)
     {
         nonActiveGames.remove(gameToStart);
         activeGames.add(gameToStart);
