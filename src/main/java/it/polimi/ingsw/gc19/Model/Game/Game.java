@@ -88,7 +88,7 @@ public class Game {
         }
     }
 
-    public void fillCardsOnTable() {
+    private void fillCardsOnTable() {
         try{
             goldcardsOnTable = new PlayableCard[]{goldDeck.pickACard(), goldDeck.pickACard()};
             resourceCardsOnTable = new PlayableCard[]{resourceDeck.pickACard(), resourceDeck.pickACard()};

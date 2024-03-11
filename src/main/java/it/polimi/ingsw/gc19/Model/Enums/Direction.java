@@ -21,7 +21,7 @@ public enum Direction{
         return this.y;
     }
 
-    public CornerPosition getCornerInDirection(){
+    public CornerPosition getThisCornerPosition(){
         switch(this){
             case UP_LEFT -> {
                 return CornerPosition.UP_LEFT;
@@ -36,7 +36,27 @@ public enum Direction{
                 return CornerPosition.DOWN_RIGHT;
             }
             default -> {
-                return null;
+                throw new IllegalStateException();
+            }
+        }
+    }
+
+    public CornerPosition getOtherCornerPosition(){
+        switch(this){
+            case UP_LEFT -> {
+                return CornerPosition.DOWN_RIGHT;
+            }
+            case UP_RIGHT -> {
+                return CornerPosition.DOWN_LEFT;
+            }
+            case DOWN_LEFT -> {
+                return CornerPosition.UP_RIGHT;
+            }
+            case DOWN_RIGHT -> {
+                return CornerPosition.UP_LEFT;
+            }
+            default -> {
+                throw new IllegalStateException();
             }
         }
     }

@@ -58,7 +58,7 @@ public class Station{
         if(!this.cardsInStation.contains(toPlace)){
             throw new InvalidCardException();
         }
-        return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this) && anchor.canPlaceOver(direction.getCornerInDirection());
+        return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this) && anchor.canPlaceOver(direction.getThisCornerPosition());
     }
 
     public void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidPositionException, InvalidAnchorException{
@@ -72,7 +72,7 @@ public class Station{
             for(Direction d : Direction.values()){
                 try{
                     sharingCorner = getCardSchema().getCardWithAnchor(toPlace, d);
-                    if(toPlace.getCorner(d.getCornerInDirection()) != EmptyCorner.EMPTY) this.visibleSymbolsInStation.compute((Symbol) anchor.getCorner(d.getCornerInDirection()), (k, v) -> v - 1);
+                    if(sharingCorner.getCorner(d.getOtherCornerPosition()) != EmptyCorner.EMPTY) this.visibleSymbolsInStation.compute((Symbol) sharingCorner.getCorner(d.getOtherCornerPosition()), (k, v) -> v - 1);
                 }
                 catch(Exception ignored){};
             }
