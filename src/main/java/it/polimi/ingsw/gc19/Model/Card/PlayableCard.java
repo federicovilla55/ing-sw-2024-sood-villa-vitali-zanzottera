@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
+import com.fasterxml.jackson.annotation.*;
 import it.polimi.ingsw.gc19.Model.Enums.*;
 
 import it.polimi.ingsw.gc19.Model.Station.Station;
@@ -10,13 +11,42 @@ public class PlayableCard extends Card{
 
     private PlayableCardType cardType;
     private CornerValue[][] frontGridConfiguration;
-    private PlayableEffect playableEffect;
     private HashMap<Symbol, Integer> requiredSymbolToPlace;
     private CornerValue[][] backGridConfiguration;
     private ArrayList<Symbol> permanentResources;
     private CardState cardState;
 
-    //TODO: generate constructor for PlayableCard with JSON
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.PROPERTY,
+            property = "effect_type"
+    )
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = NoConstraintEffect.class, name = "no_constraint"),
+            @JsonSubTypes.Type(value = CornerEffect.class, name = "corner"),
+            @JsonSubTypes.Type(value = SymbolEffect.class, name = "symbol")
+    })
+    private PlayableEffect playableEffect;
+
+    @JsonCreator
+    public PlayableCard(
+            @JsonProperty("code") String cardCode,
+            @JsonProperty("card_type") PlayableCardType cardType,
+            @JsonProperty("front_grid") CornerValue[][] frontGridConfiguration,
+            @JsonProperty("required_symbol") HashMap<Symbol, Integer> requiredSymbolToPlace,
+            @JsonProperty("back_grid") CornerValue[][] backGridConfiguration,
+            @JsonProperty("permanent") ArrayList<Symbol> permanentResources,
+            @JsonProperty("effect_type") PlayableEffect playableEffect
+    ){
+        super(cardCode);
+        this.cardType = cardType;
+        this.frontGridConfiguration = frontGridConfiguration;
+        this.requiredSymbolToPlace = requiredSymbolToPlace;
+        this.backGridConfiguration = backGridConfiguration;
+        this.permanentResources = permanentResources;
+        this.playableEffect = playableEffect;
+        this.cardState = new CardDown();
+    }
 
     protected PlayableCard(String cardCode) {
         super(cardCode);
