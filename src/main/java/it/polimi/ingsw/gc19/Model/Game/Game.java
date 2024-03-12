@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
+import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Deck.Deck;
@@ -73,7 +74,36 @@ public class Game {
     public Player getActivePlayer(){
         return this.activePlayer;
     }
+    public String getInfoCard(String name) throws CardNotFoundException{
+        // Using card name format: "type_number_orientation.jpg"
+        // ex. goal_01_back.jpg
 
+        String cardType = name.split("_", 2)[0];
+        switch (cardType){
+            case "goal" -> {
+                return goalDeck.getInfoCard(name);
+            }
+            case "initial" -> {
+                return initialDeck.getInfoCard(name);
+            }
+            case "resources" -> {
+                return resourceDeck.getInfoCard(name);
+            }
+            case "gold" -> {
+                return goldDeck.getInfoCard(name);
+            }
+            default -> {
+                throw new CardNotFoundException("Requested card not found.");
+            }
+        }
+    }
+    public ArrayList<String> getInfoAllCards(){
+        ArrayList<String> infos = new ArrayList<>(goalDeck.getInfoAllCards());
+        infos.addAll(initialDeck.getInfoAllCards());
+        infos.addAll(resourceDeck.getInfoAllCards());
+        infos.addAll(goldDeck.getInfoAllCards());
+        return infos;
+    }
     public void setActivePlayer(Player p){
         this.activePlayer = p;
     }
