@@ -1,14 +1,23 @@
 package it.polimi.ingsw.gc19.Model.Enums;
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 public enum Direction{
-    UP_LEFT(-1, 1), UP_RIGHT(1, 1), DOWN_RIGHT(1, -1), DOWN_LEFT(-1, -1);
+    UP_LEFT(CornerPosition.UP_LEFT, CornerPosition.DOWN_RIGHT, -1, 1),
+    UP_RIGHT(CornerPosition.UP_RIGHT, CornerPosition.DOWN_LEFT,1, 1),
+    DOWN_RIGHT(CornerPosition.DOWN_RIGHT, CornerPosition.UP_RIGHT,1, -1),
+    DOWN_LEFT(CornerPosition.DOWN_LEFT, CornerPosition.UP_LEFT,-1, -1);
 
+    private final CornerPosition thisCornerPosition;
+    private final CornerPosition otherCornerPosition;
     private final int x;
     private final int y;
 
-    private Direction(int x, int y){
+    private Direction(CornerPosition thisCornerPosition, CornerPosition otherCornerPosition, int x, int y){
+        this.thisCornerPosition = thisCornerPosition;
+        this.otherCornerPosition = otherCornerPosition;
         this.x = x;
         this.y = y;
     }
@@ -22,43 +31,11 @@ public enum Direction{
     }
 
     public CornerPosition getThisCornerPosition(){
-        switch(this){
-            case UP_LEFT -> {
-                return CornerPosition.UP_LEFT;
-            }
-            case UP_RIGHT -> {
-                return CornerPosition.UP_RIGHT;
-            }
-            case DOWN_LEFT -> {
-                return CornerPosition.DOWN_LEFT;
-            }
-            case DOWN_RIGHT -> {
-                return CornerPosition.DOWN_RIGHT;
-            }
-            default -> {
-                throw new IllegalStateException();
-            }
-        }
+        return this.thisCornerPosition;
     }
 
     public CornerPosition getOtherCornerPosition(){
-        switch(this){
-            case UP_LEFT -> {
-                return CornerPosition.DOWN_RIGHT;
-            }
-            case UP_RIGHT -> {
-                return CornerPosition.DOWN_LEFT;
-            }
-            case DOWN_LEFT -> {
-                return CornerPosition.UP_RIGHT;
-            }
-            case DOWN_RIGHT -> {
-                return CornerPosition.UP_LEFT;
-            }
-            default -> {
-                throw new IllegalStateException();
-            }
-        }
+        return this.otherCornerPosition;
     }
 
 }
