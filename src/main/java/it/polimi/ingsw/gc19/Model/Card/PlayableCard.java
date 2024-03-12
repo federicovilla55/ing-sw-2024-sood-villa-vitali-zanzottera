@@ -78,7 +78,8 @@ public class PlayableCard extends Card{
             @JsonProperty("required_symbol") HashMap<Symbol, Integer> requiredSymbolToPlace,
             @JsonProperty("back_grid") CornerValue[][] backGridConfiguration,
             @JsonProperty("permanent") ArrayList<Symbol> permanentResources,
-            @JsonProperty("effect_type") PlayableEffect playableEffect
+            @JsonProperty("effect_type") PlayableEffect playableEffect,
+            @JsonProperty("orientation") CardState cardOrientation
     ){
         super(cardCode);
         this.cardType = cardType;
@@ -87,7 +88,7 @@ public class PlayableCard extends Card{
         this.backGridConfiguration = backGridConfiguration;
         this.permanentResources = permanentResources;
         this.playableEffect = playableEffect;
-        this.cardState = new CardDown();
+        this.cardState = cardOrientation;
     }
 
     /**
