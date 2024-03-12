@@ -105,4 +105,15 @@ public class Game {
         return this.name;
     }
 
+    public void updateGoalPoints(){
+        // For each player updates his station points
+        // for each goal card (public and private)
+        for(Player p : players){
+            Station station = p.getPlayerStation();
+            station.updatePoints(pulicGoalCardsOnTable[0]);
+            station.updatePoints(pulicGoalCardsOnTable[1]);
+            station.updatePoints(station.getPrivateGoalCard());
+        }
+    }
+
 }
