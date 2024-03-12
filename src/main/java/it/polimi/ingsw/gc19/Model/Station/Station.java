@@ -9,6 +9,7 @@ import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Station{
 
@@ -40,7 +41,18 @@ public class Station{
         this.cardsInStation.add(toInsert);
     }
 
-    //da capire meglio una volta introdotto il json
+    public int getNumPoints(){
+        return this.numPoints;
+    }
+
+    public GoalCard getPrivateGoalCard(){
+        return this.privateGoalCard;
+    }
+
+    public ArrayList<PlayableCard> getCardsInStation(){
+        return this.cardsInStation;
+    }
+
     private void setPrivateGoalCard(GoalCard privateGoalCard){
         this.privateGoalCard = privateGoalCard;
     }
