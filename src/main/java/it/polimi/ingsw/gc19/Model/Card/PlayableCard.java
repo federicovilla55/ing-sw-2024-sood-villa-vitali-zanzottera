@@ -59,19 +59,9 @@ public class PlayableCard extends Card{
      * To see various effects, see classes that
      * implements PlayableEffect
      */
-    @JsonTypeInfo(
-            use = JsonTypeInfo.Id.NAME,
-            include = JsonTypeInfo.As.PROPERTY,
-            property = "effect_type"
-    )
-    @JsonSubTypes({
-            @JsonSubTypes.Type(value = NoConstraintEffect.class, name = "no_constraint"),
-            @JsonSubTypes.Type(value = CornerEffect.class, name = "corner"),
-            @JsonSubTypes.Type(value = SymbolEffect.class, name = "symbol")
-    })
     private PlayableEffect playableEffect;
     @JsonCreator
-    public PlayableCard(
+    PlayableCard(
             @JsonProperty("code") String cardCode,
             @JsonProperty("card_type") PlayableCardType cardType,
             @JsonProperty("front_grid") CornerValue[][] frontGridConfiguration,
@@ -79,8 +69,8 @@ public class PlayableCard extends Card{
             @JsonProperty("back_grid") CornerValue[][] backGridConfiguration,
             @JsonProperty("permanent") ArrayList<Symbol> permanentResources,
             @JsonProperty("effect_type") PlayableEffect playableEffect,
-            @JsonProperty("orientation") CardState cardOrientation
-    ){
+            @JsonProperty("orientation") CardState cardOrientation){
+
         super(cardCode);
         this.cardType = cardType;
         this.frontGridConfiguration = frontGridConfiguration;
@@ -89,6 +79,7 @@ public class PlayableCard extends Card{
         this.permanentResources = permanentResources;
         this.playableEffect = playableEffect;
         this.cardState = cardOrientation;
+
     }
 
     /**

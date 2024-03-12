@@ -16,15 +16,7 @@ public class GoalCard extends Card{
      * To see various effects, see classes that
      * implements GoalEffect
      */
-    @JsonTypeInfo(
-            use = JsonTypeInfo.Id.NAME,
-            include = JsonTypeInfo.As.PROPERTY,
-            property = "effect_type"
-    )
-    @JsonSubTypes({
-            @JsonSubTypes.Type(value = PatternEffect.class, name = "pattern"),
-            @JsonSubTypes.Type(value = SymbolEffect.class, name = "symbol")
-    })
+
     private final GoalEffect goalEffect;
 
     /**
@@ -35,14 +27,14 @@ public class GoalCard extends Card{
     @JsonCreator
     public GoalCard(
             @JsonProperty("code") String cardCode,
-            @JsonProperty("effect_type") GoalEffect goalEffect
+            @JsonProperty("goal_effect") GoalEffect goalEffect
     ){
         super(cardCode);
         this.goalEffect = goalEffect;
     }
 
     @Override
-    public String getCardDescription(){return "Type: goal card " + this.goalEffect.getEffectDescription(); }
+    public String getCardDescription(){return "Type: goal card \n" + this.goalEffect.getEffectDescription(); }
 
     @Override
     public int countPoints(Station station){

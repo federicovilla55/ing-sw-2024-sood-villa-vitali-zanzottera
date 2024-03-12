@@ -175,7 +175,7 @@ public class Game {
         }
         PlayableCard result = cardsOnTable[position];
         if(result==null) {
-            throw new CardNotFoundException();
+            throw new CardNotFoundException("Card not found");
         }
         try {
             cardsOnTable[position] = deck.pickACard();

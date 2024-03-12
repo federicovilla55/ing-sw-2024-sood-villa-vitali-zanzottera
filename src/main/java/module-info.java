@@ -10,4 +10,5 @@ module it.polimi.ingsw.gc19 {
     opens it.polimi.ingsw.gc19 to javafx.fxml;
     exports it.polimi.ingsw.gc19;
     exports it.polimi.ingsw.gc19.Model.Card to com.fasterxml.jackson.databind;
+    opens it.polimi.ingsw.gc19.Model.Card to com.fasterxml.jackson.databind;
 }

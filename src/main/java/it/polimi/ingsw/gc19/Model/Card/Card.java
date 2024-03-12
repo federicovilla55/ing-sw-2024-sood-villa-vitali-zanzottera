@@ -1,5 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.gc19.Model.Station.Station;
@@ -27,7 +29,8 @@ public abstract class Card{
      * This constructor creates a card
      * @param cardCode the code that uniquely identifies the card in a game
      */
-   protected Card(String cardCode) {
+    @JsonCreator
+    Card(@JsonProperty("code") String cardCode) {
         this.cardCode = cardCode;
     }
 

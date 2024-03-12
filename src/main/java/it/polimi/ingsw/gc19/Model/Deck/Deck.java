@@ -1,7 +1,10 @@
 package it.polimi.ingsw.gc19.Model.Deck;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.gc19.Model.Card.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
@@ -16,11 +19,18 @@ public class Deck<cardType extends Card>{
 
     public Deck(String filename){
 
-        /*
-            TODO: parse JSON file in order to retrieve Deck information. "filename" is usefully because it allows constructor to build deck at the beginning of the game or when the server crash.
-                  Note that we can use cardType.class in .readValue(..., cardType.class)
-         */
+    }
 
+    public Card init(String filename) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        File f = new File(filename);
+
+        Card c = null;
+
+        c = objectMapper.readValue(f, Card.class);
+
+        return c;
     }
 
     public int getInitialLenOfDeck(){

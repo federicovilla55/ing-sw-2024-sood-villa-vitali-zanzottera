@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
@@ -10,7 +11,7 @@ class CornerEffect implements PlayableEffect{
 
     private final int cardValue;
 
-    protected CornerEffect(int cardValue){
+    protected CornerEffect(@JsonProperty("value") int cardValue){
         this.cardValue = cardValue;
     }
 

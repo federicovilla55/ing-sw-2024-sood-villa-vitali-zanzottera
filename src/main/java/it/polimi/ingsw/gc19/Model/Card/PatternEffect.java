@@ -1,5 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
@@ -8,13 +10,16 @@ import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
 import java.util.List;
 
+
 class PatternEffect implements GoalEffect{
 
     private final int cardValue;
     private final List<Tuple<Integer, Integer>> moves;
     private final List<Symbol> requiredSymbol;
-
-    protected PatternEffect(int cardValue, List<Tuple<Integer, Integer>> moves, List<Symbol> requiredSymbol){
+    @JsonCreator
+    protected PatternEffect(@JsonProperty("value") int cardValue,
+                            @JsonProperty("moves") List<Tuple<Integer, Integer>> moves,
+                            @JsonProperty("required") List<Symbol> requiredSymbol){
         this.cardValue = cardValue;
         this.moves = moves;
         this.requiredSymbol = requiredSymbol;
