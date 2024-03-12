@@ -3,11 +3,15 @@ package it.polimi.ingsw.gc19.Model.Deck;
 import it.polimi.ingsw.gc19.Model.Card.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Deck<cardType extends Card>{
 
     private ArrayList<cardType> cardsInDeck;
+    private HashMap<String, cardType> initialCardInDeck;
     private  int initialLenOfDeck;
 
     public Deck(String filename){
@@ -28,6 +32,18 @@ public class Deck<cardType extends Card>{
             throw new EmptyDeckException("You can't pick a card. Deck is empty!");
         }
         return this.cardsInDeck.remove(new Random().nextInt(cardsInDeck.size()));
+    }
+
+    public String getInfoCard(String name) throws CardNotFoundException{
+        return Optional.of(initialCardInDeck.get(name).getCardDescription())
+                .orElseThrow(() -> new CardNotFoundException("Requested card not found."));
+    }
+
+    public ArrayList<String> getInfoAllCards(){
+        return initialCardInDeck.values()
+                .stream().map(Card::getCardDescription)
+                .collect(Collectors
+                        .toCollection(ArrayList::new));
     }
 
     public void insertCard(cardType card){
