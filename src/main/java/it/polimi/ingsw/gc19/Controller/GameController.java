@@ -13,5 +13,28 @@ public class GameController {
     public void StartGame(){
 
     }
+    public void insertCard() {
+
+    }
+
+    public void drawACard()
+    {
+
+    }
+
+    public void setNextPlayer()
+    {
+
+    }
+
+    public void calculateFinalResult()
+    {
+
+    }
+
+    public void finalTurn()
+    {
+
+    }
 
 }

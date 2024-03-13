@@ -46,9 +46,9 @@ public class Controller {
         }
         try {
             player.gamePlay = gameToJoin;
-            gameToJoin.createNewPlayer(nickToJoin);
+            mapIdtoController.get(gameToJoin).gameAssociated.createNewPlayer(nickToJoin);
             player.setNickname(nickToJoin);
-            if(gameToJoin.getNumPlayers() == gameToJoin.getNumJoinedPlayer())
+            if(mapIdtoController.get(gameToJoin).gameAssociated.getNumPlayers() == mapIdtoController.get(gameToJoin).gameAssociated.getNumJoinedPlayer())
             {
                 Start_Game(gameToJoin);
             }
@@ -58,12 +58,14 @@ public class Controller {
             throw new IllegalArgumentException("Name already in use");
         }
     }
-
-    public void Start_Game(Game gameToStart)
+    public void Start_Game(String gameToStart)
     {
         nonActiveGames.remove(gameToStart);
         activeGames.add(gameToStart);
-
+        mapIdtoController.get(gameToStart).StartGame();
     }
 
+    public void Move() {
+
+    }
 }
