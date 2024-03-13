@@ -200,4 +200,11 @@ public class Game {
         }
     }
 
+    public int getNumPlayers(){
+        return numPlayers;
+    }
+    public int getNumJoinedPlayer()
+    {
+        return players.size();
+    }
 }

@@ -38,23 +38,17 @@ public class Controller {
     public void JoinGame(ClientPlayer player, Game gameToJoin)
     {
         player.gamePlay = gameToJoin;
-    }
-
-    public void ExitNonActiveGame(ClientPlayer player, Game gameToExit)
-    {
-        player.gamePlay = null;
-        //If game does not have players, game will be eliminated
-    }
-
-    public void ExitActiveGame(ClientPlayer player, Game gameToExit)
-    {
-
+        if(gameToJoin.getNumPlayers() == gameToJoin.getNumJoinedPlayer())
+        {
+            Start_Game(gameToJoin);
+        }
     }
 
     public void Start_Game(Game gameToStart)
     {
         nonActiveGames.remove(gameToStart);
         activeGames.add(gameToStart);
+        gameToStart.startGame();
     }
 
 }
