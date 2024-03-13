@@ -5,7 +5,7 @@ import it.polimi.ingsw.gc19.Model.Game.Game;
 public class ClientPlayer {
     private final String name;
     private final String SecretKey;
-    public Game gamePlay;
+    public String gamePlay;
     private String nickname;
 
     ClientPlayer(String name, String password){

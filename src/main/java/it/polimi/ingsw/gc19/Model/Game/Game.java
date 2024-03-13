@@ -31,7 +31,6 @@ public class Game {
     private PlayableCard[] resourceCardsOnTable;
     private GoalCard[] pulicGoalCardsOnTable;
 
-    private String name;
 
     public Game(int numPlayers){
         availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
@@ -183,10 +182,6 @@ public class Game {
             cardsOnTable[position] = null;
         }
         return result;
-    }
-
-    public String getName() {
-        return this.name;
     }
 
     public void updateGoalPoints(){

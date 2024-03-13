@@ -6,44 +6,48 @@ import it.polimi.ingsw.gc19.Model.Player.NameAlreadyInUseException;
 import java.util.*;
 
 public class Controller {
-    List<Game> activeGames;
-    List<Game> nonActiveGames;
+    List<String> activeGames;
+    List<String> nonActiveGames;
+
+    Map<String, GameController> mapIdtoController;
     Controller()
     {
-
+        mapIdtoController = new HashMap<String, GameController>();
     }
 
-    private boolean CheckAlreadyExist(Game gameToCheck){
-        for(Game games : activeGames) {
-            if(gameToCheck.getName().equals(games.getName())){
+    private boolean CheckAlreadyExist(String gameToCheck){
+        for(String games : activeGames) {
+            if(gameToCheck.equals(games)){
                 return true;
             }
         }
-        for(Game games : nonActiveGames){
-            if(gameToCheck.getName().equals(games.getName())) {
+        for(String games : nonActiveGames){
+            if(gameToCheck.equals(games)) {
                 return true;
             }
         }
         return false;
     }
 
-    public void CreateGame(ClientPlayer new_player, Game gameToCreate)
+    public void CreateGame(ClientPlayer new_player, String GameName, int num_player)
     {
-        if(CheckAlreadyExist(gameToCreate)){
-            return; //if with same name already exist launch exception
+        if(CheckAlreadyExist(GameName)){
+            throw new IllegalArgumentException("Name already in use");
         }
-        new_player.gamePlay = gameToCreate;
-        nonActiveGames.add(gameToCreate);
+        GameController temp = new GameController(num_player);
+        new_player.gamePlay = GameName;
+        nonActiveGames.add(GameName);
+        mapIdtoController.put(GameName, temp);
     }
 
-    public void JoinGame(ClientPlayer player, Game gameToJoin, String nickToJoin) {
+    public void JoinGame(ClientPlayer player, String gameToJoin, String nickToJoin) {
         if(activeGames.contains(gameToJoin) || (!nonActiveGames.contains(gameToJoin) && !activeGames.contains(gameToJoin))){
-            throw new IllegalStateException("Can not join this game anymore");
+            throw new IllegalStateException("Cannot join this game anymore");
         }
         try {
             player.gamePlay = gameToJoin;
-            player.setNickname(nickToJoin);
             gameToJoin.createNewPlayer(nickToJoin);
+            player.setNickname(nickToJoin);
             if(gameToJoin.getNumPlayers() == gameToJoin.getNumJoinedPlayer())
             {
                 Start_Game(gameToJoin);
@@ -59,7 +63,7 @@ public class Controller {
     {
         nonActiveGames.remove(gameToStart);
         activeGames.add(gameToStart);
-        gameToStart.startGame();
+
     }
 
 }
