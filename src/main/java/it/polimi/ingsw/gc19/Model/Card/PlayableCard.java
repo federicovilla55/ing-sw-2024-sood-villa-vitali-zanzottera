@@ -63,7 +63,7 @@ public class PlayableCard extends Card{
     @JsonCreator
     PlayableCard(
             @JsonProperty("code") String cardCode,
-            @JsonProperty("card_type") PlayableCardType cardType,
+            @JsonProperty("playable_card_type") PlayableCardType cardType,
             @JsonProperty("front_grid") CornerValue[][] frontGridConfiguration,
             @JsonProperty("required_symbol") HashMap<Symbol, Integer> requiredSymbolToPlace,
             @JsonProperty("back_grid") CornerValue[][] backGridConfiguration,
