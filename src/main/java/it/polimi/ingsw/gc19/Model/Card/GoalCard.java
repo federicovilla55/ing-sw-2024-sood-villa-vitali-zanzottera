@@ -1,14 +1,12 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
 /**
  * This class represents a single card
  */
+@JsonTypeName("goal")
 public class GoalCard extends Card{
     /**
      * This attribute represents the effect that a goal

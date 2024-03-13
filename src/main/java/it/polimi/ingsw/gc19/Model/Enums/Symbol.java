@@ -1,11 +1,13 @@
 package it.polimi.ingsw.gc19.Model.Enums;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import it.polimi.ingsw.gc19.Model.Card.Corner;
 
 import java.util.EnumSet;
 import java.util.Optional;
 
-public enum Symbol implements Corner {
+@JsonTypeName("symbol")
+public enum Symbol implements Corner{
     ANIMAL, VEGETABLE, INSECT, MUSHROOM, INK, FEATHER, SCROLL;
 
     public static EnumSet<Symbol> getResources(){

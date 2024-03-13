@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Model.Card;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
@@ -10,7 +11,7 @@ import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
 import java.util.List;
 
-
+@JsonTypeName("pattern")
 class PatternEffect implements GoalEffect{
 
     private final int cardValue;

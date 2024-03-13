@@ -10,6 +10,7 @@ import java.util.*;
 /**
  * This class represents a single playable card
  */
+@JsonTypeName("playable")
 public class PlayableCard extends Card{
 
     /**
@@ -24,7 +25,7 @@ public class PlayableCard extends Card{
      * symbol: ANIMAL, VEGETABLE, INSECT, MUSHROOM, INK,
      * FEATHER, SCROLL
      */
-    private CornerValue[][] frontGridConfiguration;
+    private Corner[][] frontGridConfiguration;
 
     /** Symbols and quantity that a player needs to have to
      * place the card in the UP state in his station.
@@ -38,7 +39,7 @@ public class PlayableCard extends Card{
      * symbol: ANIMAL, VEGETABLE, INSECT, MUSHROOM, INK,
      * FEATHER, SCROLL
      */
-    private CornerValue[][] backGridConfiguration;
+    private Corner[][] backGridConfiguration;
     /**
      * This attribute represents permanent resources
      * positioned at the center of the back of the card.
@@ -64,9 +65,9 @@ public class PlayableCard extends Card{
     PlayableCard(
             @JsonProperty("code") String cardCode,
             @JsonProperty("playable_card_type") PlayableCardType cardType,
-            @JsonProperty("front_grid") CornerValue[][] frontGridConfiguration,
+            @JsonProperty("front_grid") Corner[][] frontGridConfiguration,
             @JsonProperty("required_symbol") HashMap<Symbol, Integer> requiredSymbolToPlace,
-            @JsonProperty("back_grid") CornerValue[][] backGridConfiguration,
+            @JsonProperty("back_grid") Corner[][] backGridConfiguration,
             @JsonProperty("permanent") ArrayList<Symbol> permanentResources,
             @JsonProperty("effect_type") PlayableEffect playableEffect,
             @JsonProperty("orientation") CardState cardOrientation){
@@ -105,7 +106,7 @@ public class PlayableCard extends Card{
      * @param position a position among UP_LEFT, UP_RIGHT, DOWN_RIGHT, DOWN_LEFT
      * @return CornerValue type of specified corner
      */
-    public CornerValue getCorner(CornerPosition position){
+    public Corner getCorner(CornerPosition position){
         return this.cardState.getCorner(position);
     }
 
@@ -208,7 +209,7 @@ public class PlayableCard extends Card{
          * @param position a position among UP_LEFT, UP_RIGHT, DOWN_RIGHT, DOWN_LEFT
          * @return CornerValue type of specified corner
          */
-        CornerValue getCorner(CornerPosition position);
+        Corner getCorner(CornerPosition position);
 
         /**
          * This method returns true if and only if the station passed as
