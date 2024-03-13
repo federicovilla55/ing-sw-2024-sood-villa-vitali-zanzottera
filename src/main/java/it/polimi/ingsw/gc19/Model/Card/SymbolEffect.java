@@ -1,5 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
@@ -11,7 +13,9 @@ class SymbolEffect implements GoalEffect, PlayableEffect{
     private final HashMap<Symbol, Integer> requiredSymbol;
     private final int effectValue;
 
-    protected SymbolEffect(HashMap<Symbol, Integer> requiredSymbol, int effectValue){
+    @JsonCreator
+    SymbolEffect(@JsonProperty("required") HashMap<Symbol, Integer> requiredSymbol,
+                 @JsonProperty("value") int effectValue){
         this.requiredSymbol = requiredSymbol;
         this.effectValue = effectValue;
     }

@@ -6,14 +6,15 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Deck.Deck;
 import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
 import it.polimi.ingsw.gc19.Model.Enums.Color;
+import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Player.NameAlreadyInUseException;
 import it.polimi.ingsw.gc19.Model.Player.Player;
 import it.polimi.ingsw.gc19.Model.Player.PlayerNotFoundException;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
+import java.lang.reflect.MalformedParametersException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Random;
 
 public class Game {
@@ -131,6 +132,59 @@ public class Game {
         }
     }
 
+    /**
+     * This method returns a card from the deck of specified type. If the deck is empty, throws an exception
+     * @param type The type of card to pick from the respective deck
+     * @return The card from a specified deck
+     * @throws EmptyDeckException when the deck is empty, return this exception
+     */
+    public PlayableCard pickCardFromDeck(PlayableCardType type) throws EmptyDeckException, MalformedParametersException {
+        Deck<PlayableCard> deck;
+        deck = switch (type) {
+            case RESOURCE -> {
+                yield resourceDeck;
+            }
+            case GOLD -> {
+                yield goldDeck;
+            }
+            default -> throw new MalformedParametersException("type must be RESOURCE or GOLD");
+        };
+        return deck.pickACard();
+    }
+    /**
+     * This method returns a card of the given type at the given position. The card is removed from the position, and if no card
+     * is present the exception NoCardException is thrown. Then a card from the same deck type is drawn (if the deck
+     * is not empty) and placed at the given position.
+     * @param type The type of card to pick, either RESOUCE or GOLD
+     * @param position The position 0 -> left 1 -> right
+     * @return The card in the specified position if present
+     * @throws CardNotFoundException when there is no card, this exception is thrown
+     */
+    public PlayableCard pickCardFromTable(PlayableCardType type, int position) throws CardNotFoundException, MalformedParametersException {
+        Deck<PlayableCard> deck;
+        PlayableCard[] cardsOnTable;
+        switch (type) {
+            case RESOURCE:
+                deck = resourceDeck; cardsOnTable = resourceCardsOnTable;
+                break;
+            case GOLD:
+                deck = goldDeck; cardsOnTable = goldcardsOnTable;
+                break;
+            default:
+                throw new MalformedParametersException("type must be RESOURCE or GOLD");
+        }
+        PlayableCard result = cardsOnTable[position];
+        if(result==null) {
+            throw new CardNotFoundException("Card not found");
+        }
+        try {
+            cardsOnTable[position] = deck.pickACard();
+        } catch (EmptyDeckException e) {
+            cardsOnTable[position] = null;
+        }
+        return result;
+    }
+
     public String getName() {
         return this.name;
     }
@@ -146,4 +200,11 @@ public class Game {
         }
     }
 
+    public int getNumPlayers(){
+        return numPlayers;
+    }
+    public int getNumJoinedPlayer()
+    {
+        return players.size();
+    }
 }

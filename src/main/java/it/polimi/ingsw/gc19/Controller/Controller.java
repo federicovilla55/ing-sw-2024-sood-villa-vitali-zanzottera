@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Controller;
 
 import it.polimi.ingsw.gc19.Model.Game.Game;
+import it.polimi.ingsw.gc19.Model.Player.NameAlreadyInUseException;
 
 import java.util.*;
 
@@ -35,26 +36,30 @@ public class Controller {
         nonActiveGames.add(gameToCreate);
     }
 
-    public void JoinGame(ClientPlayer player, Game gameToJoin)
-    {
-        player.gamePlay = gameToJoin;
-    }
-
-    public void ExitNonActiveGame(ClientPlayer player, Game gameToExit)
-    {
-        player.gamePlay = null;
-        //If game does not have players, game will be eliminated
-    }
-
-    public void ExitActiveGame(ClientPlayer player, Game gameToExit)
-    {
-
+    public void JoinGame(ClientPlayer player, Game gameToJoin, String nickToJoin) {
+        if(activeGames.contains(gameToJoin) || (!nonActiveGames.contains(gameToJoin) && !activeGames.contains(gameToJoin))){
+            throw new IllegalStateException("Can not join this game anymore");
+        }
+        try {
+            player.gamePlay = gameToJoin;
+            player.setNickname(nickToJoin);
+            gameToJoin.createNewPlayer(nickToJoin);
+            if(gameToJoin.getNumPlayers() == gameToJoin.getNumJoinedPlayer())
+            {
+                Start_Game(gameToJoin);
+            }
+        }
+        catch (NameAlreadyInUseException e)
+        {
+            throw new IllegalArgumentException("Name already in use");
+        }
     }
 
     public void Start_Game(Game gameToStart)
     {
         nonActiveGames.remove(gameToStart);
         activeGames.add(gameToStart);
+        gameToStart.startGame();
     }
 
 }
