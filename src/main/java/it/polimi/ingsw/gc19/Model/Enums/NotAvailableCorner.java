@@ -13,7 +13,9 @@ public enum NotAvailableCorner implements Corner {
         return false;
     }
 
+    @Override
     public Optional<Symbol> getSymbol(){
         return Optional.empty();
     }
+
 }

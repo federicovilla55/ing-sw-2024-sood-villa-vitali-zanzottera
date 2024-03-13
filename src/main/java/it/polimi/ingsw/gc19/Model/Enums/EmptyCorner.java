@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.Optional;
 
 @JsonTypeName("empty")
-public enum EmptyCorner implements Corner {
+public enum EmptyCorner implements Corner{
     EMPTY;
 
     @Override
@@ -14,6 +14,7 @@ public enum EmptyCorner implements Corner {
         return false;
     }
 
+    @Override
     public Optional<Symbol> getSymbol(){
         return Optional.empty();
     }

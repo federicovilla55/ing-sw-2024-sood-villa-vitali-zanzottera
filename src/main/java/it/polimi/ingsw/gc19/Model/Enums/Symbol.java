@@ -23,6 +23,7 @@ public enum Symbol implements Corner{
         return true;
     }
 
+    @Override
     public Optional<Symbol> getSymbol(){
         return Optional.of(this);
     }
