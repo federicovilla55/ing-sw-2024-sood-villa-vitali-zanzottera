@@ -1,5 +1,12 @@
 package it.polimi.ingsw.gc19.Model.Tuple;
 
-public record Tuple<T, S>(T x, S y) {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-}
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record Tuple<T, S>(
+        @JsonProperty("x") T x,
+        @JsonProperty("y") S y
+) {}
