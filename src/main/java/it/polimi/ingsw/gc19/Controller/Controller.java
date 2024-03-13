@@ -36,13 +36,22 @@ public class Controller {
         nonActiveGames.add(gameToCreate);
     }
 
-    public void JoinGame(ClientPlayer player, Game gameToJoin, String nickToJoin) throws NameAlreadyInUseException {
-        player.gamePlay = gameToJoin;
-        player.setNickname(nickToJoin);
-        gameToJoin.createNewPlayer(nickToJoin);
-        if(gameToJoin.getNumPlayers() == gameToJoin.getNumJoinedPlayer())
+    public void JoinGame(ClientPlayer player, Game gameToJoin, String nickToJoin) {
+        if(activeGames.contains(gameToJoin) || (!nonActiveGames.contains(gameToJoin) && !activeGames.contains(gameToJoin))){
+            throw new IllegalStateException("Can not join this game anymore");
+        }
+        try {
+            player.gamePlay = gameToJoin;
+            player.setNickname(nickToJoin);
+            gameToJoin.createNewPlayer(nickToJoin);
+            if(gameToJoin.getNumPlayers() == gameToJoin.getNumJoinedPlayer())
+            {
+                Start_Game(gameToJoin);
+            }
+        }
+        catch (NameAlreadyInUseException e)
         {
-            Start_Game(gameToJoin);
+            throw new IllegalArgumentException("Name already in use");
         }
     }
 
