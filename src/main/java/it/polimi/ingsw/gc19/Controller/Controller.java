@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Controller;
 
 import it.polimi.ingsw.gc19.Model.Game.Game;
+import it.polimi.ingsw.gc19.Model.Player.NameAlreadyInUseException;
 
 import java.util.*;
 
@@ -35,9 +36,10 @@ public class Controller {
         nonActiveGames.add(gameToCreate);
     }
 
-    public void JoinGame(ClientPlayer player, Game gameToJoin)
-    {
+    public void JoinGame(ClientPlayer player, Game gameToJoin, String nickToJoin) throws NameAlreadyInUseException {
         player.gamePlay = gameToJoin;
+        player.setNickname(nickToJoin);
+        gameToJoin.createNewPlayer(nickToJoin);
         if(gameToJoin.getNumPlayers() == gameToJoin.getNumJoinedPlayer())
         {
             Start_Game(gameToJoin);
