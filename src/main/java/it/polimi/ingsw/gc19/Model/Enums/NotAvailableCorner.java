@@ -1,8 +1,10 @@
 package it.polimi.ingsw.gc19.Model.Enums;
 
-import it.polimi.ingsw.gc19.Model.Card.CornerValue;
+import it.polimi.ingsw.gc19.Model.Card.Corner;
 
-public enum NotAvailableCorner implements CornerValue {
+import java.util.Optional;
+
+public enum NotAvailableCorner implements Corner {
     NOT_AVAILABLE;
 
     @Override
@@ -10,4 +12,7 @@ public enum NotAvailableCorner implements CornerValue {
         return false;
     }
 
+    public Optional<Symbol> getSymbol(){
+        return Optional.empty();
+    }
 }

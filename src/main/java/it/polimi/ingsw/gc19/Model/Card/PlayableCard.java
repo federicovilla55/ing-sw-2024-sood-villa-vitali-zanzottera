@@ -268,7 +268,7 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public CornerValue getCorner(CornerPosition position){
+        public Corner getCorner(CornerPosition position){
             return frontGridConfiguration[position.getX()][position.getY()];
         }
 
@@ -308,11 +308,10 @@ public class PlayableCard extends Card{
             for(Symbol s : Symbol.values()){
                 symbolHashMap.put(s, 0);
             }
-            for(CornerValue[] row : frontGridConfiguration){
-                for(CornerValue c : row){
-                    if(c.hasSymbol()){
-                        symbolHashMap.compute((Symbol) c, (k, v) -> v + 1);
-                    }
+            for(Corner[] row : frontGridConfiguration){
+                for(Corner c : row){
+                    c.getSymbol().ifPresent(s ->
+                        symbolHashMap.compute(s, (k, v) -> v + 1));
                 }
             }
             return symbolHashMap;
@@ -330,7 +329,7 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public CornerValue getCorner(CornerPosition position){
+        public Corner getCorner(CornerPosition position){
             return backGridConfiguration[position.getX()][position.getY()];
         }
 
@@ -368,11 +367,10 @@ public class PlayableCard extends Card{
             for(Symbol s : permanentResources){
                 symbolHashMap.compute(s, (k, v) -> v + 1);
             }
-            for(CornerValue[] row : backGridConfiguration){
-                for(CornerValue c : row){
-                    if(c.hasSymbol()){
-                        symbolHashMap.compute((Symbol) c, (k, v) -> v + 1);
-                    }
+            for(Corner[] row : backGridConfiguration){
+                for(Corner c : row){
+                    c.getSymbol().ifPresent(s ->
+                            symbolHashMap.compute(s, (k, v) -> v + 1));
                 }
             }
             return symbolHashMap;

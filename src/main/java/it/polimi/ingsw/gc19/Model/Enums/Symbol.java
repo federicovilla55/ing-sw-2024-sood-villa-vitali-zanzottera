@@ -1,10 +1,11 @@
 package it.polimi.ingsw.gc19.Model.Enums;
 
-import it.polimi.ingsw.gc19.Model.Card.CornerValue;
+import it.polimi.ingsw.gc19.Model.Card.Corner;
 
 import java.util.EnumSet;
+import java.util.Optional;
 
-public enum Symbol implements CornerValue{
+public enum Symbol implements Corner {
     ANIMAL, VEGETABLE, INSECT, MUSHROOM, INK, FEATHER, SCROLL;
 
     public static EnumSet<Symbol> getResources(){
@@ -18,6 +19,10 @@ public enum Symbol implements CornerValue{
     @Override
     public boolean hasSymbol() {
         return true;
+    }
+
+    public Optional<Symbol> getSymbol(){
+        return Optional.of(this);
     }
 
 }

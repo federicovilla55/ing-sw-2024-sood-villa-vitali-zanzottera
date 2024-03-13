@@ -84,7 +84,10 @@ public class Station{
             for(Direction d : Direction.values()){
                 try{
                     sharingCorner = getCardSchema().getCardWithAnchor(toPlace, d);
-                    if(sharingCorner.getCorner(d.getOtherCornerPosition()) != EmptyCorner.EMPTY) this.visibleSymbolsInStation.compute((Symbol) sharingCorner.getCorner(d.getOtherCornerPosition()), (k, v) -> v - 1);
+
+                    sharingCorner.getCorner(d.getOtherCornerPosition()).getSymbol().ifPresent(s ->
+                            this.visibleSymbolsInStation.compute(s, (k, v) -> v - 1)
+                    );
                 }
                 catch(Exception ignored){};
             }
