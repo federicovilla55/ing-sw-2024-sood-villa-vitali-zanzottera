@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
+import it.polimi.ingsw.gc19.Controller.ClientPlayer;
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
@@ -13,9 +14,7 @@ import it.polimi.ingsw.gc19.Model.Player.PlayerNotFoundException;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
 import java.lang.reflect.MalformedParametersException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
 public class Game {
     private ArrayList<Player> players;
@@ -47,9 +46,11 @@ public class Game {
     }
     public void startGame(){
         // @todo: keep track of turns and game states.
+        this.shufflePlayer();
+        firstPlayer = players.getFirst();
     }
 
-    public void createNewPlayer(String name) throws NameAlreadyInUseException {
+    public void createNewPlayer(String name, ClientPlayer Client) throws NameAlreadyInUseException {
         //  case in which two players have chosen the same name.
         for(Player p : players){
             if(p.getName().equals(name)){
@@ -57,7 +58,7 @@ public class Game {
             }
         }
 
-        Player player = new Player(name);
+        Player player = new Player(name, Client);
         players.add(player);
     }
     public void removePlayer(Player p){
@@ -195,11 +196,20 @@ public class Game {
         }
     }
 
+    private void shufflePlayer() {
+        Collections.shuffle(players);
+    }
+
     public int getNumPlayers(){
         return numPlayers;
     }
     public int getNumJoinedPlayer()
     {
         return players.size();
+    }
+
+    public String NotifyPlayer(Player playerToNotify)
+    {
+        return playerToNotify.getName();
     }
 }

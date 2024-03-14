@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Player;
 
+import it.polimi.ingsw.gc19.Controller.ClientPlayer;
 import it.polimi.ingsw.gc19.Model.Enums.Color;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
@@ -10,9 +11,12 @@ public class Player {
     private Color playerColor;
     private Station playerStation;
 
-    public Player(String name){
+    private final ClientPlayer Client;
+
+    public Player(String name, ClientPlayer Client){
         this.name = name;
         this.playerStation = new Station();
+        this.Client = Client;
     }
 
     public Station getPlayerStation() {return this.playerStation; }
@@ -27,6 +31,11 @@ public class Player {
 
     public Color getColor(){
         return this.playerColor;
+    }
+
+    public ClientPlayer getClient()
+    {
+        return this.Client;
     }
 
 }
