@@ -1,0 +1,134 @@
+[
+  {
+    "card_type": "playable",
+    "code": "initial_01",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "VEGETABLE" ]],
+      [[ "symbol", "INSECT" ], [ "symbol", "ANIMAL" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "symbol", "VEGETABLE" ]],
+      [[ "symbol", "INSECT" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "initial_02",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "ANIMAL" ]],
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "INSECT" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "symbol", "ANIMAL" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "symbol", "MUSHROOM" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "initial_03",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "INSECT" ], [ "symbol", "ANIMAL" ]],
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "VEGETABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ], [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "initial_04",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "INSECT" ]],
+      [[ "symbol", "ANIMAL" ], [ "symbol", "MUSHROOM" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ], [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "initial_05",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "INSECT" ], [ "symbol", "MUSHROOM" ]],
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "ANIMAL" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ], [ "symbol", "INSECT" ], [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "initial_06",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "ANIMAL" ]],
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "INSECT" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ], [ "symbol", "ANIMAL" ], [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  }
+]

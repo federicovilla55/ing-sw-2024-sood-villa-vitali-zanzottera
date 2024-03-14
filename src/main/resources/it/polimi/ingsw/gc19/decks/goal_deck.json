@@ -1,0 +1,212 @@
+[
+  {
+    "card_type": "goal",
+    "code": "goal_01",
+    "goal_effect": {
+      "effect_type": "pattern",
+      "value": 2,
+      "moves": [
+        { "x": 1 , "y": 1 },
+        { "x": 1 , "y": 1 }
+      ],
+      "required": [
+        [ "symbol", "MUSHROOM" ], [ "symbol", "MUSHROOM" ], [ "symbol", "MUSHROOM" ]
+      ]
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_02",
+    "goal_effect": {
+      "effect_type": "pattern",
+      "value": 2,
+      "moves": [
+        { "x": 1 , "y": -1 },
+        { "x": 1 , "y": -1 }
+      ],
+      "required": [
+        [ "symbol", "VEGETABLE" ], [ "symbol", "VEGETABLE" ], [ "symbol", "VEGETABLE" ]
+      ]
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_03",
+    "goal_effect": {
+      "effect_type": "pattern",
+      "value": 2,
+      "moves": [
+        { "x": 1 , "y": 1 },
+        { "x": 1 , "y": 1 }
+      ],
+      "required": [
+        [ "symbol", "ANIMAL" ], [ "symbol", "ANIMAL" ], [ "symbol", "ANIMAL" ]
+      ]
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_04",
+    "goal_effect": {
+      "effect_type": "pattern",
+      "value": 2,
+      "moves": [
+        { "x": 1 , "y": -1 },
+        { "x": 1 , "y": -1 }
+      ],
+      "required": [
+        [ "symbol", "INSECT" ], [ "symbol", "INSECT" ], [ "symbol", "INSECT" ]
+      ]
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_05",
+    "goal_effect": {
+      "effect_type": "pattern",
+      "value": 3,
+      "moves": [
+        { "x": 0 , "y": -2 },
+        { "x": 1 , "y": -1 }
+      ],
+      "required": [
+        [ "symbol", "MUSHROOM" ], [ "symbol", "MUSHROOM" ], [ "symbol", "VEGETABLE" ]
+      ]
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_06",
+    "goal_effect": {
+      "effect_type": "pattern",
+      "value": 3,
+      "moves": [
+        { "x": 0 , "y": -2 },
+        { "x": -1 , "y": -1 }
+      ],
+      "required": [
+        [ "symbol", "VEGETABLE" ], [ "symbol", "VEGETABLE" ], [ "symbol", "INSECT" ]
+      ]
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_07",
+    "goal_effect": {
+      "effect_type": "pattern",
+      "value": 3,
+      "moves": [
+        { "x": 0 , "y": 2 },
+        { "x": 1 , "y": 1 }
+      ],
+      "required": [
+        [ "symbol", "ANIMAL" ], [ "symbol", "ANIMAL" ], [ "symbol", "MUSHROOM" ]
+      ]
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_08",
+    "goal_effect": {
+      "effect_type": "pattern",
+      "value": 3,
+      "moves": [
+        { "x": 0 , "y": 2 },
+        { "x": -1 , "y": 1 }
+      ],
+      "required": [
+        [ "symbol", "INSECT" ], [ "symbol", "INSECT" ], [ "symbol", "ANIMAL" ]
+      ]
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_09",
+    "goal_effect": {
+      "effect_type": "symbol",
+      "required": {
+        "MUSHROOM": 3
+      },
+      "value": 2
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_10",
+    "goal_effect": {
+      "effect_type": "symbol",
+      "required": {
+        "VEGETABLE": 3
+      },
+      "value": 2
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_11",
+    "goal_effect": {
+      "effect_type": "symbol",
+      "required": {
+        "ANIMAL": 3
+      },
+      "value": 2
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_12",
+    "goal_effect": {
+      "effect_type": "symbol",
+      "required": {
+        "INSECT": 3
+      },
+      "value": 2
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_13",
+    "goal_effect": {
+      "effect_type": "symbol",
+      "required": {
+        "FEATHER": 1,
+        "INK": 1,
+        "SCROLL": 1
+      },
+      "value": 3
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_14",
+    "goal_effect": {
+      "effect_type": "symbol",
+      "required": {
+        "SCROLL": 2
+      },
+      "value": 2
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_15",
+    "goal_effect": {
+      "effect_type": "symbol",
+      "required": {
+        "INK": 2
+      },
+      "value": 2
+    }
+  },
+  {
+    "card_type": "goal",
+    "code": "goal_16",
+    "goal_effect": {
+      "effect_type": "symbol",
+      "required": {
+        "FEATHER": 2
+      },
+      "value": 2
+    }
+  }
+]
