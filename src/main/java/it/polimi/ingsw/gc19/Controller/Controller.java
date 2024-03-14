@@ -41,7 +41,7 @@ public class Controller {
     }
 
     public void JoinGame(ClientPlayer player, String gameToJoin, String nickToJoin) {
-        if(activeGames.contains(gameToJoin) || (!nonActiveGames.contains(gameToJoin) && !activeGames.contains(gameToJoin))){
+        /*if(activeGames.contains(gameToJoin) || (!nonActiveGames.contains(gameToJoin) && !activeGames.contains(gameToJoin))){
             throw new IllegalStateException("Cannot join this game anymore");
         }
         try {
@@ -56,12 +56,12 @@ public class Controller {
         catch (NameAlreadyInUseException e)
         {
             throw new IllegalArgumentException("Name already in use");
-        }
+        }*/
     }
     public void Start_Game(String gameToStart)
     {
-        nonActiveGames.remove(gameToStart);
-        activeGames.add(gameToStart);
+        //nonActiveGames.remove(gameToStart);
+        //activeGames.add(gameToStart);
         mapIdtoController.get(gameToStart).StartGame();
     }
 

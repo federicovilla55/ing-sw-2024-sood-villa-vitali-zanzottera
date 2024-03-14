@@ -8,7 +8,7 @@ public class Server {
     Socket clientSocket = null;
     public static void main(String[] args) throws IOException {
 
-        serverSocket = new ServerSocket(5000);
+        //serverSocket = new ServerSocket(5000);
 
 
     }

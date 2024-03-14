@@ -1,14 +1,14 @@
 package it.polimi.ingsw.gc19.Model.Deck;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.gc19.Model.Card.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Random;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Deck<cardType extends Card>{
@@ -21,16 +21,16 @@ public class Deck<cardType extends Card>{
 
     }
 
-    public Card init(String filename) throws IOException {
+    public ArrayList<cardType> init(String filename) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         File f = new File(filename);
 
-        Card c = null;
+        ArrayList<cardType> a;
 
-        c = objectMapper.readValue(f, Card.class);
+        a = objectMapper.readValue(f, new TypeReference<ArrayList<cardType>>(){});
 
-        return c;
+        return a;
     }
 
     public int getInitialLenOfDeck(){

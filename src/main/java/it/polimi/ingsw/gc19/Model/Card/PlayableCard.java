@@ -25,6 +25,7 @@ public class PlayableCard extends Card{
      * symbol: ANIMAL, VEGETABLE, INSECT, MUSHROOM, INK,
      * FEATHER, SCROLL
      */
+
     private Corner[][] frontGridConfiguration;
 
     /** Symbols and quantity that a player needs to have to
