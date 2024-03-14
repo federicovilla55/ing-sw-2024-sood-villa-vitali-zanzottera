@@ -13,4 +13,6 @@ module it.polimi.ingsw.gc19 {
     opens it.polimi.ingsw.gc19.Model.Card to com.fasterxml.jackson.databind;
     exports it.polimi.ingsw.gc19.Model.Enums to com.fasterxml.jackson.databind;
     opens it.polimi.ingsw.gc19.Model.Enums to com.fasterxml.jackson.databind;
+    exports it.polimi.ingsw.gc19.Model.Tuple to com.fasterxml.jackson.databind;
+    opens it.polimi.ingsw.gc19.Model.Tuple to com.fasterxml.jackson.databind;
 }

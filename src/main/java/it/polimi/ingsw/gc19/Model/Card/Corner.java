@@ -8,8 +8,8 @@ import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 
 import java.util.Optional;
 @JsonTypeInfo(
-        use = JsonTypeInfo.Id.CLASS,
-        property = "corner_type"
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.WRAPPER_ARRAY
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Symbol.class, name = "symbol"),

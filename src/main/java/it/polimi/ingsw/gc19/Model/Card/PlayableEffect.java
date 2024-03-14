@@ -7,7 +7,7 @@ import it.polimi.ingsw.gc19.Model.Station.Station;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
-        property = "effect_type"
+        property = "name"
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = NoConstraintEffect.class, name = "no_constraint"),

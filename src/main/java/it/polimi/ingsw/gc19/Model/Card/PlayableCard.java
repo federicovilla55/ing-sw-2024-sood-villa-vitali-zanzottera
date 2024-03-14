@@ -80,7 +80,7 @@ public class PlayableCard extends Card{
         this.backGridConfiguration = backGridConfiguration;
         this.permanentResources = permanentResources;
         this.playableEffect = playableEffect;
-        this.cardState = cardOrientation;
+        if (cardOrientation==null) this.cardState = new CardDown();
 
     }
 
@@ -170,8 +170,9 @@ public class PlayableCard extends Card{
      * This method flips the card, switching between UP and DOWN
      * states
      */
-    public void swapCard(){
+    public PlayableCard swapCard(){
         this.cardState.swap();
+        return this;
     }
 
     @Override
