@@ -34,12 +34,9 @@ public class CardSchema{
         return true;
     }
 
-    public PlayableCard getCard(int x, int y) throws InvalidPositionException, NoCardException{
+    public Optional<PlayableCard> getCard(int x, int y) throws InvalidPositionException{
         if(checkCoords(x, y)){
-            if(this.cardSchema[x][y] == null){
-                throw new NoCardException();
-            }
-            return this.cardSchema[x][y];
+            return Optional.of(this.cardSchema[x][y]);
         }
         else{
             throw new InvalidPositionException();
@@ -53,45 +50,58 @@ public class CardSchema{
         return this.cardPosition.get(card);
     }
 
-    public int getX(PlayableCard card) throws InvalidCardException{
-        return getCoords(card).x();
-    }
-
-    public int getY(PlayableCard card) throws InvalidCardException{
-        return getCoords(card).y();
-    }
-
     public boolean cardOverAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException {
         Tuple<Integer, Integer> anchorCoords = getCoords(anchor);
         return this.cardOverlap[anchorCoords.x() + dir.getX()][anchorCoords.x() + dir.getY()] > this.cardOverlap[anchorCoords.x()][anchorCoords.y()];
     }
 
-    public boolean checkCoords(int x, int y){
+    public boolean cardOverAnchor(int x, int y, Direction dir) throws InvalidPositionException{
+        return this.getCard(x, y).map(c -> {
+            try {
+                return cardOverAnchor(c, dir);
+            } catch (InvalidCardException e) {
+                return false;
+            }
+        }).orElse(false);
+    }
+
+    private boolean checkCoords(int x, int y){
         return (0 <= x) && (x < ImportantConstants.gridDimension) && (0 <= y) && (y < ImportantConstants.gridDimension);
     }
 
-    public PlayableCard getCardWithAnchor(PlayableCard anchor, Direction dir) throws NoCardException, InvalidAnchorException, InvalidPositionException{
+    public Optional<PlayableCard> getCardWithAnchor(PlayableCard anchor, Direction dir) throws InvalidAnchorException{
         if(!this.cardPosition.containsKey(anchor)){
             throw new InvalidAnchorException();
         }
         Tuple<Integer, Integer> coords = this.cardPosition.get(anchor);
-        if(!checkCoords(coords.x() + dir.getX(), coords.y() + dir.getY())){
-            throw new InvalidPositionException();
-        }
-        if(this.cardSchema[coords.x()][coords.y()] == null){
-            throw new NoCardException();
-        }
-        return this.cardSchema[coords.x()][coords.y()];
+        return Optional.of(this.cardSchema[coords.x() + dir.getX()][coords.y() + dir.getY()]);
     }
 
-    public boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException, InvalidPositionException{
+    public Optional<PlayableCard> getCardWithAnchor(int x, int y, Direction dir) throws InvalidAnchorException, InvalidPositionException{
+        return this.getCard(x, y).flatMap(c -> {
+            try{
+                return getCardWithAnchor(c, dir);
+            }catch(InvalidAnchorException e) {
+                return Optional.empty();
+            }
+        });
+    }
+
+    public boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException{
         if(!this.cardPosition.containsKey(anchor)){
             throw new InvalidAnchorException();
         }
-        if(!checkCoords(this.cardPosition.get(anchor).x() + direction.getX(), this.cardPosition.get(anchor).y() + direction.getY())){
-            throw new InvalidPositionException();
-        }
         return this.cardSchema[this.cardPosition.get(anchor).x() + direction.getX()][this.cardPosition.get(anchor).y() + direction.getY()] == null;
+    }
+
+    public boolean isPlaceable(int x, int y, Direction dir) throws InvalidPositionException{
+        return this.getCard(x, y).map(c -> {
+            try {
+                return isPlaceable(c, dir);
+            } catch (InvalidAnchorException e) {
+                return false;
+            }
+        }).orElse(false);
     }
 
     public void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction){
@@ -100,6 +110,13 @@ public class CardSchema{
         this.cardOverlap[coords.x() + direction.getX()][coords.y() + direction.getY()] = this.currentCount + 1;
         this.currentCount++;
         this.cardPosition.put(toPlace, new Tuple<>(coords.x() + direction.getX(), coords.y() + direction.getY()));
+    }
+
+    public void placeCard(int x, int y, PlayableCard toPlace, Direction direction){
+        this.cardSchema[x + direction.getX()][y + direction.getY()] = toPlace;
+        this.cardOverlap[x + direction.getX()][y + direction.getY()] = this.currentCount + 1;
+        this.currentCount++;
+        this.cardPosition.put(toPlace, new Tuple<>(x + direction.getX(), y + direction.getY()));
     }
 
     public PlayableCard getLastPlaced(){
@@ -123,8 +140,12 @@ public class CardSchema{
         return this.cardPosition.keySet();
     }
 
-    public Card[][] getCardSchema() {
-        return this.cardSchema; //implement deep copy
+    public String[][] getCardSchema() {
+        return Arrays.stream(this.cardSchema)
+                     .flatMap(Arrays::stream)
+                     .map(Card::getCardCode)
+                     .map(x -> new String[ImportantConstants.gridDimension])
+                     .toArray(String[][]::new);
     }
 
     public int[][] getCardOverlap() {

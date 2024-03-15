@@ -65,7 +65,7 @@ public class Station{
         return this.cardSchema;
     }
 
-    public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidPositionException, InvalidAnchorException{
+    public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
         /*Controlli su NullPointerException, ancora invalida, direction invalida da far fare al controllore*/
         if(!this.cardsInStation.contains(toPlace)){
             throw new InvalidCardException();
@@ -83,11 +83,9 @@ public class Station{
             }
             for(Direction d : Direction.values()){
                 try{
-                    sharingCorner = getCardSchema().getCardWithAnchor(toPlace, d);
-
-                    sharingCorner.getCorner(d.getOtherCornerPosition()).getSymbol().ifPresent(s ->
-                            this.visibleSymbolsInStation.compute(s, (k, v) -> v - 1)
-                    );
+                    getCardSchema().getCardWithAnchor(toPlace, d)
+                                   .flatMap(x -> x.getCorner(d.getOtherCornerPosition()).getSymbol())
+                                   .ifPresent(s -> this.visibleSymbolsInStation.compute(s, (k, v) -> v - 1));
                 }
                 catch(Exception ignored){};
             }
