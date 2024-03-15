@@ -66,7 +66,6 @@ public class Station{
     }
 
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
-        /*Controlli su NullPointerException, ancora invalida, direction invalida da far fare al controllore*/
         if(!this.cardsInStation.contains(toPlace)){
             throw new InvalidCardException();
         }

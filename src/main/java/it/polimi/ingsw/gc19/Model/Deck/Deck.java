@@ -6,22 +6,18 @@ import it.polimi.ingsw.gc19.Model.Card.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Deck<cardType extends Card>{
 
-    private ArrayList<cardType> cardsInDeck;
-    private HashMap<String, cardType> initialCardInDeck;
+    private final ArrayList<cardType> cardsInDeck;
     private  int initialLenOfDeck;
 
-    public Deck(String filename) {
-        try {cardsInDeck = init(filename);}
-        catch(IOException ignored) {}
-        initialCardInDeck = new HashMap<>();
-        for(cardType card : cardsInDeck)
-            initialCardInDeck.put(card.getCardCode(), card);
-        initialLenOfDeck = cardsInDeck.size();
+    public Deck(Stream<cardType> cardsInDeck) {
+        this.cardsInDeck = cardsInDeck.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
 
     private ArrayList<cardType> init(String filename) throws IOException {
@@ -36,9 +32,11 @@ public class Deck<cardType extends Card>{
         return a;
     }
 
-    ArrayList<cardType> getArray() {
-        return cardsInDeck;
+    public void shuffleDeck(){
+        Collections.shuffle(this.cardsInDeck);
     }
+
+    ArrayList<cardType> getArray() {return cardsInDeck;}
 
     public int getInitialLenOfDeck(){
         return this.initialLenOfDeck;
@@ -49,18 +47,6 @@ public class Deck<cardType extends Card>{
             throw new EmptyDeckException("You can't pick a card. Deck is empty!");
         }
         return this.cardsInDeck.remove(new Random().nextInt(cardsInDeck.size()));
-    }
-
-    public String getInfoCard(String name) throws CardNotFoundException{
-        return Optional.of(initialCardInDeck.get(name).getCardDescription())
-                .orElseThrow(() -> new CardNotFoundException("Requested card not found."));
-    }
-
-    public ArrayList<String> getInfoAllCards(){
-        return initialCardInDeck.values()
-                .stream().map(Card::getCardDescription)
-                .collect(Collectors
-                        .toCollection(ArrayList::new));
     }
 
     public void insertCard(cardType card){

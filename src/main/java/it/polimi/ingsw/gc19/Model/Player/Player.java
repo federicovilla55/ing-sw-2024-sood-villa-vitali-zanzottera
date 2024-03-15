@@ -9,14 +9,11 @@ import java.util.ArrayList;
 public class Player {
     private final String name;
     private Color playerColor;
-    private Station playerStation;
+    private final Station playerStation;
 
-    private final ClientPlayer Client;
-
-    public Player(String name, ClientPlayer Client){
+    public Player(String name){
         this.name = name;
         this.playerStation = new Station();
-        this.Client = Client;
     }
 
     public Station getPlayerStation() {return this.playerStation; }

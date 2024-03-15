@@ -1,6 +1,8 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
 import it.polimi.ingsw.gc19.Controller.ClientPlayer;
+import it.polimi.ingsw.gc19.Controller.JSONParser;
+import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
@@ -13,41 +15,98 @@ import it.polimi.ingsw.gc19.Model.Player.Player;
 import it.polimi.ingsw.gc19.Model.Player.PlayerNotFoundException;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.MalformedParametersException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Game {
-    private ArrayList<Player> players;
+    private final ArrayList<Player> players;
     private int numPlayers;
     private Player activePlayer;
     private Player firstPlayer;
     private ArrayList<Color> availableColors;
-    private Deck<GoalCard> goalDeck;
-    private Deck<PlayableCard> initialDeck;
-    private Deck<PlayableCard> resourceDeck;
-    private Deck<PlayableCard> goldDeck;
-    private PlayableCard[] goldcardsOnTable;
+    private final HashMap<String, PlayableCard> stringPlayableCardHashMap;
+    private final HashMap<String, GoalCard> stringGoalCardHashMap;
+    private final Deck<GoalCard> goalDeck;
+    private final Deck<PlayableCard> initialDeck;
+    private final Deck<PlayableCard> resourceDeck;
+    private final Deck<PlayableCard> goldDeck;
+    private PlayableCard[] goldCardsOnTable;
     private PlayableCard[] resourceCardsOnTable;
-    private GoalCard[] pulicGoalCardsOnTable;
+    private GoalCard[] publicGoalCardsOnTable;
 
-
-    public Game(int numPlayers){
-        availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
-        players = new ArrayList<Player>();
-        firstPlayer = null;
+    public Game(int numPlayers) throws IOException{
+        this.availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
+        this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
-        // @todo: insert json filenames
-        goalDeck = new Deck<GoalCard>("goal_cards_file_path");
-        initialDeck = new Deck<PlayableCard>("initial_cards_file_path");
-        resourceDeck = new Deck<PlayableCard>("resource_cards_file_path");
-        goldDeck = new Deck<PlayableCard>("gold_cards_file_path");
 
-        fillCardsOnTable();
+        this.stringGoalCardHashMap = new HashMap<>();
+        this.stringPlayableCardHashMap = new HashMap<>();
+        JSONParser.readPlayableCardFromFile().forEach(c -> this.stringPlayableCardHashMap.put(c.getCardDescription(), c));
+        JSONParser.readGoalCardFromFile().forEach(c -> this.stringGoalCardHashMap.put(c.getCardDescription(), c));
+
+        this.goalDeck = new Deck<>(this.stringGoalCardHashMap.values().stream());
+        //this.shuffleDeck();
+        this.initialDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.INITIAL));
+        this.resourceDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.RESOURCE));
+        this.goldDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.GOLD));
+
+        try{
+            this.goldCardsOnTable = new PlayableCard[]{goldDeck.pickACard(), goldDeck.pickACard()};
+            this.resourceCardsOnTable = new PlayableCard[]{resourceDeck.pickACard(), resourceDeck.pickACard()};
+            this.publicGoalCardsOnTable = new GoalCard[]{goalDeck.pickACard(), goalDeck.pickACard()};
+        }catch(EmptyDeckException ignored){}
+
     }
+
+    public Optional<PlayableCard> getPlayableCardFromCode(String code){
+        return Optional.of(this.stringPlayableCardHashMap.get(code));
+    }
+
+    public Optional<Card> getGoalCardFromCode(String code){
+        return Optional.of(this.stringGoalCardHashMap.get(code));
+    }
+
+    public String getInfoCard(String code){
+        return Stream.concat(this.stringGoalCardHashMap.values().stream(), this.stringPlayableCardHashMap.values().stream())
+                     .filter(c -> c.getCardCode().equals(code))
+                     .map(Card::getCardDescription)
+                     .findAny()
+                     .orElse("Card code is not valid!");
+    }
+
+    public ArrayList<String> getInfoAllCards(){
+        return Stream.concat(this.stringGoalCardHashMap.values().stream(), this.stringPlayableCardHashMap.values().stream())
+                     .map(Card::getCardDescription)
+                     .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+    }
+
     public void startGame(){
-        // @todo: keep track of turns and game states.
-        this.shufflePlayer();
-        firstPlayer = players.getFirst();
+        this.setFirstPlayer();
+        this.activePlayer = this.firstPlayer;
+    }
+
+    public Player getFirstPlayer(){
+        return this.firstPlayer;
+    }
+
+    private void setFirstPlayer(){
+        if(players.size() == numPlayers){
+            // Assign the first player to the one at the random index
+            Random random = new Random();
+            this.firstPlayer = players.get(random.nextInt(players.size()));
+        }
+    }
+
+    public Player getActivePlayer(){
+        return this.activePlayer;
+    }
+
+    public Player getNextPlayer(){
+        return this.players.get((this.players.indexOf(this.activePlayer) + 1) % this.numPlayers);
     }
 
     public void createNewPlayer(String name, ClientPlayer Client) throws NameAlreadyInUseException {
@@ -58,7 +117,7 @@ public class Game {
             }
         }
 
-        Player player = new Player(name, Client);
+        Player player = new Player(name);
         players.add(player);
     }
     public void removePlayer(Player p){
@@ -72,65 +131,6 @@ public class Game {
         }
         throw new PlayerNotFoundException("A player with the given name was not found.");
     }
-    public Player getActivePlayer(){
-        return this.activePlayer;
-    }
-    public String getInfoCard(String name) throws CardNotFoundException{
-        // Using card name format: "type_number_orientation.jpg"
-        // ex. goal_01_back.jpg
-
-        String cardType = name.split("_", 2)[0];
-        switch (cardType){
-            case "goal" -> {
-                return goalDeck.getInfoCard(name);
-            }
-            case "initial" -> {
-                return initialDeck.getInfoCard(name);
-            }
-            case "resources" -> {
-                return resourceDeck.getInfoCard(name);
-            }
-            case "gold" -> {
-                return goldDeck.getInfoCard(name);
-            }
-            default -> {
-                throw new CardNotFoundException("Requested card not found.");
-            }
-        }
-    }
-    public ArrayList<String> getInfoAllCards(){
-        ArrayList<String> infos = new ArrayList<>(goalDeck.getInfoAllCards());
-        infos.addAll(initialDeck.getInfoAllCards());
-        infos.addAll(resourceDeck.getInfoAllCards());
-        infos.addAll(goldDeck.getInfoAllCards());
-        return infos;
-    }
-    public void setActivePlayer(Player p){
-        this.activePlayer = p;
-    }
-
-    public Player getFirstPlayer(){
-        return this.firstPlayer;
-    }
-
-    public void setFirstPlayer(){
-        if(firstPlayer == null && players.size() == numPlayers){
-            // Assign the first player to the one at the random index
-            Random random = new Random();
-            this.firstPlayer = players.get(random.nextInt(players.size()));
-        }
-    }
-
-    private void fillCardsOnTable() {
-        try{
-            goldcardsOnTable = new PlayableCard[]{goldDeck.pickACard(), goldDeck.pickACard()};
-            resourceCardsOnTable = new PlayableCard[]{resourceDeck.pickACard(), resourceDeck.pickACard()};
-            pulicGoalCardsOnTable = new GoalCard[]{goalDeck.pickACard(), goalDeck.pickACard()};
-        }catch (EmptyDeckException e){
-            // @todo: how to handle exceptions?
-            e.printStackTrace();
-        }
-    }
 
     /**
      * This method returns a card from the deck of specified type. If the deck is empty, throws an exception
@@ -142,10 +142,10 @@ public class Game {
         Deck<PlayableCard> deck;
         deck = switch (type) {
             case RESOURCE -> {
-                yield resourceDeck;
+                yield this.resourceDeck;
             }
             case GOLD -> {
-                yield goldDeck;
+                yield this.goldDeck;
             }
             default -> throw new MalformedParametersException("type must be RESOURCE or GOLD");
         };
@@ -155,24 +155,24 @@ public class Game {
      * This method returns a card of the given type at the given position. The card is removed from the position, and if no card
      * is present the exception NoCardException is thrown. Then a card from the same deck type is drawn (if the deck
      * is not empty) and placed at the given position.
-     * @param type The type of card to pick, either RESOUCE or GOLD
+     * @param type The type of card to pick, either RESOURCE or GOLD
      * @param position The position 0 -> left 1 -> right
      * @return The card in the specified position if present
      * @throws CardNotFoundException when there is no card, this exception is thrown
      */
     public PlayableCard pickCardFromTable(PlayableCardType type, int position) throws CardNotFoundException, MalformedParametersException {
         Deck<PlayableCard> deck;
-        PlayableCard[] cardsOnTable;
-        switch (type) {
-            case RESOURCE:
-                deck = resourceDeck; cardsOnTable = resourceCardsOnTable;
-                break;
-            case GOLD:
-                deck = goldDeck; cardsOnTable = goldcardsOnTable;
-                break;
-            default:
-                throw new MalformedParametersException("type must be RESOURCE or GOLD");
-        }
+        PlayableCard[] cardsOnTable = switch (type) {
+            case RESOURCE -> {
+                deck = resourceDeck;
+                yield this.resourceCardsOnTable;
+            }
+            case GOLD -> {
+                deck = goldDeck;
+                yield this.goldCardsOnTable;
+            }
+            default -> throw new MalformedParametersException("type must be RESOURCE or GOLD");
+        };
         PlayableCard result = cardsOnTable[position];
         if(result==null) {
             throw new CardNotFoundException("Card not found");
@@ -190,14 +190,10 @@ public class Game {
         // for each goal card (public and private)
         for(Player p : players){
             Station station = p.getPlayerStation();
-            station.updatePoints(pulicGoalCardsOnTable[0]);
-            station.updatePoints(pulicGoalCardsOnTable[1]);
+            station.updatePoints(this.publicGoalCardsOnTable[0]);
+            station.updatePoints(this.publicGoalCardsOnTable[1]);
             station.updatePoints(station.getPrivateGoalCard());
         }
-    }
-
-    private void shufflePlayer() {
-        Collections.shuffle(players);
     }
 
     public int getNumPlayers(){
@@ -212,4 +208,5 @@ public class Game {
     {
         return playerToNotify.getName();
     }
+
 }

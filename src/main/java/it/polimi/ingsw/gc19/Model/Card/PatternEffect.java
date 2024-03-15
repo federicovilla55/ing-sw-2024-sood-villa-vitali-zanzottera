@@ -50,7 +50,7 @@ class PatternEffect implements GoalEffect{
                 numOfCard = 0;
                 while(found){
                     try{
-                        currentCard = station.getCardSchema().getCard(nextI, nextK);
+                        currentCard = station.getCardSchema().getCard(nextI, nextK).get(); //rivedere
                         if((currentCard.getCardType() != PlayableCardType.INITIAL) && (currentCard.getPermanentResources().getFirst() == requiredSymbol.get(numOfCard)) && usedCards[nextI][nextK]){
                             nextI = nextI + moves.get(numOfCard).x();
                             nextK = nextK + moves.get(numOfCard).y();
