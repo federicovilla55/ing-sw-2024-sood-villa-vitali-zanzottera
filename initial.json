@@ -1,0 +1,38 @@
+[
+  {
+    "card_type": "playable",
+    "code": "initial_01",
+    "playable_card_type": "INITIAL",
+    "front_grid":
+                  [
+                    [{"corner_type" : "symbol", "symbol": "MUSHROOM"},
+                      {
+                        "type" : "symbol" ,
+                        "value" : "VEGETABLE"
+                      }
+                    ],
+                    [
+                      {
+                        "type" : "symbol",
+                        "value" : "INSECT"
+                      },
+                      {"type" : "symbol",
+                        "value" : "ANIMAL"
+                      }
+                    ]
+                  ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      ["EMPTY", "VEGETABLE"],
+      ["INSECT", "EMPTY"]
+    ],
+    "permanent": [
+      "INSECT"
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "effectValue": 0
+    }
+  }
+]
