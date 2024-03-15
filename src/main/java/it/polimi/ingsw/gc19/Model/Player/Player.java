@@ -30,9 +30,5 @@ public class Player {
         return this.playerColor;
     }
 
-    public ClientPlayer getClient()
-    {
-        return this.Client;
-    }
 
 }
