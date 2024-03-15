@@ -20,12 +20,14 @@ public class CardSchema{
     public CardSchema(){
         this.cardSchema = new PlayableCard[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
         this.cardOverlap = new int[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
+
         for(int i = 0; i < ImportantConstants.gridDimension; i++){
             for(int k = 0; k < ImportantConstants.gridDimension; k++){
                 this.cardSchema[i][k] = null;
                 this.cardOverlap[i][k] = 0;
             }
         }
+
         this.cardPosition = new HashMap<>();
         this.currentCount = 0;
     }
@@ -77,7 +79,7 @@ public class CardSchema{
         return Optional.of(this.cardSchema[coords.x() + dir.getX()][coords.y() + dir.getY()]);
     }
 
-    public Optional<PlayableCard> getCardWithAnchor(int x, int y, Direction dir) throws InvalidAnchorException, InvalidPositionException{
+    public Optional<PlayableCard> getCardWithAnchor(int x, int y, Direction dir) throws InvalidPositionException{
         return this.getCard(x, y).flatMap(c -> {
             try{
                 return getCardWithAnchor(c, dir);
