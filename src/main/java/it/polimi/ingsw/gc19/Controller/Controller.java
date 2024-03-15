@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.Controller;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Player.NameAlreadyInUseException;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Controller {
@@ -29,8 +30,7 @@ public class Controller {
         return false;
     }
 
-    public void CreateGame(ClientPlayer new_player, String GameName, int num_player, String creatorName)
-    {
+    public void CreateGame(ClientPlayer new_player, String GameName, int num_player, String creatorName) throws IOException { //gestire l'eccezzione
         if(CheckAlreadyExist(GameName)){
             throw new IllegalArgumentException("Name already in use");
         }
@@ -38,7 +38,7 @@ public class Controller {
         new_player.gamePlay = GameName;
         nonActiveGames.add(GameName);
         mapIdtoController.put(GameName, temp);
-        mapIdtoController.get(GameName).gameAssociated.createNewPlayer(creatorName, new_player);
+        //mapIdtoController.get(GameName).gameAssociated.createNewPlayer(creatorName, new_player);
     }
 
     public void JoinGame(ClientPlayer player, String gameToJoin, String nickToJoin) {

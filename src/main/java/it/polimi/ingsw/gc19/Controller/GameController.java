@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.Controller;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Player.Player;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,8 +12,7 @@ public class GameController {
     Game gameAssociated;
 
 
-    GameController(int num_player)
-    {
+    GameController(int num_player) throws IOException { //gestire l'eccezzione
         this.gameAssociated = new Game(num_player);
     }
     public void StartGame(){
