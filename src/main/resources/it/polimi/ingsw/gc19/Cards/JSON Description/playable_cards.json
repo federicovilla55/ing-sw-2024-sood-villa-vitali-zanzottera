@@ -1,0 +1,1994 @@
+[
+  {
+    "card_type": "playable",
+    "code": "resource_01",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "MUSHROOM" ], [ "empty", "EMPTY" ]],
+      [[ "symbol", "MUSHROOM" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_02",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "MUSHROOM" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_03",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "MUSHROOM" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_04",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "MUSHROOM" ]],
+      [[ "empty", "EMPTY" ], [ "symbol", "MUSHROOM" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_05",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "FEATHER" ]],
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "MUSHROOM" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_06",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "INK" ], [ "symbol", "MUSHROOM" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "ANIMAL" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_07",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "INSECT" ]],
+      [[ "symbol", "SCROLL" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_08",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "symbol", "MUSHROOM" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_09",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "MUSHROOM" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_10",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]],
+      [[ "symbol", "MUSHROOM" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_11",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "VEGETABLE" ], [ "empty", "EMPTY" ]],
+      [[ "symbol", "VEGETABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_12",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "VEGETABLE" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_13",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "VEGETABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_14",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "VEGETABLE" ]],
+      [[ "empty", "EMPTY" ], [ "symbol", "VEGETABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_15",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "INSECT" ]],
+      [[ "symbol", "FEATHER" ], [ "symbol", "VEGETABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_16",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "VEGETABLE" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "INK" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_17",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "SCROLL" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "ANIMAL" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_18",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "symbol", "VEGETABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_19",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "VEGETABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_20",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "VEGETABLE" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_21",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "ANIMAL" ], [ "symbol", "ANIMAL" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_22",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]],
+      [[ "symbol", "ANIMAL" ], [ "symbol", "ANIMAL" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_23",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "ANIMAL" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "ANIMAL" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_24",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "symbol", "ANIMAL" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "ANIMAL" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_25",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "INSECT" ]],
+      [[ "symbol", "INK" ], [ "symbol", "ANIMAL" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_26",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "ANIMAL" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "SCROLL" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_27",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "FEATHER" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "ANIMAL" ], [ "symbol", "MUSHROOM" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_28",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]],
+      [[ "symbol", "ANIMAL" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_29",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "ANIMAL" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_30",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "symbol", "ANIMAL" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_31",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "INSECT" ], [ "symbol", "INSECT" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_32",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]],
+      [[ "symbol", "INSECT" ], [ "symbol", "INSECT" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_33",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "INSECT" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "INSECT" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_34",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "symbol", "INSECT" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "INSECT" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_35",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "FEATHER" ]],
+      [[ "symbol", "ANIMAL" ], [ "symbol", "INSECT" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_36",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "SCROLL" ], [ "symbol", "INSECT" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "MUSHROOM" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_37",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "INSECT" ], [ "symbol", "VEGETABLE" ]],
+      [[ "symbol", "INK" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_38",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "symbol", "INSECT" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_39",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "INSECT" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "resource_40",
+    "playable_card_type": "RESOURCE",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "INSECT" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "initial_01",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "VEGETABLE" ]],
+      [[ "symbol", "INSECT" ], [ "symbol", "ANIMAL" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "symbol", "VEGETABLE" ]],
+      [[ "symbol", "INSECT" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "initial_02",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "ANIMAL" ]],
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "INSECT" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "symbol", "ANIMAL" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "symbol", "MUSHROOM" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "initial_03",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "INSECT" ], [ "symbol", "ANIMAL" ]],
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "VEGETABLE" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ], [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "initial_04",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "INSECT" ]],
+      [[ "symbol", "ANIMAL" ], [ "symbol", "MUSHROOM" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ], [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "initial_05",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "INSECT" ], [ "symbol", "MUSHROOM" ]],
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "ANIMAL" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ], [ "symbol", "INSECT" ], [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "initial_06",
+    "playable_card_type": "INITIAL",
+    "front_grid": [
+      [[ "symbol", "MUSHROOM" ], [ "symbol", "ANIMAL" ]],
+      [[ "symbol", "VEGETABLE" ], [ "symbol", "INSECT" ]]
+    ],
+    "required_symbol": {
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ], [ "symbol", "ANIMAL" ], [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 0
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_01",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "symbol", "FEATHER" ]]
+    ],
+    "required_symbol": {
+      "MUSHROOM": 2,
+      "ANIMAL": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "FEATHER": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_02",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "symbol", "INK" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "MUSHROOM": 2,
+      "VEGETABLE": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "INK": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_03",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "symbol", "SCROLL" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "MUSHROOM": 2,
+      "INSECT": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "SCROLL": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_04",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "MUSHROOM": 3,
+      "ANIMAL": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_05",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "MUSHROOM": 3,
+      "VEGETABLE": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_06",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "MUSHROOM": 3,
+      "INSECT": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_07",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "INK" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "MUSHROOM": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_08",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "symbol", "FEATHER" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "MUSHROOM": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_09",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "SCROLL" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "MUSHROOM": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_10",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "MUSHROOM": 5
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "MUSHROOM" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 5
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_11",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "symbol", "FEATHER" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "VEGETABLE": 2,
+      "INSECT": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "FEATHER": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_12",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "symbol", "SCROLL" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "VEGETABLE": 2,
+      "MUSHROOM": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "SCROLL": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_13",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "INK" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "VEGETABLE": 2,
+      "ANIMAL": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "INK": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_14",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "VEGETABLE": 3,
+      "INSECT": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_15",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "VEGETABLE": 3,
+      "ANIMAL": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_16",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "VEGETABLE": 3,
+      "MUSHROOM": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_17",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "FEATHER" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "VEGETABLE": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_18",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "symbol", "SCROLL" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "VEGETABLE": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_19",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "INK" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "VEGETABLE": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_20",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "VEGETABLE": 5
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "VEGETABLE" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 5
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_21",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "symbol", "INK" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "ANIMAL": 2,
+      "INSECT": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "INK": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_22",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "symbol", "SCROLL" ]]
+    ],
+    "required_symbol": {
+      "ANIMAL": 2,
+      "VEGETABLE": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "SCROLL": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_23",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "FEATHER" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "ANIMAL": 2,
+      "MUSHROOM": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "FEATHER": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_24",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "ANIMAL": 3,
+      "INSECT": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_25",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "ANIMAL": 3,
+      "MUSHROOM": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_26",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "ANIMAL": 3,
+      "VEGETABLE": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_27",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "SCROLL" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "ANIMAL": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_28",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "symbol", "INK" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "ANIMAL": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_29",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "FEATHER" ]]
+    ],
+    "required_symbol": {
+      "ANIMAL": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_30",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "ANIMAL": 5
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "ANIMAL" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 5
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_31",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "symbol", "FEATHER" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "INSECT": 2,
+      "VEGETABLE": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "FEATHER": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_32",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "SCROLL" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "INSECT": 2,
+      "ANIMAL": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "SCROLL": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_33",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "symbol", "INK" ]]
+    ],
+    "required_symbol": {
+      "INSECT": 2,
+      "MUSHROOM": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "symbol",
+      "required": {
+        "INK": 1
+      },
+      "value": 1
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_34",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "INSECT": 3,
+      "ANIMAL": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_35",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "INSECT": 3,
+      "VEGETABLE": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_36",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "INSECT": 3,
+      "MUSHROOM": 1
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "corner",
+      "value": 2
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_37",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "symbol", "INK" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "INSECT": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_38",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "symbol", "SCROLL" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "INSECT": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_39",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "not_available", "NOT_AVAILABLE" ], [ "not_available", "NOT_AVAILABLE" ]],
+      [[ "symbol", "FEATHER" ], [ "empty", "EMPTY" ]]
+    ],
+    "required_symbol": {
+      "INSECT": 3
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 3
+    }
+  },
+  {
+    "card_type": "playable",
+    "code": "gold_40",
+    "playable_card_type": "GOLD",
+    "front_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "not_available", "NOT_AVAILABLE" ], [ "not_available", "NOT_AVAILABLE" ]]
+    ],
+    "required_symbol": {
+      "INSECT": 5
+    },
+    "back_grid": [
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]],
+      [[ "empty", "EMPTY" ], [ "empty", "EMPTY" ]]
+    ],
+    "permanent": [
+      [ "symbol", "INSECT" ]
+    ],
+    "effect_type": {
+      "name": "no_constraint",
+      "value": 5
+    }
+  }
+]
