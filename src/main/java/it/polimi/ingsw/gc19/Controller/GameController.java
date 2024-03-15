@@ -17,7 +17,7 @@ public class GameController {
     }
     public void StartGame(){
         gameAssociated.startGame();
-        NotifyClientToPlay(gameAssociated.getFirstPlayer().getClient());
+        //NotifyClientToPlay(gameAssociated.getFirstPlayer().getClient());
     }
 
     public void insertCard() {
