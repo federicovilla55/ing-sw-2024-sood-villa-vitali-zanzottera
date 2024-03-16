@@ -8,6 +8,7 @@ module it.polimi.ingsw.gc19 {
     requires com.fasterxml.jackson.databind;
 
     opens it.polimi.ingsw.gc19 to javafx.fxml;
+    opens it.polimi.ingsw.gc19.Model.Deck;
     exports it.polimi.ingsw.gc19;
     exports it.polimi.ingsw.gc19.Model.Card to com.fasterxml.jackson.databind;
     opens it.polimi.ingsw.gc19.Model.Card to com.fasterxml.jackson.databind;

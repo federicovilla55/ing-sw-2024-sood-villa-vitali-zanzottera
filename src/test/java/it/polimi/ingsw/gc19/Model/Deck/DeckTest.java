@@ -1,70 +1,67 @@
 package it.polimi.ingsw.gc19.Model.Deck;
 
-import it.polimi.ingsw.gc19.Model.Card.Card;
-import it.polimi.ingsw.gc19.Model.Card.GoalCard;
-import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Model.Enums.CornerPosition;
-import it.polimi.ingsw.gc19.Model.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Model.Game.Game;
+import it.polimi.ingsw.gc19.Model.Player.NameAlreadyInUseException;
+import it.polimi.ingsw.gc19.Model.Player.Player;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
+import java.lang.reflect.MalformedParametersException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DeckTest {
-    @Test
-    void getArray() throws IOException {
-        /*decks locations*/
-        String initialDeckPath = "src/main/resources/it/polimi/ingsw/gc19/decks/initial_deck.json";
-        String resourceDeckPath = "src/main/resources/it/polimi/ingsw/gc19/decks/resource_deck.json";
-        String goldDeckPath = "src/main/resources/it/polimi/ingsw/gc19/decks/gold_deck.json";
-        String goalDeckPath = "src/main/resources/it/polimi/ingsw/gc19/decks/goal_deck.json";
+    private Game game;
 
-        /*load initial cards from file*/
-        Deck<PlayableCard> initialDeck = new Deck<>(initialDeckPath);
-
-        ArrayList<PlayableCard> initialArray = initialDeck.getArray();
-
-        /*load resource cards from file*/
-        Deck<PlayableCard> resourceDeck = new Deck<>(resourceDeckPath);
-
-        ArrayList<PlayableCard> resourceArray = resourceDeck.getArray();
-
-        /*load gold cards from file*/
-        Deck<PlayableCard> goldDeck = new Deck<>(goldDeckPath);
-
-        ArrayList<PlayableCard> goldArray = goldDeck.getArray();
-
-        /*load goal cards from file*/
-        Deck<GoalCard> goalDeck = new Deck<>(goalDeckPath);
-
-        ArrayList<GoalCard> goalArray = goalDeck.getArray();
-
-        /*initialDeck test*/
-        assertEquals(
-                6,
-                initialDeck.getInitialLenOfDeck(),
-                "Initial Deck does not have 6 cards"
-        );
-        assertEquals(
-                CardOrientation.DOWN,
-                initialArray.getFirst().getCardOrientation(),
-                "Initialized card is not oriented DOWN"
-        );
-        assertEquals(
-                Symbol.INSECT,
-                initialArray.getFirst().getCorner(CornerPosition.DOWN_LEFT),
-                "Wrong symbol in DOWN_LEFT back corner for card " + initialArray.getFirst().getCardCode()
-        );
-        initialArray.getFirst().swapCard();
-        assertEquals(
-                Symbol.VEGETABLE,
-                initialArray.getFirst().getCorner(CornerPosition.UP_RIGHT),
-                "Wrong symbol in UP_RIGHT front corner back for card " + initialArray.getFirst().getCardCode()
-        );
+    @BeforeEach
+    public void setUp() throws IOException {
+        game = new Game(4);
     }
+
+    @Test
+    public void testInitialization() {
+        // Test game initialization
+        assertNotNull(game);
+        assertEquals(4, game.getNumPlayers());
+        int deckSize = 0;
+        try {
+            while (true) {
+                game.pickCardFromDeck(PlayableCardType.GOLD);
+                deckSize++;
+            }
+        } catch (EmptyDeckException e) {
+            assertEquals(38, deckSize, "Gold deck size should be 38");
+        }
+        deckSize = 0;
+        try {
+            while (true) {
+                game.pickCardFromDeck(PlayableCardType.RESOURCE);
+                deckSize++;
+            }
+        } catch (EmptyDeckException e) {
+            assertEquals(38, deckSize, "Resource deck size should be 38");
+        }
+
+        // 40 Gold Cards, 40 Resource Cards, 16 Goal Cards, 6 Initial Cards
+        assertEquals(102, game.getInfoAllCards().size());
+
+        try {
+            game.pickCardFromDeck(PlayableCardType.INITIAL);
+            assert(false);
+        } catch (MalformedParametersException ignored) {
+
+        }catch (EmptyDeckException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Test
+    public void testPlayerCreation() throws NameAlreadyInUseException {
+        assertEquals(0, game.getNumJoinedPlayer(), "Initial player count should be 0");
+        game.createNewPlayer("Player1", null);
+        assertEquals(1, game.getNumJoinedPlayer(), "Player count should be 1 after creating a player");
+        assertThrows(NameAlreadyInUseException.class, () -> game.createNewPlayer("Player1", null), "Should throw NameAlreadyInUseException");
+    }
+
 }
