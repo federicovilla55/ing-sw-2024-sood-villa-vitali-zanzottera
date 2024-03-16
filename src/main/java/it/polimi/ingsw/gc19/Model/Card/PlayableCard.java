@@ -80,7 +80,7 @@ public class PlayableCard extends Card{
         this.backGridConfiguration = backGridConfiguration;
         this.permanentResources = permanentResources;
         this.playableEffect = playableEffect;
-        if (cardOrientation==null) this.cardState = new CardDown();
+        if (cardOrientation==null) this.cardState = new CardUp();
 
     }
 
@@ -111,16 +111,9 @@ public class PlayableCard extends Card{
         return this.cardState.getCorner(position);
     }
 
-    /**
-     * This method returns true if and only if the station passed as
-     * parameter has enough resources to place this card. If the card is
-     * on the back this is always true.
-     * @param station the station where to check for resources
-     * @return true if and only if the resources in station
-     * are enough
-     */
-    public boolean enoughResourceToBePlaced(Station station){
-        return this.cardState.enoughResourceToBePlaced(station);
+
+    public boolean enoughResourceToBePlaced(HashMap<Symbol, Integer> freeResources){
+        return this.cardState.enoughResourceToBePlaced(freeResources);
     }
 
     /**
@@ -178,10 +171,10 @@ public class PlayableCard extends Card{
     @Override
     public String getCardDescription(){
         return "Type: " + cardType +
-                "Front grid configuration: DOWN-LEFT = " + frontGridConfiguration[0][0] + " UP-LEFT = " + frontGridConfiguration[1][0] + " UP-RIGHT = " + frontGridConfiguration[1][1] + " DOWN-RIGHT = " + frontGridConfiguration[0][1] +
+                "Front grid configuration: DOWN-LEFT = " + frontGridConfiguration[1][0] + " UP-LEFT = " + frontGridConfiguration[0][0] + " UP-RIGHT = " + frontGridConfiguration[0][1] + " DOWN-RIGHT = " + frontGridConfiguration[1][1] +
                 this.playableEffect.getEffectDescription() +
                 "Required symbols to place front: " + this.requiredSymbolToPlace.toString() +
-                "Back grid configuration: DOWN-LEFT = " + backGridConfiguration[0][0] + " UP-LEFT = " + backGridConfiguration[1][0] + " UP-RIGHT = " + backGridConfiguration[1][1] + " DOWN-RIGHT = " + backGridConfiguration[0][1] +
+                "Back grid configuration: DOWN-LEFT = " + backGridConfiguration[1][0] + " UP-LEFT = " + backGridConfiguration[0][0] + " UP-RIGHT = " + backGridConfiguration[0][1] + " DOWN-RIGHT = " + backGridConfiguration[1][1] +
                 "Permanent resources: " + permanentResources.toString();
     }
 
@@ -213,15 +206,9 @@ public class PlayableCard extends Card{
          */
         Corner getCorner(CornerPosition position);
 
+        boolean enoughResourceToBePlaced(HashMap<Symbol, Integer> freeResources);
+
         /**
-         * This method returns true if and only if the station passed as
-         * parameter has enough resources to place this card. If the card is
-         * on the back this is always true.
-         * @param station the station where to check for resources
-         * @return true if and only if the resources in station
-         * are enough
-         */
-        boolean enoughResourceToBePlaced(Station station);        /**
          * This method returns the points gained by the card effect
          * after its placement in a station. If the card is on the back,
          * this method returns 0
@@ -281,9 +268,9 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public boolean enoughResourceToBePlaced(Station station){
-            for(Symbol s : Symbol.values()){
-                if(station.getVisibleSymbolsInStation().get(s) < requiredSymbolToPlace.get(s)){
+        public boolean enoughResourceToBePlaced(HashMap<Symbol, Integer> freeResources){
+            for(Symbol s : requiredSymbolToPlace.keySet()){
+                if(freeResources.get(s) < requiredSymbolToPlace.get(s)){
                     return false;
                 }
             }
@@ -342,7 +329,7 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public boolean enoughResourceToBePlaced(Station station){
+        public boolean enoughResourceToBePlaced(HashMap<Symbol, Integer> freeResources){
             return true;
         }
 

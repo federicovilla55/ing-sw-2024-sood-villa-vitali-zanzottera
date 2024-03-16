@@ -4,6 +4,7 @@ import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
+import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
 import java.util.Arrays;
@@ -89,14 +90,22 @@ public class CardSchema{
         });
     }
 
-    public boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException{
+     void placeInitialCard(PlayableCard initialCard){
+        if(initialCard.getCardType() == PlayableCardType.INITIAL){
+            this.cardSchema[ImportantConstants.gridDimension / 2][ImportantConstants.gridDimension / 2] = initialCard;
+            this.cardOverlap[ImportantConstants.gridDimension / 2][ImportantConstants.gridDimension / 2] = 1;
+            this.cardPosition.put(initialCard, new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2));
+        }
+    }
+
+    boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException{ //riportare in station
         if(!this.cardPosition.containsKey(anchor)){
             throw new InvalidAnchorException();
         }
         return this.cardSchema[this.cardPosition.get(anchor).x() + direction.getX()][this.cardPosition.get(anchor).y() + direction.getY()] == null;
     }
 
-    public boolean isPlaceable(int x, int y, Direction dir) throws InvalidPositionException{
+    boolean isPlaceable(int x, int y, Direction dir) throws InvalidPositionException{ //riportare nella classe station
         return this.getCard(x, y).map(c -> {
             try {
                 return isPlaceable(c, dir);
@@ -106,7 +115,7 @@ public class CardSchema{
         }).orElse(false);
     }
 
-    public void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction){
+    void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction){ //metto package visible perchè bisogna passare da station
         Tuple<Integer, Integer> coords = this.cardPosition.get(anchor);
         this.cardSchema[coords.x() + direction.getX()][coords.y() + direction.getY()] = toPlace;
         this.cardOverlap[coords.x() + direction.getX()][coords.y() + direction.getY()] = this.currentCount + 1;

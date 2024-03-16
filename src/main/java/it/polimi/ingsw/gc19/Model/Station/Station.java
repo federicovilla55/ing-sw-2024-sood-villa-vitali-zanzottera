@@ -1,11 +1,14 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
+import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Enums.EmptyCorner;
+import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,33 +56,37 @@ public class Station{
         return this.cardsInStation;
     }
 
-    private void setPrivateGoalCard(GoalCard privateGoalCard){
+    public void setPrivateGoalCard(GoalCard privateGoalCard){
         this.privateGoalCard = privateGoalCard;
     }
 
-    public void updatePoints(Card card){
-        numPoints = numPoints + card.countPoints(this);
+    public void updatePoints(Card card){ //METTERE UN METODO CHE SI OCCUPA SOLO DI AUMENTRE I PUNTEGGI RELATIVI AGLI OBBIETTIVI PRIVATE?
+        this.numPoints = this.numPoints + card.countPoints(this);
     }
 
     public CardSchema getCardSchema() {
         return this.cardSchema;
     }
 
+    public void placeInitialCard(PlayableCard initialCard){
+        if(initialCard.getCardType() == PlayableCardType.INITIAL){
+            initialCard.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
+            this.cardSchema.placeInitialCard(initialCard);
+        }
+    }
+
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
         if(!this.cardsInStation.contains(toPlace)){
             throw new InvalidCardException();
         }
-        return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this) && anchor.canPlaceOver(direction.getThisCornerPosition());
+        return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this.visibleSymbolsInStation) && anchor.canPlaceOver(direction.getThisCornerPosition());
     }
 
-    public void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidPositionException, InvalidAnchorException{
-        PlayableCard sharingCorner;
+    public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{ //ritornare un bool per dire se il piazzamento è andato a buon fine
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
-            placeCard(anchor, toPlace, direction);
+            this.cardSchema.placeCard(anchor, toPlace, direction);
             updatePoints(toPlace);
-            for(Symbol s : Symbol.values()){
-                this.visibleSymbolsInStation.put(s, this.visibleSymbolsInStation.get(s) + toPlace.getHashMapSymbols().get(s));
-            }
+            toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
             for(Direction d : Direction.values()){
                 try{
                     getCardSchema().getCardWithAnchor(toPlace, d)
@@ -88,7 +95,9 @@ public class Station{
                 }
                 catch(Exception ignored){};
             }
+            return true;
         }
+        return false;
     }
 
     public ArrayList<PlayableCard> getCardsInHand(){

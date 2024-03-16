@@ -18,6 +18,7 @@ public class Deck<cardType extends Card>{
 
     public Deck(Stream<cardType> cardsInDeck) {
         this.cardsInDeck = cardsInDeck.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        this.initialLenOfDeck = this.cardsInDeck.size();
     }
 
     private ArrayList<cardType> init(String filename) throws IOException {

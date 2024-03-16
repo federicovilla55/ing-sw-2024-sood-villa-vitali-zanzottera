@@ -49,13 +49,15 @@ class PatternEffect implements GoalEffect{
                 nextK = k;
                 numOfCard = 0;
                 while(found){
-                    try{
-                        currentCard = station.getCardSchema().getCard(nextI, nextK).get(); //rivedere
-                        if((currentCard.getCardType() != PlayableCardType.INITIAL) && (currentCard.getPermanentResources().getFirst() == requiredSymbol.get(numOfCard)) && usedCards[nextI][nextK]){
-                            nextI = nextI + moves.get(numOfCard).x();
-                            nextK = nextK + moves.get(numOfCard).y();
-                            usedCards[nextI][nextK] = false;
-                            numOfCard++;
+                    try {
+                        if(station.getCardSchema().getCard(nextI, nextK).isPresent()){
+                            currentCard = station.getCardSchema().getCard(nextI, nextK).get();
+                            if((currentCard.getCardType() != PlayableCardType.INITIAL) && (currentCard.getPermanentResources().getFirst() == requiredSymbol.get(numOfCard)) && usedCards[nextI][nextK]) {
+                                nextI = nextI + moves.get(numOfCard).x();
+                                nextK = nextK + moves.get(numOfCard).y();
+                                usedCards[nextI][nextK] = false;
+                                numOfCard++;
+                            }
                         }
                     }
                     catch(Exception ignored){
