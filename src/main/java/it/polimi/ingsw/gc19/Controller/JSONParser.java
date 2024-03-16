@@ -8,6 +8,7 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 public final class JSONParser{
@@ -15,12 +16,12 @@ public final class JSONParser{
 
     public static Stream<PlayableCard> readPlayableCardFromFile() throws IOException{
         File playableCardsFile = new File(ImportantConstants.pathToPlayableCardFileJSON);
-        return objMapper.readValue(playableCardsFile, new TypeReference<Stream<PlayableCard>>(){});
+        return objMapper.readValue(playableCardsFile, new TypeReference<ArrayList<PlayableCard>>(){}).stream();
     }
 
     public static Stream<GoalCard> readGoalCardFromFile() throws IOException{
-        File playableCardsFile = new File(ImportantConstants.pathToPlayableCardFileJSON);
-        return objMapper.readValue(playableCardsFile, new TypeReference<Stream<GoalCard>>(){});
+        File goalCardsFile = new File(ImportantConstants.pathToGoalCardFileJSON);
+        return objMapper.readValue(goalCardsFile, new TypeReference<ArrayList<GoalCard>>(){}).stream();
     }
 
 }
