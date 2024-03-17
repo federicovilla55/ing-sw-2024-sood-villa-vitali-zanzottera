@@ -39,7 +39,7 @@ public class CardSchema{
 
     public Optional<PlayableCard> getCard(int x, int y) throws InvalidPositionException{
         if(checkCoords(x, y)){
-            return Optional.of(this.cardSchema[x][y]);
+            return Optional.ofNullable(this.cardSchema[x][y]);
         }
         else{
             throw new InvalidPositionException();
@@ -77,7 +77,7 @@ public class CardSchema{
             throw new InvalidAnchorException();
         }
         Tuple<Integer, Integer> coords = this.cardPosition.get(anchor);
-        return Optional.of(this.cardSchema[coords.x() + dir.getX()][coords.y() + dir.getY()]);
+        return Optional.ofNullable(this.cardSchema[coords.x() + dir.getX()][coords.y() + dir.getY()]);
     }
 
     public Optional<PlayableCard> getCardWithAnchor(int x, int y, Direction dir) throws InvalidPositionException{

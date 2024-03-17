@@ -188,6 +188,13 @@ public class PlayableCard extends Card{
         return cardState.getState();
     }
 
+    public Symbol getSeed(){
+        if(this.cardType != PlayableCardType.INITIAL){
+            return this.permanentResources.getFirst();
+        }
+        return null;
+    }
+
     /**
      * This interface is the state of a card, either up or down
      */
