@@ -12,7 +12,7 @@ public class GameController {
     Game gameAssociated;
 
 
-    GameController(int num_player) throws IOException { //gestire l'eccezzione
+    GameController(int num_player) throws IOException {
         this.gameAssociated = new Game(num_player);
     }
     public void StartGame(){

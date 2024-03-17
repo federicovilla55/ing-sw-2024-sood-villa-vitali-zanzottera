@@ -4,13 +4,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 public class Server {
 
-    ServerSocket serverSocket = null;
+    static ServerSocket serverSocket = null;
     Socket clientSocket = null;
     public static void main(String[] args) throws IOException {
 
-        //serverSocket = new ServerSocket(5000);
-
-
+        serverSocket = new ServerSocket(5000);
     }
-
 }
