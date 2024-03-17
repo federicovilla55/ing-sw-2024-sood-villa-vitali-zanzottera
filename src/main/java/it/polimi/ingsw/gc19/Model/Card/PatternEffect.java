@@ -32,7 +32,7 @@ class PatternEffect implements GoalEffect{
 
     @Override
     public int countPoints(Station station){
-        return this.cardValue * station.getCardSchema().countPattern(moves, requiredSymbol);
+        return this.cardValue * station.countPattern(moves, requiredSymbol);
     }
 
     @Override

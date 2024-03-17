@@ -26,8 +26,9 @@ class CornerEffect implements PlayableEffect{
         int numCop = 0;
         for(Direction d : Direction.values()){
             try {
-                station.getCardSchema().getCardWithAnchor(station.getCardSchema().getLastPlaced(), d);
-                numCop++;
+                if(station.getLastPlaced().isPresent() && station.getCardWithAnchor(station.getLastPlaced().get(), d).isPresent()){
+                    numCop++;
+                }
             }catch(Exception ignored){};
         }
         return numCop * this.cardValue;
