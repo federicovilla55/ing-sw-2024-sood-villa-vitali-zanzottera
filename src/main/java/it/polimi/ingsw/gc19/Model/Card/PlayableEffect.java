@@ -14,9 +14,20 @@ import it.polimi.ingsw.gc19.Model.Station.Station;
         @JsonSubTypes.Type(value = CornerEffect.class, name = "corner"),
         @JsonSubTypes.Type(value = SymbolEffect.class, name = "symbol")
 })
+/**
+ * This interface represents the effect of a PlayableCard
+ */
 interface PlayableEffect{
 
+    /**
+     * This method returns a detailed description of card's effect
+     */
     String getEffectDescription();
+
+    /**
+     * This method returns the points gained by the player placing this card CardOrientation.UP
+     * @return points gained by this card effect
+     */
     int countPoints(Station station);
 
 }

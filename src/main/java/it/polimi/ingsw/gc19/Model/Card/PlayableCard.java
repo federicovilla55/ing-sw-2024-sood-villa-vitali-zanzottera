@@ -189,6 +189,18 @@ public class PlayableCard extends Card{
     }
 
     /**
+     * This method returns the Symbol describing card's seed
+     * @return a valid Symbol if this.cardType != PlayableCardType.INITIAL
+     * else null
+     */
+    public Symbol getSeed(){
+        if(this.cardType != PlayableCardType.INITIAL){
+            return this.permanentResources.getFirst();
+        }
+        return null;
+    }
+
+    /**
      * This interface is the state of a card, either up or down
      */
     private interface CardState{
@@ -206,6 +218,11 @@ public class PlayableCard extends Card{
          */
         Corner getCorner(CornerPosition position);
 
+        /**
+         * This method returns a boolean describing whether card has enough resources to be placed in station
+         * @param freeResources is the hashmap of free resources in card schema
+         * @return boolean
+         */
         boolean enoughResourceToBePlaced(HashMap<Symbol, Integer> freeResources);
 
         /**
