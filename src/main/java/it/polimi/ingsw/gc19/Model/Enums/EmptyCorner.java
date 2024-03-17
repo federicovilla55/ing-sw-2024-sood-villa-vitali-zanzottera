@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.Optional;
 
+/**
+ * This enum stands for an empty corner
+ */
 @JsonTypeName("empty")
 public enum EmptyCorner implements Corner{
     EMPTY;

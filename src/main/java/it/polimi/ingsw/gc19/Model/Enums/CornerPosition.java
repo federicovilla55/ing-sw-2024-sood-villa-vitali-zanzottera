@@ -1,5 +1,8 @@
 package it.polimi.ingsw.gc19.Model.Enums;
 
+/**
+ * This enum represents the position inside the 2x2 matrix of the card
+ */
 public enum CornerPosition{
     UP_LEFT(0, 0), UP_RIGHT(0, 1), DOWN_RIGHT(1, 1), DOWN_LEFT(1, 0);
 
