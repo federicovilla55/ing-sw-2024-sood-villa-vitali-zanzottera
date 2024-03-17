@@ -5,12 +5,10 @@ import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class CardSchema{
     private final PlayableCard[][] cardSchema;
@@ -161,5 +159,59 @@ public class CardSchema{
 
     public int[][] getCardOverlap() {
         return Arrays.stream(this.cardOverlap).map(int[]::clone).toArray(int[][]::new);
+    }
+
+    public int countPattern(ArrayList<Tuple<Integer, Integer>> moves, ArrayList<Symbol> requiredSymbol){
+        boolean[][] usedCards = new boolean[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
+        ArrayList<Tuple<Integer, Integer>> cardInPattern = new ArrayList<>();
+        boolean found;
+        int currentX, currentY;
+        int numOfCard;
+        int numOfPattern = 0;
+
+        for(int i = 0; i < ImportantConstants.gridDimension; i++){
+            for(int k =0; k < ImportantConstants.gridDimension; k++){
+                usedCards[i][k] = false;
+            }
+        }
+
+        usedCards[ImportantConstants.gridDimension / 2][ImportantConstants.gridDimension / 2] = true;
+
+        for(int i = 0; i < ImportantConstants.gridDimension; i++){
+            for(int k = 0; k <ImportantConstants.gridDimension; k++){
+                if(this.cardSchema[i][k] != null && this.cardSchema[i][k].getSeed() == requiredSymbol.getFirst() && !usedCards[i][k]){
+                    found = true;
+                    currentX = i;
+                    currentY = k;
+                    numOfCard = 1;
+                    cardInPattern.clear();
+                    while(found && numOfCard < moves.size() + 1){
+                        currentX = currentX + moves.get(numOfCard - 1).x();
+                        currentY = currentY + moves.get(numOfCard - 1).y();
+
+                        if(checkCoords(currentX, currentY) && this.cardSchema[currentX][currentY] != null && !usedCards[i][k] && this.cardSchema[i][k].getSeed() == requiredSymbol.get(numOfCard - 1)){
+                            numOfCard++;
+                            cardInPattern.add(new Tuple<>(currentX, currentY));
+                        }
+                        else{
+                            found = false;
+                            for(Tuple<Integer, Integer> t : cardInPattern){
+                                usedCards[t.x()][t.y()] = false;
+                            }
+                        }
+                    }
+
+                    if(numOfCard == moves.size() + 1){
+                        for(Tuple<Integer, Integer> t : cardInPattern){
+                            usedCards[t.x()][t.y()] = true;
+                        }
+                        numOfPattern++;
+                    }
+                }
+            }
+        }
+
+        return numOfPattern;
+
     }
 }
