@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+
+/**
+ * This record represents tuple of T first element and S second element
+ */
 public record Tuple<T, S>(
         @JsonProperty("x") T x,
         @JsonProperty("y") S y

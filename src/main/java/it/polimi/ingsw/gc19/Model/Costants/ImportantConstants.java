@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Costants;
+package it.polimi.ingsw.gc19.Model.Costants;
 
 public class ImportantConstants{
     public static final int gridDimension = 50;
