@@ -22,22 +22,91 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * This class represents a game session.
+ * Players, Decks and the Table can be accessed and managed through the class.
+ */
 public class Game {
+    /**
+     * This Attribute contains a list of the players associated with the game.
+     */
     private final ArrayList<Player> players;
+
+    /**
+     * This attribute contains the number of players, as specified by the player
+     * who created the game.
+     */
     private int numPlayers;
+
+    /**
+     * This attribute contains the active player; the player who is currently playing.
+     */
     private Player activePlayer;
+
+    /**
+     * This attribute contains the first player; the player who will start playing after
+     * the game starts.
+     */
     private Player firstPlayer;
+
+    /**
+     * This attribute identifies the available colors from which players can
+     * choose the color of their pawn.
+     */
     private ArrayList<Color> availableColors;
+
+    /**
+     * This attribute associate every playable card code to the corresponding PlayableCard object.
+     */
     private final HashMap<String, PlayableCard> stringPlayableCardHashMap;
+
+    /**
+     * This attribute associate every goal card code to the corresponding GoalCard object.
+     */
     private final HashMap<String, GoalCard> stringGoalCardHashMap;
+
+    /**
+     * This attribute represents the deck composed of goal cards.
+     */
     private final Deck<GoalCard> goalDeck;
+
+    /**
+     * This attribute represents the deck composed of initial cards.
+     */
     private final Deck<PlayableCard> initialDeck;
+
+    /**
+     * This attribute represents the deck composed of resource cards.
+     */
     private final Deck<PlayableCard> resourceDeck;
+
+    /**
+     * This attribute represents the deck composed of gold cards.
+     */
     private final Deck<PlayableCard> goldDeck;
+
+    /**
+     * This attribute represents the two gold cards on the table.
+     */
     private PlayableCard[] goldCardsOnTable;
+
+    /**
+     * This attribute represents the two resource cards on the table.
+     */
     private PlayableCard[] resourceCardsOnTable;
+
+    /**
+     * This attribute represents the two goal cards on the table.
+     */
     private GoalCard[] publicGoalCardsOnTable;
 
+    /**
+     * Constructs a new game session with the specified number of players.
+     * Initializes decks, cards on table, players and other variables.
+     *
+     * @param numPlayers The number of players in the game.
+     * @throws IOException if there's an I/O error while reading card files.
+     */
     public Game(int numPlayers) throws IOException{
         this.availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
         this.players = new ArrayList<>();
@@ -62,14 +131,37 @@ public class Game {
 
     }
 
+    /**
+     * The method retrieves a playable card from the deck based on its code.
+     * Each card code is composed of two parts: the type of
+     * the card and the card number.
+     *
+     * @param code The code of the card to retrieve.
+     * @return Optional containing the playable card, if found.
+     */
     public Optional<PlayableCard> getPlayableCardFromCode(String code){
         return Optional.of(this.stringPlayableCardHashMap.get(code));
     }
 
+    /**
+     * The method retrieves a goal card from the
+     * goal card hashmap given its code.
+     *
+     * @param code The code of the card to retrieve.
+     * @return Optional containing the goal card, if found.
+     */
     public Optional<Card> getGoalCardFromCode(String code){
         return Optional.of(this.stringGoalCardHashMap.get(code));
     }
 
+    /**
+     * The method retrieves the description of a card based
+     * on its unique code. The description consist of a String.
+     *
+     * @param code The code of the card to retrieve.
+     * @return The description of the card, if the card is found,
+     * otherwise an error message.
+     */
     public String getInfoCard(String code){
         return Stream.concat(this.stringGoalCardHashMap.values().stream(), this.stringPlayableCardHashMap.values().stream())
                      .filter(c -> c.getCardCode().equals(code))
@@ -78,21 +170,38 @@ public class Game {
                      .orElse("Card code is not valid!");
     }
 
+    /**
+     * The method retrieves the descriptions of all cards
+     * from the four decks. For each deck and for each card
+     * the getCardDescription is called.
+     *
+     * @return List of Strings with the card descriptions.
+     */
     public ArrayList<String> getInfoAllCards(){
         return Stream.concat(this.stringGoalCardHashMap.values().stream(), this.stringPlayableCardHashMap.values().stream())
                      .map(Card::getCardDescription)
                      .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
 
+    /**
+     * The method starts the game session.
+     * It sets the first player and the current active player.
+     */
     public void startGame(){
         this.setFirstPlayer();
         this.activePlayer = this.firstPlayer;
     }
 
+    /**
+     * @return The first player.
+     */
     public Player getFirstPlayer(){
         return this.firstPlayer;
     }
 
+    /**
+     * The method randomly sets the first player.
+     */
     private void setFirstPlayer(){
         if(players.size() == numPlayers){
             // Assign the first player to the one at the random index
@@ -101,14 +210,28 @@ public class Game {
         }
     }
 
+    /**
+     * @return The current active player.
+     */
     public Player getActivePlayer(){
         return this.activePlayer;
     }
 
+    /**
+     * @return The next player in sequence.
+     * The turns are made based on the player indices in the ArrayList players.
+     */
     public Player getNextPlayer(){
         return this.players.get((this.players.indexOf(this.activePlayer) + 1) % this.numPlayers);
     }
 
+    /**
+     * Creates a new player with the given name.
+     *
+     * @param name   The name of the new player.
+     * @param Client The client associated with the player.
+     * @throws NameAlreadyInUseException if the name is already in use.
+     */
     public void createNewPlayer(String name, ClientPlayer Client) throws NameAlreadyInUseException {
         //  case in which two players have chosen the same name.
         for(Player p : players){
@@ -120,9 +243,23 @@ public class Game {
         Player player = new Player(name);
         players.add(player);
     }
+
+    /**
+     * The method removes a specified player from the game.
+     *
+     * @param p The player to be removed.
+     */
     public void removePlayer(Player p){
         players.remove(p);
     }
+
+    /**
+     * The method retrieves a player given its name.
+     *
+     * @param name The unique name of the player.
+     * @return The player class associated with the specified name.
+     * @throws PlayerNotFoundException if no player with the given name is found.
+     */
     public Player getPlayerByName(String name) throws PlayerNotFoundException{
         for(Player p : players){
             if(p.getName().equals(name)){
@@ -196,14 +333,28 @@ public class Game {
         }
     }
 
+    /**
+     * @return the number of players to play this game, as specified
+     * by the player when the game was created.
+     */
     public int getNumPlayers(){
         return numPlayers;
     }
+
+    /**
+     *
+     * @return the number of players who have joined the game yet.
+     */
     public int getNumJoinedPlayer()
     {
         return players.size();
     }
 
+    /**
+     *
+     * @param playerToNotify, a player class representing the player whose name is returned.
+     * @return a String containing the name of the player passed as parameter.
+     */
     public String NotifyPlayer(Player playerToNotify)
     {
         return playerToNotify.getName();
