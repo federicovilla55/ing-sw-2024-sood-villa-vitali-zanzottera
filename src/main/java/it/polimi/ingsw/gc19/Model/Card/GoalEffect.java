@@ -14,8 +14,15 @@ import it.polimi.ingsw.gc19.Model.Station.Station;
         @JsonSubTypes.Type(value = SymbolEffect.class, name = "symbol")
 })
 interface GoalEffect{
-
+    /**
+     * This method returns the points gained by placing this card UP.
+     * @return points gained by this card effect
+     */
     int countPoints(Station station);
+
+    /**
+     * This method returns a detailed description of the goal effect
+     */
     String getEffectDescription();
 
 }

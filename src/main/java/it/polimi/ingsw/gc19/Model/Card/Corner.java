@@ -16,7 +16,20 @@ import java.util.Optional;
         @JsonSubTypes.Type(value = NotAvailableCorner.class, name = "not_available"),
         @JsonSubTypes.Type(value = EmptyCorner.class, name = "empty")
 })
-public interface Corner {
+
+/**
+ * This interface represents the corner of a PlayableCard
+ */
+public interface Corner{
+    /**
+     * This method returns a boolean indicating whether Corner has a symbol
+     */
     boolean hasSymbol();
+
+    /**
+     * This method returns an optional containing the symbol in the corner if exists,
+     * return an empty optional
+     * @return symbol in the corner
+     */
     Optional<Symbol> getSymbol();
 }

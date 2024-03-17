@@ -13,6 +13,10 @@ class CornerEffect implements PlayableEffect{
 
     private final int cardValue;
 
+    /**
+     * This constructor creates a corner effect
+     * @param cardValue the points associated to the pattern
+     */
     protected CornerEffect(@JsonProperty("value") int cardValue){
         this.cardValue = cardValue;
     }

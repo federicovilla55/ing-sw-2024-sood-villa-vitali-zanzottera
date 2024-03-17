@@ -8,6 +8,10 @@ import it.polimi.ingsw.gc19.Model.Station.Station;
 class NoConstraintEffect implements PlayableEffect{
     private final int cardValue;
 
+    /**
+     * This constructor creates a a no constraint effect
+     * @param cardValue the points associated to the pattern
+     */
     NoConstraintEffect(@JsonProperty("value") int cardValue){
         this.cardValue = cardValue;
     }

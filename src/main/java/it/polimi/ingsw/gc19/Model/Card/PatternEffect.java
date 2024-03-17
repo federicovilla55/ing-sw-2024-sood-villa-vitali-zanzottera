@@ -15,6 +15,12 @@ class PatternEffect implements GoalEffect{
     private final int cardValue;
     private final ArrayList<Tuple<Integer, Integer>> moves;
     private final ArrayList<Symbol> requiredSymbol;
+    /**
+     * This constructor creates a corner effect
+     * @param cardValue the points associated to the pattern
+     * @param moves moves in card schema to realize the patter
+     * @param requiredSymbol required card seeds for the pattern
+     */
     @JsonCreator
     protected PatternEffect(@JsonProperty("value") int cardValue,
                             @JsonProperty("moves") ArrayList<Tuple<Integer, Integer>> moves,
