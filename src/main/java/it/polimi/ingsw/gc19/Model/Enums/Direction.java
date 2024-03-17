@@ -8,10 +8,10 @@ import java.util.Map;
  * This enum represents the possible movement direction
  */
 public enum Direction{
-    UP_LEFT(CornerPosition.UP_LEFT, CornerPosition.DOWN_RIGHT, -1, 1),
-    UP_RIGHT(CornerPosition.UP_RIGHT, CornerPosition.DOWN_LEFT,1, 1),
-    DOWN_RIGHT(CornerPosition.DOWN_RIGHT, CornerPosition.UP_LEFT,1, -1),
-    DOWN_LEFT(CornerPosition.DOWN_LEFT, CornerPosition.UP_RIGHT,-1, -1);
+    UP_LEFT(CornerPosition.UP_LEFT, CornerPosition.DOWN_RIGHT, -1, -1),
+    UP_RIGHT(CornerPosition.UP_RIGHT, CornerPosition.DOWN_LEFT,-1, 1),
+    DOWN_RIGHT(CornerPosition.DOWN_RIGHT, CornerPosition.UP_LEFT,1, 1),
+    DOWN_LEFT(CornerPosition.DOWN_LEFT, CornerPosition.UP_RIGHT,1, -1);
 
     private final CornerPosition thisCornerPosition;
     private final CornerPosition otherCornerPosition;
