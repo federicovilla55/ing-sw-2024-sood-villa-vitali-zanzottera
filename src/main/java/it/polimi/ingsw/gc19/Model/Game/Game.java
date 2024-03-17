@@ -45,8 +45,8 @@ public class Game {
 
         this.stringGoalCardHashMap = new HashMap<>();
         this.stringPlayableCardHashMap = new HashMap<>();
-        JSONParser.readPlayableCardFromFile().forEach(c -> this.stringPlayableCardHashMap.put(c.getCardDescription(), c));
-        JSONParser.readGoalCardFromFile().forEach(c -> this.stringGoalCardHashMap.put(c.getCardDescription(), c));
+        JSONParser.readPlayableCardFromFile().forEach(c -> this.stringPlayableCardHashMap.put(c.getCardCode(), c));
+        JSONParser.readGoalCardFromFile().forEach(c -> this.stringGoalCardHashMap.put(c.getCardCode(), c));
 
         this.goalDeck = new Deck<>(this.stringGoalCardHashMap.values().stream());
         //this.shuffleDeck();
