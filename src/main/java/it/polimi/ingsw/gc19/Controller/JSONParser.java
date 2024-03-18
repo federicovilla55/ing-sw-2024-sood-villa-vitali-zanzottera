@@ -11,14 +11,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
+/**
+ * This class is used for JSON file parsing
+ */
 public final class JSONParser{
     private static final ObjectMapper objMapper = new ObjectMapper();
 
+    /**
+     * This static method returns a Stream<PlayableCard> representing
+     * playable cards read from file
+     * @return Stream<PlayableCards>
+     */
     public static Stream<PlayableCard> readPlayableCardFromFile() throws IOException{
         File playableCardsFile = new File(ImportantConstants.pathToPlayableCardFileJSON);
         return objMapper.readValue(playableCardsFile, new TypeReference<ArrayList<PlayableCard>>(){}).stream();
     }
 
+    /**
+     * This static method returns a Stream<GoalCard> representing
+     * goal cards read from file
+     * @return Stream<GoalCards>
+     */
     public static Stream<GoalCard> readGoalCardFromFile() throws IOException{
         File goalCardsFile = new File(ImportantConstants.pathToGoalCardFileJSON);
         return objMapper.readValue(goalCardsFile, new TypeReference<ArrayList<GoalCard>>(){}).stream();

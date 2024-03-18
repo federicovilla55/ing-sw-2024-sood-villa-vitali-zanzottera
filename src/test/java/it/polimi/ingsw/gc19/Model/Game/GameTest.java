@@ -5,12 +5,8 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Deck.Deck;
 import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
-import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Model.Enums.Symbol;
-import it.polimi.ingsw.gc19.Model.Player.Player;
 import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
-import it.polimi.ingsw.gc19.Model.Station.InvalidPositionException;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +22,7 @@ class GameTest{
     }
 
     @Test
-    void deckTests() throws IOException, NoSuchFieldException, IllegalAccessException, EmptyDeckException, InvalidPositionException, InvalidAnchorException, InvalidCardException {
+    void deckTests() throws IOException, NoSuchFieldException, IllegalAccessException, EmptyDeckException, InvalidAnchorException, InvalidCardException {
         Field fieldInitialDeck = gameToTest.getClass().getDeclaredField("initialDeck");
         fieldInitialDeck.setAccessible(true);
         Deck<PlayableCard> initialDeck = (Deck<PlayableCard>) fieldInitialDeck.get(gameToTest);

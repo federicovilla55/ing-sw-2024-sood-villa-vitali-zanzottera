@@ -117,6 +117,8 @@ public class Station{
     /**
      * This method place a card in CardSchema if it's placeable in CardSchema
      * If the card has been placed it updates station's points and visible symbols. Then updates cards in hand.
+     * @throws InvalidCardException if station doesn't have the card to place.
+     * @throws InvalidAnchorException if the anchor isn't in card schema.
      */
     public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
@@ -148,6 +150,7 @@ public class Station{
     /**
      * This method checks if there is a card over the anchor in Direction dir
      * Throws InvalidCardException is the anchor doesn't exist in schema.
+     * @throws InvalidCardException if station doesn't have the card to place.
      * @return true if and only if there is card ver the anchor in Direction dir
      */
     public boolean cardOverAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{
@@ -159,6 +162,7 @@ public class Station{
      * optional is empty if this card doesn't exist.
      * @param anchor the anchor from which the method starts searching
      * @param dir the direction of the search
+     * @throws InvalidCardException if station doesn't have the card to place.
      * @return Optional<PlayableCard> describing the card
      */
     public Optional<PlayableCard> getCardWithAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{

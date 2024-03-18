@@ -38,6 +38,7 @@ class CardSchema{
     /**
      * This method checks if there is a card over the anchor in Direction dir
      * Throws InvalidCardException is the anchor doesn't exist in schema.
+     * @throws InvalidCardException if station doesn't have the card to place.
      * @return true if and only if there is card ver the anchor in Direction dir
      */
     boolean cardOverAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{
@@ -63,6 +64,7 @@ class CardSchema{
      * optional is empty if this card doesn't exist.
      * @param anchor the anchor from which the method starts searching
      * @param dir the direction of the search
+     * @throws InvalidCardException if station doesn't have the card to place.
      * @return Optional<PlayableCard> describing the card
      */
     Optional<PlayableCard> getCardWithAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{
@@ -85,12 +87,12 @@ class CardSchema{
 
     /**
      * This method checks if a card (even if it isn't visible in the station) can be placed in CardSchema
+     * @throws InvalidAnchorException if the anchor isn't in card schema.
      * @return true if and only if card is in station and is placeable in CardSchema.
      */
     boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException{
         PlayableCard neighborCard;
         int currentX, currentY;
-        //System.out.println(cardPosition.entrySet().stream().map(c -> c.getKey().getCardCode()).collect(Collectors.toList()));
         if(!this.cardPosition.containsKey(anchor)){
             throw new InvalidAnchorException();
         }
@@ -102,7 +104,6 @@ class CardSchema{
         for(Direction dir : Direction.values()){
             neighborCard = this.cardSchema[currentX + dir.getX()][currentY + dir.getY()];
             if(neighborCard != null && !neighborCard.canPlaceOver(dir.getOtherCornerPosition())){
-                //System.out.println(neighborCard.getCardCode());
                 return false;
             }
         }
@@ -113,7 +114,7 @@ class CardSchema{
      * This method place a card in CardSchema if it's placeable in CardSchema
      * If the card has been placed it updates station's points and visible symbols. Then updates cards in hand.
      */
-    void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction){ //metto package visible perchè bisogna passare da station
+    void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction){
         Tuple<Integer, Integer> coords = this.cardPosition.get(anchor);
         this.cardSchema[coords.x() + direction.getX()][coords.y() + direction.getY()] = toPlace;
         this.cardOverlap[coords.x() + direction.getX()][coords.y() + direction.getY()] = this.currentCount + 1;
