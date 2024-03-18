@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Controller;
 
+import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.NameAlreadyInUseException;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class Controller {
         nonActiveGames = new ArrayList<String>();
     }
 
-    private boolean CheckAlreadyExist(String gameToCheck){
+    private boolean checkAlreadyExist(String gameToCheck){
         for(String games : activeGames) {
             if(gameToCheck.equals(games)){
                 return true;
@@ -60,43 +61,32 @@ public class Controller {
         ActivePlayers.add(nickName);
     }
 
-    public void CreateGame(ClientPlayer new_player, String GameName, int num_player, String creatorName) throws IOException { //gestire l'eccezzione
-        if(CheckAlreadyExist(GameName)){
+    public void createGame(String firstPlayerNickname, String gameName, int numPlayer, String creatorName) throws IOException { //gestire l'eccezzione
+        if(checkAlreadyExist(gameName)){
             throw new IllegalArgumentException("Name already in use");
         }
-        GameController temp = new GameController(num_player);
-        new_player.gamePlay = GameName;
-        nonActiveGames.add(GameName);
-        mapIdtoController.put(GameName, temp);
-        //mapIdtoController.get(GameName).gameAssociated.createNewPlayer(creatorName, new_player);
+        Game tempName = new Game(numPlayer);
+        GameController temp = new GameController(tempName);
+        nonActiveGames.add(gameName);
+        mapIdToController.put(gameName, temp);
+        //mapIdtoController.get(gameName).gameAssociated.createNewPlayer(creatorName, new_player);
     }
 
-    public void JoinGame(ClientPlayer player, String gameToJoin, String nickToJoin) {
+    public void joinGame(ClientPlayer player, String gameToJoin, String nickToJoin) {
         if(activeGames.contains(gameToJoin) || (!nonActiveGames.contains(gameToJoin) && !activeGames.contains(gameToJoin))){
             throw new IllegalStateException("Cannot join this game anymore");
         }
         try {
-            player.gamePlay = gameToJoin;
-            mapIdtoController.get(gameToJoin).gameAssociated.createNewPlayer(nickToJoin, player);
+            mapIdToController.get(gameToJoin).gameAssociated.createNewPlayer(nickToJoin);
             player.setNickname(nickToJoin);
-            if(mapIdtoController.get(gameToJoin).gameAssociated.getNumPlayers() == mapIdtoController.get(gameToJoin).gameAssociated.getNumJoinedPlayer())
-            {
-                Start_Game(gameToJoin);
-            }
         }
         catch (NameAlreadyInUseException e)
         {
             throw new IllegalArgumentException("Name already in use");
         }
     }
-    public void Start_Game(String gameToStart)
-    {
-        nonActiveGames.remove(gameToStart);
-        activeGames.add(gameToStart);
-        mapIdtoController.get(gameToStart).StartGame();
-    }
 
-    public void Move() {
+    public void move() {
 
     }
 }

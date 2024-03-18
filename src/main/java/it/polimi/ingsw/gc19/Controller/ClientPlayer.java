@@ -9,4 +9,12 @@ public class ClientPlayer {
         this.isActive = true;
     }
 
+    public String getNickname() { return this.name; }
+
+    public boolean getIsActive() { return  this.isActive; }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
 }

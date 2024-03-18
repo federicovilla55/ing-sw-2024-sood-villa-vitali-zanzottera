@@ -17,17 +17,25 @@ public class Station{
 
     private final ArrayList<PlayableCard> cardsInStation;
     private final HashMap<Symbol, Integer> visibleSymbolsInStation;
-    private GoalCard privateGoalCard;
+    private Integer privateGoalCardIdx;
     private int numPoints;
+
+    private boolean initialCardIsPlaced;
     private final CardSchema cardSchema;
+
+    private final PlayableCard initialCard;
+    private final GoalCard[] privateGoalCardsInStation;
 
     /**
      * This constructor creates a Station and its own card schema
      */
-    public Station(){
+    public Station(PlayableCard initialCard, GoalCard privateGoalCard1, GoalCard privateGoalCard2){
         this.numPoints = 0;
-        this.privateGoalCard = null;
+        this.initialCardIsPlaced = false;
+        this.privateGoalCardIdx = null;
         this.visibleSymbolsInStation = new HashMap<>();
+        this.initialCard = initialCard;
+        this.privateGoalCardsInStation = new GoalCard[]{privateGoalCard1,privateGoalCard2};
 
         for(Symbol s : Symbol.values()){
             this.visibleSymbolsInStation.put(s, 0);
@@ -36,6 +44,7 @@ public class Station{
         this.cardsInStation = new ArrayList<>();
 
         this.cardSchema = new CardSchema();
+
     }
 
     /**
@@ -66,7 +75,7 @@ public class Station{
      * @return station's private GoalCard
      */
     public GoalCard getPrivateGoalCard(){
-        return this.privateGoalCard;
+        return this.privateGoalCardsInStation[privateGoalCardIdx];
     }
 
     /**
@@ -80,8 +89,8 @@ public class Station{
     /**
      * This method sets private GoalCard of the station
      */
-    public void setPrivateGoalCard(GoalCard privateGoalCard){
-        this.privateGoalCard = privateGoalCard;
+    public void setPrivateGoalCard(int cardIdx){
+        this.privateGoalCardIdx = cardIdx;
     }
 
     /**
@@ -94,11 +103,20 @@ public class Station{
     /**
      * This method place initial card in card schema
      */
-    public void placeInitialCard(PlayableCard initialCard){
-        if(initialCard.getCardType() == PlayableCardType.INITIAL){
+    public void placeInitialCard(PlayableCard initialCard, CardOrientation cardOrientation){
+        if(initialCard.getCardType() == PlayableCardType.INITIAL && !this.initialCardIsPlaced){
+            initialCard.setCardState(cardOrientation);
             initialCard.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
             this.cardSchema.placeInitialCard(initialCard);
+            this.initialCardIsPlaced  = true;
         }
+    }
+
+    /**
+     * This method place initial card in card schema
+     */
+    public void placeInitialCard(CardOrientation cardOrientation){
+        this.placeInitialCard(this.initialCard, cardOrientation);
     }
 
     /**
@@ -108,7 +126,7 @@ public class Station{
      * @throws InvalidAnchorException if the anchor isn't in card schema.
      */
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
-        if(!this.cardsInStation.contains(toPlace)){
+        if(!this.getCardsInHand().contains(toPlace)){
             throw new InvalidCardException();
         }
         return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this.visibleSymbolsInStation);
@@ -124,6 +142,7 @@ public class Station{
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
             this.cardsInStation.remove(toPlace);
             this.cardSchema.placeCard(anchor, toPlace, direction);
+            this.getCardsInHand().remove(toPlace);
             toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
             for(Direction d : Direction.values()){
                 try{
@@ -143,8 +162,12 @@ public class Station{
      * This method returns visible cards in station
      * @return visible cards in station
      */
-    public ArrayList<PlayableCard> getCardsInHand(){
+    ArrayList<PlayableCard> getCardsInHand(){
         return this.cardsInStation;
+    }
+
+    public void addCardInHand(PlayableCard card) {
+        this.getCardsInHand().add(card);
     }
 
     /**
@@ -224,6 +247,14 @@ public class Station{
      */
     public int countPattern(ArrayList<Tuple<Integer, Integer>> moves, ArrayList<Symbol> requiredSymbol){
         return this.cardSchema.countPattern(moves, requiredSymbol);
+    }
+
+    public GoalCard getPrivateGoalCardInStation(int cardIdx) {
+        return privateGoalCardsInStation[cardIdx];
+    }
+
+    public boolean getInitialCardIsPlaced() {
+        return initialCardIsPlaced;
     }
 
 }

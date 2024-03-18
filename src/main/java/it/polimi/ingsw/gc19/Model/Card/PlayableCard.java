@@ -168,6 +168,11 @@ public class PlayableCard extends Card{
         return this;
     }
 
+    public PlayableCard setCardState(CardOrientation cardOrientation) {
+        this.cardState = (cardOrientation == CardOrientation.DOWN ) ? new CardDown() : new CardUp();
+        return this;
+    }
+
     @Override
     public String getCardDescription(){
         return "Type: " + cardType + "\n" +

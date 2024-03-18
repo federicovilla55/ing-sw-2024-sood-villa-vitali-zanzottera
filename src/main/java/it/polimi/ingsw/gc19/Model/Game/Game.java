@@ -1,7 +1,8 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
-import it.polimi.ingsw.gc19.Controller.ClientPlayer;
 import it.polimi.ingsw.gc19.Controller.JSONParser;
+import it.polimi.ingsw.gc19.Enums.GameState;
+import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
@@ -22,6 +23,24 @@ import java.util.stream.Stream;
  * Players, Decks and the Table can be accessed and managed through the class.
  */
 public class Game {
+    public TurnState getTurnState() {
+        return turnState;
+    }
+
+    public void setTurnState(TurnState turnState) {
+        this.turnState = turnState;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
+    }
+
+    private TurnState turnState;
+    private GameState gameState;
     /**
      * This Attribute contains a list of the players associated with the game.
      */
@@ -31,7 +50,7 @@ public class Game {
      * This attribute contains the number of players, as specified by the player
      * who created the game.
      */
-    private int numPlayers;
+    private final int numPlayers;
 
     /**
      * This attribute contains the active player; the player who is currently playing.
@@ -95,6 +114,16 @@ public class Game {
      */
     private GoalCard[] publicGoalCardsOnTable;
 
+    public boolean getFinalRound() {
+        return finalRound;
+    }
+
+    public void setFinalRound(boolean finalRound) {
+        this.finalRound = finalRound;
+    }
+
+    private boolean finalRound;
+
     /**
      * Constructs a new game session with the specified number of players.
      * Initializes decks, cards on table, players and other variables.
@@ -113,10 +142,16 @@ public class Game {
         JSONParser.readGoalCardFromFile().forEach(c -> this.stringGoalCardHashMap.put(c.getCardCode(), c));
 
         this.goalDeck = new Deck<>(this.stringGoalCardHashMap.values().stream());
-        //this.shuffleDeck();
         this.initialDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.INITIAL));
         this.resourceDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.RESOURCE));
         this.goldDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.GOLD));
+
+        this.goalDeck.shuffleDeck();
+        this.initialDeck.shuffleDeck();
+        this.goldDeck.shuffleDeck();
+        this.resourceDeck.shuffleDeck();
+
+        this.finalRound = false;
 
         try{
             this.goldCardsOnTable = new PlayableCard[]{goldDeck.pickACard(), goldDeck.pickACard()};
@@ -124,6 +159,8 @@ public class Game {
             this.publicGoalCardsOnTable = new GoalCard[]{goalDeck.pickACard(), goalDeck.pickACard()};
         }catch(EmptyDeckException ignored){}
 
+        this.gameState = GameState.SETUP;
+        this.turnState = null;
     }
 
     /**
@@ -184,7 +221,9 @@ public class Game {
      */
     public void startGame(){
         this.setFirstPlayer();
-        this.activePlayer = this.firstPlayer;
+        this.activePlayer = this.getFirstPlayer();
+        this.gameState = GameState.PLAYING;
+        this.turnState = TurnState.PLACE;
     }
 
     /**
@@ -224,10 +263,9 @@ public class Game {
      * Creates a new player with the given name.
      *
      * @param name   The name of the new player.
-     * @param Client The client associated with the player.
      * @throws NameAlreadyInUseException if the name is already in use.
      */
-    public void createNewPlayer(String name, ClientPlayer Client) throws NameAlreadyInUseException {
+    public void createNewPlayer(String name) throws NameAlreadyInUseException {
         //  case in which two players have chosen the same name.
         for(Player p : players){
             if(p.getName().equals(name)){
@@ -235,7 +273,10 @@ public class Game {
             }
         }
 
-        Player player = new Player(name);
+        Player player = null;
+        try {
+            player = new Player(name, this.initialDeck.pickACard(), this.goalDeck.pickACard(), this.goalDeck.pickACard());
+        } catch (EmptyDeckException ignored) {}
         players.add(player);
     }
 
@@ -345,14 +386,36 @@ public class Game {
         return players.size();
     }
 
-    /**
-     *
-     * @param playerToNotify, a player class representing the player whose name is returned.
-     * @return a String containing the name of the player passed as parameter.
-     */
-    public String NotifyPlayer(Player playerToNotify)
-    {
-        return playerToNotify.getName();
+    public boolean allPlayersChooseInitialGoalColor() {
+        boolean flag = true;
+        if(getNumJoinedPlayer()<getNumPlayers()) return false;
+        for(Player player : this.players) {
+            if (
+                    player.getColor() == null ||
+                    player.getPlayerStation().getPrivateGoalCard() == null ||
+                    !player.getPlayerStation().getInitialCardIsPlaced()
+            ) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
     }
 
+    public boolean drawableCardsArePresent() {
+        if(
+                this.goldDeck.isEmpty() &&
+                        this.resourceDeck.isEmpty() &&
+                        this.goldCardsOnTable[0] == null &&
+                        this.goldCardsOnTable[1] == null &&
+                        this.resourceCardsOnTable[0] == null &&
+                        this.resourceCardsOnTable[1] == null
+        ) return false;
+
+        return true;
+    }
+
+    public void setActivePlayer(Player activePlayer) {
+        this.activePlayer = activePlayer;
+    }
 }

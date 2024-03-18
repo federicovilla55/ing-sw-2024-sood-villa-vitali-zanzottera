@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
+import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.Symbol;
@@ -32,7 +33,7 @@ class TestBuilder {
                 arguments = read.replaceAll("\\s", "").split("[(),\\->:]+");
                 switch (arguments[0]) {
                     case "placeInitialCard" ->
-                            singleStationTest.getStation().placeInitialCard(singleStationTest.getGame().getPlayableCardFromCode(arguments[1]).get());
+                            singleStationTest.getStation().placeInitialCard(singleStationTest.getGame().getPlayableCardFromCode(arguments[1]).get(), CardOrientation.valueOf(arguments[2]));
                     case "updateCardsInHand" ->
                             singleStationTest.getStation().updateCardsInHand(singleStationTest.getGame().getPlayableCardFromCode(arguments[1]).get());
                     case "swapCard" ->

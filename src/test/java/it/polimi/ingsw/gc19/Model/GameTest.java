@@ -87,9 +87,9 @@ class GameTest {
     @Test
     public void testPlayerCreation() throws NameAlreadyInUseException {
         assertEquals(0, game.getNumJoinedPlayer(), "Initial player count should be 0");
-        game.createNewPlayer("Player1", null);
+        game.createNewPlayer("Player1");
         assertEquals(1, game.getNumJoinedPlayer(), "Player count should be 1 after creating a player");
-        assertThrows(NameAlreadyInUseException.class, () -> game.createNewPlayer("Player1", null), "Should throw NameAlreadyInUseException");
+        assertThrows(NameAlreadyInUseException.class, () -> game.createNewPlayer("Player1"), "Should throw NameAlreadyInUseException");
     }
 
     /**
@@ -101,11 +101,11 @@ class GameTest {
     @Test
     public void testPlayerRemoval() throws NameAlreadyInUseException, PlayerNotFoundException {
         assertEquals(0, game.getNumJoinedPlayer(), "Initial player count should be 0");
-        game.createNewPlayer("Player1", null);
+        game.createNewPlayer("Player1");
         assertEquals(1, game.getNumJoinedPlayer(), "Player count should be 1 after creating a player");
-        game.createNewPlayer("Player2", null);
-        game.createNewPlayer("Player3", null);
-        assertThrows(NameAlreadyInUseException.class, () -> game.createNewPlayer("Player1", null), "Should throw NameAlreadyInUseException");
+        game.createNewPlayer("Player2");
+        game.createNewPlayer("Player3");
+        assertThrows(NameAlreadyInUseException.class, () -> game.createNewPlayer("Player1"), "Should throw NameAlreadyInUseException");
         assertEquals(3, game.getNumJoinedPlayer(), "Player count should be 3");
         game.removePlayer(game.getPlayerByName("Player3"));
         assertEquals(2, game.getNumJoinedPlayer());
@@ -172,15 +172,15 @@ class GameTest {
         // is less than the numPlayers specified
         assertNull(game.getFirstPlayer());
         assertNull(game.getActivePlayer());
-        game.createNewPlayer("Player1", null);
-        game.createNewPlayer("Player2", null);
-        game.createNewPlayer("Player3", null);
+        game.createNewPlayer("Player1");
+        game.createNewPlayer("Player2");
+        game.createNewPlayer("Player3");
         game.startGame();
         assertNull(game.getFirstPlayer());
         assertNull(game.getActivePlayer());
         // Now the number of players is equal to numPlayers
         // so the first and active player will be set
-        game.createNewPlayer("Player4", null);
+        game.createNewPlayer("Player4");
         game.startGame();
         assertNotNull(game.getFirstPlayer());
         assertNotNull(game.getActivePlayer());
@@ -193,10 +193,10 @@ class GameTest {
     @Test
     public void testNextPlayer() throws NameAlreadyInUseException {
 
-        game.createNewPlayer("Player1", null);
-        game.createNewPlayer("Player2", null);
-        game.createNewPlayer("Player3", null);
-        game.createNewPlayer("Player4", null);
+        game.createNewPlayer("Player1");
+        game.createNewPlayer("Player2");
+        game.createNewPlayer("Player3");
+        game.createNewPlayer("Player4");
 
         // @todo: Change this test after a logic to change the active player is created.
         while(true){

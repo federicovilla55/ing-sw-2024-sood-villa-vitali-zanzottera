@@ -14,7 +14,7 @@ class SingleStationTest{
     private final ArrayList<Triplet<String, Exception, Object>> realOutput;
 
     public SingleStationTest() throws IOException {
-        this.station = new Station();
+        this.station = new Station(null, null, null);
         this.game = new Game(1);
         this.expectedOutput = new ArrayList<>();
         this.realOutput = new ArrayList<>();

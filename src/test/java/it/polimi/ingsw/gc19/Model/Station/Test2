@@ -1,4 +1,4 @@
-placeInitialCard(initial_01) -> true
+placeInitialCard(initial_01, UP) -> true
 updateCardsInHand(resource_01)
 updateCardsInHand(resource_02)
 placeCard(initial_01, resource_01, UP_RIGHT) -> true

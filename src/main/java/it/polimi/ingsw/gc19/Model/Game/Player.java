@@ -1,6 +1,8 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
 import it.polimi.ingsw.gc19.Enums.Color;
+import it.polimi.ingsw.gc19.Model.Card.GoalCard;
+import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
 public class Player {
@@ -12,9 +14,9 @@ public class Player {
      * This constructor creates a player and his station
      * @param name player name
      */
-    public Player(String name){
+    public Player(String name, PlayableCard initialCard, GoalCard privateGoalCard1, GoalCard privateGoalCard2){
         this.name = name;
-        this.playerStation = new Station();
+        this.playerStation = new Station(initialCard, privateGoalCard1, privateGoalCard2);
     }
 
     /**
