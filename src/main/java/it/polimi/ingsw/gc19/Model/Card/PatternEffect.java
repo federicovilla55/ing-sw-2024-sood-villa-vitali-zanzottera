@@ -37,8 +37,8 @@ class PatternEffect implements GoalEffect{
 
     @Override
     public String getEffectDescription(){
-        return "Points per pattern: " + this.cardValue +
-               "Pattern moves required starting from a card: " + this.moves.toString() +
+        return "Points per pattern: " + this.cardValue + "\n" +
+               "Pattern moves required starting from a card: " + this.moves.toString() + "\n" +
                "Patter resource required: " + this.requiredSymbol.toString();
     }
 
