@@ -1,8 +1,9 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
-import it.polimi.ingsw.gc19.Model.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.Card;
+import it.polimi.ingsw.gc19.Model.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
@@ -77,6 +78,7 @@ class CardSchema{
      void placeInitialCard(PlayableCard initialCard){
          this.cardSchema[ImportantConstants.gridDimension / 2][ImportantConstants.gridDimension / 2] = initialCard;
          this.cardOverlap[ImportantConstants.gridDimension / 2][ImportantConstants.gridDimension / 2] = 1;
+         this.currentCount++;
          this.cardPosition.put(initialCard, new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2));
     }
 
@@ -111,10 +113,12 @@ class CardSchema{
     Optional<PlayableCard> getLastPlaced(){
         Tuple<Integer, Integer> coords = null;
         int currMax = 0;
-        for(int i = 0, k = 0; i < ImportantConstants.gridDimension && k < ImportantConstants.gridDimension; i++, k++){
-            if(this.cardOverlap[i][k] > currMax){
-                currMax = this.cardOverlap[i][k];
-                coords = new Tuple<>(i, k);
+        for(int i = 0; i < ImportantConstants.gridDimension; i++){
+            for(int k = 0; k < ImportantConstants.gridDimension; k++) {
+                if (this.cardOverlap[i][k] > currMax) {
+                    currMax = this.cardOverlap[i][k];
+                    coords = new Tuple<>(i, k);
+                }
             }
         }
         if(coords == null) return Optional.empty();
@@ -132,14 +136,32 @@ class CardSchema{
 
     /**
      * This method returns the schema where each card is described by its name
+     * Optional is empty if in (x, y) there is no card
      * @return a String matrix with all the visible cards codes.
      */
-    String[][] getCardCodeSchema(){
-        return Arrays.stream(this.cardSchema)
-                     .flatMap(Arrays::stream)
-                     .map(Card::getCardCode)
-                     .map(x -> new String[ImportantConstants.gridDimension])
-                     .toArray(String[][]::new);
+    Optional<String>[][] getCardSchema(){
+        Optional<String>[][] matrixToReturn = new Optional[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
+        for(int i = 0; i < ImportantConstants.gridDimension; i++){
+            for(int k = 0; k < ImportantConstants.gridDimension; k++){
+                matrixToReturn[i][k] = Optional.ofNullable(this.cardSchema[i][k].getCardCode());
+            }
+        }
+        return matrixToReturn;
+    }
+
+    /**
+     * This method returns orientation of each card in the schema.
+     * Optional is empty if in (x, y) there is no card
+     * @return a String matrix with all the visible cards codes.
+     */
+    Optional<CardOrientation>[][] getCardOrientation() {
+        Optional<CardOrientation>[][] matrixToReturn = new Optional[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
+        for(int i = 0; i < ImportantConstants.gridDimension; i++){
+            for(int k = 0; k < ImportantConstants.gridDimension; k++){
+                matrixToReturn[i][k] = Optional.ofNullable(this.cardSchema[i][k].getCardOrientation());
+            }
+        }
+        return matrixToReturn;
     }
 
     /**
@@ -183,19 +205,17 @@ class CardSchema{
                     currentY = k;
                     numOfCard = 1;
                     cardInPattern.clear();
+                    cardInPattern.add(new Tuple<>(currentX, currentY));
                     while(found && numOfCard < moves.size() + 1){
                         currentX = currentX + moves.get(numOfCard - 1).x();
                         currentY = currentY + moves.get(numOfCard - 1).y();
 
-                        if(checkCoords(currentX, currentY) && this.cardSchema[currentX][currentY] != null && !usedCards[i][k] && this.cardSchema[i][k].getSeed() == requiredSymbol.get(numOfCard - 1)){
+                        if(checkCoords(currentX, currentY) && this.cardSchema[currentX][currentY] != null && !usedCards[currentX][currentY] && this.cardSchema[currentX][currentY].getSeed() == requiredSymbol.get(numOfCard)){
                             numOfCard++;
                             cardInPattern.add(new Tuple<>(currentX, currentY));
                         }
                         else{
                             found = false;
-                            for(Tuple<Integer, Integer> t : cardInPattern){
-                                usedCards[t.x()][t.y()] = false;
-                            }
                         }
                     }
 

@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.Model.Station;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
@@ -91,7 +92,7 @@ public class Station{
     }
 
     /**
-     * This method place initial card in CardSchema
+     * This method place initial card in card schema
      */
     public void placeInitialCard(PlayableCard initialCard){
         if(initialCard.getCardType() == PlayableCardType.INITIAL){
@@ -113,13 +114,13 @@ public class Station{
 
     /**
      * This method place a card in CardSchema if it's placeable in CardSchema
-     * If the card has been placed it updates station's points and visible symbols
-     * @return true if card is placeable in the station and has been placed
+     * If the card has been placed it updates station's points and visible symbols. Then updates cards in hand.
      */
-    public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{ //ritornare un bool per dire se il piazzamento è andato a buon fine
+    public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
             this.cardSchema.placeCard(anchor, toPlace, direction);
             updatePoints(toPlace);
+            this.cardsInStation.remove(toPlace);
             toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
             for(Direction d : Direction.values()){
                 try{
@@ -182,10 +183,20 @@ public class Station{
 
     /**
      * This method returns the schema where each card is described by its name
+     * Optional is empty if in (x, y) there is no card
      * @return a String matrix with all the visible cards codes.
      */
-    public String[][] getCardCodeSchema(){
-        return this.cardSchema.getCardCodeSchema();
+    public Optional<String>[][] getCardCodeSchema(){
+        return this.cardSchema.getCardSchema();
+    }
+
+    /**
+     * This method returns the orientation of each card in the schema
+     * Optional is empty if in (x, y) there is no card
+     * @return a String matrix with all the visible cards codes.
+     */
+    public Optional<CardOrientation>[][] getCardOrientationSchema(){
+        return this.cardSchema.getCardOrientation();
     }
 
     /**
