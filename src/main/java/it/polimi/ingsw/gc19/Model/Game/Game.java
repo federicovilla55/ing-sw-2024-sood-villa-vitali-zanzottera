@@ -150,7 +150,7 @@ public class Game {
      * @param code The code of the card to retrieve.
      * @return Optional containing the goal card, if found.
      */
-    public Optional<Card> getGoalCardFromCode(String code){
+    public Optional<GoalCard> getGoalCardFromCode(String code){
         return Optional.of(this.stringGoalCardHashMap.get(code));
     }
 

@@ -1,13 +1,15 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
-import it.polimi.ingsw.gc19.Model.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.Card;
+import it.polimi.ingsw.gc19.Model.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 class CardSchema{
     private final PlayableCard[][] cardSchema;
@@ -36,6 +38,7 @@ class CardSchema{
     /**
      * This method checks if there is a card over the anchor in Direction dir
      * Throws InvalidCardException is the anchor doesn't exist in schema.
+     * @throws InvalidCardException if station doesn't have the card to place.
      * @return true if and only if there is card ver the anchor in Direction dir
      */
     boolean cardOverAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{
@@ -61,6 +64,7 @@ class CardSchema{
      * optional is empty if this card doesn't exist.
      * @param anchor the anchor from which the method starts searching
      * @param dir the direction of the search
+     * @throws InvalidCardException if station doesn't have the card to place.
      * @return Optional<PlayableCard> describing the card
      */
     Optional<PlayableCard> getCardWithAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{
@@ -77,25 +81,40 @@ class CardSchema{
      void placeInitialCard(PlayableCard initialCard){
          this.cardSchema[ImportantConstants.gridDimension / 2][ImportantConstants.gridDimension / 2] = initialCard;
          this.cardOverlap[ImportantConstants.gridDimension / 2][ImportantConstants.gridDimension / 2] = 1;
+         this.currentCount++;
          this.cardPosition.put(initialCard, new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2));
     }
 
     /**
      * This method checks if a card (even if it isn't visible in the station) can be placed in CardSchema
+     * @throws InvalidAnchorException if the anchor isn't in card schema.
      * @return true if and only if card is in station and is placeable in CardSchema.
      */
-    boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException{ //riportare in station
+    boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException{
+        PlayableCard neighborCard;
+        int currentX, currentY;
         if(!this.cardPosition.containsKey(anchor)){
             throw new InvalidAnchorException();
         }
-        return this.cardSchema[this.cardPosition.get(anchor).x() + direction.getX()][this.cardPosition.get(anchor).y() + direction.getY()] == null;
+        if(this.cardSchema[this.cardPosition.get(anchor).x() + direction.getX()][this.cardPosition.get(anchor).y() + direction.getY()] != null){
+            return false;
+        }
+        currentX = this.cardPosition.get(anchor).x() + direction.getX();
+        currentY = this.cardPosition.get(anchor).y() + direction.getY();
+        for(Direction dir : Direction.values()){
+            neighborCard = this.cardSchema[currentX + dir.getX()][currentY + dir.getY()];
+            if(neighborCard != null && !neighborCard.canPlaceOver(dir.getOtherCornerPosition())){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
      * This method place a card in CardSchema if it's placeable in CardSchema
      * If the card has been placed it updates station's points and visible symbols. Then updates cards in hand.
      */
-    void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction){ //metto package visible perchè bisogna passare da station
+    void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction){
         Tuple<Integer, Integer> coords = this.cardPosition.get(anchor);
         this.cardSchema[coords.x() + direction.getX()][coords.y() + direction.getY()] = toPlace;
         this.cardOverlap[coords.x() + direction.getX()][coords.y() + direction.getY()] = this.currentCount + 1;
@@ -111,10 +130,12 @@ class CardSchema{
     Optional<PlayableCard> getLastPlaced(){
         Tuple<Integer, Integer> coords = null;
         int currMax = 0;
-        for(int i = 0, k = 0; i < ImportantConstants.gridDimension && k < ImportantConstants.gridDimension; i++, k++){
-            if(this.cardOverlap[i][k] > currMax){
-                currMax = this.cardOverlap[i][k];
-                coords = new Tuple<>(i, k);
+        for(int i = 0; i < ImportantConstants.gridDimension; i++){
+            for(int k = 0; k < ImportantConstants.gridDimension; k++) {
+                if (this.cardOverlap[i][k] > currMax) {
+                    currMax = this.cardOverlap[i][k];
+                    coords = new Tuple<>(i, k);
+                }
             }
         }
         if(coords == null) return Optional.empty();
@@ -132,14 +153,32 @@ class CardSchema{
 
     /**
      * This method returns the schema where each card is described by its name
+     * Optional is empty if in (x, y) there is no card
      * @return a String matrix with all the visible cards codes.
      */
-    String[][] getCardCodeSchema(){
-        return Arrays.stream(this.cardSchema)
-                     .flatMap(Arrays::stream)
-                     .map(Card::getCardCode)
-                     .map(x -> new String[ImportantConstants.gridDimension])
-                     .toArray(String[][]::new);
+    Optional<String>[][] getCardSchema(){
+        Optional<String>[][] matrixToReturn = new Optional[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
+        for(int i = 0; i < ImportantConstants.gridDimension; i++){
+            for(int k = 0; k < ImportantConstants.gridDimension; k++){
+                matrixToReturn[i][k] = Optional.ofNullable(this.cardSchema[i][k].getCardCode());
+            }
+        }
+        return matrixToReturn;
+    }
+
+    /**
+     * This method returns orientation of each card in the schema.
+     * Optional is empty if in (x, y) there is no card
+     * @return a String matrix with all the visible cards codes.
+     */
+    Optional<CardOrientation>[][] getCardOrientation() {
+        Optional<CardOrientation>[][] matrixToReturn = new Optional[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
+        for(int i = 0; i < ImportantConstants.gridDimension; i++){
+            for(int k = 0; k < ImportantConstants.gridDimension; k++){
+                matrixToReturn[i][k] = Optional.ofNullable(this.cardSchema[i][k].getCardOrientation());
+            }
+        }
+        return matrixToReturn;
     }
 
     /**
@@ -183,19 +222,17 @@ class CardSchema{
                     currentY = k;
                     numOfCard = 1;
                     cardInPattern.clear();
+                    cardInPattern.add(new Tuple<>(currentX, currentY));
                     while(found && numOfCard < moves.size() + 1){
                         currentX = currentX + moves.get(numOfCard - 1).x();
                         currentY = currentY + moves.get(numOfCard - 1).y();
 
-                        if(checkCoords(currentX, currentY) && this.cardSchema[currentX][currentY] != null && !usedCards[i][k] && this.cardSchema[i][k].getSeed() == requiredSymbol.get(numOfCard - 1)){
+                        if(checkCoords(currentX, currentY) && this.cardSchema[currentX][currentY] != null && !usedCards[currentX][currentY] && this.cardSchema[currentX][currentY].getSeed() == requiredSymbol.get(numOfCard)){
                             numOfCard++;
                             cardInPattern.add(new Tuple<>(currentX, currentY));
                         }
                         else{
                             found = false;
-                            for(Tuple<Integer, Integer> t : cardInPattern){
-                                usedCards[t.x()][t.y()] = false;
-                            }
                         }
                     }
 

@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.Model.Station;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Enums.Symbol;
@@ -86,12 +87,12 @@ public class Station{
     /**
      * This method updates station's points after card utilization
      */
-    public void updatePoints(Card card){ //METTERE UN METODO CHE SI OCCUPA SOLO DI AUMENTRE I PUNTEGGI RELATIVI AGLI OBBIETTIVI PRIVATE?
+    public void updatePoints(Card card){
         this.numPoints = this.numPoints + card.countPoints(this);
     }
 
     /**
-     * This method place initial card in CardSchema
+     * This method place initial card in card schema
      */
     public void placeInitialCard(PlayableCard initialCard){
         if(initialCard.getCardType() == PlayableCardType.INITIAL){
@@ -101,25 +102,28 @@ public class Station{
     }
 
     /**
-     * This method checks if a card (even if it isn't visible in the station) can be placed in CardSchema
+     * This method checks if a card can be placed in CardSchema
      * @return true if and only if card is in station and is placeable in CardSchema.
+     * @throws InvalidCardException if station doesn't have the card to place.
+     * @throws InvalidAnchorException if the anchor isn't in card schema.
      */
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
         if(!this.cardsInStation.contains(toPlace)){
             throw new InvalidCardException();
         }
-        return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this.visibleSymbolsInStation) && anchor.canPlaceOver(direction.getThisCornerPosition());
+        return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this.visibleSymbolsInStation);
     }
 
     /**
      * This method place a card in CardSchema if it's placeable in CardSchema
-     * If the card has been placed it updates station's points and visible symbols
-     * @return true if card is placeable in the station and has been placed
+     * If the card has been placed it updates station's points and visible symbols. Then updates cards in hand.
+     * @throws InvalidCardException if station doesn't have the card to place.
+     * @throws InvalidAnchorException if the anchor isn't in card schema.
      */
-    public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{ //ritornare un bool per dire se il piazzamento è andato a buon fine
+    public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
+            this.cardsInStation.remove(toPlace);
             this.cardSchema.placeCard(anchor, toPlace, direction);
-            updatePoints(toPlace);
             toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
             for(Direction d : Direction.values()){
                 try{
@@ -129,6 +133,7 @@ public class Station{
                 }
                 catch(Exception ignored){};
             }
+            updatePoints(toPlace);
             return true;
         }
         return false;
@@ -145,6 +150,7 @@ public class Station{
     /**
      * This method checks if there is a card over the anchor in Direction dir
      * Throws InvalidCardException is the anchor doesn't exist in schema.
+     * @throws InvalidCardException if station doesn't have the card to place.
      * @return true if and only if there is card ver the anchor in Direction dir
      */
     public boolean cardOverAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{
@@ -156,6 +162,7 @@ public class Station{
      * optional is empty if this card doesn't exist.
      * @param anchor the anchor from which the method starts searching
      * @param dir the direction of the search
+     * @throws InvalidCardException if station doesn't have the card to place.
      * @return Optional<PlayableCard> describing the card
      */
     public Optional<PlayableCard> getCardWithAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{
@@ -182,10 +189,20 @@ public class Station{
 
     /**
      * This method returns the schema where each card is described by its name
+     * Optional is empty if in (x, y) there is no card
      * @return a String matrix with all the visible cards codes.
      */
-    public String[][] getCardCodeSchema(){
-        return this.cardSchema.getCardCodeSchema();
+    public Optional<String>[][] getCardCodeSchema(){
+        return this.cardSchema.getCardSchema();
+    }
+
+    /**
+     * This method returns the orientation of each card in the schema
+     * Optional is empty if in (x, y) there is no card
+     * @return a String matrix with all the visible cards codes.
+     */
+    public Optional<CardOrientation>[][] getCardOrientationSchema(){
+        return this.cardSchema.getCardOrientation();
     }
 
     /**

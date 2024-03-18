@@ -23,7 +23,7 @@ class NoConstraintEffect implements PlayableEffect{
 
     @Override
     public String getEffectDescription() {
-        return "Points per pattern: " + this.cardValue +
+        return "Points per pattern: " + this.cardValue + "\n" +
                "Required pattern: nothing";
     }
 
