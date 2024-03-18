@@ -9,6 +9,7 @@ import it.polimi.ingsw.gc19.Model.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 class CardSchema{
     private final PlayableCard[][] cardSchema;
@@ -86,11 +87,26 @@ class CardSchema{
      * This method checks if a card (even if it isn't visible in the station) can be placed in CardSchema
      * @return true if and only if card is in station and is placeable in CardSchema.
      */
-    boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException{ //riportare in station
+    boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException{
+        PlayableCard neighborCard;
+        int currentX, currentY;
+        //System.out.println(cardPosition.entrySet().stream().map(c -> c.getKey().getCardCode()).collect(Collectors.toList()));
         if(!this.cardPosition.containsKey(anchor)){
             throw new InvalidAnchorException();
         }
-        return this.cardSchema[this.cardPosition.get(anchor).x() + direction.getX()][this.cardPosition.get(anchor).y() + direction.getY()] == null;
+        if(this.cardSchema[this.cardPosition.get(anchor).x() + direction.getX()][this.cardPosition.get(anchor).y() + direction.getY()] != null){
+            return false;
+        }
+        currentX = this.cardPosition.get(anchor).x() + direction.getX();
+        currentY = this.cardPosition.get(anchor).y() + direction.getY();
+        for(Direction dir : Direction.values()){
+            neighborCard = this.cardSchema[currentX + dir.getX()][currentY + dir.getY()];
+            if(neighborCard != null && !neighborCard.canPlaceOver(dir.getOtherCornerPosition())){
+                //System.out.println(neighborCard.getCardCode());
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

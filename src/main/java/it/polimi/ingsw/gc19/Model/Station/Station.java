@@ -87,7 +87,7 @@ public class Station{
     /**
      * This method updates station's points after card utilization
      */
-    public void updatePoints(Card card){ //METTERE UN METODO CHE SI OCCUPA SOLO DI AUMENTRE I PUNTEGGI RELATIVI AGLI OBBIETTIVI PRIVATE?
+    public void updatePoints(Card card){
         this.numPoints = this.numPoints + card.countPoints(this);
     }
 
@@ -102,14 +102,16 @@ public class Station{
     }
 
     /**
-     * This method checks if a card (even if it isn't visible in the station) can be placed in CardSchema
+     * This method checks if a card can be placed in CardSchema
      * @return true if and only if card is in station and is placeable in CardSchema.
+     * @throws InvalidCardException if station doesn't have the card to place.
+     * @throws InvalidAnchorException if the anchor isn't in card schema.
      */
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
         if(!this.cardsInStation.contains(toPlace)){
             throw new InvalidCardException();
         }
-        return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this.visibleSymbolsInStation) && anchor.canPlaceOver(direction.getThisCornerPosition());
+        return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this.visibleSymbolsInStation);
     }
 
     /**
@@ -118,9 +120,8 @@ public class Station{
      */
     public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
-            this.cardSchema.placeCard(anchor, toPlace, direction);
-            updatePoints(toPlace);
             this.cardsInStation.remove(toPlace);
+            this.cardSchema.placeCard(anchor, toPlace, direction);
             toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
             for(Direction d : Direction.values()){
                 try{
@@ -130,6 +131,7 @@ public class Station{
                 }
                 catch(Exception ignored){};
             }
+            updatePoints(toPlace);
             return true;
         }
         return false;
