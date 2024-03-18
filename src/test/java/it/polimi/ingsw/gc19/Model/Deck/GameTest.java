@@ -58,7 +58,6 @@ class DeckTest {
 
     /**
      * Tests the behavior of the cards positioned on the table and what happens when they are picked.
-     *
      * @throws CardNotFoundException if a card is not found.
      */
     @Test
@@ -82,7 +81,6 @@ class DeckTest {
 
     /**
      * Tests the creation of players.
-     *
      * @throws NameAlreadyInUseException if a player with the same name already exists.
      */
     @Test
@@ -121,7 +119,6 @@ class DeckTest {
      * Tests the retrieval of information from all cards and checks for exception in case
      * a card is not found.
      * All the card codes follow the pattern "cardType_cardNumber", such as: "gold_01".
-     *
      * @throws NullPointerException if the specified card code is not found.
      */
     @Test
@@ -163,7 +160,6 @@ class DeckTest {
      * If someone tries to start the game (and therefore set the first and the active player)
      * before the previously specified number of players have joined the game, nothing
      * will happen.
-     *
      * @throws NameAlreadyInUseException if a player with the same name already exists.
      */
     @Test
@@ -191,7 +187,6 @@ class DeckTest {
 
     /**
      * Tests the determination of the next player.
-     *
      * @throws NameAlreadyInUseException if a player with the same name already exists.
      */
     @Test

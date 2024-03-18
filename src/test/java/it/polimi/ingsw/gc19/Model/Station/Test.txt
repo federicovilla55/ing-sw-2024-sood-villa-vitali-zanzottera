@@ -1,0 +1,74 @@
+placeInitialCard(initial_06)
+getVisibleSymbolsInStation() -> (MUSHROOM : 1, VEGETABLE : 1, INSECT : 1, ANIMAL : 1)
+updateCardsInHand(resource_39)
+placeCard(initial_06, resource_39, UP_RIGHT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 1, VEGETABLE : 1, INSECT : 2)
+getNumPoints() -> 1
+placeCard(resource_39, resource_01, UP_RIGHT) -> InvalidCardException
+updateCardsInHand(resource_01)
+placeCard(resource_39, resource_01, UP_RIGHT) -> true
+updateCardsInHand(resource_34)
+placeCard(resource_39, resource_34, UP_RIGHT) -> false
+getVisibleSymbolsInStation() -> (MUSHROOM : 3, VEGETABLE : 1, INSECT : 2)
+placeCard(initial_06, resource_34, UP_LEFT) -> true
+getNumPoints() -> 1
+getVisibleSymbolsInStation() -> (MUSHROOM : 2, VEGETABLE : 1, INSECT : 4)
+updateCardsInHand(gold_39)
+placeCard(initial_06, gold_39, DOWN_RIGHT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 2, VEGETABLE : 1, INSECT : 3, FEATHER: 1)
+getNumPoints() -> 4
+updateCardsInHand(gold_22)
+swapCard(gold_22)
+cardIsPlaceable(resource_39, gold_22, DOWN_RIGHT) -> false
+placeCard(resource_39, gold_22, DOWN_RIGHT) -> false
+getVisibleSymbolsInStation() -> (MUSHROOM : 2, VEGETABLE : 1, INSECT : 3, FEATHER: 1)
+cardIsPlaceable(initial_06, gold_22, DOWN_LEFT) -> true
+placeCard(initial_06, gold_22, DOWN_LEFT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 2, INSECT : 3, ANIMAL : 1, FEATHER : 1)
+getNumPoints() -> 4
+updateCardsInHand(resource_08)
+placeCard(resource_01, resource_08, UP_RIGHT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 3, INSECT : 3, ANIMAL : 1, FEATHER : 1)
+getNumPoints() -> 5
+updateCardsInHand(gold_06)
+placeCard(resource_34, gold_06, UP_RIGHT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 3, INSECT : 2, ANIMAL : 1, FEATHER : 1)
+getNumPoints() -> 9
+updateCardsInHand(resource_32)
+placeCard(gold_22, resource_32, DOWN_RIGHT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 3, INSECT : 4, ANIMAL : 1, FEATHER : 0)
+getNumPoints() -> 9
+updateCardsInHand(resource_31)
+swapCard(resource_31)
+placeCard(resource_32, resource_31, DOWN_RIGHT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 3, INSECT : 4, ANIMAL : 1, FEATHER : 0)
+getNumPoints() -> 9
+updateCardsInHand(gold_34)
+placeCard(resource_31, gold_34, DOWN_LEFT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 3, INSECT : 4, ANIMAL : 1, FEATHER : 0)
+getNumPoints() -> 11
+updateGoalCardPoints(goal_08) -> 14
+updateCardsInHand(resource_03)
+placeCard(gold_06, resource_03, UP_LEFT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 5, INSECT : 4, ANIMAL : 1)
+getNumPoints() -> 14
+updateCardsInHand(resource_28)
+placeCard(gold_22, resource_28, DOWN_LEFT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 5, INSECT : 4, ANIMAL : 2)
+getNumPoints() -> 15
+updateCardsInHand(gold_23)
+swapCard(gold_23)
+placeCard(resource_28, gold_23, DOWN_LEFT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 5, INSECT : 4, ANIMAL : 2)
+getNumPoints() -> 15
+updateCardsInHand(gold_24)
+swapCard(gold_24)
+placeCard(gold_23, gold_24, DOWN_LEFT) -> true
+updateCardsInHand(gold_25)
+swapCard(gold_25)
+placeCard(gold_24, gold_25, DOWN_LEFT) -> true
+updateCardsInHand(gold_26)
+swapCard(gold_26)
+placeCard(gold_25, gold_26, DOWN_LEFT) -> true
+updateGoalCardPoints(goal_12) -> 17
+getVisibleSymbolsInStation() -> (MUSHROOM : 5, INSECT : 4, ANIMAL : 5)
