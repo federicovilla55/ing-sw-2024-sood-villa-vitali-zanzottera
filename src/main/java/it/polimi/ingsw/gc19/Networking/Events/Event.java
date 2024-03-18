@@ -6,3 +6,4 @@ public abstract class Event implements Serializable {
     String nickname;
     String type;
 }
+
