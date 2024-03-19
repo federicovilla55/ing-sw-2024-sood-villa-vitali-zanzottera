@@ -1,0 +1,18 @@
+placeInitialCard(initial_01) -> true
+updateCardsInHand(resource_01)
+updateCardsInHand(resource_02)
+placeCard(initial_01, resource_01, UP_RIGHT) -> true
+cardIsPlaceable(resource_01, resource_02, DOWN_LEFT) -> false
+updateCardsInHand(resource_02)
+placeCard(resource_01, resource_02, UP_RIGHT) -> true
+updateCardsInHand(resource_03)
+placeCard(resource_02, resource_03, UP_LEFT) -> true
+updateCardsInHand(resource_06)
+placeCard(resource_02, resource_06, UP_RIGHT) -> true
+updateCardsInHand(resource_04)
+placeCard(resource_06, resource_04, DOWN_RIGHT) -> true
+updateCardsInHand(resource_05)
+placeCard(resource_04, resource_05, DOWN_LEFT) -> true
+getVisibleSymbolsInStation() -> (MUSHROOM : 9, INK : 1, FEATHER : 1, INSECT : 1, ANIMAL : 1, VEGETABLE : 1)
+
+
