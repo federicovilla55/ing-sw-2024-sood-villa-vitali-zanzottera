@@ -22,6 +22,7 @@ public class StationTest{
     public void setUPTest() throws IOException{
         stationTests = new ArrayList<>();
         stationTests.add(new TestBuilder("src/test/java/it/polimi/ingsw/gc19/Model/Station/Test.txt").buildTest());
+        stationTests.add(new TestBuilder("src/test/java/it/polimi/ingsw/gc19/Model/Station/Test2").buildTest());
     }
 
     @Test
