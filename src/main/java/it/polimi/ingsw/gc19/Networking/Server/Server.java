@@ -5,9 +5,16 @@ import java.net.Socket;
 public class Server {
 
     static ServerSocket serverSocket = null;
-    Socket clientSocket = null;
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException{
 
-        serverSocket = new ServerSocket(5000);
+        serverSocket = new ServerSocket(12345);
+        System.out.println("Server started.");
+        while (true) {
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("New client connected: " + clientSocket);
+
+            Thread clientHandlerThread = new Thread(new ClientHandle(clientSocket));
+            clientHandlerThread.start();
+        }
     }
 }
