@@ -1,11 +1,8 @@
 package it.polimi.ingsw.gc19.Controller;
 
-import it.polimi.ingsw.gc19.Model.Game.Game;
-import it.polimi.ingsw.gc19.Model.Player.Player;
+import it.polimi.ingsw.gc19.Model.Game;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class GameController {
 

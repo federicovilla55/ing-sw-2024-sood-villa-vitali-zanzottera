@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Model.Deck;
+package it.polimi.ingsw.gc19.Model;
 
 public class EmptyDeckException extends Exception{
 

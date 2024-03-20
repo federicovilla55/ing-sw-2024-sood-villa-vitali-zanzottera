@@ -1,11 +1,7 @@
-package it.polimi.ingsw.gc19.Model.Deck;
+package it.polimi.ingsw.gc19.Model;
 
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
-import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Model.Game.Game;
-import it.polimi.ingsw.gc19.Model.Player.NameAlreadyInUseException;
-import it.polimi.ingsw.gc19.Model.Player.Player;
-import it.polimi.ingsw.gc19.Model.Player.PlayerNotFoundException;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

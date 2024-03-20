@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Model.Player;
+package it.polimi.ingsw.gc19.Model;
 
 public class NameAlreadyInUseException extends Exception{
 

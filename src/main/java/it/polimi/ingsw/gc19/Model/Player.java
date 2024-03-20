@@ -1,10 +1,7 @@
-package it.polimi.ingsw.gc19.Model.Player;
+package it.polimi.ingsw.gc19.Model;
 
-import it.polimi.ingsw.gc19.Controller.ClientPlayer;
-import it.polimi.ingsw.gc19.Model.Enums.Color;
+import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Model.Station.Station;
-
-import java.util.ArrayList;
 
 public class Player {
     private final String name;

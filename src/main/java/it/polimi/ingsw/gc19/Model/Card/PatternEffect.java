@@ -3,9 +3,9 @@ package it.polimi.ingsw.gc19.Model.Card;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import it.polimi.ingsw.gc19.Model.Enums.Symbol;
+import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Station.Station;
-import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
+import it.polimi.ingsw.gc19.Model.Tuple;
 
 import java.util.ArrayList;
 

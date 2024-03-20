@@ -2,9 +2,9 @@ package it.polimi.ingsw.gc19.Model.Card;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import it.polimi.ingsw.gc19.Model.Enums.EmptyCorner;
-import it.polimi.ingsw.gc19.Model.Enums.NotAvailableCorner;
-import it.polimi.ingsw.gc19.Model.Enums.Symbol;
+import it.polimi.ingsw.gc19.Enums.EmptyCorner;
+import it.polimi.ingsw.gc19.Enums.NotAvailableCorner;
+import it.polimi.ingsw.gc19.Enums.Symbol;
 
 import java.util.Optional;
 @JsonTypeInfo(

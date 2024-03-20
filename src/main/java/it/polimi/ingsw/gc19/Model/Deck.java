@@ -1,14 +1,9 @@
-package it.polimi.ingsw.gc19.Model.Deck;
+package it.polimi.ingsw.gc19.Model;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import it.polimi.ingsw.gc19.Model.Card.*;
+import it.polimi.ingsw.gc19.Model.Card.Card;
+import it.polimi.ingsw.gc19.Model.EmptyDeckException;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Deck<cardType extends Card>{
@@ -44,7 +39,7 @@ public class Deck<cardType extends Card>{
      * This method pick a random card from deck
      * @return cardType card randomly chosen from the deck
      */
-    public cardType pickACard() throws EmptyDeckException{
+    public cardType pickACard() throws EmptyDeckException {
         if(this.isEmpty()){
             throw new EmptyDeckException("You can't pick a card. Deck is empty!");
         }

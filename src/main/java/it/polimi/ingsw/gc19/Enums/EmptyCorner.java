@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Model.Enums;
+package it.polimi.ingsw.gc19.Enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import it.polimi.ingsw.gc19.Model.Card.Corner;

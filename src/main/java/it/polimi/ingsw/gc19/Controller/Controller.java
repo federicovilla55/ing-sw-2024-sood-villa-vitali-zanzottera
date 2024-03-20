@@ -1,7 +1,6 @@
 package it.polimi.ingsw.gc19.Controller;
 
-import it.polimi.ingsw.gc19.Model.Game.Game;
-import it.polimi.ingsw.gc19.Model.Player.NameAlreadyInUseException;
+import it.polimi.ingsw.gc19.Model.NameAlreadyInUseException;
 
 import java.io.IOException;
 import java.util.*;

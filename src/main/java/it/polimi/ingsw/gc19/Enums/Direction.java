@@ -1,8 +1,4 @@
-package it.polimi.ingsw.gc19.Model.Enums;
-
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
+package it.polimi.ingsw.gc19.Enums;
 
 /**
  * This enum represents the possible movement direction

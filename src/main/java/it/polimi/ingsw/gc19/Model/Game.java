@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Model.Game;
+package it.polimi.ingsw.gc19.Model;
 
 import it.polimi.ingsw.gc19.Controller.ClientPlayer;
 import it.polimi.ingsw.gc19.Controller.JSONParser;
@@ -6,20 +6,13 @@ import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Deck.Deck;
-import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
-import it.polimi.ingsw.gc19.Model.Enums.Color;
-import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Model.Player.NameAlreadyInUseException;
-import it.polimi.ingsw.gc19.Model.Player.Player;
-import it.polimi.ingsw.gc19.Model.Player.PlayerNotFoundException;
+import it.polimi.ingsw.gc19.Enums.Color;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.MalformedParametersException;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**

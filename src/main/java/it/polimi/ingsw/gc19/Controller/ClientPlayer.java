@@ -1,7 +1,5 @@
 package it.polimi.ingsw.gc19.Controller;
 
-import it.polimi.ingsw.gc19.Model.Game.Game;
-
 public class ClientPlayer {
     private final String name;
     private final String SecretKey;

@@ -1,18 +1,10 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
-import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Enums.Direction;
-import it.polimi.ingsw.gc19.Model.Enums.Symbol;
-import it.polimi.ingsw.gc19.Model.Game.Game;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class StationTest{
 
