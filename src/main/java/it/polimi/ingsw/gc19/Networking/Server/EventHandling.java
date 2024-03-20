@@ -15,5 +15,7 @@ public interface EventHandling {
     public void handle(PublishMessageChatEvent publishMessageChatEvent);
 
     public void handle(HeartBeatEvent heartBeatEvent);
+
+    public void handle(ReconnectEvent reconnectEvent);
 }
 
