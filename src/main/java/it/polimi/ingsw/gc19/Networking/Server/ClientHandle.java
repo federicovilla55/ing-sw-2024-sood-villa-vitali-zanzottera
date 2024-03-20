@@ -6,12 +6,13 @@ import it.polimi.ingsw.gc19.Networking.Events.Event;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.Socket;
 
 public class ClientHandle implements EventHandling, Runnable {
     private final Socket clientSocket;
     private ObjectOutputStream out;
-
     private ObjectInputStream in;
     private String nickName;
     public ClientHandle(Socket clientSocket) throws IOException
@@ -28,18 +29,40 @@ public class ClientHandle implements EventHandling, Runnable {
         if(nickName == null) {
             try {
                 Event receivedEvent = (Event) in.readObject();
+                if(!(receivedEvent instanceof NewUserEvent) && !(receivedEvent instanceof ReconnectEvent)){
+                    //error
+                }
+                else {
+                    handleEvent(receivedEvent);
+                }
 
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
         else {
+            try {
+                Event receivedEvent = (Event) in.readObject();
+                handleEvent(receivedEvent);
+            } catch (IOException | ClassNotFoundException e) {
+
+            }
+
+        }
+    }
+
+    public void handleEvent(Event event) {
+        Class<? extends Event> eventType = event.getClass();
+        try {
+            Method handlerMethod = getClass().getMethod("handle", eventType);
+            handlerMethod.invoke(this, event);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
 
         }
     }
 
 
-    @Override
+        @Override
     public void handle(CreateGameEvent createGameEvent) {
 
     }
