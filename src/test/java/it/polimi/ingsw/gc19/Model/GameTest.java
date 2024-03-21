@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DeckTest {
+class GameTest {
     private Game game;
 
     @BeforeEach
