@@ -2,24 +2,11 @@ package it.polimi.ingsw.gc19.Controller;
 
 public class ClientPlayer {
     private final String name;
-    private final String SecretKey;
-    public String gamePlay;
-    private String nickname;
+    private boolean isActive;
 
-    ClientPlayer(String name, String password){
+    public ClientPlayer(String name){
         this.name = name;
-        this.SecretKey = "ciao";
-        this.nickname = null;
-        gamePlay = null;
-    }
-    public String getName(){
-        return this.name;
-    }
-    public String getGameName() { return this.nickname; }
-
-    public void setNickname(String nickname)
-    {
-        this.nickname = nickname;
+        this.isActive = true;
     }
 
 }

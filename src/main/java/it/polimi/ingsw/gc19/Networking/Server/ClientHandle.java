@@ -15,12 +15,15 @@ public class ClientHandle implements EventHandling, Runnable {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private String nickName;
+
+    private long GetLastTimeStep;
     public ClientHandle(Socket clientSocket) throws IOException
     {
         this.clientSocket = clientSocket;
         this.nickName = null;
         out = new ObjectOutputStream(clientSocket.getOutputStream());
         in = new  ObjectInputStream(clientSocket.getInputStream());
+        this.GetLastTimeStep = System.currentTimeMillis();
     }
 
     @Override
@@ -89,7 +92,10 @@ public class ClientHandle implements EventHandling, Runnable {
 
     @Override
     public void handle(HeartBeatEvent heartBeatEvent) {
-
+        synchronized (this.GetLastTimeStep)
+        {
+            this.GetLastTimeStep = System.currentTimeMillis();
+        }
     }
 
     @Override

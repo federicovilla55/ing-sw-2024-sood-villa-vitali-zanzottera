@@ -8,11 +8,19 @@ import java.util.*;
 public class Controller {
     List<String> activeGames;
     List<String> nonActiveGames;
+    List<String> Players;
+    List<String> ActivePlayers;
+    List<String> NonActivePlayers;
+    Map<String, GameController> PlayerToGameController;
 
-    Map<String, GameController> mapIdtoController;
     Controller()
     {
-        mapIdtoController = new HashMap<String, GameController>();
+        Players = new ArrayList<String>();
+        ActivePlayers = new ArrayList<String>();
+        NonActivePlayers = new ArrayList<String>();
+        PlayerToGameController = new HashMap<String, GameController>();
+        activeGames = new ArrayList<String>();
+        nonActiveGames = new ArrayList<String>();
     }
 
     private boolean CheckAlreadyExist(String gameToCheck){
@@ -27,6 +35,29 @@ public class Controller {
             }
         }
         return false;
+    }
+
+    public void NewClient(String userName)
+    {
+        if(ActivePlayers.contains(userName))
+        {
+            //throw exception
+        }
+        else{
+            ActivePlayers.contains(userName);
+        }
+    }
+
+    public void SetToNonActive(String nickName)
+    {
+        ActivePlayers.remove(nickName);
+        NonActivePlayers.add(nickName);
+    }
+
+    public void SetToActive(String nickName)
+    {
+        NonActivePlayers.remove(nickName);
+        ActivePlayers.add(nickName);
     }
 
     public void CreateGame(ClientPlayer new_player, String GameName, int num_player, String creatorName) throws IOException { //gestire l'eccezzione

@@ -5,16 +5,23 @@ import java.net.Socket;
 import java.util.*;
 
 public class Server {
+
+    static List<ClientHandle> ActiveClient;
+    static List<ClientHandle> NoNonActiveClient;
     public static void main(String[] args) throws IOException{
         List<Socket> ActiveList = new ArrayList<Socket>();
+
+        ActiveClient  = new ArrayList<ClientHandle>();
+        NoNonActiveClient = new ArrayList<ClientHandle>();
         ServerSocket serverSocket = null;
         serverSocket = new ServerSocket(12345);
         System.out.println("Server started.");
         while (true) {
             Socket clientSocket = serverSocket.accept();
             System.out.println("New client connected: " + clientSocket);
-            ActiveList.add(clientSocket);
-            Thread clientHandlerThread = new Thread(new ClientHandle(clientSocket));
+            ClientHandle Client = new ClientHandle(clientSocket);
+            ActiveClient.add(Client);
+            Thread clientHandlerThread = new Thread(Client);
             clientHandlerThread.start();
         }
     }
