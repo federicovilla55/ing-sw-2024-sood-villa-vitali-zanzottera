@@ -1,7 +1,6 @@
-package it.polimi.ingsw.gc19.Model;
+package it.polimi.ingsw.gc19.Model.Deck;
 
 import it.polimi.ingsw.gc19.Model.Card.Card;
-import it.polimi.ingsw.gc19.Model.EmptyDeckException;
 
 import java.util.*;
 import java.util.stream.Stream;

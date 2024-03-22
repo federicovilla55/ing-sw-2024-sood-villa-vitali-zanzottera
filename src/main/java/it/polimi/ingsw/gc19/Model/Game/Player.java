@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Model;
+package it.polimi.ingsw.gc19.Model.Game;
 
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Model.Station.Station;

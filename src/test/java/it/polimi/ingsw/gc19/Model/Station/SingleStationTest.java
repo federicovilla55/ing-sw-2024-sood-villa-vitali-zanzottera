@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
-import it.polimi.ingsw.gc19.Model.Game;
+import it.polimi.ingsw.gc19.Model.Game.Game;
 
 import java.io.IOException;
 import java.util.ArrayList;

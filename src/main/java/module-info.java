@@ -17,4 +17,8 @@ module it.polimi.ingsw.gc19 {
     opens it.polimi.ingsw.gc19.Model;
     exports it.polimi.ingsw.gc19.Costants to com.fasterxml.jackson.databind;
     opens it.polimi.ingsw.gc19.Costants;
+    exports it.polimi.ingsw.gc19.Model.Game to com.fasterxml.jackson.databind;
+    opens it.polimi.ingsw.gc19.Model.Game;
+    exports it.polimi.ingsw.gc19.Model.Deck to com.fasterxml.jackson.databind;
+    opens it.polimi.ingsw.gc19.Model.Deck;
 }
