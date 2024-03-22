@@ -95,21 +95,16 @@ class CardSchema{
             throw new InvalidAnchorException();
         }
         if(this.cardSchema[this.cardPosition.get(anchor).x() + direction.getX()][this.cardPosition.get(anchor).y() + direction.getY()] != null){
-            //System.out.println("ok");
             return false;
         }
-        //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         currentX = this.cardPosition.get(anchor).x() + direction.getX();
         currentY = this.cardPosition.get(anchor).y() + direction.getY();
         for(Direction dir : Direction.values()){
-            //System.out.println(currentX + dir.getX());
-            //System.out.println(currentY + dir.getY());
             neighborCard = this.cardSchema[currentX + dir.getX()][currentY + dir.getY()];
             if(neighborCard != null && !neighborCard.canPlaceOver(dir.getOtherCornerPosition())){
                 return false;
             }
         }
-        //System.out.println("ddd");
         return true;
     }
 
