@@ -1,11 +1,12 @@
-package it.polimi.ingsw.gc19.Model.Deck;
+package it.polimi.ingsw.gc19.Model;
 
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
-import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
 import it.polimi.ingsw.gc19.Model.Game.Game;
-import it.polimi.ingsw.gc19.Model.Player.NameAlreadyInUseException;
-import it.polimi.ingsw.gc19.Model.Player.Player;
-import it.polimi.ingsw.gc19.Model.Player.PlayerNotFoundException;
+import it.polimi.ingsw.gc19.Model.Game.NameAlreadyInUseException;
+import it.polimi.ingsw.gc19.Model.Game.Player;
+import it.polimi.ingsw.gc19.Model.Game.PlayerNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DeckTest {
+class GameTest {
     private Game game;
 
     @BeforeEach

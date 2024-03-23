@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Model.Tuple;
+package it.polimi.ingsw.gc19.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

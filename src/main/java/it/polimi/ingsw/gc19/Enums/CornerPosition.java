@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Model.Enums;
+package it.polimi.ingsw.gc19.Enums;
 
 /**
  * This enum represents the position inside the 2x2 matrix of the card

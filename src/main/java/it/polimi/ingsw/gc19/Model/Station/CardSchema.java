@@ -1,15 +1,13 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
-import it.polimi.ingsw.gc19.Model.Card.Card;
-import it.polimi.ingsw.gc19.Model.Costants.ImportantConstants;
+import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Model.Enums.Direction;
-import it.polimi.ingsw.gc19.Model.Enums.Symbol;
-import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
+import it.polimi.ingsw.gc19.Enums.CardOrientation;
+import it.polimi.ingsw.gc19.Enums.Direction;
+import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Tuple;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 class CardSchema{
     private final PlayableCard[][] cardSchema;
@@ -97,21 +95,16 @@ class CardSchema{
             throw new InvalidAnchorException();
         }
         if(this.cardSchema[this.cardPosition.get(anchor).x() + direction.getX()][this.cardPosition.get(anchor).y() + direction.getY()] != null){
-            //System.out.println("ok");
             return false;
         }
-        //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         currentX = this.cardPosition.get(anchor).x() + direction.getX();
         currentY = this.cardPosition.get(anchor).y() + direction.getY();
         for(Direction dir : Direction.values()){
-            //System.out.println(currentX + dir.getX());
-            //System.out.println(currentY + dir.getY());
             neighborCard = this.cardSchema[currentX + dir.getX()][currentY + dir.getY()];
             if(neighborCard != null && !neighborCard.canPlaceOver(dir.getOtherCornerPosition())){
                 return false;
             }
         }
-        //System.out.println("ddd");
         return true;
     }
 

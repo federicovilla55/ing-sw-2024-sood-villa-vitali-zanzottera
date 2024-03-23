@@ -3,11 +3,11 @@ package it.polimi.ingsw.gc19.Model.Station;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Model.Enums.Direction;
-import it.polimi.ingsw.gc19.Model.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Model.Enums.Symbol;
-import it.polimi.ingsw.gc19.Model.Tuple.Tuple;
+import it.polimi.ingsw.gc19.Enums.CardOrientation;
+import it.polimi.ingsw.gc19.Enums.Direction;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Tuple;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,7 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Card;
 
 import com.fasterxml.jackson.annotation.*;
-import it.polimi.ingsw.gc19.Model.Enums.*;
+import it.polimi.ingsw.gc19.Enums.*;
 
 import it.polimi.ingsw.gc19.Model.Station.Station;
 

@@ -1,19 +1,21 @@
 package it.polimi.ingsw.gc19.Networking.Events.ClientEvents;
 
+import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Networking.Events.Event;
 
 public class InsertCardEvent extends Event {
 
     public String gameName;
     public String nickname;
-    public int x;
-    public int y;
+    public String anchorCard;
 
-    InsertCardEvent(String nickname, String gameName , int x,int y){
+    public Direction direction;
+
+    InsertCardEvent(String nickname, String gameName , String anchorCard, Direction direction){
         this.nickname = nickname;
         this.gameName = gameName;
-        this.x = x;
-        this.y = y;
+        this.direction = direction;
+        this.anchorCard = anchorCard;
     }
 
 }
