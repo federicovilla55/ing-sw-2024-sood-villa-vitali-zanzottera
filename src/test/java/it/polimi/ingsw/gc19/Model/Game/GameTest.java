@@ -73,11 +73,11 @@ class GameTest {
             game.pickCardFromTable(PlayableCardType.RESOURCE, 1);
         }
         assertThrows(CardNotFoundException.class, () -> game.pickCardFromTable(PlayableCardType.GOLD, 1));
-        assertThrows(CardNotFoundException.class, () -> game.pickCardFromTable(PlayableCardType.GOLD, 1));
+        assertThrows(CardNotFoundException.class, () -> game.pickCardFromTable(PlayableCardType.RESOURCE, 1));
         game.pickCardFromTable(PlayableCardType.GOLD, 0);
         game.pickCardFromTable(PlayableCardType.RESOURCE, 0);
         assertThrows(CardNotFoundException.class, () -> game.pickCardFromTable(PlayableCardType.GOLD, 0));
-        assertThrows(CardNotFoundException.class, () -> game.pickCardFromTable(PlayableCardType.GOLD, 0));
+        assertThrows(CardNotFoundException.class, () -> game.pickCardFromTable(PlayableCardType.RESOURCE, 0));
     }
 
     /**

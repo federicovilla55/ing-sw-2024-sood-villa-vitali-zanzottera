@@ -23,6 +23,18 @@ import java.util.stream.Stream;
  * Players, Decks and the Table can be accessed and managed through the class.
  */
 public class Game {
+
+    /**
+     * This attribute is a list of winner players
+     */
+    private final List<Player> winnerPlayers;
+
+    /**
+     * This attribute identifies the available colors from which players can
+     * choose the color of their pawn.
+     */
+    private final List<Color> availableColors;
+
     private TurnState turnState;
     private GameState gameState;
     /**
@@ -94,6 +106,42 @@ public class Game {
 
     private boolean finalRound;
 
+    private boolean finalCondition;
+
+    public List<Color> getAvailableColors() {
+        return List.copyOf(availableColors);
+    }
+
+    public void removeAvailableColor(Color color) {
+        this.availableColors.remove(color);
+    }
+
+    public List<Player> getWinnerPlayers() {
+        return List.copyOf(winnerPlayers);
+    }
+
+    public void addWinnerPlayer(Player player) {
+        this.winnerPlayers.add(player);
+    }
+
+    public void computeWinnerPlayers() {
+
+        Comparator<Player> byGoalPoints = Comparator.comparing(Player::getPointsFromGoals).reversed();
+        Comparator<Player> byStationPoints = Comparator.comparing((Player p) -> p.getPlayerStation().getNumPoints()).reversed();
+
+        List<Player> sortedPlayers = this.players.stream()
+                .sorted(byGoalPoints.thenComparing(byStationPoints))
+                .toList();
+
+        Player p = null;
+        do {
+            p = sortedPlayers.removeFirst();
+            this.winnerPlayers.add(p);
+        }while(sortedPlayers.getFirst().getPlayerStation().getNumPoints() == p.getPlayerStation().getNumPoints()
+                && sortedPlayers.getFirst().getPointsFromGoals() == p.getPointsFromGoals());
+
+    }
+
     /**
      * Constructs a new game session with the specified number of players.
      * Initializes decks, cards on table, players and other variables.
@@ -102,11 +150,8 @@ public class Game {
      * @throws IOException if there's an I/O error while reading card files.
      */
     public Game(int numPlayers) throws IOException{
-        /**
-         * This attribute identifies the available colors from which players can
-         * choose the color of their pawn.
-         */
-        ArrayList<Color> availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
+        this.winnerPlayers = new ArrayList<>();
+        this.availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
         this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
 
@@ -125,6 +170,7 @@ public class Game {
         this.goldDeck.shuffleDeck();
         this.resourceDeck.shuffleDeck();
 
+        this.finalCondition = false;
         this.finalRound = false;
 
         this.goldCardsOnTable = new PlayableCard[]{goldDeck.pickACard(), goldDeck.pickACard()};
@@ -248,6 +294,10 @@ public class Game {
         Player player = null;
         player = new Player(name, this.initialDeck.pickACard(), this.goalDeck.pickACard(), this.goalDeck.pickACard());
 
+        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
+        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
+        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.GOLD));
+
         players.add(player);
     }
 
@@ -327,10 +377,12 @@ public class Game {
 
     public void updateGoalPoints(){
         for(Player p : players){
+            int pointsFromGoals = 0;
             Station station = p.getPlayerStation();
-            station.updatePoints(this.publicGoalCardsOnTable[0]);
-            station.updatePoints(this.publicGoalCardsOnTable[1]);
-            station.updatePoints(station.getPrivateGoalCard());
+            pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[0]);
+            pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[1]);
+            pointsFromGoals += station.updatePoints(station.getPrivateGoalCard());
+            p.setPointsFromGoals(pointsFromGoals);
         }
     }
 
@@ -396,12 +448,20 @@ public class Game {
         this.gameState = gameState;
     }
 
-    public boolean getFinalRound() {
-        return finalRound;
+    public boolean getFinalCondition() {
+        return finalCondition;
+    }
+
+    public void setFinalCondition(boolean finalCondition) {
+        this.finalCondition = finalCondition;
     }
 
     public void setFinalRound(boolean finalRound) {
         this.finalRound = finalRound;
+    }
+
+    public boolean isFinalRound() {
+        return finalRound;
     }
 
 }

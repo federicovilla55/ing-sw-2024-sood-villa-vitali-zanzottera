@@ -9,6 +9,7 @@ public class Player {
     private final String name;
     private Color playerColor;
     private final Station playerStation;
+    private int pointsFromGoals;
 
     /**
      * This constructor creates a player and his station
@@ -48,5 +49,11 @@ public class Player {
         return this.playerColor;
     }
 
+    public int getPointsFromGoals() {
+        return pointsFromGoals;
+    }
 
+    public void setPointsFromGoals(int pointsFromGoals) {
+        this.pointsFromGoals = pointsFromGoals;
+    }
 }

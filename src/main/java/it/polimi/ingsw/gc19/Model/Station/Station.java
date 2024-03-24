@@ -95,9 +95,13 @@ public class Station{
 
     /**
      * This method updates station's points after card utilization
+     * @param card the card to use to update points
+     * @return the points given by the card
      */
-    public void updatePoints(Card card){
-        this.numPoints = this.numPoints + card.countPoints(this);
+    public int updatePoints(Card card){
+        int pointsFromCard = card.countPoints(this);
+        this.numPoints = this.numPoints + pointsFromCard;
+        return pointsFromCard;
     }
 
     /**
