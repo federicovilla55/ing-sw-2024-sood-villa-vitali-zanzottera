@@ -25,4 +25,12 @@ public class Server {
             clientHandlerThread.start();
         }
     }
+
+    public void ControlActiveCLient()
+    {
+        /*prende ActiveCLient GetLastTimeStep
+        SYetmgetmillis-GetLastTimeStep > tot
+        Va a chiamare SetToNonActive(nickname)
+         */
+    }
 }

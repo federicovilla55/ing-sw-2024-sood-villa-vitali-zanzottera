@@ -1,7 +1,9 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
+import it.polimi.ingsw.gc19.Controller.Controller;
 import it.polimi.ingsw.gc19.Networking.Events.ClientEvents.*;
 import it.polimi.ingsw.gc19.Networking.Events.Event;
+import it.polimi.ingsw.gc19.Networking.Events.ServerEvents.NotSuccessEvent;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -12,10 +14,11 @@ import java.net.Socket;
 
 public class ClientHandle implements EventHandling, Runnable {
     private final Socket clientSocket;
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
+    private final ObjectOutputStream out;
+    private final ObjectInputStream in;
     private String nickName;
 
+    private Controller controllerLink;
     private long getLastTimeStep;
     private final Object getLastTimeStepLock;
 
@@ -38,9 +41,7 @@ public class ClientHandle implements EventHandling, Runnable {
                 if(!(receivedEvent instanceof NewUserEvent) && !(receivedEvent instanceof ReconnectEvent)){
                     //error
                 }
-                else {
-                    handleEvent(receivedEvent);
-                }
+                else {handleEvent(receivedEvent); }
 
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
@@ -50,10 +51,7 @@ public class ClientHandle implements EventHandling, Runnable {
             try {
                 Event receivedEvent = (Event) in.readObject();
                 handleEvent(receivedEvent);
-            } catch (IOException | ClassNotFoundException e) {
-
-            }
-
+            } catch (IOException | ClassNotFoundException e){}
         }
     }
 
@@ -62,14 +60,22 @@ public class ClientHandle implements EventHandling, Runnable {
         try {
             Method handlerMethod = getClass().getMethod("handle", eventType);
             handlerMethod.invoke(this, event);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-
-        }
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {}
     }
-
-
-        @Override
+    @Override
     public void handle(CreateGameEvent createGameEvent) {
+        try{
+            controllerLink.createGame(this.nickName, createGameEvent.gameName, createGameEvent.numPlayer);}
+        catch (IOException e) {
+            Event sendError= new NotSuccessEvent("Game with name already exists!");
+            synchronized(out) {
+                try {out.writeObject(sendError);} catch (IOException ex){ }
+            }
+        }
+        synchronized (this.getLastTimeStepLock)
+        {
+            this.getLastTimeStep = System.currentTimeMillis();
+        }
 
     }
 
@@ -85,7 +91,13 @@ public class ClientHandle implements EventHandling, Runnable {
 
     @Override
     public void handle(NewUserEvent newUserEvent) {
-
+        boolean check = controllerLink.NewClient(newUserEvent.nickName);
+        if(!check){
+            Event sendError= new NotSuccessEvent("Username already Exists!");
+            synchronized(out) {
+                try {out.writeObject(sendError);} catch (IOException ex){ }
+            }
+        }
     }
 
     @Override

@@ -13,6 +13,7 @@ public class Controller {
     List<String> ActivePlayers;
     List<String> NonActivePlayers;
     Map<String, GameController> PlayerToGameController;
+    Map<String, GameController> GameNameToController;
 
     Controller()
     {
@@ -26,33 +27,29 @@ public class Controller {
 
     private boolean checkAlreadyExist(String gameToCheck){
         for(String games : activeGames) {
-            if(gameToCheck.equals(games)){
-                return true;
-            }
+            if(gameToCheck.equals(games)){return true;}
         }
         for(String games : nonActiveGames){
-            if(gameToCheck.equals(games)) {
-                return true;
-            }
+            if(gameToCheck.equals(games)) {return true; }
         }
         return false;
     }
 
-    public void NewClient(String userName)
+    public boolean NewClient(String userName)
     {
-        if(ActivePlayers.contains(userName))
-        {
-            //throw exception
-        }
+        if(ActivePlayers.contains(userName)) {return false;}
         else{
-            ActivePlayers.contains(userName);
+            ActivePlayers.add(userName);
+            return true;
         }
     }
-
     public void SetToNonActive(String nickName)
     {
         ActivePlayers.remove(nickName);
         NonActivePlayers.add(nickName);
+        if(PlayerToGameController.containsKey(nickName)) {
+            PlayerToGameController.get(nickName).removeClient(nickName);
+        }
     }
 
     public void SetToActive(String nickName)
@@ -61,28 +58,20 @@ public class Controller {
         ActivePlayers.add(nickName);
     }
 
-    public void createGame(String firstPlayerNickname, String gameName, int numPlayer, String creatorName) throws IOException { //gestire l'eccezzione
+    public void createGame(String PlayerNickname, String gameName, int numPlayer) throws IOException {
         if(checkAlreadyExist(gameName)){
             throw new IllegalArgumentException("Name already in use");
         }
         Game tempName = new Game(numPlayer);
         GameController temp = new GameController(tempName);
         nonActiveGames.add(gameName);
-        //mapIdToController.put(gameName, temp);
-        //mapIdtoController.get(gameName).gameAssociated.createNewPlayer(creatorName, new_player);
+        PlayerToGameController.put(PlayerNickname, temp);
+        GameNameToController.put(gameName, temp);
     }
 
-    public void joinGame(ClientPlayer player, String gameToJoin, String nickToJoin) {
+    public void joinGame(String player, String gameToJoin, String nickToJoin) {
         if(activeGames.contains(gameToJoin) || (!nonActiveGames.contains(gameToJoin) && !activeGames.contains(gameToJoin))){
             throw new IllegalStateException("Cannot join this game anymore");
-        }
-        try {
-            //mapIdToController.get(gameToJoin).gameAssociated.createNewPlayer(nickToJoin);
-            //player.setNickname(nickToJoin);
-        }
-        catch (NameAlreadyInUseException e)
-        {
-            throw new IllegalArgumentException("Name already in use");
         }
     }
 
