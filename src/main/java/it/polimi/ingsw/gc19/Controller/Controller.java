@@ -68,7 +68,7 @@ public class Controller {
         Game tempName = new Game(numPlayer);
         GameController temp = new GameController(tempName);
         nonActiveGames.add(gameName);
-        mapIdToController.put(gameName, temp);
+        //mapIdToController.put(gameName, temp);
         //mapIdtoController.get(gameName).gameAssociated.createNewPlayer(creatorName, new_player);
     }
 
@@ -77,8 +77,8 @@ public class Controller {
             throw new IllegalStateException("Cannot join this game anymore");
         }
         try {
-            mapIdToController.get(gameToJoin).gameAssociated.createNewPlayer(nickToJoin);
-            player.setNickname(nickToJoin);
+            //mapIdToController.get(gameToJoin).gameAssociated.createNewPlayer(nickToJoin);
+            //player.setNickname(nickToJoin);
         }
         catch (NameAlreadyInUseException e)
         {

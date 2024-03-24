@@ -1,0 +1,43 @@
+placeInitialCard(initial_05, DOWN) -> true
+getVisibleSymbolsInStation() -> (ANIMAL: 1, INSECT : 1, VEGETABLE : 1)
+updateCardsInHand(gold_26)
+swapCard(gold_26)
+placeCard(initial_05, gold_26, UP_RIGHT) -> true
+getVisibleSymbolsInStation() -> (ANIMAL: 2, INSECT : 1, VEGETABLE : 1)
+getNumPoints() -> 0
+updateCardsInHand(gold_15)
+swapCard(gold_15)
+placeCard(gold_26, gold_15, UP_RIGHT) -> true
+getVisibleSymbolsInStation() -> (ANIMAL: 2, INSECT : 1, VEGETABLE : 2)
+getNumPoints() -> 0
+updateCardsInHand(resource_26)
+placeCard(gold_15, resource_26, UP_LEFT) -> true
+getVisibleSymbolsInStation() -> (ANIMAL: 3, INSECT : 1, VEGETABLE : 3, SCROLL : 1)
+getNumPoints() -> 0
+updateCardsInHand(gold_01)
+cardIsPlaceable(gold_15, gold_01, UP_LEFT) -> false
+getVisibleSymbolsInStation() -> (ANIMAL: 3, INSECT : 1, VEGETABLE : 3, SCROLL : 1)
+getNumPoints() -> 0
+getCardWithAnchor(gold_15, UP_LEFT) -> resource_26
+swapCard(gold_01)
+placeCard(resource_26, gold_01, UP_RIGHT) -> true
+updateCardsInHand(resource_25)
+placeCard(gold_01, resource_25, DOWN_RIGHT) -> true
+updateCardsInHand(resource_27)
+swapCard(resource_27)
+placeCard(gold_15, resource_27, DOWN_RIGHT) -> true
+updateCardsInHand(resource_01)
+placeCard(resource_25, resource_01, UP_RIGHT) -> true
+updateCardsInHand(resource_23)
+placeCard(resource_27, resource_23, UP_RIGHT) -> true
+updateGoalCardPoints(goal_07) -> 6
+getVisibleSymbolsInStation() -> (INSECT : 1, ANIMAL : 5, MUSHROOM : 3, VEGETABLE : 3, SCROLL : 1, INK : 1)
+updateCardsInHand(gold_04)
+placeCard(resource_27, gold_04, DOWN_LEFT) -> true
+updateCardsInHand(resource_02)
+cardIsPlaceable(gold_26, resource_02, DOWN_LEFT) -> false
+placeCard(gold_26, resource_02, UP_LEFT) -> false
+getVisibleSymbolsInStation() -> (INSECT : 1, ANIMAL : 5, MUSHROOM : 3, VEGETABLE : 3, SCROLL : 1, INK : 1)
+getNumPoints() -> 10
+
+
