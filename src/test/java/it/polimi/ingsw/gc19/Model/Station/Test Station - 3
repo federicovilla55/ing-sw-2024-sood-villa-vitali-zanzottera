@@ -39,5 +39,8 @@ cardIsPlaceable(gold_26, resource_02, DOWN_LEFT) -> false
 placeCard(gold_26, resource_02, UP_LEFT) -> false
 getVisibleSymbolsInStation() -> (INSECT : 1, ANIMAL : 5, MUSHROOM : 3, VEGETABLE : 3, SCROLL : 1, INK : 1)
 getNumPoints() -> 10
+updateCardsInHand(resource_15)
+placeCard(resource_01, resource_15, UP_LEFT) -> true
+updateGoalCardPoints(goal_13) -> 13
 
 
