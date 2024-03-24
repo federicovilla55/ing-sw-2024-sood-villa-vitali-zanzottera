@@ -29,7 +29,7 @@ class GameTest {
      */
     @Test
     public void testDecks() {
-        // Test game initialization
+        // Test Station - 1 game initialization
         assertNotNull(game);
         assertEquals(4, game.getNumPlayers());
         int deckSize = 0;

@@ -7,8 +7,8 @@ import java.util.stream.Stream;
 
 public class Deck<cardType extends Card>{
 
-    private ArrayList<cardType> cardsInDeck;
-    private  int initialLenOfDeck;
+    private final ArrayList<cardType> cardsInDeck;
+    private final int initialLenOfDeck;
 
     /**
      * This constructor creates a deck of cardType cards

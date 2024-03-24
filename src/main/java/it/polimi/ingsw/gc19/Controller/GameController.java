@@ -51,10 +51,8 @@ public class GameController {
             }
         } catch (PlayerNotFoundException e) {
             //new player
-            if(this.gameAssociated.getNumJoinedPlayer()<this.gameAssociated.getNumPlayers()) {
-                try {
-                    this.gameAssociated.createNewPlayer(nickname);
-                } catch (NameAlreadyInUseException ignored) {}
+            if(this.gameAssociated.getNumJoinedPlayer() < this.gameAssociated.getNumPlayers()) {
+                this.gameAssociated.createNewPlayer(nickname);
                 this.connectedClients.add(nickname);
                 //if num of players reached, start game
                 if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
@@ -79,40 +77,34 @@ public class GameController {
     public void chooseColor(String nickname, Color color) {
         if(!this.gameAssociated.getGameState().equals(GameState.SETUP)) return;
 
-        try {
-            if(this.gameAssociated.getPlayerByName(nickname).getColor()==null) {
-                this.gameAssociated.getPlayerByName(nickname).setColor(color);
-            }
-            if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
-                this.gameAssociated.startGame();
-            }
-        } catch (PlayerNotFoundException ignored) {}
+        if(this.gameAssociated.getPlayerByName(nickname).getColor()==null) {
+            this.gameAssociated.getPlayerByName(nickname).setColor(color);
+        }
+        if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
+            this.gameAssociated.startGame();
+        }
     }
 
     public void choosePrivateGoal(String nickname, int cardIdx) {
         if(!this.gameAssociated.getGameState().equals(GameState.SETUP)) return;
 
-        try {
-            if(this.gameAssociated.getPlayerByName(nickname).getPlayerStation().getPrivateGoalCard()==null) {
-                this.gameAssociated.getPlayerByName(nickname).getPlayerStation().setPrivateGoalCard(cardIdx);
-            }
-            if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
-                this.gameAssociated.startGame();
-            }
-        } catch (PlayerNotFoundException ignored) {}
+        if(this.gameAssociated.getPlayerByName(nickname).getPlayerStation().getPrivateGoalCard()==null) {
+            this.gameAssociated.getPlayerByName(nickname).getPlayerStation().setPrivateGoalCard(cardIdx);
+        }
+        if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
+            this.gameAssociated.startGame();
+        }
     }
 
     public void placeInitialCard(String nickname, CardOrientation cardOrientation) {
         if(!this.gameAssociated.getGameState().equals(GameState.SETUP)) return;
 
-        try {
-            if(!this.gameAssociated.getPlayerByName(nickname).getPlayerStation().getInitialCardIsPlaced()) {
-                this.gameAssociated.getPlayerByName(nickname).getPlayerStation().placeInitialCard(cardOrientation);
-            }
-            if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
-                this.gameAssociated.startGame();
-            }
-        } catch (PlayerNotFoundException ignored) {}
+        if(!this.gameAssociated.getPlayerByName(nickname).getPlayerStation().getInitialCardIsPlaced()) {
+            this.gameAssociated.getPlayerByName(nickname).getPlayerStation().placeInitialCard(cardOrientation);
+        }
+        if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
+            this.gameAssociated.startGame();
+        }
     }
 
     public void placeCard(String nickname, String cardCode, String anchorCode, Direction direction) {

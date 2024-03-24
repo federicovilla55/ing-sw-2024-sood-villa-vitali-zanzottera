@@ -11,10 +11,11 @@ public class StationTest{
     private ArrayList<SingleStationTest> stationTests;
 
     @BeforeEach
-    public void setUPTest() throws IOException{
+    public void setUpTest() throws IOException{
         stationTests = new ArrayList<>();
-        stationTests.add(new TestBuilder("src/test/java/it/polimi/ingsw/gc19/Model/Station/Test.txt").buildTest());
-        stationTests.add(new TestBuilder("src/test/java/it/polimi/ingsw/gc19/Model/Station/Test2").buildTest());
+        stationTests.add(new TestBuilder("src/test/java/it/polimi/ingsw/gc19/Model/Station/Test Station - 1").buildTest());
+        stationTests.add(new TestBuilder("src/test/java/it/polimi/ingsw/gc19/Model/Station/Test Station - 2").buildTest());
+        stationTests.add(new TestBuilder("src/test/java/it/polimi/ingsw/gc19/Model/Station/Test Station - 3").buildTest());
     }
 
     @Test

@@ -23,22 +23,6 @@ import java.util.stream.Stream;
  * Players, Decks and the Table can be accessed and managed through the class.
  */
 public class Game {
-    public TurnState getTurnState() {
-        return turnState;
-    }
-
-    public void setTurnState(TurnState turnState) {
-        this.turnState = turnState;
-    }
-
-    public GameState getGameState() {
-        return gameState;
-    }
-
-    public void setGameState(GameState gameState) {
-        this.gameState = gameState;
-    }
-
     private TurnState turnState;
     private GameState gameState;
     /**
@@ -62,12 +46,6 @@ public class Game {
      * the game starts.
      */
     private Player firstPlayer;
-
-    /**
-     * This attribute identifies the available colors from which players can
-     * choose the color of their pawn.
-     */
-    private ArrayList<Color> availableColors;
 
     /**
      * This attribute associate every playable card code to the corresponding PlayableCard object.
@@ -102,25 +80,17 @@ public class Game {
     /**
      * This attribute represents the two gold cards on the table.
      */
-    private PlayableCard[] goldCardsOnTable;
+    private final PlayableCard[] goldCardsOnTable;
 
     /**
      * This attribute represents the two resource cards on the table.
      */
-    private PlayableCard[] resourceCardsOnTable;
+    private final PlayableCard[] resourceCardsOnTable;
 
     /**
      * This attribute represents the two goal cards on the table.
      */
-    private GoalCard[] publicGoalCardsOnTable;
-
-    public boolean getFinalRound() {
-        return finalRound;
-    }
-
-    public void setFinalRound(boolean finalRound) {
-        this.finalRound = finalRound;
-    }
+    private final GoalCard[] publicGoalCardsOnTable;
 
     private boolean finalRound;
 
@@ -132,7 +102,11 @@ public class Game {
      * @throws IOException if there's an I/O error while reading card files.
      */
     public Game(int numPlayers) throws IOException{
-        this.availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
+        /**
+         * This attribute identifies the available colors from which players can
+         * choose the color of their pawn.
+         */
+        ArrayList<Color> availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
         this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
 
@@ -153,11 +127,9 @@ public class Game {
 
         this.finalRound = false;
 
-        try{
-            this.goldCardsOnTable = new PlayableCard[]{goldDeck.pickACard(), goldDeck.pickACard()};
-            this.resourceCardsOnTable = new PlayableCard[]{resourceDeck.pickACard(), resourceDeck.pickACard()};
-            this.publicGoalCardsOnTable = new GoalCard[]{goalDeck.pickACard(), goalDeck.pickACard()};
-        }catch(EmptyDeckException ignored){}
+        this.goldCardsOnTable = new PlayableCard[]{goldDeck.pickACard(), goldDeck.pickACard()};
+        this.resourceCardsOnTable = new PlayableCard[]{resourceDeck.pickACard(), resourceDeck.pickACard()};
+        this.publicGoalCardsOnTable = new GoalCard[]{goalDeck.pickACard(), goalDeck.pickACard()};
 
         this.gameState = GameState.SETUP;
         this.turnState = null;
@@ -274,9 +246,8 @@ public class Game {
         }
 
         Player player = null;
-        try {
-            player = new Player(name, this.initialDeck.pickACard(), this.goalDeck.pickACard(), this.goalDeck.pickACard());
-        } catch (EmptyDeckException ignored) {}
+        player = new Player(name, this.initialDeck.pickACard(), this.goalDeck.pickACard(), this.goalDeck.pickACard());
+
         players.add(player);
     }
 
@@ -314,12 +285,8 @@ public class Game {
     public PlayableCard pickCardFromDeck(PlayableCardType type) throws EmptyDeckException, MalformedParametersException {
         Deck<PlayableCard> deck;
         deck = switch (type) {
-            case RESOURCE -> {
-                yield this.resourceDeck;
-            }
-            case GOLD -> {
-                yield this.goldDeck;
-            }
+            case RESOURCE -> this.resourceDeck;
+            case GOLD -> this.goldDeck;
             default -> throw new MalformedParametersException("type must be RESOURCE or GOLD");
         };
         return deck.pickACard();
@@ -359,8 +326,6 @@ public class Game {
     }
 
     public void updateGoalPoints(){
-        // For each player updates his station points
-        // for each goal card (public and private)
         for(Player p : players){
             Station station = p.getPlayerStation();
             station.updatePoints(this.publicGoalCardsOnTable[0]);
@@ -403,19 +368,40 @@ public class Game {
     }
 
     public boolean drawableCardsArePresent() {
-        if(
-                this.goldDeck.isEmpty() &&
-                        this.resourceDeck.isEmpty() &&
-                        this.goldCardsOnTable[0] == null &&
-                        this.goldCardsOnTable[1] == null &&
-                        this.resourceCardsOnTable[0] == null &&
-                        this.resourceCardsOnTable[1] == null
-        ) return false;
-
-        return true;
+        return !this.goldDeck.isEmpty() ||
+                !this.resourceDeck.isEmpty() ||
+                this.goldCardsOnTable[0] != null ||
+                this.goldCardsOnTable[1] != null ||
+                this.resourceCardsOnTable[0] != null ||
+                this.resourceCardsOnTable[1] != null;
     }
 
     public void setActivePlayer(Player activePlayer) {
         this.activePlayer = activePlayer;
     }
+
+    public TurnState getTurnState() {
+        return turnState;
+    }
+
+    public void setTurnState(TurnState turnState) {
+        this.turnState = turnState;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
+    }
+
+    public boolean getFinalRound() {
+        return finalRound;
+    }
+
+    public void setFinalRound(boolean finalRound) {
+        this.finalRound = finalRound;
+    }
+
 }
