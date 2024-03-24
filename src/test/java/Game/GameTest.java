@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Model;
+package Game;
 
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
