@@ -8,19 +8,13 @@ public class InsertCardEvent extends Event {
     public String gameName;
     public String nickname;
     public String anchorCard;
-
     public Direction direction;
-
-    InsertCardEvent(String nickname, String gameName, String anchorCard, Direction direction){
+    public String cardName;
+    public InsertCardEvent(String nickname, String gameName, String cardName ,String anchorCard, Direction direction){
         this.nickname = nickname;
         this.gameName = gameName;
         this.direction = direction;
         this.anchorCard = anchorCard;
+        this.cardName = cardName;
     }
-/*
-* tutta la logiva sopra
-* Event nuovoEvento = InsertCardEvent(inserisci i fari field)
-* out.sendobject(nuovoEvento).
-*
-* */
 }

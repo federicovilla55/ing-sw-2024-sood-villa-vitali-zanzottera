@@ -6,7 +6,7 @@ public class JoinGameEvent extends Event {
     String gameName;
     String nickName;
 
-    JoinGameEvent(String gameName, String nickName)
+    public JoinGameEvent(String gameName, String nickName)
     {
         this.gameName = gameName;
         this.nickName = nickName;

@@ -18,11 +18,11 @@ public class ClientHandle implements EventHandling, Runnable {
     private final ObjectInputStream in;
     private String nickName;
 
-    private Controller controllerLink;
+    private Controller MasterController;
     private long getLastTimeStep;
     private final Object getLastTimeStepLock;
 
-    public ClientHandle(Socket clientSocket) throws IOException
+    public ClientHandle(Socket clientSocket, Controller MasterController) throws IOException
     {
         this.clientSocket = clientSocket;
         this.nickName = null;
@@ -30,29 +30,42 @@ public class ClientHandle implements EventHandling, Runnable {
         in = new  ObjectInputStream(clientSocket.getInputStream());
         this.getLastTimeStep = System.currentTimeMillis();
         this.getLastTimeStepLock = new Object();
+        this.MasterController = MasterController;
+    }
+
+    public long getGetLastTimeStep()
+    {
+        synchronized (getLastTimeStepLock){
+            return this.getLastTimeStep;
+        }
+    }
+
+    public String getName()
+    {
+        return this.nickName;
     }
 
     @Override
     public void run()
     {
-        if(nickName == null) {
+
+        while(nickName == null)
+        {
             try {
                 Event receivedEvent = (Event) in.readObject();
                 if(!(receivedEvent instanceof NewUserEvent) && !(receivedEvent instanceof ReconnectEvent)){
                     //error
                 }
-                else {handleEvent(receivedEvent); }
+                else {handleEvent(receivedEvent);}
 
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
-        else {
-            try {
-                Event receivedEvent = (Event) in.readObject();
-                handleEvent(receivedEvent);
-            } catch (IOException | ClassNotFoundException e){}
-        }
+        try {
+            Event receivedEvent = (Event) in.readObject();
+            handleEvent(receivedEvent);
+        } catch (IOException | ClassNotFoundException e){}
     }
 
     public void handleEvent(Event event) {
@@ -65,7 +78,7 @@ public class ClientHandle implements EventHandling, Runnable {
     @Override
     public void handle(CreateGameEvent createGameEvent) {
         try{
-            controllerLink.createGame(this.nickName, createGameEvent.gameName, createGameEvent.numPlayer);}
+            MasterController.createGame(this.nickName, createGameEvent.gameName, createGameEvent.numPlayer);}
         catch (IOException e) {
             Event sendError= new NotSuccessEvent("Game with name already exists!");
             synchronized(out) {
@@ -81,6 +94,8 @@ public class ClientHandle implements EventHandling, Runnable {
 
     @Override
     public void handle(InsertCardEvent insertCardEvent) {
+        MasterController.makeMove(insertCardEvent.nickname, insertCardEvent.cardName, insertCardEvent.anchorCard,
+                insertCardEvent.direction);
 
     }
 
@@ -91,13 +106,14 @@ public class ClientHandle implements EventHandling, Runnable {
 
     @Override
     public void handle(NewUserEvent newUserEvent) {
-        boolean check = controllerLink.NewClient(newUserEvent.nickName);
+        boolean check = MasterController.NewClient(newUserEvent.nickName);
         if(!check){
             Event sendError= new NotSuccessEvent("Username already Exists!");
             synchronized(out) {
                 try {out.writeObject(sendError);} catch (IOException ex){ }
             }
         }
+        else this.nickName = newUserEvent.nickName;
     }
 
     @Override
@@ -116,6 +132,11 @@ public class ClientHandle implements EventHandling, Runnable {
     @Override
     public void handle(ReconnectEvent reconnectEvent) {
 
+    }
+
+    @Override
+    public void handle(InitialCard initialCard) {
+        MasterController.setInitialCard(initialCard.nickName, initialCard.cardOrientation);
     }
 
 }
