@@ -82,7 +82,7 @@ public class GameController {
                 return;
             }
 
-            if (this.gameAssociated.getActivePlayer().getName().equals(nickname)) {
+            if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)) {
                 // the client disconnected was the active player: turn goes to next player
                 this.gameAssociated.setTurnState(TurnState.PLACE);
                 this.setNextPlayer();
@@ -101,7 +101,8 @@ public class GameController {
      * @param color the chosen color
      */
     public void chooseColor(String nickname, Color color) {
-        if(!this.gameAssociated.getGameState().equals(GameState.SETUP)) return;
+        if(!this.gameAssociated.getGameState().equals(GameState.SETUP)
+            || !this.connectedClients.contains(nickname)) return;
 
         if(this.gameAssociated.getPlayerByName(nickname).getColor()==null
         && this.gameAssociated.getAvailableColors().contains(color)) {
@@ -120,7 +121,8 @@ public class GameController {
      */
     public void choosePrivateGoal(String nickname, int cardIdx) {
         if(cardIdx<0||cardIdx>=2) return;
-        if(!this.gameAssociated.getGameState().equals(GameState.SETUP)) return;
+        if(!this.gameAssociated.getGameState().equals(GameState.SETUP)
+                || !this.connectedClients.contains(nickname)) return;
 
         if(this.gameAssociated.getPlayerByName(nickname).getPlayerStation().getPrivateGoalCard()==null) {
             this.gameAssociated.getPlayerByName(nickname).getPlayerStation().setPrivateGoalCard(cardIdx);
@@ -136,7 +138,8 @@ public class GameController {
      * @param cardOrientation the orientation of the card of type CardOrientation (UP, DOWN)
      */
     public void placeInitialCard(String nickname, CardOrientation cardOrientation) {
-        if(!this.gameAssociated.getGameState().equals(GameState.SETUP)) return;
+        if(!this.gameAssociated.getGameState().equals(GameState.SETUP)
+                || !this.connectedClients.contains(nickname)) return;
 
         if(!this.gameAssociated.getPlayerByName(nickname).getPlayerStation().getInitialCardIsPlaced()) {
             this.gameAssociated.getPlayerByName(nickname).getPlayerStation().placeInitialCard(cardOrientation);
@@ -148,12 +151,14 @@ public class GameController {
 
     /**
      * This method place a card for the given player, using another card (anchor) and the place direction
-     * @param nickname the player name
-     * @param cardCode the code of the card to place
+     *
+     * @param nickname   the player name
+     * @param cardCode   the code of the card to place
      * @param anchorCode the code of the anchor card
-     * @param direction the direction where to put the card, of type Direction
+     * @param direction  the direction where to put the card, of type Direction
+     * @param cardOrientation
      */
-    public void placeCard(String nickname, String cardCode, String anchorCode, Direction direction) {
+    public void placeCard(String nickname, String cardCode, String anchorCode, Direction direction, CardOrientation cardOrientation) {
         if(
                 !this.gameAssociated.getGameState().equals(GameState.PLAYING) ||
                         !this.gameAssociated.getTurnState().equals(TurnState.PLACE) ||
@@ -165,7 +170,7 @@ public class GameController {
         if(anchor.isPresent() && toPlace.isPresent()) {
             try {
                 this.gameAssociated.getActivePlayer().getPlayerStation()
-                        .placeCard(anchor.get(), toPlace.get(), direction);
+                        .placeCard(anchor.get(), toPlace.get(), direction, cardOrientation);
             } catch (InvalidCardException e) {
                 // given card to place is not valid
                 return;

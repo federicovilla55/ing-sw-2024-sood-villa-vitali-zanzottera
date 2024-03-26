@@ -3,7 +3,6 @@ package it.polimi.ingsw.gc19.Controller;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Game.Game;
-import it.polimi.ingsw.gc19.Model.Game.NameAlreadyInUseException;
 
 import java.io.IOException;
 import java.util.*;
@@ -88,7 +87,7 @@ public class Controller {
 
     public void makeMove(String nickName, String cardToInsert, String anchorCard, Direction directionToInsert) {
         GameController temp = PlayerToGameController.get(nickName);
-        temp.placeCard(nickName, cardToInsert, anchorCard, directionToInsert);
+        temp.placeCard(nickName, cardToInsert, anchorCard, directionToInsert, CardOrientation.UP);
     }
     public void setInitialCard(String nickName, CardOrientation cardOrientation){
         GameController temp = PlayerToGameController.get(nickName);
