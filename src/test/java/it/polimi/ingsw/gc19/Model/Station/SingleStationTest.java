@@ -1,30 +1,32 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
 import it.polimi.ingsw.gc19.Model.Game.Game;
+import it.polimi.ingsw.gc19.Model.Tuple;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SingleStationTest{
     private final Station station;
     private final Game game;
-    private final ArrayList<Triplet<String, Exception, Object>> expectedOutput;
-    private final ArrayList<Triplet<String, Exception, Object>> realOutput;
+    private final HashMap<Triplet<String, Integer, String>,Tuple<Exception, Object>> expectedOutput;
+    private final HashMap<Triplet<String, Integer, String>,Tuple<Exception, Object>> realOutput;
 
     public SingleStationTest() throws IOException {
-        this.station = new Station();
+        this.station = new Station(null, null, null);
         this.game = new Game(1);
-        this.expectedOutput = new ArrayList<>();
-        this.realOutput = new ArrayList<>();
+        this.expectedOutput = new HashMap<>();
+        this.realOutput = new HashMap<>();
     }
 
-    public ArrayList<Triplet<String, Exception, Object>> getExpectedOutput(){
+    public HashMap<Triplet<String, Integer, String>, Tuple<Exception, Object>> getExpectedOutput(){
         return expectedOutput;
     }
 
-    public ArrayList<Triplet<String, Exception, Object>> getRealOutput(){
+    public HashMap<Triplet<String, Integer, String>, Tuple<Exception, Object>> getRealOutput(){
         return realOutput;
     }
 
@@ -37,57 +39,107 @@ class SingleStationTest{
     }
 
     public void testCardIsPlaceable(){
-        for(int i = 0; i < expectedOutput.size(); i++){
-            if(expectedOutput.get(i).t().equals("cardIsPlaceable")){
-                assertEquals(expectedOutput.get(i).toString(), realOutput.get(i).toString());
+        for(Triplet<String, Integer, String> key : expectedOutput.keySet()){
+            if(key.s().equals("cardIsPlaceable")){
+                try {
+                    assertEquals(expectedOutput.get(key).toString(), realOutput.get(key).toString());
+                }catch(AssertionError e){
+                    System.out.println("Error at -> " + key + "\n" +
+                                       "Expected -> " + expectedOutput.get(key) + "\n" +
+                                       "Found -> " + realOutput.get(key));
+                    throw new AssertionError();
+                }
             }
         }
     }
 
     public void testPlaceCard(){
-        for(int i = 0; i < expectedOutput.size(); i++){
-            if(expectedOutput.get(i).t().equals("placeCard")){
-                assertEquals(expectedOutput.get(i).toString(), realOutput.get(i).toString());
+        for(Triplet<String, Integer, String> key : expectedOutput.keySet()){
+            if(key.s().equals("placeCard")){
+                try {
+                    assertEquals(expectedOutput.get(key).toString(), realOutput.get(key).toString());
+                }catch(AssertionError e){
+                    System.out.println("Error at -> " + key + "\n" +
+                                               "Expected -> " + expectedOutput.get(key) + "\n" +
+                                               "Found -> " + realOutput.get(key));
+                    throw new AssertionError();
+                }
             }
         }
     }
 
     public void testGetNumPoints(){
-        for(int i = 0; i < expectedOutput.size(); i++){
-            if(expectedOutput.get(i).t().equals("getNumPoints")){
-                assertEquals(expectedOutput.get(i), realOutput.get(i));
+        for(Triplet<String, Integer, String> key : expectedOutput.keySet()){
+            if(key.s().equals("getNumPoints")){
+                try {
+                    assertEquals(expectedOutput.get(key), realOutput.get(key));
+                }catch(AssertionError e){
+                    System.out.println("Error at -> " + key + "\n" +
+                                               "Expected -> " + expectedOutput.get(key) + "\n" +
+                                               "Found -> " + realOutput.get(key));
+                    throw new AssertionError();
+                }
             }
         }
     }
 
     public void testGetVisibleSymbolsInStation(){
-        for(int i = 0; i < expectedOutput.size(); i++){
-            if(expectedOutput.get(i).t().equals("getVisibleSymbolsInStation")){
-                assertEquals(expectedOutput.get(i), realOutput.get(i));
+        for(Triplet<String, Integer, String> key : expectedOutput.keySet()){
+            if(key.s().equals("getVisibleSymbolsInStation")){
+                try {
+                    assertEquals(expectedOutput.get(key), realOutput.get(key));
+                }catch(AssertionError e){
+                    System.out.println("Error at -> " + key + "\n" +
+                                               "Expected -> " + expectedOutput.get(key) + "\n" +
+                                               "Found -> " + realOutput.get(key));
+                    throw new AssertionError();
+                }
             }
         }
     }
 
     public void testUpdatePointsGoalCard(){
-        for(int i = 0; i < expectedOutput.size(); i++){
-            if(expectedOutput.get(i).t().equals("updateGoalCardPoints")){
-                assertEquals(expectedOutput.get(i), realOutput.get(i));
+        for(Triplet<String, Integer, String> key : expectedOutput.keySet()){
+            if(key.s().equals("updateGoalCardPoints")){
+                try {
+                    assertEquals(expectedOutput.get(key), realOutput.get(key));
+                }catch(AssertionError e){
+                    System.out.println("Error at -> " + key + "\n" +
+                                               "Expected -> " + expectedOutput.get(key) + "\n" +
+                                               "Found -> " + realOutput.get(key));
+                    throw new AssertionError();
+                }
             }
         }
     }
 
     public void testCardOverAnchor(){
-        for(int i = 0; i < expectedOutput.size(); i++){
-            if(expectedOutput.get(i).t().equals("cardOverAnchor")){
-                assertEquals(expectedOutput.get(i), realOutput.get(i));
+        for(Triplet<String, Integer, String> key : expectedOutput.keySet()){
+            if(key.s().equals("cardOverAnchor")){
+                try {
+                    //System.out.println(expectedOutput.get(key) + " " + realOutput.get(key));
+                    assertEquals(expectedOutput.get(key).toString(), realOutput.get(key).toString());
+                }catch(AssertionError e){
+                    System.out.println("Error at -> " + key + "\n" +
+                                               "Expected -> " + expectedOutput.get(key) + "\n" +
+                                               "Found -> " + realOutput.get(key));
+                    throw new AssertionError();
+                }
             }
         }
     }
 
     public void testGetCardWithAnchor(){
-        for(int i = 0; i < expectedOutput.size(); i++){
-            if(expectedOutput.get(i).t().equals("getCardOverAnchor")){
-                assertEquals(expectedOutput.get(i), realOutput.get(i));
+        for(Triplet<String, Integer, String> key : expectedOutput.keySet()){
+            if(key.s().equals("getCardWithAnchor")){
+                try {
+                    assertEquals(expectedOutput.get(key), realOutput.get(key));
+                }catch(AssertionError e){
+                    System.out.println("Error at -> " + key + "\n" +
+                                               "Expected -> " + expectedOutput.get(key) + "\n" +
+                                               "Found -> " + realOutput.get(key));
+                    throw new AssertionError();
+                }
             }
         }
     }

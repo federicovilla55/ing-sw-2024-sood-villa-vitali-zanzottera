@@ -17,5 +17,7 @@ public interface EventHandling {
     public void handle(HeartBeatEvent heartBeatEvent);
 
     public void handle(ReconnectEvent reconnectEvent);
+
+    public void handle(InitialCard initialCard);
 }
 

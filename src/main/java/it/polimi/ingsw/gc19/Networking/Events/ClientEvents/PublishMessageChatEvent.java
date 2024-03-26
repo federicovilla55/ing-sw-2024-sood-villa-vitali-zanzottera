@@ -7,7 +7,7 @@ public class PublishMessageChatEvent extends Event {
     String gameName;
     String message;
 
-    PublishMessageChatEvent(String nickName, String gameName, String message)
+    public PublishMessageChatEvent(String nickName, String gameName, String message)
     {
         this.nickName = nickName;
         this.gameName = gameName;

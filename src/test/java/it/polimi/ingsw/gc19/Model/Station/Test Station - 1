@@ -1,4 +1,4 @@
-placeInitialCard(initial_06)
+placeInitialCard(initial_06, UP)
 getVisibleSymbolsInStation() -> (MUSHROOM : 1, VEGETABLE : 1, INSECT : 1, ANIMAL : 1)
 updateCardsInHand(resource_39)
 placeCard(initial_06, resource_39, UP_RIGHT) -> true

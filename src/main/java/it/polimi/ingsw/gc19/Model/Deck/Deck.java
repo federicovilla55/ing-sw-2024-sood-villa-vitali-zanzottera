@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 public class Deck<cardType extends Card>{
 
     private final ArrayList<cardType> cardsInDeck;
-    private  final int initialLenOfDeck;
+    private final int initialLenOfDeck;
 
     /**
      * This constructor creates a deck of cardType cards
@@ -42,7 +42,7 @@ public class Deck<cardType extends Card>{
         if(this.isEmpty()){
             throw new EmptyDeckException("You can't pick a card. Deck is empty!");
         }
-        return this.cardsInDeck.remove(new Random().nextInt(cardsInDeck.size()));
+        return this.cardsInDeck.removeFirst();
     }
 
     /**

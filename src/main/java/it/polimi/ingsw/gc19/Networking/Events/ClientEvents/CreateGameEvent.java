@@ -6,7 +6,7 @@ public class CreateGameEvent extends Event {
     public String gameName;
     public int numPlayer;
 
-    CreateGameEvent(String gameName, int numPlayer)
+    public CreateGameEvent(String gameName, int numPlayer)
     {
         this.gameName = gameName;
         this.numPlayer = numPlayer;

@@ -1,7 +1,8 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
-import it.polimi.ingsw.gc19.Controller.ClientPlayer;
 import it.polimi.ingsw.gc19.Controller.JSONParser;
+import it.polimi.ingsw.gc19.Enums.GameState;
+import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
@@ -22,6 +23,20 @@ import java.util.stream.Stream;
  * Players, Decks and the Table can be accessed and managed through the class.
  */
 public class Game {
+
+    /**
+     * This attribute is a list of winner players
+     */
+    private final List<Player> winnerPlayers;
+
+    /**
+     * This attribute identifies the available colors from which players can
+     * choose the color of their pawn.
+     */
+    private final List<Color> availableColors;
+
+    private TurnState turnState;
+    private GameState gameState;
     /**
      * This Attribute contains a list of the players associated with the game.
      */
@@ -31,7 +46,7 @@ public class Game {
      * This attribute contains the number of players, as specified by the player
      * who created the game.
      */
-    private int numPlayers;
+    private final int numPlayers;
 
     /**
      * This attribute contains the active player; the player who is currently playing.
@@ -43,12 +58,6 @@ public class Game {
      * the game starts.
      */
     private Player firstPlayer;
-
-    /**
-     * This attribute identifies the available colors from which players can
-     * choose the color of their pawn.
-     */
-    private ArrayList<Color> availableColors;
 
     /**
      * This attribute associate every playable card code to the corresponding PlayableCard object.
@@ -83,17 +92,55 @@ public class Game {
     /**
      * This attribute represents the two gold cards on the table.
      */
-    private PlayableCard[] goldCardsOnTable;
+    private final PlayableCard[] goldCardsOnTable;
 
     /**
      * This attribute represents the two resource cards on the table.
      */
-    private PlayableCard[] resourceCardsOnTable;
+    private final PlayableCard[] resourceCardsOnTable;
 
     /**
      * This attribute represents the two goal cards on the table.
      */
-    private GoalCard[] publicGoalCardsOnTable;
+    private final GoalCard[] publicGoalCardsOnTable;
+
+    private boolean finalRound;
+
+    private boolean finalCondition;
+
+    public List<Color> getAvailableColors() {
+        return List.copyOf(availableColors);
+    }
+
+    public void removeAvailableColor(Color color) {
+        this.availableColors.remove(color);
+    }
+
+    public List<Player> getWinnerPlayers() {
+        return List.copyOf(winnerPlayers);
+    }
+
+    public void addWinnerPlayer(Player player) {
+        this.winnerPlayers.add(player);
+    }
+
+    public void computeWinnerPlayers() {
+
+        Comparator<Player> byGoalPoints = Comparator.comparing(Player::getPointsFromGoals).reversed();
+        Comparator<Player> byStationPoints = Comparator.comparing((Player p) -> p.getPlayerStation().getNumPoints()).reversed();
+
+        List<Player> sortedPlayers = this.players.stream()
+                .sorted(byGoalPoints.thenComparing(byStationPoints))
+                .toList();
+
+        Player p = null;
+        do {
+            p = sortedPlayers.removeFirst();
+            this.winnerPlayers.add(p);
+        }while(sortedPlayers.getFirst().getPlayerStation().getNumPoints() == p.getPlayerStation().getNumPoints()
+                && sortedPlayers.getFirst().getPointsFromGoals() == p.getPointsFromGoals());
+
+    }
 
     /**
      * Constructs a new game session with the specified number of players.
@@ -103,6 +150,7 @@ public class Game {
      * @throws IOException if there's an I/O error while reading card files.
      */
     public Game(int numPlayers) throws IOException{
+        this.winnerPlayers = new ArrayList<>();
         this.availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
         this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
@@ -113,17 +161,24 @@ public class Game {
         JSONParser.readGoalCardFromFile().forEach(c -> this.stringGoalCardHashMap.put(c.getCardCode(), c));
 
         this.goalDeck = new Deck<>(this.stringGoalCardHashMap.values().stream());
-        //this.shuffleDeck();
         this.initialDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.INITIAL));
         this.resourceDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.RESOURCE));
         this.goldDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.GOLD));
 
-        try{
-            this.goldCardsOnTable = new PlayableCard[]{goldDeck.pickACard(), goldDeck.pickACard()};
-            this.resourceCardsOnTable = new PlayableCard[]{resourceDeck.pickACard(), resourceDeck.pickACard()};
-            this.publicGoalCardsOnTable = new GoalCard[]{goalDeck.pickACard(), goalDeck.pickACard()};
-        }catch(EmptyDeckException ignored){}
+        this.goalDeck.shuffleDeck();
+        this.initialDeck.shuffleDeck();
+        this.goldDeck.shuffleDeck();
+        this.resourceDeck.shuffleDeck();
 
+        this.finalCondition = false;
+        this.finalRound = false;
+
+        this.goldCardsOnTable = new PlayableCard[]{goldDeck.pickACard(), goldDeck.pickACard()};
+        this.resourceCardsOnTable = new PlayableCard[]{resourceDeck.pickACard(), resourceDeck.pickACard()};
+        this.publicGoalCardsOnTable = new GoalCard[]{goalDeck.pickACard(), goalDeck.pickACard()};
+
+        this.gameState = GameState.SETUP;
+        this.turnState = null;
     }
 
     /**
@@ -184,7 +239,9 @@ public class Game {
      */
     public void startGame(){
         this.setFirstPlayer();
-        this.activePlayer = this.firstPlayer;
+        this.activePlayer = this.getFirstPlayer();
+        this.gameState = GameState.PLAYING;
+        this.turnState = TurnState.PLACE;
     }
 
     /**
@@ -224,10 +281,9 @@ public class Game {
      * Creates a new player with the given name.
      *
      * @param name   The name of the new player.
-     * @param Client The client associated with the player.
      * @throws NameAlreadyInUseException if the name is already in use.
      */
-    public void createNewPlayer(String name, ClientPlayer Client) throws NameAlreadyInUseException {
+    public void createNewPlayer(String name) throws NameAlreadyInUseException {
         //  case in which two players have chosen the same name.
         for(Player p : players){
             if(p.getName().equals(name)){
@@ -235,7 +291,13 @@ public class Game {
             }
         }
 
-        Player player = new Player(name);
+        Player player = null;
+        player = new Player(name, this.initialDeck.pickACard(), this.goalDeck.pickACard(), this.goalDeck.pickACard());
+
+        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
+        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
+        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.GOLD));
+
         players.add(player);
     }
 
@@ -273,12 +335,8 @@ public class Game {
     public PlayableCard pickCardFromDeck(PlayableCardType type) throws EmptyDeckException, MalformedParametersException {
         Deck<PlayableCard> deck;
         deck = switch (type) {
-            case RESOURCE -> {
-                yield this.resourceDeck;
-            }
-            case GOLD -> {
-                yield this.goldDeck;
-            }
+            case RESOURCE -> this.resourceDeck;
+            case GOLD -> this.goldDeck;
             default -> throw new MalformedParametersException("type must be RESOURCE or GOLD");
         };
         return deck.pickACard();
@@ -318,13 +376,13 @@ public class Game {
     }
 
     public void updateGoalPoints(){
-        // For each player updates his station points
-        // for each goal card (public and private)
         for(Player p : players){
+            int pointsFromGoals = 0;
             Station station = p.getPlayerStation();
-            station.updatePoints(this.publicGoalCardsOnTable[0]);
-            station.updatePoints(this.publicGoalCardsOnTable[1]);
-            station.updatePoints(station.getPrivateGoalCard());
+            pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[0]);
+            pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[1]);
+            pointsFromGoals += station.updatePoints(station.getPrivateGoalCard());
+            p.setPointsFromGoals(pointsFromGoals);
         }
     }
 
@@ -345,14 +403,65 @@ public class Game {
         return players.size();
     }
 
-    /**
-     *
-     * @param playerToNotify, a player class representing the player whose name is returned.
-     * @return a String containing the name of the player passed as parameter.
-     */
-    public String NotifyPlayer(Player playerToNotify)
-    {
-        return playerToNotify.getName();
+    public boolean allPlayersChooseInitialGoalColor() {
+        boolean flag = true;
+        if(getNumJoinedPlayer()<getNumPlayers()) return false;
+        for(Player player : this.players) {
+            if (
+                    player.getColor() == null ||
+                    player.getPlayerStation().getPrivateGoalCard() == null ||
+                    !player.getPlayerStation().getInitialCardIsPlaced()
+            ) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
+    }
+
+    public boolean drawableCardsArePresent() {
+        return !this.goldDeck.isEmpty() ||
+                !this.resourceDeck.isEmpty() ||
+                this.goldCardsOnTable[0] != null ||
+                this.goldCardsOnTable[1] != null ||
+                this.resourceCardsOnTable[0] != null ||
+                this.resourceCardsOnTable[1] != null;
+    }
+
+    public void setActivePlayer(Player activePlayer) {
+        this.activePlayer = activePlayer;
+    }
+
+    public TurnState getTurnState() {
+        return turnState;
+    }
+
+    public void setTurnState(TurnState turnState) {
+        this.turnState = turnState;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
+    }
+
+    public boolean getFinalCondition() {
+        return finalCondition;
+    }
+
+    public void setFinalCondition(boolean finalCondition) {
+        this.finalCondition = finalCondition;
+    }
+
+    public void setFinalRound(boolean finalRound) {
+        this.finalRound = finalRound;
+    }
+
+    public boolean isFinalRound() {
+        return finalRound;
     }
 
 }

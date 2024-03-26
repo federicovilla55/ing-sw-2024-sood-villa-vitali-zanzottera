@@ -4,7 +4,7 @@ import it.polimi.ingsw.gc19.Networking.Events.Event;
 
 public class HeartBeatEvent extends Event {
     public String nickName;
-    HeartBeatEvent(String nickName)
+    public HeartBeatEvent(String nickName)
     {
          this.nickName = nickName;
     }
