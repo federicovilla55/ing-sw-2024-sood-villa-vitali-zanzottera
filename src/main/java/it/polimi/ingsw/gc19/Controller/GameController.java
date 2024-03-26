@@ -204,7 +204,7 @@ public class GameController {
         catch (EmptyDeckException e) { return; }
 
         this.gameAssociated.getActivePlayer().getPlayerStation()
-                .addCardInHand(
+                .updateCardsInHand(
                         card
                 );
 
@@ -235,7 +235,7 @@ public class GameController {
         catch (CardNotFoundException e) { return; }
 
         this.gameAssociated.getActivePlayer().getPlayerStation()
-                .addCardInHand(
+                .updateCardsInHand(
                         card
                 );
 

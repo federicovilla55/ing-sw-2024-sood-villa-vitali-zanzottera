@@ -1,10 +1,9 @@
 package it.polimi.ingsw.gc19.Model.Chat;
 
-import it.polimi.ingsw.gc19.Model.Game.Player;
-
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public abstract class Message{
+public abstract class Message implements Serializable {
     private final String message;
     private final LocalDate sendTime;
     private final String senderPlayer;

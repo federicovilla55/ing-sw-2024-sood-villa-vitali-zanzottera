@@ -6,6 +6,7 @@ module it.polimi.ingsw.gc19 {
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
+    requires java.rmi;
 
     opens it.polimi.ingsw.gc19 to javafx.fxml;
     exports it.polimi.ingsw.gc19;

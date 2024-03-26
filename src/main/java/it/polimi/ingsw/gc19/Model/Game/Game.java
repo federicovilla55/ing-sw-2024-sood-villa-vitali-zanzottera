@@ -294,9 +294,9 @@ public class Game {
         Player player = null;
         player = new Player(name, this.initialDeck.pickACard(), this.goalDeck.pickACard(), this.goalDeck.pickACard());
 
-        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
-        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
-        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.GOLD));
+        player.getPlayerStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
+        player.getPlayerStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
+        player.getPlayerStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.GOLD));
 
         players.add(player);
     }

@@ -100,7 +100,7 @@ public class Station{
      */
     public int updatePoints(Card card){
         int pointsFromCard = card.countPoints(this);
-        this.numPoints = this.numPoints + pointsFromCard;
+        this.numPoints = this.numPoints + pointsFromCard; ////////////PERCHE???????
         return pointsFromCard;
     }
 
@@ -170,10 +170,6 @@ public class Station{
         return this.cardsInStation;
     }
 
-    public void addCardInHand(PlayableCard card) {
-        this.getCardsInHand().add(card);
-    }
-
     /**
      * This method checks if there is a card over the anchor in Direction dir
      * Throws InvalidCardException is the anchor doesn't exist in schema.
@@ -219,7 +215,7 @@ public class Station{
      * Optional is empty if in (x, y) there is no card
      * @return a String matrix with all the visible cards codes.
      */
-    public Optional<String>[][] getCardCodeSchema(){
+    public PlayableCard[][] getCardSchema(){
         return this.cardSchema.getCardSchema();
     }
 
@@ -228,7 +224,7 @@ public class Station{
      * Optional is empty if in (x, y) there is no card
      * @return a String matrix with all the visible cards codes.
      */
-    public Optional<CardOrientation>[][] getCardOrientationSchema(){
+    public CardOrientation[][] getCardOrientationSchema(){
         return this.cardSchema.getCardOrientation();
     }
 

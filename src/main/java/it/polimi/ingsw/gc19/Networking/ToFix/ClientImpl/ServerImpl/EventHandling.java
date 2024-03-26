@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Networking.Server;
+package it.polimi.ingsw.gc19.Networking.ToFix.ClientImpl.ServerImpl;
 
 
 import it.polimi.ingsw.gc19.Networking.Events.ClientEvents.*;

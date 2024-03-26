@@ -1,10 +1,9 @@
 package it.polimi.ingsw.gc19.Model.Chat;
 
-import it.polimi.ingsw.gc19.Model.Game.Player;
-
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Chat{
+public class Chat implements Serializable{
     private final ArrayList<Message> messagesInChat;
 
     public Chat(){

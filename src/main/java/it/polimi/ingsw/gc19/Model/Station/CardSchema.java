@@ -150,18 +150,12 @@ class CardSchema{
     }
 
     /**
-     * This method returns the schema where each card is described by its name
+     * This method returns the schema
      * Optional is empty if in (x, y) there is no card
-     * @return a String matrix with all the visible cards codes.
+     * @return a Playable matrix with all the visible cards.
      */
-    Optional<String>[][] getCardSchema(){
-        Optional<String>[][] matrixToReturn = new Optional[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
-        for(int i = 0; i < ImportantConstants.gridDimension; i++){
-            for(int k = 0; k < ImportantConstants.gridDimension; k++){
-                matrixToReturn[i][k] = Optional.ofNullable(this.cardSchema[i][k].getCardCode());
-            }
-        }
-        return matrixToReturn;
+    PlayableCard[][] getCardSchema(){
+        return this.cardSchema;
     }
 
     /**
@@ -169,11 +163,11 @@ class CardSchema{
      * Optional is empty if in (x, y) there is no card
      * @return a String matrix with all the visible cards codes.
      */
-    Optional<CardOrientation>[][] getCardOrientation() {
-        Optional<CardOrientation>[][] matrixToReturn = new Optional[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
+    CardOrientation[][] getCardOrientation() {
+        CardOrientation[][] matrixToReturn = new CardOrientation[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
         for(int i = 0; i < ImportantConstants.gridDimension; i++){
             for(int k = 0; k < ImportantConstants.gridDimension; k++){
-                matrixToReturn[i][k] = Optional.ofNullable(this.cardSchema[i][k].getCardOrientation());
+                matrixToReturn[i][k] = this.cardSchema[i][k].getCardOrientation();
             }
         }
         return matrixToReturn;
