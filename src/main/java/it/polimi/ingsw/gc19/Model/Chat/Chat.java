@@ -34,7 +34,7 @@ public class Chat{
         return chatString.toString();
     }
 
-    public int getNunOfMessages(){
+    public int getNumOfMessages(){
         return this.messagesInChat.size();
     }
 
