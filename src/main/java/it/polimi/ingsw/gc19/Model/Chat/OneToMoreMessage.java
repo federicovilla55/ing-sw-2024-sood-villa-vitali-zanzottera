@@ -18,7 +18,7 @@ public class OneToMoreMessage extends Message{
     public String getReceivers(){
         StringBuilder receivers = new StringBuilder();
         for(String receiversName : this.receiverPlayers){
-            receivers.append(receivers).append(", ");
+            receivers.append(receiversName).append(", ");
         }
         return receivers.toString();
     }
