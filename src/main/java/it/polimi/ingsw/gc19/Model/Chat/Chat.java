@@ -33,7 +33,7 @@ public class Chat implements Serializable{
         return chatString.toString();
     }
 
-    public int getNunOfMessages(){
+    public int getNumOfMessages(){
         return this.messagesInChat.size();
     }
 

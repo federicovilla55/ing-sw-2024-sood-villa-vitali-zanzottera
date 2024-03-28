@@ -75,6 +75,7 @@ public class Station{
      * @return station's private GoalCard
      */
     public GoalCard getPrivateGoalCard(){
+        if (privateGoalCardIdx==null) return null;
         return this.privateGoalCardsInStation[privateGoalCardIdx];
     }
 
@@ -142,9 +143,10 @@ public class Station{
      * @throws InvalidCardException if station doesn't have the card to place.
      * @throws InvalidAnchorException if the anchor isn't in card schema.
      */
-    public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
+    public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction, CardOrientation cardOrientation) throws InvalidCardException, InvalidAnchorException{
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
             this.cardsInStation.remove(toPlace);
+            toPlace.setCardState(cardOrientation);
             this.cardSchema.placeCard(anchor, toPlace, direction);
             this.getCardsInHand().remove(toPlace);
             toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
