@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.ToFix.ClientImpl.ServerImpl;
 
 
 import it.polimi.ingsw.gc19.Networking.Events.ClientEvents.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.NetworkMessage.HeartBeatEvent;
 
 public interface EventHandling {
     public void handle(CreateGameEvent createGameEvent);

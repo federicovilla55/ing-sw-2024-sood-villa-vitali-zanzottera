@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Networking.Server;
+package it.polimi.ingsw.gc19.Networking.Server.Message;
 
 import java.io.Serializable;
 
