@@ -158,7 +158,7 @@ class CardSchema{
         Optional<String>[][] matrixToReturn = new Optional[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
         for(int i = 0; i < ImportantConstants.gridDimension; i++){
             for(int k = 0; k < ImportantConstants.gridDimension; k++){
-                matrixToReturn[i][k] = Optional.ofNullable(this.cardSchema[i][k].getCardCode());
+                matrixToReturn[i][k] = Optional.ofNullable(this.cardSchema[i][k]).map(PlayableCard::getCardCode);
             }
         }
         return matrixToReturn;

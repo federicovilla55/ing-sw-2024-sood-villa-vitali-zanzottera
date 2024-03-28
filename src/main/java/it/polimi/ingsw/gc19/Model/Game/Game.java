@@ -108,6 +108,8 @@ public class Game {
 
     private boolean finalCondition;
 
+    private final Random rng;
+
     public List<Color> getAvailableColors() {
         return List.copyOf(availableColors);
     }
@@ -149,7 +151,19 @@ public class Game {
      * @param numPlayers The number of players in the game.
      * @throws IOException if there's an I/O error while reading card files.
      */
-    public Game(int numPlayers) throws IOException{
+    public Game(int numPlayers) throws IOException {
+        this(numPlayers, new Random().nextLong());
+    }
+
+
+    /**
+     * This constuctor is called directly for testing, removing randomness by fixing the seed of the rng
+     * @param numPlayers The number of players in the game.
+     * @param randomSeed the random seed used to shuffle card and to select first player
+     * @throws IOException if there's an I/O error while reading card files.
+     */
+    public Game(int numPlayers, long randomSeed) throws IOException{
+        this.rng = new Random(randomSeed);
         this.winnerPlayers = new ArrayList<>();
         this.availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
         this.players = new ArrayList<>();
@@ -165,10 +179,10 @@ public class Game {
         this.resourceDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.RESOURCE));
         this.goldDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.GOLD));
 
-        this.goalDeck.shuffleDeck();
-        this.initialDeck.shuffleDeck();
-        this.goldDeck.shuffleDeck();
-        this.resourceDeck.shuffleDeck();
+        this.goalDeck.shuffleDeck(this.rng);
+        this.initialDeck.shuffleDeck(this.rng);
+        this.goldDeck.shuffleDeck(this.rng);
+        this.resourceDeck.shuffleDeck(this.rng);
 
         this.finalCondition = false;
         this.finalRound = false;
@@ -257,8 +271,7 @@ public class Game {
     private void setFirstPlayer(){
         if(players.size() == numPlayers){
             // Assign the first player to the one at the random index
-            Random random = new Random();
-            this.firstPlayer = players.get(random.nextInt(players.size()));
+            this.firstPlayer = players.get(this.rng.nextInt(players.size()));
         }
     }
 
@@ -464,4 +477,15 @@ public class Game {
         return finalRound;
     }
 
+    public GoalCard[] getPublicGoalCardsOnTable() {
+        return Arrays.copyOf(this.publicGoalCardsOnTable,this.publicGoalCardsOnTable.length);
+    }
+
+    public PlayableCard[] getResourceCardsOnTable() {
+        return Arrays.copyOf(this.resourceCardsOnTable,this.resourceCardsOnTable.length);
+    }
+
+    public PlayableCard[] getGoldCardsOnTable() {
+        return Arrays.copyOf(this.goldCardsOnTable,this.goldCardsOnTable.length);
+    }
 }

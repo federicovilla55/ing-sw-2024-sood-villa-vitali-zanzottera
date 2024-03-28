@@ -22,8 +22,8 @@ public class Deck<cardType extends Card>{
     /**
      * This method shuffles deck
      */
-    public void shuffleDeck(){
-        Collections.shuffle(this.cardsInDeck);
+    public void shuffleDeck(Random random){
+        Collections.shuffle(this.cardsInDeck, random);
     }
 
     /**

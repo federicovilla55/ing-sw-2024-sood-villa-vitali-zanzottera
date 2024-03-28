@@ -390,4 +390,10 @@ public class PlayableCard extends Card{
 
     }
 
+    @Override
+    public String toString() {
+        return super.toString() +
+                "\n" +
+                "Card orientation: " + this.getCardOrientation();
+    }
 }

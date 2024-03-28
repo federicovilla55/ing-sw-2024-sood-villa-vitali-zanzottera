@@ -21,6 +21,10 @@ import java.util.Optional;
  * the view necessary information, and call methods on the model (gameAssociated)
  */
 public class GameController {
+    /**
+     * Timeout in seconds before the paused game is ended
+     */
+    final long timeout;
 
     /**
      * List of nicknames of all connected clients
@@ -37,24 +41,42 @@ public class GameController {
      * @param gameAssociated the game managed by the controller
      */
     GameController(Game gameAssociated) {
+        this(gameAssociated,60);
+    }
+
+    /**
+     * This constructor creates a GameController to manage a game
+     * @param gameAssociated the game managed by the controller
+     * @param timeout seconds before paused game is ended
+     */
+    GameController(Game gameAssociated, long timeout) {
         this.gameAssociated = gameAssociated;
         this.connectedClients = new ArrayList<>();
+        this.timeout = timeout;
     }
 
     /**
      * This method adds a client with given nickname to the game
      * @param nickname the name of the client to add
      */
-    public void addClient(String nickname) {
+    public synchronized void addClient(String nickname) {
         try {
             this.gameAssociated.getPlayerByName(nickname);
             //player already present in game
             if(!this.connectedClients.contains(nickname)) {
                 this.connectedClients.add(nickname);
-                if(this.gameAssociated.getGameState().equals(GameState.PAUSE)
-                    && this.connectedClients.size()>=2) {
-                    //the game is in pause and there are 2 or more clients connected
-                    this.gameAssociated.setGameState(GameState.PLAYING);
+                if(this.gameAssociated.getGameState().equals(GameState.PAUSE)) {
+                    // if there is only one client, and it was not the active player, make it the active player and turn state to PLACE
+                    if(this.connectedClients.size()==1 && !this.gameAssociated.getActivePlayer().getName().equals(nickname)) {
+                        this.gameAssociated.setActivePlayer(
+                                this.gameAssociated.getPlayerByName(nickname)
+                        );
+                        this.gameAssociated.setTurnState(TurnState.PLACE);
+                    }
+                    else if(this.connectedClients.size()>=2) {
+                        //the game is in pause and there are 2 or more clients connected
+                        this.gameAssociated.setGameState(GameState.PLAYING);
+                    }
                 }
             }
         } catch (PlayerNotFoundException e) {
@@ -74,23 +96,41 @@ public class GameController {
      * This method removes a client with given nickname from the game
      * @param nickname the name of the client to remove
      */
-    public void removeClient(String nickname) {
+    public synchronized void removeClient(String nickname) {
         if(this.connectedClients.remove(nickname)) {
             if (this.connectedClients.isEmpty() && this.gameAssociated.getGameState().equals(GameState.PLAYING)) {
                 // no client is connected while game is playing: pause game and exit method
                 this.gameAssociated.setGameState(GameState.PAUSE);
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(timeout * 1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    this.stopGame();
+                }).start();
                 return;
             }
 
             if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)) {
-                // the client disconnected was the active player: turn goes to next player
-                this.gameAssociated.setTurnState(TurnState.PLACE);
-                this.setNextPlayer();
+                // the client disconnected was the active player: turn goes to next player unless no other client is connected
+                if(!this.connectedClients.isEmpty()) {
+                    this.gameAssociated.setTurnState(TurnState.PLACE);
+                    this.setNextPlayer();
+                }
             }
 
             if (this.connectedClients.size() == 1 && this.gameAssociated.getGameState().equals(GameState.PLAYING)) {
                 // only a client is connected while game is playing: pause game
                 this.gameAssociated.setGameState(GameState.PAUSE);
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(timeout * 1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    this.stopGame();
+                }).start();
             }
         }
     }
@@ -100,7 +140,7 @@ public class GameController {
      * @param nickname the name of the player
      * @param color the chosen color
      */
-    public void chooseColor(String nickname, Color color) {
+    public synchronized void chooseColor(String nickname, Color color) {
         if(!this.gameAssociated.getGameState().equals(GameState.SETUP)
             || !this.connectedClients.contains(nickname)) return;
 
@@ -119,7 +159,7 @@ public class GameController {
      * @param nickname the player name
      * @param cardIdx an index, 0 or 1, representing which card is being chosen
      */
-    public void choosePrivateGoal(String nickname, int cardIdx) {
+    public synchronized void choosePrivateGoal(String nickname, int cardIdx) {
         if(cardIdx<0||cardIdx>=2) return;
         if(!this.gameAssociated.getGameState().equals(GameState.SETUP)
                 || !this.connectedClients.contains(nickname)) return;
@@ -137,7 +177,7 @@ public class GameController {
      * @param nickname the player name
      * @param cardOrientation the orientation of the card of type CardOrientation (UP, DOWN)
      */
-    public void placeInitialCard(String nickname, CardOrientation cardOrientation) {
+    public synchronized void placeInitialCard(String nickname, CardOrientation cardOrientation) {
         if(!this.gameAssociated.getGameState().equals(GameState.SETUP)
                 || !this.connectedClients.contains(nickname)) return;
 
@@ -156,9 +196,9 @@ public class GameController {
      * @param cardCode   the code of the card to place
      * @param anchorCode the code of the anchor card
      * @param direction  the direction where to put the card, of type Direction
-     * @param cardOrientation
+     * @param cardOrientation UP or DOWN card orientation
      */
-    public void placeCard(String nickname, String cardCode, String anchorCode, Direction direction, CardOrientation cardOrientation) {
+    public synchronized void placeCard(String nickname, String cardCode, String anchorCode, Direction direction, CardOrientation cardOrientation) {
         if(
                 !this.gameAssociated.getGameState().equals(GameState.PLAYING) ||
                         !this.gameAssociated.getTurnState().equals(TurnState.PLACE) ||
@@ -169,8 +209,9 @@ public class GameController {
 
         if(anchor.isPresent() && toPlace.isPresent()) {
             try {
-                this.gameAssociated.getActivePlayer().getPlayerStation()
+                boolean checkPlacing = this.gameAssociated.getActivePlayer().getPlayerStation()
                         .placeCard(anchor.get(), toPlace.get(), direction, cardOrientation);
+                if(!checkPlacing) return;
             } catch (InvalidCardException e) {
                 // given card to place is not valid
                 return;
@@ -183,7 +224,7 @@ public class GameController {
                 this.gameAssociated.setFinalCondition(true);
 
             if(this.gameAssociated.drawableCardsArePresent())
-                this.gameAssociated.setTurnState(TurnState.PLACE);
+                this.gameAssociated.setTurnState(TurnState.DRAW);
             else
                 // if there are no cards left to draw on table, the turn goes to next player
                 this.setNextPlayer();
@@ -195,7 +236,7 @@ public class GameController {
      * @param nickname the player name
      * @param type type CardType, only RESOURCE and GOLD are admissible types
      */
-    public void drawCardFromDeck(String nickname, PlayableCardType type)
+    public synchronized void drawCardFromDeck(String nickname, PlayableCardType type)
     {
         if(
                 !this.gameAssociated.getGameState().equals(GameState.PLAYING) ||
@@ -227,7 +268,7 @@ public class GameController {
      * @param type type CardType, only RESOURCE and GOLD are admissible types
      * @param position an integer between 0 and 1, representing the position of the chosen card
      */
-    public void drawCardFromTable(String nickname, PlayableCardType type, int position)
+    public synchronized void drawCardFromTable(String nickname, PlayableCardType type, int position)
     {
         if(
                 !this.gameAssociated.getGameState().equals(GameState.PLAYING) ||
@@ -256,7 +297,7 @@ public class GameController {
      * This method sets the next player, checking if this player is connected to the game or not.
      * If the player is not connected, the turn will go to the successive player
      */
-    private void setNextPlayer()
+    private synchronized void setNextPlayer()
     {
         Player selectedPlayer;
         do {
@@ -278,24 +319,26 @@ public class GameController {
     /**
      * This method tells the game to update points using public and private goal cards
      */
-    private void calculateFinalResult()
+    private synchronized void calculateFinalResult()
     {
         this.gameAssociated.updateGoalPoints();
     }
 
-    private void endGame() {
+    private synchronized void endGame() {
         this.calculateFinalResult();
         this.gameAssociated.computeWinnerPlayers();
         this.gameAssociated.setGameState(GameState.END);
     }
 
     // this method is called when there is a timeout and at most only a client is connected
-    private void stopGame() {
-        if(this.connectedClients.size() == 1) {
-            this.gameAssociated.addWinnerPlayer(
-                    this.gameAssociated.getPlayerByName(this.connectedClients.getFirst())
-            );
+    private synchronized void stopGame() {
+        if(this.gameAssociated.getGameState().equals(GameState.PAUSE)) {
+            if (this.connectedClients.size() == 1) {
+                this.gameAssociated.addWinnerPlayer(
+                        this.gameAssociated.getPlayerByName(this.connectedClients.getFirst())
+                );
+            }
+            this.gameAssociated.setGameState(GameState.END);
         }
-        this.gameAssociated.setGameState(GameState.END);
     }
 }
