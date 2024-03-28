@@ -6,7 +6,7 @@ import java.util.*;
 
 public class ServerImpl {
 
-    static List<ClientHandle> ActiveClient;
+    /*static List<ClientHandle> ActiveClient;
     static List<ClientHandle> NoNonActiveClient;
     public static void main(String[] args) throws IOException{
         List<Socket> ActiveList = new ArrayList<Socket>();
@@ -31,6 +31,6 @@ public class ServerImpl {
         /*prende ActiveCLient GetLastTimeStep
         SYetmgetmillis-GetLastTimeStep > tot
         Va a chiamare SetToNonActive(nickname)
-         */
-    }
+
+    }*/
 }

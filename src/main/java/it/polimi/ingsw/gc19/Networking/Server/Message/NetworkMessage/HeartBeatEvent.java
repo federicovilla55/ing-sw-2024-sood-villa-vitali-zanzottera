@@ -1,6 +1,8 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.NetworkMessage;
 
-public class HeartBeatEvent extends Event {
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+
+public class HeartBeatEvent implements MessageToClient{
     public String nickName;
     HeartBeatEvent(String nickName)
     {
