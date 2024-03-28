@@ -8,7 +8,7 @@ public class SendOneToMoreMessage extends SendChatMessage implements MessageToSe
 
     private final ArrayList<String> receivers;
 
-    public SendOneToMoreMessage(String sender, ArrayList<String> receivers, String message){ //is gameName necessary?
+    public SendOneToMoreMessage(String sender, ArrayList<String> receivers, String message){
         super(sender, message);
         this.receivers = receivers;
     }
