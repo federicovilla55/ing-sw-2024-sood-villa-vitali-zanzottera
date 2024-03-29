@@ -11,6 +11,7 @@ import it.polimi.ingsw.gc19.Model.Tuple;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 public class Station{
@@ -83,8 +84,8 @@ public class Station{
      * This method returns visible cards in this station
      * @return the ArrayList of visible cards in station
      */
-    public ArrayList<PlayableCard> getCardsInStation(){
-        return this.cardsInStation;
+    public List<PlayableCard> getCardsInStation(){
+        return List.copyOf(this.cardsInStation);
     }
 
     /**
@@ -144,9 +145,9 @@ public class Station{
      * @throws InvalidAnchorException if the anchor isn't in card schema.
      */
     public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction, CardOrientation cardOrientation) throws InvalidCardException, InvalidAnchorException{
+        toPlace.setCardState(cardOrientation);
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
             this.cardsInStation.remove(toPlace);
-            toPlace.setCardState(cardOrientation);
             this.cardSchema.placeCard(anchor, toPlace, direction);
             this.getCardsInHand().remove(toPlace);
             toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
@@ -257,6 +258,10 @@ public class Station{
 
     public boolean getInitialCardIsPlaced() {
         return initialCardIsPlaced;
+    }
+
+    public PlayableCard getInitialCard() {
+        return initialCard;
     }
 
 }
