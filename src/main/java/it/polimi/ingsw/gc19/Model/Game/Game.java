@@ -25,17 +25,6 @@ import java.util.stream.Stream;
  */
 public class Game {
 
-    /**
-     * This attribute is a list of winner players
-     */
-    private final List<Player> winnerPlayers;
-
-    /**
-     * This attribute identifies the available colors from which players can
-     * choose the color of their pawn.
-     */
-    private final List<Color> availableColors;
-
     private TurnState turnState;
     private GameState gameState;
     /**
@@ -112,20 +101,13 @@ public class Game {
     private final Random rng;
 
     public List<Color> getAvailableColors() {
-        return List.copyOf(availableColors);
+        ArrayList<Color> availableColors = new ArrayList<>(List.of(Color.values()));
+        for(Player p : this.players){
+            availableColors.remove(p.getColor());
+        }
+        return availableColors;
     }
 
-    public void removeAvailableColor(Color color) {
-        this.availableColors.remove(color);
-    }
-
-    public List<Player> getWinnerPlayers() {
-        return List.copyOf(winnerPlayers);
-    }
-
-    public void addWinnerPlayer(Player player) {
-        this.winnerPlayers.add(player);
-    }
 
     public void computeWinnerPlayers() {
 
@@ -139,7 +121,7 @@ public class Game {
         Player p = null;
         do {
             p = sortedPlayers.removeFirst();
-            this.winnerPlayers.add(p);
+            //@TODO. notify winners and others
         }while(sortedPlayers.getFirst().getPlayerStation().getNumPoints() == p.getPlayerStation().getNumPoints()
                 && sortedPlayers.getFirst().getPointsFromGoals() == p.getPointsFromGoals());
 
@@ -165,8 +147,6 @@ public class Game {
      */
     public Game(int numPlayers, long randomSeed) throws IOException{
         this.rng = new Random(randomSeed);
-        this.winnerPlayers = new ArrayList<>();
-        this.availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
         this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
 
