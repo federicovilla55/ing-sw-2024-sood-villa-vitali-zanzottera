@@ -16,6 +16,7 @@ import it.polimi.ingsw.gc19.Model.Station.Station;
 import java.io.IOException;
 import java.lang.reflect.MalformedParametersException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -131,9 +132,9 @@ public class Game {
         Comparator<Player> byGoalPoints = Comparator.comparing(Player::getPointsFromGoals).reversed();
         Comparator<Player> byStationPoints = Comparator.comparing((Player p) -> p.getPlayerStation().getNumPoints()).reversed();
 
-        List<Player> sortedPlayers = this.players.stream()
+        List<Player> sortedPlayers = players.stream()
                 .sorted(byGoalPoints.thenComparing(byStationPoints))
-                .toList();
+                .collect(Collectors.toList());
 
         Player p = null;
         do {

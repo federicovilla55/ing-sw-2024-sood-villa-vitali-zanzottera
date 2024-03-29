@@ -84,10 +84,6 @@ public class GameController {
             if(this.gameAssociated.getNumJoinedPlayer() < this.gameAssociated.getNumPlayers()) {
                 this.gameAssociated.createNewPlayer(nickname);
                 this.connectedClients.add(nickname);
-                //if num of players reached, start game
-                if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
-                    this.gameAssociated.startGame();
-                }
             }
         }
     }
@@ -98,19 +94,6 @@ public class GameController {
      */
     public synchronized void removeClient(String nickname) {
         if(this.connectedClients.remove(nickname)) {
-            if (this.connectedClients.isEmpty() && this.gameAssociated.getGameState().equals(GameState.PLAYING)) {
-                // no client is connected while game is playing: pause game and exit method
-                this.gameAssociated.setGameState(GameState.PAUSE);
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(timeout * 1000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    this.stopGame();
-                }).start();
-                return;
-            }
 
             if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)) {
                 // the client disconnected was the active player: turn goes to next player unless no other client is connected
@@ -253,10 +236,6 @@ public class GameController {
                 .addCardInHand(
                         card
                 );
-
-        if(!this.gameAssociated.drawableCardsArePresent()) {
-            this.gameAssociated.setFinalCondition(true);
-        }
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
         this.setNextPlayer();
