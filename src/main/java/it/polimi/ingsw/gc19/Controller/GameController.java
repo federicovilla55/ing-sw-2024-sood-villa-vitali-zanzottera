@@ -70,7 +70,7 @@ public class GameController{
      * This method adds a client with given nickname to the game
      * @param nickname the name of the client to add
      */
-    public synchronized void addClient(String nickname) {
+    public synchronized void addClient(String nickname, Observer<MessageToClient> Client) {
         try {
             this.gameAssociated.getPlayerByName(nickname);
             //player already present in game
@@ -95,6 +95,7 @@ public class GameController{
             if(this.gameAssociated.getNumJoinedPlayer() < this.gameAssociated.getNumPlayers()) {
                 this.gameAssociated.createNewPlayer(nickname);
                 this.connectedClients.add(nickname);
+                messageFactory.attachObserver(nickname,Client);
             }
         }
     }

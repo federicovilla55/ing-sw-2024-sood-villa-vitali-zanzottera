@@ -3,7 +3,8 @@ package it.polimi.ingsw.gc19.Controller;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Game.Game;
-
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 import java.io.IOException;
 import java.util.*;
 
@@ -39,7 +40,7 @@ public class Controller {
         }
     }
 
-    public void createGame(String PlayerNickname, String gameName, int numPlayer) throws IOException { //chiedere per gameName
+    public void createGame(String PlayerNickname, String gameName, int numPlayer, Observer<MessageToClient> Client) throws IOException { //chiedere per gameName
         if(checkAlreadyExist(gameName)){
             throw new IllegalArgumentException("Name already in use");
         }
@@ -50,10 +51,10 @@ public class Controller {
         GameNameToController.put(gameName, temp);
     }
 
-    public void joinGame(String player, String gameName) {
+    public void joinGame(String player, String gameName, Observer<MessageToClient> Client) {
         Game gameToJoin = gameStructure.getGameFromName(gameName);
         GameController gameController = gameStructure.getGameControllerFromPlayer(gameToJoin.getPlayers().getFirst().getName());
-        gameController.addClient(player);
+        gameController.addClient(player, Client);
     }
 
     public void makeMove(String nickName, String cardToInsert, String anchorCard, Direction directionToInsert) {

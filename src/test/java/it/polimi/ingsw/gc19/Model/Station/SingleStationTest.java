@@ -17,8 +17,13 @@ class SingleStationTest{
     private final HashMap<Triplet<String, Integer, String>,Tuple<Exception, Object>> realOutput;
 
     public SingleStationTest() throws IOException {
-        this.station = new Station(null, null, null);
+        MessageFactory messageFactory = new MessageFactory();
         this.game = new Game(1);
+        this.game.setMessageFactory(messageFactory);
+        this.game.createNewPlayer("player");
+        this.game.getPlayerByName("player").setMessageFactory(messageFactory);
+        this.station = this.game.getPlayerByName("player").getStation();
+        //this.station = new Station(null, null, null, null);
         this.expectedOutput = new HashMap<>();
         this.realOutput = new HashMap<>();
     }
