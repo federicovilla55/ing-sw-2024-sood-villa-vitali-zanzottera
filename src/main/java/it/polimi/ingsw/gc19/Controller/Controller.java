@@ -8,39 +8,27 @@ import java.io.IOException;
 import java.util.*;
 
 public class Controller {
-    List<String> activeGames;
-    List<String> nonActiveGames;
     List<String> Players;
-    List<String> ActivePlayers;
-    List<String> NonActivePlayers;
-    Map<String, GameController> PlayerToGameController;
     Map<String, GameController> GameNameToController;
+    CurrentGameStructure gameStructure;
 
     private final Object PlayerLock;
 
+    public ArrayList<String> getActivePlayer(){
+        return gameStructure.getActivePlayers();
+    }
+
     public Controller()
     {
-        Players = new ArrayList<String>();
-        ActivePlayers = new ArrayList<String>();
-        NonActivePlayers = new ArrayList<String>();
-        PlayerToGameController = new HashMap<String, GameController>();
-        activeGames = new ArrayList<String>();
-        nonActiveGames = new ArrayList<String>();
+        gameStructure = new CurrentGameStructure();
         this.PlayerLock = new Object();
     }
 
     private boolean checkAlreadyExist(String gameToCheck){
-        for(String games : activeGames) {
-            if(gameToCheck.equals(games)){return true;}
-        }
-        for(String games : nonActiveGames){
-            if(gameToCheck.equals(games)) {return true; }
-        }
-        return false;
+        return gameStructure.checkGameAlreadyExist(gameToCheck);
     }
 
-    public boolean NewClient(String userName)
-    {
+    public boolean NewClient(String userName){
         synchronized (PlayerLock) {
             if (Players.contains(userName)) {
                 return false;
@@ -50,47 +38,31 @@ public class Controller {
             }
         }
     }
-    public void SetToNonActive(String nickName)
-    {
-        //ActivePlayers.remove(nickName);
-        //NonActivePlayers.add(nickName);
-        if(PlayerToGameController.containsKey(nickName)) {
-            PlayerToGameController.get(nickName).removeClient(nickName);
-        }
-    }
 
-    public void SetToActive(String nickName)
-    {
-        //NonActivePlayers.remove(nickName);
-        //ActivePlayers.add(nickName);
-        if(PlayerToGameController.containsKey(nickName)) {
-            PlayerToGameController.get(nickName).addClient(nickName);
-        }
-    }
-
-    public void createGame(String PlayerNickname, String gameName, int numPlayer) throws IOException {
+    public void createGame(String PlayerNickname, String gameName, int numPlayer) throws IOException { //chiedere per gameName
         if(checkAlreadyExist(gameName)){
             throw new IllegalArgumentException("Name already in use");
         }
-        Game tempName = new Game(numPlayer);
-        GameController temp = new GameController(tempName);
-        nonActiveGames.add(gameName);
-        PlayerToGameController.put(PlayerNickname, temp);
+        Game tempGame = new Game(numPlayer);
+        GameController temp = new GameController(tempGame);
+        gameStructure.insertGame(gameName, tempGame);
+        gameStructure.insertGameControllerForPlayer(PlayerNickname, temp);
         GameNameToController.put(gameName, temp);
     }
 
-    public void joinGame(String player, String gameToJoin, String nickToJoin) {
-        if(activeGames.contains(gameToJoin) || (!nonActiveGames.contains(gameToJoin) && !activeGames.contains(gameToJoin))){
-            throw new IllegalStateException("Cannot join this game anymore");
-        }
+    public void joinGame(String player, String gameName) {
+        Game gameToJoin = gameStructure.getGameFromName(gameName);
+        GameController gameController = gameStructure.getGameControllerFromPlayer(gameToJoin.getPlayers().getFirst().getName());
+        gameController.addClient(player);
     }
 
     public void makeMove(String nickName, String cardToInsert, String anchorCard, Direction directionToInsert) {
-        GameController temp = PlayerToGameController.get(nickName);
+        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
         temp.placeCard(nickName, cardToInsert, anchorCard, directionToInsert, CardOrientation.UP);
     }
+
     public void setInitialCard(String nickName, CardOrientation cardOrientation){
-        GameController temp = PlayerToGameController.get(nickName);
+        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
         temp.placeInitialCard(nickName, cardOrientation);
     }
 
@@ -101,4 +73,6 @@ public class Controller {
     public void Recconect() {
 
     }
+
+
 }

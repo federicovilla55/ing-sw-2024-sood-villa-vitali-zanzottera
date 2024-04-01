@@ -1,11 +1,13 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
+import it.polimi.ingsw.gc19.Controller.MessageFactory;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
-public class Player {
+public class Player extends Publisher{
     private final String name;
     private Color playerColor;
     private final Station playerStation;
@@ -16,8 +18,15 @@ public class Player {
      * @param name player name
      */
     public Player(String name, PlayableCard initialCard, GoalCard privateGoalCard1, GoalCard privateGoalCard2){
+        super();
         this.name = name;
-        this.playerStation = new Station(initialCard, privateGoalCard1, privateGoalCard2);
+        this.playerStation = new Station(this, initialCard, privateGoalCard1, privateGoalCard2);
+    }
+
+    @Override
+    public void setMessageFactory(MessageFactory messageFactory) {
+        super.setMessageFactory(messageFactory);
+        this.playerStation.setMessageFactory(this.getMessageFactory());
     }
 
     /**
@@ -56,4 +65,9 @@ public class Player {
     public void setPointsFromGoals(int pointsFromGoals) {
         this.pointsFromGoals = pointsFromGoals;
     }
+
+    public Station getStation(){
+        return this.playerStation;
+    }
+
 }

@@ -7,14 +7,22 @@ import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Game.Player;
+import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPlaceCardMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPlaceInitialCard;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-public class Station{
+public class Station extends Publisher{
+
+    private final Player ownerPlayer;
 
     private final ArrayList<PlayableCard> cardsInStation;
     private final HashMap<Symbol, Integer> visibleSymbolsInStation;
@@ -30,7 +38,9 @@ public class Station{
     /**
      * This constructor creates a Station and its own card schema
      */
-    public Station(PlayableCard initialCard, GoalCard privateGoalCard1, GoalCard privateGoalCard2){
+    public Station(Player ownerPlayer, PlayableCard initialCard, GoalCard privateGoalCard1, GoalCard privateGoalCard2){
+        super();
+        this.ownerPlayer = ownerPlayer;
         this.numPoints = 0;
         this.initialCardIsPlaced = false;
         this.privateGoalCardIdx = null;
@@ -102,7 +112,7 @@ public class Station{
      */
     public int updatePoints(Card card){
         int pointsFromCard = card.countPoints(this);
-        this.numPoints = this.numPoints + pointsFromCard; ////////////PERCHE???????
+        this.numPoints = this.numPoints + pointsFromCard;
         return pointsFromCard;
     }
 
@@ -115,6 +125,9 @@ public class Station{
             initialCard.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
             this.cardSchema.placeInitialCard(initialCard);
             this.initialCardIsPlaced  = true;
+            //Message
+            this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlaceInitialCard(initialCard, this.visibleSymbolsInStation)); //Chiedere se è necessario mettere clone()
+            //Message
         }
     }
 
@@ -150,19 +163,31 @@ public class Station{
             this.cardsInStation.remove(toPlace);
             this.cardSchema.placeCard(anchor, toPlace, direction);
             this.getCardsInHand().remove(toPlace);
-            toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
-            for(Direction d : Direction.values()){
-                try{
-                    this.cardSchema.getCardWithAnchor(toPlace, d)
-                                   .flatMap(x -> x.getCorner(d.getOtherCornerPosition()).getSymbol())
-                                   .ifPresent(s -> this.visibleSymbolsInStation.compute(s, (k, v) -> v - 1));
-                }
-                catch(Exception ignored){};
-            }
+            setVisibleSymbols(toPlace);
             updatePoints(toPlace);
+            //Message
+            this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlaceCardMessage(anchor.getCardCode(), toPlace, direction, this.visibleSymbolsInStation, numPoints));
+            //Message
             return true;
         }
+        //Message
+        this.getMessageFactory().sendMessageToPlayer(ownerPlayer.getName(),
+                                                     new RefusedActionMessage(ErrorType.GENERIC,
+                                                                              "Card " + toPlace.getCardCode() + "cannot be placed over anchor " + anchor.getCardCode() + " in direction " + direction));
+        //Message
         return false;
+    }
+
+    private void setVisibleSymbols(PlayableCard toPlace) {
+        toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
+        for(Direction d : Direction.values()){
+            try{
+                this.cardSchema.getCardWithAnchor(toPlace, d)
+                               .flatMap(x -> x.getCorner(d.getOtherCornerPosition()).getSymbol())
+                               .ifPresent(s -> this.visibleSymbolsInStation.compute(s, (k, v) -> v - 1));
+            }
+            catch(Exception ignored){};
+        }
     }
 
     /**
@@ -218,7 +243,7 @@ public class Station{
      * Optional is empty if in (x, y) there is no card
      * @return a String matrix with all the visible cards codes.
      */
-    public PlayableCard[][] getCardSchema(){
+    public Optional<String>[][] getCardCodeSchema(){
         return this.cardSchema.getCardSchema();
     }
 
@@ -227,7 +252,7 @@ public class Station{
      * Optional is empty if in (x, y) there is no card
      * @return a String matrix with all the visible cards codes.
      */
-    public CardOrientation[][] getCardOrientationSchema(){
+    public Optional<CardOrientation>[][] getCardOrientationSchema(){
         return this.cardSchema.getCardOrientation();
     }
 

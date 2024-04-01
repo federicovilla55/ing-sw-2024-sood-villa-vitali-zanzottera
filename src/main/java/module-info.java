@@ -13,7 +13,6 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.Model.Card to com.fasterxml.jackson.databind;
     exports it.polimi.ingsw.gc19.Enums to com.fasterxml.jackson.databind;
     opens it.polimi.ingsw.gc19.Enums to com.fasterxml.jackson.databind;
-    exports it.polimi.ingsw.gc19.Model to com.fasterxml.jackson.databind;
     opens it.polimi.ingsw.gc19.Model.Card;
     opens it.polimi.ingsw.gc19.Model;
     exports it.polimi.ingsw.gc19.Costants to com.fasterxml.jackson.databind;
@@ -22,4 +21,16 @@ module it.polimi.ingsw.gc19 {
     opens it.polimi.ingsw.gc19.Model.Game;
     exports it.polimi.ingsw.gc19.Model.Deck to com.fasterxml.jackson.databind;
     opens it.polimi.ingsw.gc19.Model.Deck;
+    exports it.polimi.ingsw.gc19.Model;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message.Action;
+    opens it.polimi.ingsw.gc19.Networking.Server.Message.Action;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message;
+    exports it.polimi.ingsw.gc19.Controller;
+    opens it.polimi.ingsw.gc19.Controller;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer;
+    opens it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction;
+    opens it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction;
+    exports it.polimi.ingsw.gc19.ObserverPattern;
+    exports it.polimi.ingsw.gc19.Model.Station;
 }

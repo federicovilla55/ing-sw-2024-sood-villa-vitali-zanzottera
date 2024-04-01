@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
 import it.polimi.ingsw.gc19.Controller.JSONParser;
+import it.polimi.ingsw.gc19.Controller.MessageFactory;
 import it.polimi.ingsw.gc19.Enums.GameState;
 import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Model.Card.Card;
@@ -9,8 +10,10 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Model.Chat.Chat;
 import it.polimi.ingsw.gc19.Model.Deck.Deck;
 import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
+import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
 import java.io.IOException;
@@ -23,7 +26,7 @@ import java.util.stream.Stream;
  * This class represents a game session.
  * Players, Decks and the Table can be accessed and managed through the class.
  */
-public class Game {
+public class Game extends Publisher{
 
     private TurnState turnState;
     private GameState gameState;
@@ -100,6 +103,12 @@ public class Game {
 
     private final Random rng;
 
+    private final Chat chat;
+
+    public ArrayList<Player> getPlayers() {
+        return this.players;
+    }
+
     public List<Color> getAvailableColors() {
         ArrayList<Color> availableColors = new ArrayList<>(List.of(Color.values()));
         for(Player p : this.players){
@@ -146,6 +155,7 @@ public class Game {
      * @throws IOException if there's an I/O error while reading card files.
      */
     public Game(int numPlayers, long randomSeed) throws IOException{
+        super();
         this.rng = new Random(randomSeed);
         this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
@@ -165,6 +175,8 @@ public class Game {
         this.goldDeck.shuffleDeck(this.rng);
         this.resourceDeck.shuffleDeck(this.rng);
 
+        this.chat = new Chat();
+
         this.finalCondition = false;
         this.finalRound = false;
 
@@ -174,6 +186,12 @@ public class Game {
 
         this.gameState = GameState.SETUP;
         this.turnState = null;
+    }
+
+    @Override
+    public void setMessageFactory(MessageFactory messageFactory) {
+        super.setMessageFactory(messageFactory);
+        this.chat.setMessageFactory(messageFactory);
     }
 
     /**
@@ -285,8 +303,8 @@ public class Game {
             }
         }
 
-        Player player = null;
-        player = new Player(name, this.initialDeck.pickACard(), this.goalDeck.pickACard(), this.goalDeck.pickACard());
+        Player player = new Player(name, this.initialDeck.pickACard(), this.goalDeck.pickACard(), this.goalDeck.pickACard());
+        player.setMessageFactory(this.getMessageFactory());
 
         player.getPlayerStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
         player.getPlayerStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
@@ -469,4 +487,5 @@ public class Game {
     public PlayableCard[] getGoldCardsOnTable() {
         return Arrays.copyOf(this.goldCardsOnTable,this.goldCardsOnTable.length);
     }
+
 }

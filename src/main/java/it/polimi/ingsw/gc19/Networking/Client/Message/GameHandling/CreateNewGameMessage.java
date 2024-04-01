@@ -2,7 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
 
-public class CreateNewGameMessage implements GameHandlingMessage{
+public class CreateNewGameMessage extends GameHandlingMessage{
 
     private final String gameName;
     private final int numPlayer;

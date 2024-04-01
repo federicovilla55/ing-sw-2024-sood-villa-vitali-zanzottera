@@ -2,7 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
 
-public class ReconnectToGameMessage implements GameHandlingMessage{
+public class ReconnectToGameMessage extends GameHandlingMessage{
 
     private final String gameToReconnect;
     private final String nickname;

@@ -9,6 +9,8 @@ import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Game.PlayerNotFoundException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +22,10 @@ import java.util.Optional;
  * The idea of this class is to implement an Observer of the view, and to obtain from it events (user input), extract from
  * the view necessary information, and call methods on the model (gameAssociated)
  */
-public class GameController {
+public class GameController{
+
+    private final MessageFactory messageFactory;
+
     /**
      * Timeout in seconds before the paused game is ended
      */
@@ -40,7 +45,7 @@ public class GameController {
      * This constructor creates a GameController to manage a game
      * @param gameAssociated the game managed by the controller
      */
-    GameController(Game gameAssociated) {
+    public GameController(Game gameAssociated) {
         this(gameAssociated,60);
     }
 
@@ -49,10 +54,16 @@ public class GameController {
      * @param gameAssociated the game managed by the controller
      * @param timeout seconds before paused game is ended
      */
-    GameController(Game gameAssociated, long timeout) {
+    public GameController(Game gameAssociated, long timeout) {
+        this.messageFactory = new MessageFactory();
         this.gameAssociated = gameAssociated;
+        gameAssociated.setMessageFactory(this.messageFactory);
         this.connectedClients = new ArrayList<>();
         this.timeout = timeout;
+    }
+
+    public Game getGameAssociated() {
+        return gameAssociated;
     }
 
     /**
@@ -130,7 +141,7 @@ public class GameController {
         if(this.gameAssociated.getPlayerByName(nickname).getColor()==null
         && this.gameAssociated.getAvailableColors().contains(color)) {
             this.gameAssociated.getPlayerByName(nickname).setColor(color);
-            this.gameAssociated.removeAvailableColor(color);
+            //this.gameAssociated.removeAvailableColor(color);
         }
         if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
             this.gameAssociated.startGame();
@@ -162,7 +173,7 @@ public class GameController {
      */
     public synchronized void placeInitialCard(String nickname, CardOrientation cardOrientation) {
         if(!this.gameAssociated.getGameState().equals(GameState.SETUP)
-                || !this.connectedClients.contains(nickname)) return;
+                || !this.connectedClients.contains(nickname)) return; //gestire l'invalid turn e che la carta non è quella corretta
 
         if(!this.gameAssociated.getPlayerByName(nickname).getPlayerStation().getInitialCardIsPlaced()) {
             this.gameAssociated.getPlayerByName(nickname).getPlayerStation().placeInitialCard(cardOrientation);
@@ -196,10 +207,14 @@ public class GameController {
                         .placeCard(anchor.get(), toPlace.get(), direction, cardOrientation);
                 if(!checkPlacing) return;
             } catch (InvalidCardException e) {
-                // given card to place is not valid
+                //Message
+                this.messageFactory.sendMessageToPlayer(nickname,
+                                                        new RefusedActionMessage(ErrorType.INVALID_CARD_ERROR, "Attention, card " + cardCode + " cannot be placed!"));
+                //Message
                 return;
             } catch (InvalidAnchorException e) {
-                // anchor card is not valid
+                this.messageFactory.sendMessageToPlayer(nickname,
+                                                        new RefusedActionMessage(ErrorType.INVALID_ANCHOR_ERROR, "Attention, " + anchorCode + " is invalid!"));
                 return;
             }
 
@@ -313,9 +328,7 @@ public class GameController {
     private synchronized void stopGame() {
         if(this.gameAssociated.getGameState().equals(GameState.PAUSE)) {
             if (this.connectedClients.size() == 1) {
-                this.gameAssociated.addWinnerPlayer(
-                        this.gameAssociated.getPlayerByName(this.connectedClients.getFirst())
-                );
+                //Notify winner
             }
             this.gameAssociated.setGameState(GameState.END);
         }
