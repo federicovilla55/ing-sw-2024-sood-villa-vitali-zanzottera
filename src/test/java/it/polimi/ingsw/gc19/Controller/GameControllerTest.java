@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameControllerTest {
 
     private GameController gameController;
+    private ClientHandle clientSkeleton;
 
     @BeforeEach
     public void setUp() {
@@ -26,35 +28,37 @@ public class GameControllerTest {
     }
     public void setUp(long randomSeed) {
         try {
-            gameController = new GameController(new Game(4, randomSeed), 1);
+            Game game = new Game(4, randomSeed);
+            gameController = new GameController(game, 1);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        clientSkeleton = new ClientHandle();
     }
 
     @Test
     public void testAddClient() {
-        gameController.addClient("Player 1");
+        gameController.addClient("Player 1", clientSkeleton);
         assertEquals(1,gameController.gameAssociated.getNumJoinedPlayer());
         assertEquals(1,gameController.connectedClients.size());
         assertTrue(gameController.connectedClients.contains("Player 1"));
-        gameController.addClient("Player 2");
+        gameController.addClient("Player 2", clientSkeleton);
         assertEquals(2,gameController.gameAssociated.getNumJoinedPlayer());
         assertEquals(2,gameController.connectedClients.size());
         assertTrue(gameController.connectedClients.contains("Player 2"));
-        gameController.addClient("Player 2");
+        gameController.addClient("Player 2", clientSkeleton);
         assertEquals(2,gameController.gameAssociated.getNumJoinedPlayer());
         assertEquals(2,gameController.connectedClients.size());
         assertTrue(gameController.connectedClients.contains("Player 2"));
-        gameController.addClient("Player 3");
+        gameController.addClient("Player 3", clientSkeleton);
         assertEquals(3,gameController.gameAssociated.getNumJoinedPlayer());
         assertEquals(3,gameController.connectedClients.size());
         assertTrue(gameController.connectedClients.contains("Player 3"));
-        gameController.addClient("Player 4");
+        gameController.addClient("Player 4", clientSkeleton);
         assertEquals(4,gameController.gameAssociated.getNumJoinedPlayer());
         assertEquals(4,gameController.connectedClients.size());
         assertTrue(gameController.connectedClients.contains("Player 4"));
-        gameController.addClient("Player 5");
+        gameController.addClient("Player 5", clientSkeleton);
         assertEquals(4,gameController.gameAssociated.getNumJoinedPlayer());
         assertEquals(4,gameController.connectedClients.size());
         assertFalse(gameController.connectedClients.contains("Player 5"));
@@ -66,7 +70,7 @@ public class GameControllerTest {
         assertEquals(0,gameController.gameAssociated.getNumJoinedPlayer());
         assertEquals(0,gameController.connectedClients.size());
         assertFalse(gameController.connectedClients.contains("Player 1"));
-        gameController.addClient("Player 1");
+        gameController.addClient("Player 1", clientSkeleton);
         gameController.removeClient("Player 1");
         assertEquals(1,gameController.gameAssociated.getNumJoinedPlayer());
         assertEquals(0,gameController.connectedClients.size());
@@ -120,7 +124,7 @@ public class GameControllerTest {
 
     @Test
     public void testChoosePrivateGoal() {
-        gameController.addClient("Player 1");
+        gameController.addClient("Player 1", clientSkeleton);
 
         assertNull(gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getPrivateGoalCard());
 
@@ -139,7 +143,7 @@ public class GameControllerTest {
 
     @Test
     public void testPlaceInitialCard() {
-        gameController.addClient("Player 1");
+        gameController.addClient("Player 1", clientSkeleton);
 
         assertFalse(gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getInitialCardIsPlaced());
 
@@ -254,10 +258,10 @@ public class GameControllerTest {
     }
 
     private void allClientsAdded() {
-        gameController.addClient("Player 1");
-        gameController.addClient("Player 2");
-        gameController.addClient("Player 3");
-        gameController.addClient("Player 4");
+        gameController.addClient("Player 1", clientSkeleton);
+        gameController.addClient("Player 2", clientSkeleton);
+        gameController.addClient("Player 3", clientSkeleton);
+        gameController.addClient("Player 4", clientSkeleton);
     }
 
     private void allPlayersChooseColor() {
@@ -507,8 +511,8 @@ public class GameControllerTest {
         assertEquals(TurnState.DRAW, gameController.gameAssociated.getTurnState());
 
         // Player 3 and then Player 4 connect to the game, gameState should be PLAYING and turnState should stay DRAW
-        gameController.addClient("Player 3");
-        gameController.addClient("Player 4");
+        gameController.addClient("Player 3", clientSkeleton);
+        gameController.addClient("Player 4",clientSkeleton);
         assertEquals("Player 3", gameController.gameAssociated.getActivePlayer().getName());
         assertEquals(GameState.PLAYING, gameController.gameAssociated.getGameState());
         assertEquals(TurnState.DRAW, gameController.gameAssociated.getTurnState());
@@ -521,13 +525,13 @@ public class GameControllerTest {
         assertEquals(TurnState.DRAW, gameController.gameAssociated.getTurnState());
 
         // Connection of Player 1, active player should change to him and turnState should become PLACE
-        gameController.addClient("Player 1");
+        gameController.addClient("Player 1",clientSkeleton);
         assertEquals("Player 1", gameController.gameAssociated.getActivePlayer().getName());
         assertEquals(GameState.PAUSE, gameController.gameAssociated.getGameState());
         assertEquals(TurnState.PLACE, gameController.gameAssociated.getTurnState());
 
         // Connection of Player 2, game should return to PLAYING state
-        gameController.addClient("Player 2");
+        gameController.addClient("Player 2", clientSkeleton);
         assertEquals("Player 1", gameController.gameAssociated.getActivePlayer().getName());
         assertEquals(GameState.PLAYING, gameController.gameAssociated.getGameState());
         assertEquals(TurnState.PLACE, gameController.gameAssociated.getTurnState());
@@ -562,7 +566,7 @@ public class GameControllerTest {
             throw new RuntimeException(e);
         }
 
-        gameController.addClient("Player 4");
+        gameController.addClient("Player 4", clientSkeleton);
 
         assertEquals("Player 3", gameController.gameAssociated.getActivePlayer().getName());
         assertEquals(GameState.PLAYING, gameController.gameAssociated.getGameState());
@@ -624,8 +628,8 @@ public class GameControllerTest {
             throw new RuntimeException(e);
         }
 
-        gameController.addClient("Player 3");
-        gameController.addClient("Player 4");
+        gameController.addClient("Player 3", clientSkeleton);
+        gameController.addClient("Player 4", clientSkeleton);
 
         assertEquals("Player 3", gameController.gameAssociated.getActivePlayer().getName());
         assertEquals(GameState.PLAYING, gameController.gameAssociated.getGameState());

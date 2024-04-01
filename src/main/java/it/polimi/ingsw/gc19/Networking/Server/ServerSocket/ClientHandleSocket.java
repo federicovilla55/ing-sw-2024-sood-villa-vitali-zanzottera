@@ -1,7 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
 import it.polimi.ingsw.gc19.Controller.Controller;
-import it.polimi.ingsw.gc19.Networking.Server.HandleClient;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
 import it.polimi.ingsw.gc19.Networking.ToFix.ClientImpl.ServerImpl.ClientHandle;
 
@@ -11,7 +10,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.rmi.RemoteException;
 
-public class ClientHandleSocket extends HandleClient implements VirtualServer{
+public class ClientHandleSocket extends ClientHandle implements VirtualServer{
     private final Socket clientSocket;
     private final ObjectOutputStream out;
     private final ObjectInputStream in;

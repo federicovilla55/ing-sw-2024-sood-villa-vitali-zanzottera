@@ -15,6 +15,11 @@ import it.polimi.ingsw.gc19.Model.Deck.Deck;
 import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
 import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Station.Station;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.NewPlayerConnectedToGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.StartPlayingGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.InitialStationConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.InitialTableConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 
 import java.io.IOException;
 import java.lang.reflect.MalformedParametersException;
@@ -120,7 +125,7 @@ public class Game extends Publisher{
 
     public void computeWinnerPlayers() {
 
-        Comparator<Player> byGoalPoints = Comparator.comparing(Player::getPointsFromGoals).reversed();
+        Comparator<Player> byGoalPoints = Comparator.comparing((Player p) -> p.getPlayerStation().getPointsFromGoals()).reversed();
         Comparator<Player> byStationPoints = Comparator.comparing((Player p) -> p.getPlayerStation().getNumPoints()).reversed();
 
         List<Player> sortedPlayers = players.stream()
@@ -132,7 +137,7 @@ public class Game extends Publisher{
             p = sortedPlayers.removeFirst();
             //@TODO. notify winners and others
         }while(sortedPlayers.getFirst().getPlayerStation().getNumPoints() == p.getPlayerStation().getNumPoints()
-                && sortedPlayers.getFirst().getPointsFromGoals() == p.getPointsFromGoals());
+                && sortedPlayers.getFirst().getStation().getPointsFromGoals() == p.getStation().getPointsFromGoals());
 
     }
 
@@ -192,6 +197,15 @@ public class Game extends Publisher{
     public void setMessageFactory(MessageFactory messageFactory) {
         super.setMessageFactory(messageFactory);
         this.chat.setMessageFactory(messageFactory);
+    }
+
+    public boolean hasPlayer(String nick){
+        return this.getPlayers().stream()
+                   .anyMatch(p -> p.getName().equals(nick));
+    }
+
+    public Chat getChat(){
+        return this.chat;
     }
 
     /**
@@ -255,6 +269,9 @@ public class Game extends Publisher{
         this.activePlayer = this.getFirstPlayer();
         this.gameState = GameState.PLAYING;
         this.turnState = TurnState.PLACE;
+        //WHY this.activePlayer is null?
+        //this.getMessageFactory().sendMessageToAllGamePlayers(new StartPlayingGameMessage(this.activePlayer.getName()));
+        //this.getMessageFactory().sendMessageToAllGamePlayers(new TurnStateMessage(this.activePlayer.getName(), this.turnState));
     }
 
     /**
@@ -311,6 +328,23 @@ public class Game extends Publisher{
         player.getPlayerStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.GOLD));
 
         players.add(player);
+
+        //Notify to all player different from the current that another player has joined the game
+        this.getMessageFactory().sendMessageToAllGamePlayersExcept(new NewPlayerConnectedToGameMessage(player.getName()), player.getName());
+
+        //Send to the player the current state of table
+        this.getMessageFactory().sendMessageToPlayer(player.getName(),
+                                                     new InitialTableConfigurationMessage(this.resourceCardsOnTable[0], this.resourceCardsOnTable[1],
+                                                                                          this.goldCardsOnTable[0], this.goldCardsOnTable[1],
+                                                                                          this.publicGoalCardsOnTable[0], this.publicGoalCardsOnTable[1],
+                                                                                          this.resourceDeck.getNextCard().map(PlayableCard::getSeed).orElse(null), this.goldDeck.getNextCard().map(PlayableCard::getSeed).orElse(null)));
+
+        //Send to all players new player initial station
+        this.getMessageFactory().sendMessageToAllGamePlayers(new InitialStationConfigurationMessage(player.getName(),
+                                                                                                    player.getPlayerStation().getVisibleSymbolsInStation(), 0,
+                                                                                                    player.getPlayerStation().getInitialCard(),
+                                                                                                    player.getPlayerStation().getPrivateGoalCardInStation(0), player.getPlayerStation().getPrivateGoalCardInStation(1)));
+
     }
 
     /**
@@ -394,7 +428,7 @@ public class Game extends Publisher{
             pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[0]);
             pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[1]);
             pointsFromGoals += station.updatePoints(station.getPrivateGoalCard());
-            p.setPointsFromGoals(pointsFromGoals);
+            p.getStation().setPointsFromGoals(pointsFromGoals);
         }
     }
 

@@ -22,35 +22,8 @@ public class AcceptedPickCardMessage extends AcceptedActionMessage{
         this.position = null;
     }
 
-    public AcceptedPickCardMessage(ArrayList<String> header, PlayableCard pickedCard, Symbol symbol){
-        super(header);
-        this.pickedCard = pickedCard;
-        this.symbol = symbol;
-        this.isFromTable = false;
-        this.position = null;
-    }
-
-    public AcceptedPickCardMessage(String header, PlayableCard pickedCard, Symbol symbol){
-        super(header);
-        this.pickedCard = pickedCard;
-        this.symbol = symbol;
-        this.isFromTable = false;
-        this.position = null;
-    }
-
-    public AcceptedPickCardMessage(String header, PlayableCard pickedCard, Symbol symbol, boolean isFromTable, int position){
-        this(header, pickedCard, symbol);
-        this.position = position;
-    }
-
     public AcceptedPickCardMessage(PlayableCard pickedCard, Symbol symbol, boolean isFromTable, int position){
         this(pickedCard, symbol);
-        this.isFromTable = isFromTable;
-        this.position = position;
-    }
-
-    public AcceptedPickCardMessage(ArrayList<String> header, PlayableCard pickedCard, Symbol symbol, boolean isFromTable, int position){
-        this(header, pickedCard, symbol);
         this.isFromTable = isFromTable;
         this.position = position;
     }

@@ -25,24 +25,6 @@ public class AcceptedPlaceCardMessage extends AcceptedActionMessage{
         this.numPoints = numPoints;
     }
 
-    public AcceptedPlaceCardMessage(ArrayList<String> header, String anchorCode, PlayableCard cardToPlace, Direction direction, HashMap<Symbol, Integer> visibleSymbols, int numPoints){
-        super(header);
-        this.anchorCode = anchorCode;
-        this.cardToPlace = cardToPlace;
-        this.direction = direction;
-        this.visibleSymbols = visibleSymbols;
-        this.numPoints = numPoints;
-    }
-
-    public AcceptedPlaceCardMessage(String header, String anchorCode, PlayableCard cardToPlace, Direction direction, HashMap<Symbol, Integer> visibleSymbols, int numPoints){
-        super(header);
-        this.anchorCode = anchorCode;
-        this.cardToPlace = cardToPlace;
-        this.direction = direction;
-        this.visibleSymbols = visibleSymbols;
-        this.numPoints = numPoints;
-    }
-
     public String getAnchorCode() {
         return this.anchorCode;
     }

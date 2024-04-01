@@ -15,18 +15,6 @@ public class RefusedActionMessage extends AnswerToActionMessage {
         this.description = description;
     }
 
-    public RefusedActionMessage(String header, ErrorType errorType, String description){
-        super(header);
-        this.errorType = errorType;
-        this.description = description;
-    }
-
-    public RefusedActionMessage(ArrayList<String> header, ErrorType errorType, String description){
-        super(header);
-        this.errorType = errorType;
-        this.description = description;
-    }
-
     public ErrorType getErrorType(){
         return this.errorType;
     }

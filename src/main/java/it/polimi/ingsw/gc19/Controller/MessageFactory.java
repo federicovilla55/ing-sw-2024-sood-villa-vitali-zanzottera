@@ -26,11 +26,8 @@ public class MessageFactory implements Observable<MessageToClient>{
         notifyObservers(message.setHeader(nick));
     }
 
-
     public void sendMessageToAllGamePlayers(MessageToClient message){
-        notifyObservers(message.setHeader(connectedClients.keySet()
-                                                         .stream()
-                                                         .collect(ArrayList::new, ArrayList::add, ArrayList::addAll)));
+        notifyObservers(message.setHeader(new ArrayList<>(connectedClients.keySet())));
     }
 
     public void sendMessageToAllGamePlayersExcept(MessageToClient message, String ... nickExcept){

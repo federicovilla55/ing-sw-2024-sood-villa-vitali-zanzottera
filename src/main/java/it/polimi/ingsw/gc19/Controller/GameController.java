@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.Controller;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
@@ -11,10 +12,16 @@ import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableColorsMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.DisconnectedPlayerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 /**
@@ -107,8 +114,9 @@ public class GameController{
     public synchronized void removeClient(String nickname) {
         if(this.connectedClients.remove(nickname)) {
 
-            if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)) {
+            if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)){
                 // the client disconnected was the active player: turn goes to next player unless no other client is connected
+                this.messageFactory.sendMessageToAllGamePlayersExcept(new DisconnectedPlayerMessage(nickname), nickname);
                 if(!this.connectedClients.isEmpty()) {
                     this.gameAssociated.setTurnState(TurnState.PLACE);
                     this.setNextPlayer();
@@ -136,15 +144,18 @@ public class GameController{
      * @param color the chosen color
      */
     public synchronized void chooseColor(String nickname, Color color) {
-        if(!this.gameAssociated.getGameState().equals(GameState.SETUP)
-            || !this.connectedClients.contains(nickname)) return;
-
-        if(this.gameAssociated.getPlayerByName(nickname).getColor()==null
-        && this.gameAssociated.getAvailableColors().contains(color)) {
-            this.gameAssociated.getPlayerByName(nickname).setColor(color);
-            //this.gameAssociated.removeAvailableColor(color);
+        if(!this.gameAssociated.getGameState().equals(GameState.SETUP) || !this.connectedClients.contains(nickname)){
+            this.messageFactory.sendMessageToPlayer(nickname,
+                                                    new RefusedActionMessage(ErrorType.INVALID_GAME_STATE, "You cannot choose your color while game is in state " +
+                                                            this.gameAssociated.getGameState().toString().toLowerCase()));
+            return;
         }
-        if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
+
+        if(this.gameAssociated.getPlayerByName(nickname).getColor()==null && this.gameAssociated.getAvailableColors().contains(color)) {
+            this.gameAssociated.getPlayerByName(nickname).setColor(color);
+            this.messageFactory.sendMessageToAllGamePlayersExcept(new AvailableColorsMessage(new ArrayList<>(this.gameAssociated.getAvailableColors())), nickname);
+        }
+        if(this.gameAssociated.allPlayersChooseInitialGoalColor()){
             this.gameAssociated.startGame();
         }
     }
@@ -206,6 +217,7 @@ public class GameController{
             try {
                 boolean checkPlacing = this.gameAssociated.getActivePlayer().getPlayerStation()
                         .placeCard(anchor.get(), toPlace.get(), direction, cardOrientation);
+                this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.GENERIC, "Card"));
                 if(!checkPlacing) return;
             } catch (InvalidCardException e) {
                 //Message
@@ -298,7 +310,7 @@ public class GameController{
         do {
             selectedPlayer = this.gameAssociated.getNextPlayer();
             if(selectedPlayer.equals(this.gameAssociated.getFirstPlayer()) && this.gameAssociated.getFinalCondition()) {
-                if(this.gameAssociated.isFinalRound()) {
+                if(this.gameAssociated.isFinalRound()){
                     this.endGame();
                     return;
                 }
@@ -314,8 +326,7 @@ public class GameController{
     /**
      * This method tells the game to update points using public and private goal cards
      */
-    private synchronized void calculateFinalResult()
-    {
+    private synchronized void calculateFinalResult(){
         this.gameAssociated.updateGoalPoints();
     }
 
@@ -334,4 +345,13 @@ public class GameController{
             this.gameAssociated.setGameState(GameState.END);
         }
     }
+
+    public synchronized void sendChatMessage(ArrayList<String> receivers, String senderNick, String message){
+        if(!this.gameAssociated.hasPlayer(senderNick) ||
+                !new HashSet<>(this.gameAssociated.getPlayers().stream().map(Player::getName).collect(Collectors.toList())).containsAll(receivers)){
+            return;
+        }
+        this.gameAssociated.getChat().pushMessage(new Message(message, senderNick, receivers));
+    }
+
 }

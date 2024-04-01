@@ -9,12 +9,6 @@ public class NotifyChatMessage extends MessageToClient{
     private final String sender;
     private final String message;
 
-    public NotifyChatMessage(ArrayList<String> header, String sender, String message){
-        super(header);
-        this.sender = sender;
-        this.message = message;
-    }
-
     public NotifyChatMessage(String sender, String message){
         super();
         this.sender = sender;

@@ -10,12 +10,4 @@ public abstract class AcceptedActionMessage extends AnswerToActionMessage {
         super();
     }
 
-    protected AcceptedActionMessage(String header){
-        super(header);
-    }
-
-    protected AcceptedActionMessage(ArrayList<String> header){
-        super(header);
-    }
-
 }

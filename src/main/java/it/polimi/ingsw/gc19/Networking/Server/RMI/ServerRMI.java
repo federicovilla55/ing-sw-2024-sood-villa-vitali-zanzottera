@@ -1,18 +1,18 @@
-package it.polimi.ingsw.gc19.Networking.Server.ServerRmi;
+package it.polimi.ingsw.gc19.Networking.Server.RMI;
 
 import it.polimi.ingsw.gc19.Controller.Controller;
-import it.polimi.ingsw.gc19.Networking.Server.HandleClient;
-import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.ServerSocket;
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandle;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
 
 import java.rmi.RemoteException;
 import java.util.List;
 
-public class ServerRmi implements VirtualServer{
+public class ServerRMI implements VirtualServer{
 
-    private List<HandleClient> ActiveList;
+    private List<ClientHandle> ActiveList;
     final Controller MasterController;
-    public ServerRmi(List<HandleClient> ActiveList, Controller MasterController)
+
+    public ServerRMI(List<ClientHandle> ActiveList, Controller MasterController)
     {
         this.ActiveList = ActiveList;
         this.MasterController = MasterController;

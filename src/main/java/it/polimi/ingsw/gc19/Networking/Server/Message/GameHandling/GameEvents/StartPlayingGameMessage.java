@@ -2,11 +2,11 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.NotifyEventOnGame;
 
-public class StartGameMessage extends NotifyEventOnGame {
+public class StartPlayingGameMessage extends NotifyEventOnGame {
 
     private final String nickFirstPlayer;
 
-    public StartGameMessage(String nickFirstPlayer){
+    public StartPlayingGameMessage(String nickFirstPlayer){
         this.nickFirstPlayer = nickFirstPlayer;
     }
 

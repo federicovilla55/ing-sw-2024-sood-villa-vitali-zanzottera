@@ -11,20 +11,13 @@ public abstract class MessageToClient{
 
     private ArrayList<String> header;
 
-    protected MessageToClient(ArrayList<String> header){
-        this.header = header;
-    }
-
-    public MessageToClient(String header){
-        this.header = new ArrayList<>(List.of(header));
-    }
-
-    protected MessageToClient(){
-
-    }
-
     public MessageToClient setHeader(ArrayList<String> header){
         this.header = header;
+        return this;
+    }
+
+    public MessageToClient setHeader(String header){
+        this.header = new ArrayList<>(List.of(header));
         return this;
     }
 
@@ -33,3 +26,17 @@ public abstract class MessageToClient{
     }
 
 }
+
+/**
+ *     protected MessageToClient(ArrayList<String> header){
+ *         this.header = header;
+ *     }
+ *
+ *     public MessageToClient(String header){
+ *         this.header = new ArrayList<>(List.of(header));
+ *     }
+ *
+ *     protected MessageToClient(){
+ *
+ *     }
+ */

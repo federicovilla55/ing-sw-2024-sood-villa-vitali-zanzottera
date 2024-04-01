@@ -16,7 +16,7 @@ public class Chat extends Publisher{
     public void pushMessage(Message messageToPush){
         this.messagesInChat.addFirst(messageToPush);
         this.getMessageFactory().sendMessageToPlayer(messageToPush.getReceivers(),
-                                                     new NotifyChatMessage(messageToPush.getReceivers(), messageToPush.getSenderPlayer(), messageToPush.getMessage()));
+                                                     new NotifyChatMessage(messageToPush.getSenderPlayer(), messageToPush.getMessage()).setHeader(messageToPush.getReceivers()));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Deck;
 
+import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 
 import java.util.*;
@@ -68,6 +69,10 @@ public class Deck<cardType extends Card>{
      */
     public boolean cardIsInDeck(cardType cardToSearch){
         return this.cardsInDeck.contains(cardToSearch);
+    }
+
+    public Optional<cardType> getNextCard(){
+        return Optional.ofNullable(this.cardsInDeck.getFirst());
     }
 
     /**

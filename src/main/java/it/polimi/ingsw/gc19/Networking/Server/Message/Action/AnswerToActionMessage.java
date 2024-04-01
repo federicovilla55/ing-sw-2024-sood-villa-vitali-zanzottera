@@ -10,12 +10,4 @@ public abstract class AnswerToActionMessage extends MessageToClient{
         super();
     }
 
-    protected AnswerToActionMessage(String header){
-        super(header);
-    }
-
-    protected AnswerToActionMessage(ArrayList<String> header){
-        super(header);
-    }
-
 }

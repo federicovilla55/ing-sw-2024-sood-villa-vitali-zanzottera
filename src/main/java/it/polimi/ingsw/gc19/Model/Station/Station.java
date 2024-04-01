@@ -14,6 +14,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.Acce
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPlaceInitialCard;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.InitialStationConfigurationMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ public class Station extends Publisher{
     private final HashMap<Symbol, Integer> visibleSymbolsInStation;
     private Integer privateGoalCardIdx;
     private int numPoints;
+    private int pointsFromGoals;
 
     private boolean initialCardIsPlaced;
     private final CardSchema cardSchema;
@@ -148,6 +150,15 @@ public class Station extends Publisher{
         if(!this.getCardsInHand().contains(toPlace)){
             throw new InvalidCardException();
         }
+        if(!toPlace.enoughResourceToBePlaced(this.visibleSymbolsInStation)){
+            this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(),
+                                                         new RefusedActionMessage(ErrorType.GENERIC, "Attention, you haven't enough resources to place card " + toPlace.getCardCode()));
+        }
+        if(this.cardSchema.isPlaceable(anchor, direction)){
+            this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(),
+                                                         new RefusedActionMessage(ErrorType.GENERIC,
+                                                                                  "Attention, " + toPlace.getCardCode() + " cannot be placed over anchor " + anchor.getCardCode() + " in direction " + direction));
+        }
         return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this.visibleSymbolsInStation);
     }
 
@@ -170,11 +181,6 @@ public class Station extends Publisher{
             //Message
             return true;
         }
-        //Message
-        this.getMessageFactory().sendMessageToPlayer(ownerPlayer.getName(),
-                                                     new RefusedActionMessage(ErrorType.GENERIC,
-                                                                              "Card " + toPlace.getCardCode() + "cannot be placed over anchor " + anchor.getCardCode() + " in direction " + direction));
-        //Message
         return false;
     }
 
@@ -287,6 +293,14 @@ public class Station extends Publisher{
 
     public PlayableCard getInitialCard() {
         return initialCard;
+    }
+
+    public int getPointsFromGoals() {
+        return pointsFromGoals;
+    }
+
+    public void setPointsFromGoals(int pointsFromGoals) {
+        this.pointsFromGoals = pointsFromGoals;
     }
 
 }

@@ -1,19 +1,16 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
 import it.polimi.ingsw.gc19.Controller.Controller;
-import it.polimi.ingsw.gc19.Networking.Server.HandleClient;
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandle;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ServerSocket implements Runnable {
 
-    private List<HandleClient> ActiveList;
+    private List<ClientHandle> ActiveList;
     final Controller MasterController;
 
-    public ServerSocket(List<HandleClient> ActiveList, Controller MasterController)
+    public ServerSocket(List<ClientHandle> ActiveList, Controller MasterController)
     {
         this.ActiveList = ActiveList;
         this.MasterController = MasterController;

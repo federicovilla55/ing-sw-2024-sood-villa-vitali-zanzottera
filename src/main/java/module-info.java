@@ -33,4 +33,5 @@ module it.polimi.ingsw.gc19 {
     opens it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction;
     exports it.polimi.ingsw.gc19.ObserverPattern;
     exports it.polimi.ingsw.gc19.Model.Station;
+    exports it.polimi.ingsw.gc19.Model.Chat;
 }

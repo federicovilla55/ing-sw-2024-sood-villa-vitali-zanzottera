@@ -6,12 +6,13 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Station.Station;
+import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.InitialConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.InitialStationConfigurationMessage;
 
 public class Player extends Publisher{
     private final String name;
     private Color playerColor;
     private final Station playerStation;
-    private int pointsFromGoals;
 
     /**
      * This constructor creates a player and his station
@@ -56,14 +57,6 @@ public class Player extends Publisher{
      */
     public Color getColor(){
         return this.playerColor;
-    }
-
-    public int getPointsFromGoals() {
-        return pointsFromGoals;
-    }
-
-    public void setPointsFromGoals(int pointsFromGoals) {
-        this.pointsFromGoals = pointsFromGoals;
     }
 
     public Station getStation(){
