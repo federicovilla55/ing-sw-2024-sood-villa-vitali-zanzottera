@@ -10,19 +10,21 @@ import java.util.HashMap;
 
 public class AcceptedPlaceCardMessage extends AcceptedActionMessage{
 
+    private final String nick;
     private final String anchorCode;
     private final PlayableCard cardToPlace;
     private final Direction direction;
     private final int numPoints;
     private final HashMap<Symbol, Integer> visibleSymbols;
 
-    public AcceptedPlaceCardMessage(String anchorCode, PlayableCard cardToPlace, Direction direction, HashMap<Symbol, Integer> visibleSymbols, int numPoints){
+    public AcceptedPlaceCardMessage(String nick, String anchorCode, PlayableCard cardToPlace, Direction direction, HashMap<Symbol, Integer> visibleSymbols, int numPoints){
         super();
         this.anchorCode = anchorCode;
         this.cardToPlace = cardToPlace;
         this.direction = direction;
         this.visibleSymbols = visibleSymbols;
         this.numPoints = numPoints;
+        this.nick = nick;
     }
 
     public String getAnchorCode() {
@@ -45,4 +47,7 @@ public class AcceptedPlaceCardMessage extends AcceptedActionMessage{
         return this.visibleSymbols;
     }
 
+    public String getNick() {
+        return this.nick;
+    }
 }

@@ -128,7 +128,8 @@ public class Station extends Publisher{
             this.cardSchema.placeInitialCard(initialCard);
             this.initialCardIsPlaced  = true;
             //Message
-            this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlaceInitialCard(initialCard, this.visibleSymbolsInStation)); //Chiedere se è necessario mettere clone()
+            this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlaceInitialCard(this.ownerPlayer.getName(),
+                                                                                              initialCard, this.visibleSymbolsInStation)); //Chiedere se è necessario mettere clone()
             //Message
         }
     }
@@ -177,7 +178,9 @@ public class Station extends Publisher{
             setVisibleSymbols(toPlace);
             updatePoints(toPlace);
             //Message
-            this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlaceCardMessage(anchor.getCardCode(), toPlace, direction, this.visibleSymbolsInStation, numPoints));
+            this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlaceCardMessage(this.ownerPlayer.getName(),
+                                                                                              anchor.getCardCode(), toPlace, direction,
+                                                                                              this.visibleSymbolsInStation, this.numPoints));
             //Message
             return true;
         }

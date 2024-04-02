@@ -6,7 +6,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
 public class ClientHandleRmi extends HandleClient {
 
-    private VirtualClient virtualClientAssociated;
+    private final VirtualClient virtualClientAssociated;
 
     public ClientHandleRmi(VirtualClient virtualClientAssociated, String nickName){
         this.virtualClientAssociated = virtualClientAssociated;
@@ -14,8 +14,7 @@ public class ClientHandleRmi extends HandleClient {
     }
     @Override
     public void SendMessageToClient() {
-        if(!super.messageQueue.isEmpty())
-        {
+        if(!super.messageQueue.isEmpty()){
             MessageToClient messageToSend;
             synchronized (super.messageQueue){
                 messageToSend = super.messageQueue.poll();
