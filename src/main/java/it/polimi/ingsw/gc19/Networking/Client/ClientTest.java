@@ -30,7 +30,7 @@ public class ClientTest{
         client2.newUser("Mario");
         client1.newGame("Matteo", "Game");
         client2.joinGame("Mario", "Game");
-        client1.sendChatMessage("Matteo", new ArrayList<>(List.of("Mario")), "Ciao!!!");
+        client1.sendChatMessage("Matteo", new ArrayList<>(List.of("Mario", "Matteo")), "Ciao!!!");
 
     }
 

@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class Controller {
-    List<String> Players;
-    Map<String, GameController> GameNameToController;
-    CurrentGameStructure gameStructure;
-
+    private final CurrentGameStructure gameStructure;
     private final Object PlayerLock;
 
     public Controller() {
@@ -25,31 +22,52 @@ public class Controller {
         return gameStructure.checkGameAlreadyExist(gameToCheck);
     }
 
-    public boolean NewClient(String userName){
-        synchronized (PlayerLock) {
-            if (Players.contains(userName)) {
-                return false;
-            } else {
-                Players.add(userName);
-                return true;
-            }
-        }
+    public boolean clientNameAlreadyTaken(String userName){
+        return this.gameStructure.userNameAlreadyTaken(userName);
     }
 
-    public void createGame(String PlayerNickname, String gameName, int numPlayer, Observer<MessageToClient> Client) throws IOException { //chiedere per gameName
+    public synchronized boolean createClient(String playerNickname, Observer<MessageToClient> client){
+        if(!clientNameAlreadyTaken(playerNickname)){
+            this.gameStructure.registerPlayer(playerNickname, client);
+            this.gameStructure.setActivePlayer(playerNickname);
+            return true;
+        }
+        else{
+            return false;
+        }
+
+    }
+
+    public synchronized void createGame(String gameName, int numPlayer) throws IllegalArgumentException {
+        Game gameToBuild = null;
+
         if(checkAlreadyExist(gameName)){
             throw new IllegalArgumentException("Name already in use");
         }
-        Game tempGame = new Game(numPlayer);
-        GameController temp = new GameController(tempGame);
-        gameStructure.insertGame(gameName, tempGame);
-        gameStructure.insertGameControllerForPlayer(PlayerNickname, temp);
-        GameNameToController.put(gameName, temp);
+
+        try {
+            gameToBuild = new Game(numPlayer);
+            //SendGameToAll(gameName);
+        }
+        catch(IOException exception){
+            System.err.println("Occurred IOException while trying to build game " + gameName);
+            //@TODO: implement the logic to handle this exception
+        }
+
+        GameController temp = new GameController(gameToBuild);
+        gameStructure.insertGame(gameName, gameToBuild);
+        gameStructure.registerGameController(gameName, temp);
+    }
+
+    public void registerToGame(String playerName, String gameName){
+        //@TODO: check if playerName exists
+        this.gameStructure.getGameControllerForGame(gameName).addClient(playerName, this.gameStructure.getObserverOfPlayer(playerName));
+        this.gameStructure.insertGameControllerForPlayer(playerName, this.gameStructure.getGameControllerForGame(gameName));
     }
 
     public void joinGame(String player, String gameName, Observer<MessageToClient> Client) {
         Game gameToJoin = gameStructure.getGameFromName(gameName);
-        GameController gameController = gameStructure.getGameControllerFromPlayer(gameToJoin.getPlayers().getFirst().getName());
+        GameController gameController = gameStructure.getGameControllerForGame(gameName);
         gameController.addClient(player, Client);
     }
 
@@ -63,30 +81,17 @@ public class Controller {
         temp.placeInitialCard(nickName, cardOrientation);
     }
 
-    public void SendChatMessage(String nickName, ArrayList<String> PlayerToSend, String messageToSend){
-        assert PlayerToSend != null;
-        GameController temp = this.gameStructure.getGameControllerFromPlayer(nickName);
-        temp.sendChatMessage(PlayerToSend, nickName, messageToSend);
-    }
-
-    public void DrawCardFromDeck(String nickName, PlayableCardType type){
-        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
-        temp.drawCardFromDeck(nickName, type);
-    }
-
-    public void DrawCardFromTable(String nickName, PlayableCardType type, int position){
-        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
-        temp.drawCardFromTable(nickName, type, position);
-    }
-
     /*
-    * Check if Player Exists, Check if there is game associated, if
-    * Yes, send the state of the Game, if no, send list of nonActive games that it can join.
-    * */
+     * Check if Player Exists, Check if there is game associated, if
+     * Yes, send the state of the Game, if no, send list of nonActive games that it can join.
+     * */
     public void Recconect() {
 
     }
 
-
+    public void SendChatMessage(String nickName, ArrayList<String> usersToSend, String messageToSend){
+        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
+        temp.sendChatMessage(usersToSend, nickName, messageToSend);
+    }
 
 }

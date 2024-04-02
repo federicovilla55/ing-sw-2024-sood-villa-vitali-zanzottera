@@ -1,8 +1,11 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
+import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
+import java.rmi.RemoteException;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -15,9 +18,14 @@ public class HandleClient implements Observer<MessageToClient>{
     public HandleClient() {
         this.getLastTimeStepLock = new Object();
         this.messageQueue = new ArrayDeque<>();
-    }
-
-    public void SendMessageToClient() {
+        new Thread(){
+            @Override
+            public void run() {
+                while(true){
+                    HandleClient.this.sendMessage();
+                }
+            }
+        }.start();
     }
 
     public void UpdateHeartBeat() {
@@ -27,16 +35,41 @@ public class HandleClient implements Observer<MessageToClient>{
         return this.username;
     }
 
-    public long getGetLastTimeStep()
-    {
+    public long getGetLastTimeStep(){
         synchronized (getLastTimeStepLock){
             return this.getLastTimeStep;
         }
     }
+    public void sendMessageToClient(MessageToClient message){
+
+    }
+
     @Override
     public void update(MessageToClient message) {
         synchronized (messageQueue) {
             messageQueue.add(message);
+            messageQueue.notify();
         }
     }
+
+    private void sendMessage(){
+        MessageToClient messageToSend;
+        synchronized(messageQueue){
+            if(messageQueue.isEmpty()){
+                messageQueue.notify();
+                try{
+                    messageQueue.wait();
+                }
+                catch(InterruptedException ignored){ };
+            }
+            else{
+                messageToSend = this.messageQueue.remove();
+                if(messageToSend.getHeader().contains(this.username)){
+                    this.sendMessageToClient(messageToSend);
+                }
+                this.messageQueue.notify();
+            }
+        }
+    }
+
 }

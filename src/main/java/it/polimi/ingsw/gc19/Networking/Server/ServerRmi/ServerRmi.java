@@ -17,11 +17,10 @@ import java.util.Map;
 
 public class ServerRmi implements VirtualServer{
 
-    private final List<HandleClient> ListClient;
+    private List<HandleClient> ListClient;
 
-    private final Map<String, HandleClient> MapClientToHandle;
+    private Map<String, HandleClient> MapClientToHandle;
     final Controller MasterController;
-
     public ServerRmi(List<HandleClient> ActiveList, Controller MasterController){
         this.ListClient = ActiveList;
         this.MasterController = MasterController;
@@ -30,13 +29,15 @@ public class ServerRmi implements VirtualServer{
 
     @Override
     public void NewConnection(VirtualClient clientRmi,String nickName) throws RemoteException{
-        boolean check = MasterController.NewClient(nickName);
+        HandleClient newClient = new ClientHandleRmi(clientRmi, nickName);
+        boolean check = MasterController.createClient(nickName,newClient);
         if(!check) {
             System.err.println("Name already connected");
             throw new RemoteException("Nickname already present");
         }
         else {
-            HandleClient newClient = new ClientHandleRmi(clientRmi, nickName);
+            //HandleClient newClient = new ClientHandleRmi(clientRmi, nickName);
+            MasterController.createClient(nickName,newClient);
             System.err.println("new client connected: "+nickName);
             ListClient.add(newClient);
             MapClientToHandle.put(nickName, newClient);
@@ -50,11 +51,8 @@ public class ServerRmi implements VirtualServer{
 
     @Override
     public void CreateGame(String nickName, String gameName, int numPlayer) throws RemoteException {
-        try {
-            MasterController.createGame(nickName, gameName, numPlayer, MapClientToHandle.get(nickName));
-        } catch (IOException e) {
-            throw new RemoteException("Game name already present");
-        }
+        MasterController.createGame(gameName, numPlayer);
+        MasterController.registerToGame(nickName, gameName);
     }
 
     @Override
@@ -86,16 +84,17 @@ public class ServerRmi implements VirtualServer{
     }
     @Override
     public void SetInitialCard(String nickName, CardOrientation cardOrientation) throws RemoteException {
-        MasterController.setInitialCard(nickName,cardOrientation);
+        //MasterController.setInitialCard(nickName,cardOrientation);
     }
 
     @Override
     public void DrawFromTable(String nickname, PlayableCardType type, int position) {
-        MasterController.DrawCardFromTable(nickname, type, position);
+        //MasterController.DrawCardFromTable(nickname, type, position);
     }
 
     @Override
     public void DrawFromDeck(String nickname, PlayableCardType type) {
-        MasterController.DrawCardFromDeck(nickname,type);
+        //MasterController.DrawCardFromDeck(nickname,type);
     }
 }
+

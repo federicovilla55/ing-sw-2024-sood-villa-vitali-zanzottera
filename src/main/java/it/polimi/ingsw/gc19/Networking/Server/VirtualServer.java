@@ -19,6 +19,6 @@ public interface VirtualServer extends Remote {
     public void Reconnect() throws RemoteException;
     public void SendChatTo(String nickName, ArrayList<String> UsersToSend, String messageToSend) throws RemoteException;
     public void SetInitialCard(String nickName, CardOrientation cardOrientation)throws RemoteException;
-    public void DrawFromTable(String nickname, PlayableCardType type, int position);
-    public void DrawFromDeck(String nickname, PlayableCardType type);
+    public void DrawFromTable(String nickname, PlayableCardType type, int position) throws RemoteException;
+    public void DrawFromDeck(String nickname, PlayableCardType type) throws RemoteException;
 }
