@@ -23,9 +23,9 @@ public class ServerApp {
         List<HandleClient> ListClient = new ArrayList<HandleClient>();;
         List<HandleClient> ListNonActiveClient = new ArrayList<HandleClient>();
         Controller MasterController = new Controller();
-        ServerRmi MainRmi = new ServerRmi(ListClient,MasterController);
-        ServerRmi stub = (ServerRmi) UnicastRemoteObject.exportObject(MainRmi, 0);
-        Registry registry = LocateRegistry.createRegistry(1234);
+        VirtualServer MainRmi = new ServerRmi(ListClient,MasterController);
+        VirtualServer stub = (VirtualServer) UnicastRemoteObject.exportObject(MainRmi, 0);
+        Registry registry = LocateRegistry.createRegistry(12122);
         registry.rebind("RMIServer", stub);
         ServerTcp MainTcp = new ServerTcp(ListClient, MasterController);
     }

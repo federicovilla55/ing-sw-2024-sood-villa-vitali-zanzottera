@@ -9,10 +9,13 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ServerRmi implements VirtualServer{
 
     private List<HandleClient> ListClient;
+
+    private Map<String, HandleClient> MapClientToHandle;
     final Controller MasterController;
     public ServerRmi(List<HandleClient> ActiveList, Controller MasterController)
     {
@@ -26,7 +29,9 @@ public class ServerRmi implements VirtualServer{
             throw new RemoteException("Nickname already present");
         }
         else {
-            ListClient.add(new ClientHandleRmi(clientRmi, nickName));
+            HandleClient newClient = new ClientHandleRmi(clientRmi, nickName);
+            ListClient.add(newClient);
+            MapClientToHandle.put(nickName, newClient);
         }
     }
 
@@ -36,16 +41,16 @@ public class ServerRmi implements VirtualServer{
 
     @Override
     public void CreateGame(String nickName, String gameName, int numPlayer) throws RemoteException {
-        /*try {
-            MasterController.createGame(nickName, gameName, numPlayer);
+        try {
+            MasterController.createGame(nickName, gameName, numPlayer, MapClientToHandle.get(nickName));
         } catch (IOException e) {
             throw new RemoteException("Game name already present");
-        }*/
+        }
     }
 
     @Override
     public void JoinGame(String nickName, String GameName) throws RemoteException {
-        //MasterController.joinGame(nickName, GameName);
+        MasterController.joinGame(nickName, GameName,MapClientToHandle.get(nickName));
     }
 
     @Override
