@@ -30,6 +30,7 @@ public class ServerRmi implements VirtualServer{
         }
         else {
             HandleClient newClient = new ClientHandleRmi(clientRmi, nickName);
+            System.err.println("new client connected");
             ListClient.add(newClient);
             MapClientToHandle.put(nickName, newClient);
         }
