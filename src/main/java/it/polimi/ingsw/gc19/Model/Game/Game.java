@@ -373,6 +373,16 @@ public class Game extends Publisher{
         throw new PlayerNotFoundException("A player with the given name was not found.");
     }
 
+    public Deck<PlayableCard> getDeckFromType(PlayableCardType type){
+        Deck<PlayableCard> deck;
+        deck = switch (type) {
+            case RESOURCE -> this.resourceDeck;
+            case GOLD -> this.goldDeck;
+            default -> throw new MalformedParametersException("type must be RESOURCE or GOLD");
+        };
+        return deck;
+    }
+
     /**
      * This method returns a card from the deck of specified type. If the deck is empty, throws an exception
      * @param type The type of card to pick from the respective deck

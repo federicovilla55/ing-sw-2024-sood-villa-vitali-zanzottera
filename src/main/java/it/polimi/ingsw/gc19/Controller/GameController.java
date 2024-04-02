@@ -11,6 +11,7 @@ import it.polimi.ingsw.gc19.Model.Game.PlayerNotFoundException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardFromDeckMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardFromTable;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -284,6 +285,8 @@ public class GameController{
             return;
         }
 
+        //perchè non si controlla che vi siano ancora delle drawable cards?
+
         this.gameAssociated.getActivePlayer().getPlayerStation().updateCardsInHand(card);
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
@@ -310,6 +313,9 @@ public class GameController{
         }
 
         this.gameAssociated.getActivePlayer().getPlayerStation().updateCardsInHand(card);
+        this.messageFactory.sendMessageToAllGamePlayers(new AcceptedPickCardFromTable(nickname,
+                                                                                      card, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null),
+                                                                                      position, gameAssociated.getDeckFromType(type).getNextCard().orElse(null)));
 
         if(!this.gameAssociated.drawableCardsArePresent()) {
             this.gameAssociated.setFinalCondition(true);
