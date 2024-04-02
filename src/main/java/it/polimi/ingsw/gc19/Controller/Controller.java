@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Controller;
 
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
@@ -74,6 +75,15 @@ public class Controller {
         temp.sendChatMessage(PlayerToSend,nickName,messageToSend);
     }
 
+    public void DrawCardFromTable(String nickName, PlayableCardType type, int position){
+        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
+        temp.drawCardFromTable(nickName, type, position);
+    }
+
+    public void DrawCardFromDeck(String nickName, PlayableCardType type){
+        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
+        temp.drawCardFromDeck(nickName, type);
+    }
     /*
     * Check if Player Exists, Check if there is game associated, if
     * Yes, send the state of the Game, if no, send list of nonActive games that it can join.

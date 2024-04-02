@@ -17,10 +17,10 @@ public class ClientRmiTest extends UnicastRemoteObject implements VirtualClient 
     }
 
     private void run() {
-            try {
-                this.server.NewConnection(this,"Aryan");
-            } catch (RemoteException e) {
-                System.err.println("Name Already present");
+        try {
+            this.server.NewConnection(this,"Aryan");
+        } catch (RemoteException e) {
+            System.err.println("Name Already present");
         }
     }
 

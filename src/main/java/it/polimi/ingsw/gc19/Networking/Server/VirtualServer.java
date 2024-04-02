@@ -1,6 +1,8 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
+import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 
 import java.rmi.Remote;
@@ -16,4 +18,7 @@ public interface VirtualServer extends Remote {
     public void HeartBeat(String nickName) throws RemoteException;
     public void Reconnect() throws RemoteException;
     public void SendChatTo(String nickName, ArrayList<String> UsersToSend, String messageToSend) throws RemoteException;
+    public void SetInitialCard(String nickName, CardOrientation cardOrientation)throws RemoteException;
+    public void DrawFromTable(String nickname, PlayableCardType type, int position);
+    public void DrawFromDeck(String nickname, PlayableCardType type);
 }
