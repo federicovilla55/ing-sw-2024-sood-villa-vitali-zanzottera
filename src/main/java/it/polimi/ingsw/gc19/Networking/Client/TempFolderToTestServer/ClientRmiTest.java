@@ -32,6 +32,6 @@ public class ClientRmiTest extends UnicastRemoteObject implements VirtualClient 
     }
     @Override
     public void GetMessage(MessageToClient message) throws RemoteException{
-        System.err.println("ciaone");
+
     }
 }

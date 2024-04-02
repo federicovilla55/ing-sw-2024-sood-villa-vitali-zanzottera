@@ -21,7 +21,11 @@ public class ClientHandleRmi extends HandleClient {
             synchronized (super.messageQueue){
                 messageToSend = super.messageQueue.poll();
             }
-            //virtualClientAssociated.GetMessage(messageToSend);
+            try {
+                virtualClientAssociated.GetMessage(messageToSend);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
