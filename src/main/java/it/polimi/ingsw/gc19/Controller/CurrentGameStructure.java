@@ -2,46 +2,52 @@ package it.polimi.ingsw.gc19.Controller;
 
 import it.polimi.ingsw.gc19.Enums.State;
 import it.polimi.ingsw.gc19.Model.Game.Game;
+import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CurrentGameStructure{
     private final HashMap<String, Game> games;
-    private final HashMap<String, State> playerState;
+    private final HashMap<String, Tuple<State, Observer<MessageToClient>>> playerInfo;
     private final HashMap<String, GameController> playerToGameController;
 
     public CurrentGameStructure(){
         this.playerToGameController = new HashMap<>();
         this.games = new HashMap<>();
-        this.playerState = new HashMap<>();
+        this.playerInfo = new HashMap<>();
     }
 
     public void setInactivePlayer(String player){
-        playerState.put(player, State.INACTIVE);
-    }
-
-    public ArrayList<String> getInactivePlayers(){
-        return playerState.entrySet()
-                          .stream()
-                          .filter(e -> e.getValue() == State.INACTIVE)
-                          .map(Map.Entry::getKey)
-                          .collect(Collectors.toCollection(ArrayList::new));
+        playerInfo.put(player, new Tuple<>(State.INACTIVE, this.playerInfo.get(player).y()));
     }
 
     public void setActivePlayer(String player){
-        playerState.put(player, State.ACTIVE);
+        playerInfo.put(player, new Tuple<>(State.ACTIVE, this.playerInfo.get(player).y()));
+    }
+
+    public ArrayList<String> getInactivePlayers(){
+        return playerInfo.entrySet()
+                         .stream()
+                         .filter(e -> e.getValue().x() == State.INACTIVE)
+                         .map(Map.Entry::getKey)
+                         .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public void setActivePlayer(String player,Observer<MessageToClient> client){
+        playerInfo.put(player, new Tuple<>(State.ACTIVE, client));
     }
 
     public ArrayList<String> getActivePlayers(){
-        return playerState.entrySet()
-                          .stream()
-                          .filter(e -> e.getValue() == State.ACTIVE)
-                          .map(Map.Entry::getKey)
-                          .collect(Collectors.toCollection(ArrayList::new));
+        return playerInfo.entrySet()
+                         .stream()
+                         .filter(e -> e.getValue().x() == State.ACTIVE)
+                         .map(Map.Entry::getKey)
+                         .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public Game getGameFromPlayer(String player){
@@ -66,10 +72,6 @@ public class CurrentGameStructure{
 
     public boolean checkGameAlreadyExist(String gameToCheck){
         return games.containsKey(gameToCheck);
-    }
-
-    public boolean isActive(String player){
-        return this.playerState.get(player) == State.ACTIVE;
     }
 
 }

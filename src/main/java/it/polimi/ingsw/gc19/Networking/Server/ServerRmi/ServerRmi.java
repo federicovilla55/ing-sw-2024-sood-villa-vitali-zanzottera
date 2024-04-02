@@ -17,10 +17,11 @@ import java.util.Map;
 
 public class ServerRmi implements VirtualServer{
 
-    private List<HandleClient> ListClient;
+    private final List<HandleClient> ListClient;
 
-    private Map<String, HandleClient> MapClientToHandle;
+    private final Map<String, HandleClient> MapClientToHandle;
     final Controller MasterController;
+
     public ServerRmi(List<HandleClient> ActiveList, Controller MasterController){
         this.ListClient = ActiveList;
         this.MasterController = MasterController;

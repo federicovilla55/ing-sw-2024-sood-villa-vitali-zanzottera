@@ -40,17 +40,17 @@ public class GameController{
     /**
      * Timeout in seconds before the paused game is ended
      */
-    final long timeout;
+    private final long timeout;
 
     /**
      * List of nicknames of all connected clients
      */
-    final List<String> connectedClients;
+    private final List<String> connectedClients;
 
     /**
      * This attribute is the model of the game
      */
-    final Game gameAssociated;
+    private final Game gameAssociated;
 
     /**
      * This constructor creates a GameController to manage a game
@@ -75,6 +75,10 @@ public class GameController{
 
     public Game getGameAssociated() {
         return gameAssociated;
+    }
+
+    public ArrayList<String> getConnectedClients() {
+        return new ArrayList<>(connectedClients);
     }
 
     /**
@@ -446,5 +450,12 @@ public class GameController{
         }
         this.gameAssociated.getChat().pushMessage(new Message(message, senderNick, receivers));
     }
+
+    //Un attimo che runno itest
+    //Due minuti
+    /*public synchronized boolean isGameFUll()
+    {
+        //if(gameAssociated)
+    }*/
 
 }
