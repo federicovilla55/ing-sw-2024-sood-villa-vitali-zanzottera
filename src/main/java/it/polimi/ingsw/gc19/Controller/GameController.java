@@ -10,6 +10,8 @@ import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Game.PlayerNotFoundException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardFromDeckMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableColorsMessage;
@@ -166,9 +168,17 @@ public class GameController{
      * @param cardIdx an index, 0 or 1, representing which card is being chosen
      */
     public synchronized void choosePrivateGoal(String nickname, int cardIdx) {
-        if(cardIdx<0||cardIdx>=2) return;
-        if(!this.gameAssociated.getGameState().equals(GameState.SETUP)
-                || !this.connectedClients.contains(nickname)) return;
+        if(!this.connectedClients.contains(nickname)) return;
+        if(cardIdx<0||cardIdx>=2){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GOAL_CARD_ERROR,
+                                                                                       "Goal card chosen is not valid!"));
+        }
+
+        if(this.gameAssociated.getGameState() != GameState.SETUP){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
+                                                                                       "You cannot choose you goal card when game state is " + this.gameAssociated.getGameState().toString().toLowerCase()));
+            return;
+        }
 
         if(this.gameAssociated.getPlayerByName(nickname).getPlayerStation().getPrivateGoalCard()==null) {
             this.gameAssociated.getPlayerByName(nickname).getPlayerStation().setPrivateGoalCard(cardIdx);
@@ -247,23 +257,30 @@ public class GameController{
      * @param nickname the player name
      * @param type type CardType, only RESOURCE and GOLD are admissible types
      */
-    public synchronized void drawCardFromDeck(String nickname, PlayableCardType type)
-    {
-        if(
-                !this.gameAssociated.getGameState().equals(GameState.PLAYING) ||
-                        !this.gameAssociated.getTurnState().equals(TurnState.DRAW) ||
-                        !this.gameAssociated.getActivePlayer().getName().equals(nickname)) return;
+    public synchronized void drawCardFromDeck(String nickname, PlayableCardType type) {
+        if(this.gameAssociated.getActivePlayer().getName().equals(nickname)){
+            return;
+        }
+        if(this.gameAssociated.getGameState() != GameState.PLAYING) {
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
+                                                                                       "You cannot pick a card when game is in " + this.gameAssociated.getGameState().toString().toLowerCase() + " state!"));
+        }
+
+        if(this.gameAssociated.getTurnState() != TurnState.DRAW){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN_STATE,
+                                                                                       "You cannot pick a card when your turn is in " + this.gameAssociated.getTurnState().toString().toLowerCase() + " state!"));
+        }
 
         PlayableCard card = null;
         try {
              card = this.gameAssociated.pickCardFromDeck(type);
         }
-        catch (EmptyDeckException e) { return; }
+        catch (EmptyDeckException e){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.EMPTY_DECK, "You cannot pick a card from deck " + type.toString().toLowerCase()  + " because is empty!"));
+            return;
+        }
 
-        this.gameAssociated.getActivePlayer().getPlayerStation()
-                .updateCardsInHand(
-                        card
-                );
+        this.gameAssociated.getActivePlayer().getPlayerStation().updateCardsInHand(card);
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
         this.setNextPlayer();
