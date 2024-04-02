@@ -1,56 +1,53 @@
-package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
+package it.polimi.ingsw.gc19.Networking.Server.ServerRmi;
 
 import it.polimi.ingsw.gc19.Controller.Controller;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.HandleClient;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
-import it.polimi.ingsw.gc19.Networking.ToFix.ClientImpl.ServerImpl.ClientHandle;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 
-public class ClientHandleSocket extends HandleClient implements VirtualServer, Runnable{
-    private final Socket clientSocket;
-    private final ObjectOutputStream out;
-    private final ObjectInputStream in;
-    private Controller MasterController;
-    public ClientHandleSocket(Socket clientSocket, Controller MasterController) throws IOException
+public class ServerRmi implements VirtualServer{
+
+    private List<HandleClient> ListClient;
+    final Controller MasterController;
+    public ServerRmi(List<HandleClient> ActiveList, Controller MasterController)
     {
-        this.clientSocket = clientSocket;
-        //this.nickName = null;
-        out = new ObjectOutputStream(clientSocket.getOutputStream());
-        in = new  ObjectInputStream(clientSocket.getInputStream());
-        //this.getLastTimeStep = System.currentTimeMillis();
+        this.ListClient = ActiveList;
         this.MasterController = MasterController;
     }
-
-    public void run() {
-
-    }
-
     @Override
-    public void NewConnection(VirtualClient ClientRmi, String nickName) throws RemoteException {
-
+    public void NewConnection(VirtualClient clientRmi, String nickName) throws RemoteException {
+        boolean check = MasterController.NewClient(nickName);
+        if(!check) {
+            throw new RemoteException("Nickname already present");
+        }
+        else {
+            ListClient.add(new ClientHandleRmi(clientRmi, nickName));
+        }
     }
 
     @Override
     public void NewUser(String nickname) throws RemoteException {
-
     }
 
     @Override
     public void CreateGame(String nickName, String gameName, int numPlayer) throws RemoteException {
-
+        try {
+            //MasterController.createGame(nickName, gameName, numPlayer);
+        } catch (IOException e) {
+            throw new RemoteException("Game name already present");
+        }
     }
 
     @Override
     public void JoinGame(String nickName, String GameName) throws RemoteException {
-
+        //MasterController.joinGame(nickName, GameName);
     }
+
     @Override
     public void PlaceCard() throws RemoteException {
 
@@ -58,8 +55,11 @@ public class ClientHandleSocket extends HandleClient implements VirtualServer, R
 
     @Override
     public void HeartBeat(String nickName) throws RemoteException {
-
+        for(HandleClient client : ListClient ) {
+            client.UpdateHeartBeat();
+        }
     }
+
     @Override
     public void Reconnect() throws RemoteException {
 

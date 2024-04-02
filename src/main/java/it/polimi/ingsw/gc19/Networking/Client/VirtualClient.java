@@ -1,4 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Client;
 
-public class VirtualClient {
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+
+public interface VirtualClient {
+    public void GetMessage(MessageToClient message);
 }
