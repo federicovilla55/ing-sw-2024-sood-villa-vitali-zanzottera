@@ -172,6 +172,7 @@ public class GameController{
         if(cardIdx<0||cardIdx>=2){
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GOAL_CARD_ERROR,
                                                                                        "Goal card chosen is not valid!"));
+            return;
         }
 
         if(this.gameAssociated.getGameState() != GameState.SETUP){
@@ -194,8 +195,12 @@ public class GameController{
      * @param cardOrientation the orientation of the card of type CardOrientation (UP, DOWN)
      */
     public synchronized void placeInitialCard(String nickname, CardOrientation cardOrientation) {
-        if(!this.gameAssociated.getGameState().equals(GameState.SETUP)
-                || !this.connectedClients.contains(nickname)) return; //gestire l'invalid turn e che la carta non è quella corretta
+        if(!this.connectedClients.contains(nickname)) return;
+        if(this.gameAssociated.getGameState() != GameState.SETUP){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
+                                                                                       "You cannot place initial card when game state is " + this.gameAssociated.getGameState().toString().toLowerCase()));
+            return;
+        }
 
         if(!this.gameAssociated.getPlayerByName(nickname).getPlayerStation().getInitialCardIsPlaced()) {
             this.gameAssociated.getPlayerByName(nickname).getPlayerStation().placeInitialCard(cardOrientation);
@@ -215,10 +220,21 @@ public class GameController{
      * @param cardOrientation UP or DOWN card orientation
      */
     public synchronized void placeCard(String nickname, String cardCode, String anchorCode, Direction direction, CardOrientation cardOrientation) {
-        if(
-                !this.gameAssociated.getGameState().equals(GameState.PLAYING) ||
-                        !this.gameAssociated.getTurnState().equals(TurnState.PLACE) ||
-                !this.gameAssociated.getActivePlayer().getName().equals(nickname)) return;
+        if(!this.gameAssociated.getActivePlayer().getName().equals(nickname)){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN,
+                                                                                       "You cannot place card because player " + this.gameAssociated.getActivePlayer().getName() + " is playing!"));
+            return;
+        }
+        if(this.gameAssociated.getGameState() != GameState.PLAYING){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
+                                                                                       "You cannot place card when game is in state " + this.gameAssociated.getGameState().toString().toLowerCase() + "!"));
+            return;
+        }
+        if(this.gameAssociated.getTurnState() != TurnState.PLACE){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN_STATE,
+                                                                                       "You cannot place card when your turn state is " + this.gameAssociated.getTurnState().toString().toLowerCase() + "!"));
+            return;
+        }
 
         Optional<PlayableCard> anchor = this.gameAssociated.getPlayableCardFromCode(anchorCode);
         Optional<PlayableCard> toPlace = this.gameAssociated.getPlayableCardFromCode(cardCode);
@@ -227,12 +243,11 @@ public class GameController{
             try {
                 boolean checkPlacing = this.gameAssociated.getActivePlayer().getPlayerStation()
                         .placeCard(anchor.get(), toPlace.get(), direction, cardOrientation);
-                this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.GENERIC, "Card"));
                 if(!checkPlacing) return;
             } catch (InvalidCardException e) {
                 //Message
                 this.messageFactory.sendMessageToPlayer(nickname,
-                                                        new RefusedActionMessage(ErrorType.INVALID_CARD_ERROR, "Attention, card " + cardCode + " cannot be placed!"));
+                                                        new RefusedActionMessage(ErrorType.INVALID_CARD_ERROR, "Attention, card " + cardCode + " cannot be placed because you haven't it in your station!"));
                 //Message
                 return;
             } catch (InvalidAnchorException e) {
@@ -292,22 +307,34 @@ public class GameController{
      * @param type type CardType, only RESOURCE and GOLD are admissible types
      * @param position an integer between 0 and 1, representing the position of the chosen card
      */
-    public synchronized void drawCardFromTable(String nickname, PlayableCardType type, int position)
-    {
-        if(
-                !this.gameAssociated.getGameState().equals(GameState.PLAYING) ||
-                        !this.gameAssociated.getTurnState().equals(TurnState.DRAW) ||
-                        !this.gameAssociated.getActivePlayer().getName().equals(nickname)) return;
+    public synchronized void drawCardFromTable(String nickname, PlayableCardType type, int position){
+        if(!this.gameAssociated.getActivePlayer().getName().equals(nickname)){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN,
+                                                                                       "You cannot place card because player " + this.gameAssociated.getActivePlayer().getName() + " is playing!"));
+            return;
+        }
+        if(this.gameAssociated.getTurnState() != TurnState.DRAW){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN_STATE,
+                                                                                       "You cannot place card when your turn state is " + this.gameAssociated.getTurnState().toString().toLowerCase() + "!"));
+            return;
+        }
+        if(this.gameAssociated.getGameState() != GameState.PLAYING){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
+                                                                                       "You cannot place card when game is in state " + this.gameAssociated.getGameState().toString().toLowerCase() + "!"));
+            return;
+        }
+
         PlayableCard card = null;
         try {
             card = this.gameAssociated.pickCardFromTable(type, position);
         }
-        catch (CardNotFoundException e) { return; }
+        catch (CardNotFoundException e) {
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.EMPTY_TABLE_SLOT,
+                                                                                       "You cannot pick a card from table in position " + position + " because slot is empty!"));
+            return;
+        }
 
-        this.gameAssociated.getActivePlayer().getPlayerStation()
-                .updateCardsInHand(
-                        card
-                );
+        this.gameAssociated.getActivePlayer().getPlayerStation().updateCardsInHand(card);
 
         if(!this.gameAssociated.drawableCardsArePresent()) {
             this.gameAssociated.setFinalCondition(true);
@@ -321,8 +348,7 @@ public class GameController{
      * This method sets the next player, checking if this player is connected to the game or not.
      * If the player is not connected, the turn will go to the successive player
      */
-    private synchronized void setNextPlayer()
-    {
+    private synchronized void setNextPlayer(){
         Player selectedPlayer;
         do {
             selectedPlayer = this.gameAssociated.getNextPlayer();
