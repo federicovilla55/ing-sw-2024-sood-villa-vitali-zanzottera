@@ -126,17 +126,17 @@ public class GameControllerTest {
     public void testChoosePrivateGoal() {
         gameController.addClient("Player 1", clientSkeleton);
 
-        assertNull(gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getPrivateGoalCard());
+        assertNull(gameController.gameAssociated.getPlayerByName("Player 1").getStation().getPrivateGoalCard());
 
         gameController.choosePrivateGoal("Player 1", 0);
 
-        GoalCard goal0 = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getPrivateGoalCard();
+        GoalCard goal0 = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getPrivateGoalCard();
 
         assertNotNull(goal0);
 
         gameController.choosePrivateGoal("Player 1", 1);
 
-        assertEquals(goal0, gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getPrivateGoalCard());
+        assertEquals(goal0, gameController.gameAssociated.getPlayerByName("Player 1").getStation().getPrivateGoalCard());
 
         gameController.choosePrivateGoal("Player 2", 1);
     }
@@ -145,11 +145,11 @@ public class GameControllerTest {
     public void testPlaceInitialCard() {
         gameController.addClient("Player 1", clientSkeleton);
 
-        assertFalse(gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getInitialCardIsPlaced());
+        assertFalse(gameController.gameAssociated.getPlayerByName("Player 1").getStation().getInitialCardIsPlaced());
 
         gameController.placeInitialCard("Player 1", CardOrientation.UP);
 
-        assertTrue(gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getInitialCardIsPlaced());
+        assertTrue(gameController.gameAssociated.getPlayerByName("Player 1").getStation().getInitialCardIsPlaced());
 
         gameController.placeInitialCard("Player 1", CardOrientation.DOWN);
 
@@ -336,12 +336,12 @@ public class GameControllerTest {
         gameController.placeInitialCard("Player 1", CardOrientation.DOWN);
 
         // try to draw a card while in setup phase
-        List<PlayableCard> cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        List<PlayableCard> cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertEquals(3, cardsBefore.size());
 
         gameController.drawCardFromDeck("Player 1", PlayableCardType.RESOURCE);
 
-        List<PlayableCard> cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        List<PlayableCard> cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertTrue(cardsBefore.containsAll(cardsAfter) && cardsAfter.containsAll(cardsBefore));
 
         gameController.placeInitialCard("Player 2", CardOrientation.DOWN);
@@ -352,24 +352,24 @@ public class GameControllerTest {
         gameController.placeCard("Player 1", "resource_23", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
 
         // wrong player
-        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 2").getPlayerStation().getCardsInStation();
+        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 2").getStation().getCardsInStation();
         assertEquals(3, cardsBefore.size());
         gameController.drawCardFromDeck("Player 2", PlayableCardType.RESOURCE);
-        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 2").getPlayerStation().getCardsInStation();
+        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 2").getStation().getCardsInStation();
         assertTrue(cardsBefore.containsAll(cardsAfter) && cardsAfter.containsAll(cardsBefore));
 
         // wrong card type (INITIAL)
-        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertEquals(2, cardsBefore.size());
         assertThrows(MalformedParametersException.class, () -> gameController.drawCardFromDeck("Player 1", PlayableCardType.INITIAL));
-        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertTrue(cardsBefore.containsAll(cardsAfter) && cardsAfter.containsAll(cardsBefore));
 
         // correct placing
-        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertEquals(2, cardsBefore.size());
         gameController.drawCardFromDeck("Player 1", PlayableCardType.RESOURCE);
-        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertTrue(cardsAfter.containsAll(cardsBefore));
         assertEquals(PlayableCardType.RESOURCE, cardsAfter.getLast().getCardType());
 
@@ -391,12 +391,12 @@ public class GameControllerTest {
         gameController.placeInitialCard("Player 1", CardOrientation.DOWN);
 
         // try to draw a card while in setup phase
-        List<PlayableCard> cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        List<PlayableCard> cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertEquals(3, cardsBefore.size());
 
         gameController.drawCardFromTable("Player 1", PlayableCardType.RESOURCE, 0);
 
-        List<PlayableCard> cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        List<PlayableCard> cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertTrue(cardsBefore.containsAll(cardsAfter) && cardsAfter.containsAll(cardsBefore));
 
         gameController.placeInitialCard("Player 2", CardOrientation.DOWN);
@@ -407,32 +407,32 @@ public class GameControllerTest {
         gameController.placeCard("Player 1", "resource_23", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
 
         // wrong player
-        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 2").getPlayerStation().getCardsInStation();
+        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 2").getStation().getCardsInStation();
         assertEquals(3, cardsBefore.size());
         gameController.drawCardFromTable("Player 2", PlayableCardType.RESOURCE,0);
-        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 2").getPlayerStation().getCardsInStation();
+        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 2").getStation().getCardsInStation();
         assertTrue(cardsBefore.containsAll(cardsAfter) && cardsAfter.containsAll(cardsBefore));
 
         // wrong card type (INITIAL)
-        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertEquals(2, cardsBefore.size());
         assertThrows(MalformedParametersException.class, () -> gameController.drawCardFromTable("Player 1", PlayableCardType.INITIAL, 0));
-        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertTrue(cardsBefore.containsAll(cardsAfter) && cardsAfter.containsAll(cardsBefore));
 
         // malformed index
-        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertEquals(2, cardsBefore.size());
         assertThrows(IndexOutOfBoundsException.class, () -> gameController.drawCardFromTable("Player 1", PlayableCardType.RESOURCE, 2));
-        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertTrue(cardsBefore.containsAll(cardsAfter) && cardsAfter.containsAll(cardsBefore));
 
         // correct placing
-        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        cardsBefore = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertEquals(2, cardsBefore.size());
         PlayableCard cardToDraw = gameController.gameAssociated.getResourceCardsOnTable()[0];
         gameController.drawCardFromTable("Player 1", PlayableCardType.RESOURCE, 0);
-        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getPlayerStation().getCardsInStation();
+        cardsAfter = gameController.gameAssociated.getPlayerByName("Player 1").getStation().getCardsInStation();
         assertTrue(cardsAfter.containsAll(cardsBefore));
         assertTrue(cardsAfter.contains(cardToDraw));
         assertNotEquals(cardToDraw, gameController.gameAssociated.getResourceCardsOnTable()[0]);
@@ -840,8 +840,8 @@ public class GameControllerTest {
         Player p = gameController.gameAssociated.getPlayerByName(nickname);
         gameController.placeCard(
                 p.getName(),
-                p.getPlayerStation().getCardsInStation().getFirst().getCardCode(),
-                p.getPlayerStation().getLastPlaced().get().getCardCode(),
+                p.getStation().getCardsInStation().getFirst().getCardCode(),
+                p.getStation().getLastPlaced().get().getCardCode(),
                 Direction.UP_RIGHT,
                 CardOrientation.DOWN
         );
@@ -850,7 +850,7 @@ public class GameControllerTest {
     public boolean isCardPlacedInStation(String nickname, String card) {
         Player p = gameController.gameAssociated.getPlayerByName(nickname);
         List<String> cardCodesInStation = Arrays.stream(
-                p.getPlayerStation().getCardCodeSchema())
+                p.getStation().getCardCodeSchema())
                 .flatMap(Stream::of).map(o -> o.orElse(""))
                 .toList();
 
@@ -877,23 +877,23 @@ public class GameControllerTest {
             System.out.println(p.getName()+":");
 
             System.out.println("Points:");
-            System.out.println(p.getPlayerStation().getNumPoints());
+            System.out.println(p.getStation().getNumPoints());
 
             System.out.println("Visible symbols:");
-            System.out.println(p.getPlayerStation().getVisibleSymbolsInStation());
+            System.out.println(p.getStation().getVisibleSymbolsInStation());
 
             System.out.println("Initial card:");
-            System.out.println(p.getPlayerStation().getInitialCard());
+            System.out.println(p.getStation().getInitialCard());
 
             System.out.println("Possible Goal cards:");
-            System.out.println(p.getPlayerStation().getPrivateGoalCardInStation(0));
-            System.out.println(p.getPlayerStation().getPrivateGoalCardInStation(1));
+            System.out.println(p.getStation().getPrivateGoalCardInStation(0));
+            System.out.println(p.getStation().getPrivateGoalCardInStation(1));
 
             System.out.println("Private Goal card:");
-            System.out.println(p.getPlayerStation().getPrivateGoalCard());
+            System.out.println(p.getStation().getPrivateGoalCard());
 
             System.out.println("Hand:");
-            p.getPlayerStation().getCardsInStation()
+            p.getStation().getCardsInStation()
                     .forEach(System.out::println);
 
             System.out.println();

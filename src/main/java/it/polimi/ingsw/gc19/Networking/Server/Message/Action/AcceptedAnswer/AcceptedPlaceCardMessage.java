@@ -7,6 +7,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.Acce
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class AcceptedPlaceCardMessage extends AcceptedActionMessage{
 
@@ -15,9 +16,9 @@ public class AcceptedPlaceCardMessage extends AcceptedActionMessage{
     private final PlayableCard cardToPlace;
     private final Direction direction;
     private final int numPoints;
-    private final HashMap<Symbol, Integer> visibleSymbols;
+    private final Map<Symbol, Integer> visibleSymbols;
 
-    public AcceptedPlaceCardMessage(String nick, String anchorCode, PlayableCard cardToPlace, Direction direction, HashMap<Symbol, Integer> visibleSymbols, int numPoints){
+    public AcceptedPlaceCardMessage(String nick, String anchorCode, PlayableCard cardToPlace, Direction direction, Map<Symbol, Integer> visibleSymbols, int numPoints){
         super();
         this.anchorCode = anchorCode;
         this.cardToPlace = cardToPlace;
@@ -43,7 +44,7 @@ public class AcceptedPlaceCardMessage extends AcceptedActionMessage{
         return this.numPoints;
     }
 
-    public HashMap<Symbol, Integer> getVisibleSymbols(){
+    public Map<Symbol, Integer> getVisibleSymbols(){
         return this.visibleSymbols;
     }
 

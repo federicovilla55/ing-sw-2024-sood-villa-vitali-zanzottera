@@ -112,7 +112,7 @@ public class PlayableCard extends Card{
     }
 
 
-    public boolean enoughResourceToBePlaced(HashMap<Symbol, Integer> freeResources){
+    public boolean enoughResourceToBePlaced(Map<Symbol, Integer> freeResources){
         return this.cardState.enoughResourceToBePlaced(freeResources);
     }
 
@@ -228,7 +228,7 @@ public class PlayableCard extends Card{
          * @param freeResources is the hashmap of free resources in card schema
          * @return boolean
          */
-        boolean enoughResourceToBePlaced(HashMap<Symbol, Integer> freeResources);
+        boolean enoughResourceToBePlaced(Map<Symbol, Integer> freeResources);
 
         /**
          * This method returns the points gained by the card effect
@@ -290,7 +290,7 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public boolean enoughResourceToBePlaced(HashMap<Symbol, Integer> freeResources){
+        public boolean enoughResourceToBePlaced(Map<Symbol, Integer> freeResources){
             for(Symbol s : requiredSymbolToPlace.keySet()){
                 if(freeResources.get(s) < requiredSymbolToPlace.get(s)){
                     return false;
@@ -351,7 +351,7 @@ public class PlayableCard extends Card{
         }
 
         @Override
-        public boolean enoughResourceToBePlaced(HashMap<Symbol, Integer> freeResources){
+        public boolean enoughResourceToBePlaced(Map<Symbol, Integer> freeResources){
             return true;
         }
 

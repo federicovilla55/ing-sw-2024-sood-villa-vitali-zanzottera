@@ -12,18 +12,19 @@ import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardFromTable;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableColorsMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.DisconnectedPlayerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.EndGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.GamePausedMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.GameResumedMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.NotifyWinnerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -86,6 +87,9 @@ public class GameController{
             //player already present in game
             if(!this.connectedClients.contains(nickname)) {
                 this.connectedClients.add(nickname);
+                messageFactory.attachObserver(nickname,Client);
+                // send to connected client all info needed
+                this.gameAssociated.sendCurrentStateToPlayer(nickname);
                 if(this.gameAssociated.getGameState().equals(GameState.PAUSE)) {
                     // if there is only one client, and it was not the active player, make it the active player and turn state to PLACE
                     if(this.connectedClients.size()==1 && !this.gameAssociated.getActivePlayer().getName().equals(nickname)) {
@@ -93,19 +97,23 @@ public class GameController{
                                 this.gameAssociated.getPlayerByName(nickname)
                         );
                         this.gameAssociated.setTurnState(TurnState.PLACE);
+                        this.messageFactory.sendMessageToAllGamePlayers(
+                                new TurnStateMessage(this.gameAssociated.getActivePlayer().getName(), this.gameAssociated.getTurnState())
+                        );
                     }
                     else if(this.connectedClients.size()>=2) {
-                        //the game is in pause and there are 2 or more clients connected
+                        //if the game is in pause and there are 2 or more clients connected, unpause game
                         this.gameAssociated.setGameState(GameState.PLAYING);
+                        this.messageFactory.sendMessageToAllGamePlayers(new GameResumedMessage());
                     }
                 }
             }
         } catch (PlayerNotFoundException e) {
             //new player
             if(this.gameAssociated.getNumJoinedPlayer() < this.gameAssociated.getNumPlayers()) {
-                this.gameAssociated.createNewPlayer(nickname);
                 this.connectedClients.add(nickname);
                 messageFactory.attachObserver(nickname,Client);
+                this.gameAssociated.createNewPlayer(nickname);
             }
         }
     }
@@ -123,6 +131,9 @@ public class GameController{
                 if(!this.connectedClients.isEmpty()) {
                     this.gameAssociated.setTurnState(TurnState.PLACE);
                     this.setNextPlayer();
+                    this.messageFactory.sendMessageToAllGamePlayers(
+                            new TurnStateMessage(this.gameAssociated.getActivePlayer().getName(), this.gameAssociated.getTurnState())
+                    );
                 }
             }
 
@@ -137,6 +148,7 @@ public class GameController{
                     }
                     this.stopGame();
                 }).start();
+                this.messageFactory.sendMessageToAllGamePlayers(new GamePausedMessage());
             }
         }
     }
@@ -147,7 +159,9 @@ public class GameController{
      * @param color the chosen color
      */
     public synchronized void chooseColor(String nickname, Color color) {
-        if(!this.gameAssociated.getGameState().equals(GameState.SETUP) || !this.connectedClients.contains(nickname)){
+        if(!this.connectedClients.contains(nickname)) return;
+
+        if(!this.gameAssociated.getGameState().equals(GameState.SETUP)){
             this.messageFactory.sendMessageToPlayer(nickname,
                                                     new RefusedActionMessage(ErrorType.INVALID_GAME_STATE, "You cannot choose your color while game is in state " +
                                                             this.gameAssociated.getGameState().toString().toLowerCase()));
@@ -182,8 +196,8 @@ public class GameController{
             return;
         }
 
-        if(this.gameAssociated.getPlayerByName(nickname).getPlayerStation().getPrivateGoalCard()==null) {
-            this.gameAssociated.getPlayerByName(nickname).getPlayerStation().setPrivateGoalCard(cardIdx);
+        if(this.gameAssociated.getPlayerByName(nickname).getStation().getPrivateGoalCard()==null) {
+            this.gameAssociated.getPlayerByName(nickname).getStation().setPrivateGoalCard(cardIdx);
         }
         if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
             this.gameAssociated.startGame();
@@ -197,14 +211,15 @@ public class GameController{
      */
     public synchronized void placeInitialCard(String nickname, CardOrientation cardOrientation) {
         if(!this.connectedClients.contains(nickname)) return;
+
         if(this.gameAssociated.getGameState() != GameState.SETUP){
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
                                                                                        "You cannot place initial card when game state is " + this.gameAssociated.getGameState().toString().toLowerCase()));
             return;
         }
 
-        if(!this.gameAssociated.getPlayerByName(nickname).getPlayerStation().getInitialCardIsPlaced()) {
-            this.gameAssociated.getPlayerByName(nickname).getPlayerStation().placeInitialCard(cardOrientation);
+        if(!this.gameAssociated.getPlayerByName(nickname).getStation().getInitialCardIsPlaced()) {
+            this.gameAssociated.getPlayerByName(nickname).getStation().placeInitialCard(cardOrientation);
         }
         if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
             this.gameAssociated.startGame();
@@ -242,7 +257,7 @@ public class GameController{
 
         if(anchor.isPresent() && toPlace.isPresent()) {
             try {
-                boolean checkPlacing = this.gameAssociated.getActivePlayer().getPlayerStation()
+                boolean checkPlacing = this.gameAssociated.getActivePlayer().getStation()
                         .placeCard(anchor.get(), toPlace.get(), direction, cardOrientation);
                 if(!checkPlacing) return;
             } catch (InvalidCardException e) {
@@ -257,7 +272,7 @@ public class GameController{
                 return;
             }
 
-            if(this.gameAssociated.getActivePlayer().getPlayerStation().getNumPoints() >= 20)
+            if(this.gameAssociated.getActivePlayer().getStation().getNumPoints() >= 20)
                 this.gameAssociated.setFinalCondition(true);
 
             if(this.gameAssociated.drawableCardsArePresent())
@@ -265,6 +280,10 @@ public class GameController{
             else
                 // if there are no cards left to draw on table, the turn goes to next player
                 this.setNextPlayer();
+
+            this.messageFactory.sendMessageToAllGamePlayers(
+                    new TurnStateMessage(this.gameAssociated.getActivePlayer().getName(), this.gameAssociated.getTurnState())
+            );
         }
     }
 
@@ -285,9 +304,9 @@ public class GameController{
             return;
         }
 
-        //perchè non si controlla che vi siano ancora delle drawable cards?
-
-        this.gameAssociated.getActivePlayer().getPlayerStation().updateCardsInHand(card);
+        this.gameAssociated.getActivePlayer().getStation().updateCardsInHand(card);
+        this.messageFactory.sendMessageToAllGamePlayers(new AcceptedPickCardFromDeckMessage(nickname,
+                card, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)));
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
         this.setNextPlayer();
@@ -312,7 +331,7 @@ public class GameController{
             return;
         }
 
-        this.gameAssociated.getActivePlayer().getPlayerStation().updateCardsInHand(card);
+        this.gameAssociated.getActivePlayer().getStation().updateCardsInHand(card);
         this.messageFactory.sendMessageToAllGamePlayers(new AcceptedPickCardFromTable(nickname,
                                                                                       card, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null),
                                                                                       position, gameAssociated.getDeckFromType(type).getNextCard().orElse(null)));
@@ -323,6 +342,10 @@ public class GameController{
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
         this.setNextPlayer();
+
+        this.messageFactory.sendMessageToAllGamePlayers(
+                new TurnStateMessage(this.gameAssociated.getActivePlayer().getName(), this.gameAssociated.getTurnState())
+        );
     }
 
     private boolean checkDrawConditions(String nickname) {
@@ -375,8 +398,27 @@ public class GameController{
 
     private synchronized void endGame() {
         this.calculateFinalResult();
-        this.gameAssociated.computeWinnerPlayers();
+        List<Player> sortedPlayers = this.gameAssociated.computeFinalScoreboard();
+
+        Map<String, Integer> scoreboard = sortedPlayers.stream().collect(Collectors.toMap(Player::getName, p -> p.getStation().getNumPoints()));
+
+        List<Player> winnerPlayers = new ArrayList<>();
+
+        //remove not connected players from possible winners
+        sortedPlayers.removeIf(p -> !this.connectedClients.contains(p.getName()));
+
+        Player p;
+        do {
+            p = sortedPlayers.removeFirst();
+            winnerPlayers.add(p);
+        }while(sortedPlayers.getFirst().getStation().getNumPoints() == p.getStation().getNumPoints()
+                && sortedPlayers.getFirst().getStation().getPointsFromGoals() == p.getStation().getPointsFromGoals());
+
         this.gameAssociated.setGameState(GameState.END);
+
+        this.messageFactory.sendMessageToAllGamePlayers(
+                new EndGameMessage(winnerPlayers.stream().map(Player::getName).collect(Collectors.toList()), scoreboard)
+        );
     }
 
     // this method is called when there is a timeout and at most only a client is connected
@@ -384,8 +426,16 @@ public class GameController{
         if(this.gameAssociated.getGameState().equals(GameState.PAUSE)) {
             if (this.connectedClients.size() == 1) {
                 //Notify winner
+                this.messageFactory.sendMessageToAllGamePlayers(
+                        // the Map is empty because there is no score to update
+                        new EndGameMessage(this.connectedClients, new HashMap<>())
+                );
             }
             this.gameAssociated.setGameState(GameState.END);
+
+            this.messageFactory.sendMessageToAllGamePlayers(
+                    new EndGameMessage(new ArrayList<>(), new HashMap<>())
+            );
         }
     }
 

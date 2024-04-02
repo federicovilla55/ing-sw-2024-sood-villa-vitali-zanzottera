@@ -15,10 +15,12 @@ import it.polimi.ingsw.gc19.Model.Deck.Deck;
 import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
 import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Station.Station;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableColorsMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.StartPlayingGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.InitialStationConfigurationMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.InitialTableConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.OtherStationConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.OwnStationConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.TableConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 
 import java.io.IOException;
@@ -123,22 +125,17 @@ public class Game extends Publisher{
     }
 
 
-    public void computeWinnerPlayers() {
+    public List<Player> computeFinalScoreboard() {
 
-        Comparator<Player> byGoalPoints = Comparator.comparing((Player p) -> p.getPlayerStation().getPointsFromGoals()).reversed();
-        Comparator<Player> byStationPoints = Comparator.comparing((Player p) -> p.getPlayerStation().getNumPoints()).reversed();
+        Comparator<Player> byGoalPoints = Comparator.comparing((Player p) -> p.getStation().getPointsFromGoals()).reversed();
+        Comparator<Player> byStationPoints = Comparator.comparing((Player p) -> p.getStation().getNumPoints()).reversed();
 
-        List<Player> sortedPlayers = players.stream()
+        List<Player> sortedPlayers;
+        sortedPlayers = players.stream()
                 .sorted(byGoalPoints.thenComparing(byStationPoints))
                 .collect(Collectors.toList());
 
-        Player p = null;
-        do {
-            p = sortedPlayers.removeFirst();
-            //@TODO. notify winners and others
-        }while(sortedPlayers.getFirst().getPlayerStation().getNumPoints() == p.getPlayerStation().getNumPoints()
-                && sortedPlayers.getFirst().getStation().getPointsFromGoals() == p.getStation().getPointsFromGoals());
-
+        return sortedPlayers;
     }
 
     /**
@@ -324,28 +321,63 @@ public class Game extends Publisher{
         Player player = new Player(name, this.initialDeck.pickACard(), this.goalDeck.pickACard(), this.goalDeck.pickACard());
         player.setMessageFactory(this.getMessageFactory());
 
-        player.getPlayerStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
-        player.getPlayerStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
-        player.getPlayerStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.GOLD));
+        player.getStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
+        player.getStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
+        player.getStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.GOLD));
 
         players.add(player);
 
         //Notify to all player different from the current that another player has joined the game
         this.getMessageFactory().sendMessageToAllGamePlayersExcept(new NewPlayerConnectedToGameMessage(player.getName()), player.getName());
 
+        sendCurrentStateToPlayer(player.getName());
+    }
+
+    public void sendCurrentStateToPlayer(String nickname) {
         //Send to the player the current state of table
-        this.getMessageFactory().sendMessageToPlayer(player.getName(),
-                                                     new InitialTableConfigurationMessage(this.resourceCardsOnTable[0], this.resourceCardsOnTable[1],
+        sendCurrentTableState(nickname);
+
+        //Send to player its own station
+        sendCurrentOwnStationState(nickname);
+
+        //Send to player others station
+        sendCurrentOthersStationState(nickname);
+
+        //Send to player available colors
+        sendCurrentAvailableColors(nickname);
+
+
+    }
+
+    public void sendCurrentAvailableColors(String nickname) {
+        this.getMessageFactory().sendMessageToPlayer(nickname, new AvailableColorsMessage(this.getAvailableColors()));
+    }
+
+    public void sendCurrentOwnStationState(String nickname) {
+        this.getMessageFactory().sendMessageToPlayer(nickname, new OwnStationConfigurationMessage(nickname,
+                getPlayerByName(nickname).getStation().getVisibleSymbolsInStation(), getPlayerByName(nickname).getStation().getNumPoints(),
+                getPlayerByName(nickname).getStation().getInitialCard(),
+                getPlayerByName(nickname).getStation().getPrivateGoalCardInStation(0), getPlayerByName(nickname).getStation().getPrivateGoalCardInStation(1)));
+    }
+
+    public void sendCurrentOthersStationState(String receiver) {
+
+        for(String nickname : players.stream().map(Player::getName).toList()) {
+            if(nickname != receiver) {
+                this.getMessageFactory().sendMessageToPlayer(receiver, new OtherStationConfigurationMessage(nickname,
+                        getPlayerByName(nickname).getStation().getVisibleSymbolsInStation(), getPlayerByName(nickname).getStation().getNumPoints(),
+                        getPlayerByName(nickname).getStation().getInitialCard(),
+                        getPlayerByName(nickname).getStation().getPrivateGoalCardInStation(0), getPlayerByName(nickname).getStation().getPrivateGoalCardInStation(1)));
+            }
+        }
+    }
+
+    public void sendCurrentTableState(String nickname) {
+        this.getMessageFactory().sendMessageToPlayer(nickname,
+                                                     new TableConfigurationMessage(this.resourceCardsOnTable[0], this.resourceCardsOnTable[1],
                                                                                           this.goldCardsOnTable[0], this.goldCardsOnTable[1],
                                                                                           this.publicGoalCardsOnTable[0], this.publicGoalCardsOnTable[1],
                                                                                           this.resourceDeck.getNextCard().map(PlayableCard::getSeed).orElse(null), this.goldDeck.getNextCard().map(PlayableCard::getSeed).orElse(null)));
-
-        //Send to all players new player initial station
-        this.getMessageFactory().sendMessageToAllGamePlayers(new InitialStationConfigurationMessage(player.getName(),
-                                                                                                    player.getPlayerStation().getVisibleSymbolsInStation(), 0,
-                                                                                                    player.getPlayerStation().getInitialCard(),
-                                                                                                    player.getPlayerStation().getPrivateGoalCardInStation(0), player.getPlayerStation().getPrivateGoalCardInStation(1)));
-
     }
 
     /**
@@ -435,7 +467,7 @@ public class Game extends Publisher{
     public void updateGoalPoints(){
         for(Player p : players){
             int pointsFromGoals = 0;
-            Station station = p.getPlayerStation();
+            Station station = p.getStation();
             pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[0]);
             pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[1]);
             pointsFromGoals += station.updatePoints(station.getPrivateGoalCard());
@@ -466,8 +498,8 @@ public class Game extends Publisher{
         for(Player player : this.players) {
             if (
                     player.getColor() == null ||
-                    player.getPlayerStation().getPrivateGoalCard() == null ||
-                    !player.getPlayerStation().getInitialCardIsPlaced()
+                    player.getStation().getPrivateGoalCard() == null ||
+                    !player.getStation().getInitialCardIsPlaced()
             ) {
                 flag = false;
                 break;

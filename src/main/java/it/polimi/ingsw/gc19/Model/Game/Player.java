@@ -6,8 +6,7 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Station.Station;
-import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.InitialConfigurationMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.InitialStationConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 
 public class Player extends Publisher{
     private final String name;
@@ -34,7 +33,7 @@ public class Player extends Publisher{
      * This method returns player's station
      * @return the station of the player
      */
-    public Station getPlayerStation() {return this.playerStation; }
+    public Station getStation() {return this.playerStation; }
 
     /**
      * This method returns player's name
@@ -49,6 +48,7 @@ public class Player extends Publisher{
      */
     public void setColor(Color color){
         this.playerColor = color;
+        this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedColorMessage(this.getName(),this.playerColor));
     }
 
     /**
@@ -57,10 +57,6 @@ public class Player extends Publisher{
      */
     public Color getColor(){
         return this.playerColor;
-    }
-
-    public Station getStation(){
-        return this.playerStation;
     }
 
 }

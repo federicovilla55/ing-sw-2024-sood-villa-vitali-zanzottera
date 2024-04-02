@@ -5,20 +5,21 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class AcceptedPlaceInitialCard extends AcceptedActionMessage{
 
     private final String nick;
-    private final HashMap<Symbol, Integer> visibleSymbol;
+    private final Map<Symbol, Integer> visibleSymbol;
     private final PlayableCard initialCard;
 
-    public AcceptedPlaceInitialCard(String nick, PlayableCard initialCard, HashMap<Symbol, Integer> visibleSymbol){
+    public AcceptedPlaceInitialCard(String nick, PlayableCard initialCard, Map<Symbol, Integer> visibleSymbol){
         this.nick = nick;
         this.initialCard = initialCard;
         this.visibleSymbol = visibleSymbol;
     }
 
-    public HashMap<Symbol, Integer> getVisibleSymbol() {
+    public Map<Symbol, Integer> getVisibleSymbol() {
         return this.visibleSymbol;
     }
 

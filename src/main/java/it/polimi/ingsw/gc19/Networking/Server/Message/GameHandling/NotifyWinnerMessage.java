@@ -1,18 +1,16 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
 
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
-
-import java.util.ArrayList;
+import java.util.List;
 
 public class NotifyWinnerMessage extends GameHandlingMessage{
 
-    private final ArrayList<String> winners;
+    private final List<String> winners;
 
-    public NotifyWinnerMessage(ArrayList<String> winners) {
+    public NotifyWinnerMessage(List<String> winners) {
         this.winners = winners;
     }
 
-    public ArrayList<String> getWinners() {
+    public List<String> getWinners() {
         return winners;
     }
     

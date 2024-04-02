@@ -10,23 +10,20 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedChooseGoalCard;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPlaceCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPlaceInitialCard;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration.InitialStationConfigurationMessage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class Station extends Publisher{
 
     private final Player ownerPlayer;
 
     private final ArrayList<PlayableCard> cardsInStation;
-    private final HashMap<Symbol, Integer> visibleSymbolsInStation;
+    private final Map<Symbol, Integer> visibleSymbolsInStation;
     private Integer privateGoalCardIdx;
     private int numPoints;
     private int pointsFromGoals;
@@ -64,7 +61,7 @@ public class Station extends Publisher{
      * This method returns the number of visible symbols in this station
      * @return the hashmap of visible symbol - integer
      */
-    public HashMap<Symbol, Integer> getVisibleSymbolsInStation(){
+    public Map<Symbol, Integer> getVisibleSymbolsInStation(){
         return this.visibleSymbolsInStation;
     }
 
@@ -103,8 +100,9 @@ public class Station extends Publisher{
     /**
      * This method sets private GoalCard of the station
      */
-    public void setPrivateGoalCard(int cardIdx){
+    public void setPrivateGoalCard(int cardIdx) {
         this.privateGoalCardIdx = cardIdx;
+        this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(), new AcceptedChooseGoalCard(this.getPrivateGoalCard().getCardCode()));
     }
 
     /**
@@ -129,7 +127,7 @@ public class Station extends Publisher{
             this.initialCardIsPlaced  = true;
             //Message
             this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlaceInitialCard(this.ownerPlayer.getName(),
-                                                                                              initialCard, this.visibleSymbolsInStation)); //Chiedere se è necessario mettere clone()
+                                                                                              initialCard, Map.copyOf(this.visibleSymbolsInStation))); //Chiedere se è necessario mettere clone()
             //Message
         }
     }
@@ -180,7 +178,7 @@ public class Station extends Publisher{
             //Message
             this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlaceCardMessage(this.ownerPlayer.getName(),
                                                                                               anchor.getCardCode(), toPlace, direction,
-                                                                                              this.visibleSymbolsInStation, this.numPoints));
+                                                                                              Map.copyOf(this.visibleSymbolsInStation), this.numPoints));
             //Message
             return true;
         }

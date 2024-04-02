@@ -1,25 +1,25 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents;
 
-import it.polimi.ingsw.gc19.Enums.Symbol;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class EndGameMessage extends NotifyEventOnGame{
 
-    private final ArrayList<String> winnerNicks;
-    private final HashMap<Symbol, Integer> updatedPoints;
+    private final List<String> winnerNicks;
+    private final Map<String, Integer> updatedPoints;
 
-    public EndGameMessage(ArrayList<String> winnerNicks, HashMap<Symbol, Integer> updatedPoints) {
+    public EndGameMessage(List<String> winnerNicks, Map<String, Integer> updatedPoints) {
         this.winnerNicks = winnerNicks;
         this.updatedPoints = updatedPoints;
     }
 
-    public ArrayList<String> getWinnerNicks() {
+    public List<String> getWinnerNicks() {
         return this.winnerNicks;
     }
 
-    public HashMap<Symbol, Integer> getUpdatedPoints() {
+    public Map<String, Integer> getUpdatedPoints() {
         return this.updatedPoints;
     }
 

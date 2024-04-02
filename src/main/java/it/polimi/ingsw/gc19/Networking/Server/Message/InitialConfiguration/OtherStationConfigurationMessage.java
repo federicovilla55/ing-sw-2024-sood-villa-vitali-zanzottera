@@ -3,20 +3,19 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
 
-import java.util.HashMap;
+import java.util.Map;
 
-public class InitialStationConfigurationMessage extends InitialConfigurationMessage{
+public class OtherStationConfigurationMessage extends ConfigurationMessage {
 
     private final String nick;
-    private final HashMap<Symbol, Integer> visibleSymbols;
+    private final Map<Symbol, Integer> visibleSymbols;
     private final int numPoints;
     private final PlayableCard initialCard;
     private final GoalCard goalCard1;
     private final GoalCard goalCard2;
 
-    public InitialStationConfigurationMessage(String nick, HashMap<Symbol, Integer> visibleSymbols, int numPoints, PlayableCard initialCard, GoalCard goalCard1, GoalCard goalCard2){
+    public OtherStationConfigurationMessage(String nick, Map<Symbol, Integer> visibleSymbols, int numPoints, PlayableCard initialCard, GoalCard goalCard1, GoalCard goalCard2){
         this.nick = nick;
         this.visibleSymbols = visibleSymbols;
         this.numPoints = numPoints;
@@ -29,7 +28,7 @@ public class InitialStationConfigurationMessage extends InitialConfigurationMess
         return this.nick;
     }
 
-    public HashMap<Symbol, Integer> getVisibleSymbols() {
+    public Map<Symbol, Integer> getVisibleSymbols() {
         return this.visibleSymbols;
     }
 
