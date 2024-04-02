@@ -560,11 +560,7 @@ public class GameControllerTest {
         assertEquals(GameState.PAUSE, gameController.gameAssociated.getGameState());
         assertEquals(TurnState.PLACE, gameController.gameAssociated.getTurnState());
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        sleep(500);
 
         gameController.addClient("Player 4", clientSkeleton);
 
@@ -572,11 +568,7 @@ public class GameControllerTest {
         assertEquals(GameState.PLAYING, gameController.gameAssociated.getGameState());
         assertEquals(TurnState.PLACE, gameController.gameAssociated.getTurnState());
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        sleep(1000);
 
         // check that game has not been stopped
         assertEquals("Player 3", gameController.gameAssociated.getActivePlayer().getName());
@@ -585,11 +577,7 @@ public class GameControllerTest {
 
         gameController.removeClient("Player 4");
 
-        try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        sleep(1500);
         // check that game should have been stopped, and Player 3 is the winner
         assertEquals(GameState.END, gameController.gameAssociated.getGameState());
         //assertEquals("Player 3", gameController.gameAssociated.getWinnerPlayers().getFirst().getName());
@@ -622,11 +610,7 @@ public class GameControllerTest {
         assertEquals(TurnState.PLACE, gameController.gameAssociated.getTurnState());
         assertTrue(gameController.connectedClients.isEmpty());
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        sleep(500);
 
         gameController.addClient("Player 3", clientSkeleton);
         gameController.addClient("Player 4", clientSkeleton);
@@ -635,11 +619,7 @@ public class GameControllerTest {
         assertEquals(GameState.PLAYING, gameController.gameAssociated.getGameState());
         assertEquals(TurnState.PLACE, gameController.gameAssociated.getTurnState());
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        sleep(1000);
 
         // check that game has not been stopped
         assertEquals("Player 3", gameController.gameAssociated.getActivePlayer().getName());
@@ -649,15 +629,19 @@ public class GameControllerTest {
         gameController.removeClient("Player 3");
         gameController.removeClient("Player 4");
 
-        try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        sleep(1500);
 
         // check that game should have been stopped, and there is no winner
         assertEquals(GameState.END, gameController.gameAssociated.getGameState());
         //assertTrue(gameController.gameAssociated.getWinnerPlayers().isEmpty());
+    }
+
+    private static void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
