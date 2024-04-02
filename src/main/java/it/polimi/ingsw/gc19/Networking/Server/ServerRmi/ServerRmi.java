@@ -17,13 +17,13 @@ public class ServerRmi implements VirtualServer{
 
     private Map<String, HandleClient> MapClientToHandle;
     final Controller MasterController;
-    public ServerRmi(List<HandleClient> ActiveList, Controller MasterController)
-    {
+    public ServerRmi(List<HandleClient> ActiveList, Controller MasterController){
         this.ListClient = ActiveList;
         this.MasterController = MasterController;
     }
+
     @Override
-    public void NewConnection(VirtualClient clientRmi, String nickName) throws RemoteException {
+    public void NewConnection(VirtualClient clientRmi, String nickName) throws RemoteException{
         boolean check = MasterController.NewClient(nickName);
         if(!check) {
             throw new RemoteException("Nickname already present");
@@ -51,7 +51,7 @@ public class ServerRmi implements VirtualServer{
 
     @Override
     public void JoinGame(String nickName, String GameName) throws RemoteException {
-        MasterController.joinGame(nickName, GameName,MapClientToHandle.get(nickName));
+        MasterController.joinGame(nickName, GameName, MapClientToHandle.get(nickName));
     }
 
     @Override

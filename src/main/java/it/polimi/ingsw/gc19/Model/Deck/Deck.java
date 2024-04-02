@@ -72,7 +72,10 @@ public class Deck<cardType extends Card>{
     }
 
     public Optional<cardType> getNextCard(){
-        return Optional.ofNullable(this.cardsInDeck.getFirst());
+        if(!this.cardsInDeck.isEmpty()){
+            return Optional.of(this.cardsInDeck.getFirst());
+        }
+        return Optional.empty();
     }
 
     /**

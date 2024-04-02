@@ -8,10 +8,12 @@ import java.util.HashMap;
 
 public class AcceptedPlaceInitialCard extends AcceptedActionMessage{
 
+    private final String nick;
     private final HashMap<Symbol, Integer> visibleSymbol;
     private final PlayableCard initialCard;
 
-    public AcceptedPlaceInitialCard(PlayableCard initialCard, HashMap<Symbol, Integer> visibleSymbol){
+    public AcceptedPlaceInitialCard(String nick, PlayableCard initialCard, HashMap<Symbol, Integer> visibleSymbol){
+        this.nick = nick;
         this.initialCard = initialCard;
         this.visibleSymbol = visibleSymbol;
     }

@@ -6,15 +6,21 @@ import it.polimi.ingsw.gc19.Model.Tuple;
 
 public class AcceptedPickCardFromTable extends AcceptedPickCardMessage{
 
-    private final Tuple<Integer, Integer> coords;
+    private final int position;
+    private final PlayableCard cardToPutInSlot;
 
-    public AcceptedPickCardFromTable(String nick, PlayableCard pickedCard, Symbol symbol, Tuple<Integer, Integer> coords) {
+    public AcceptedPickCardFromTable(String nick, PlayableCard pickedCard, Symbol symbol, int position, PlayableCard cardToPutInSlot) {
         super(nick, pickedCard, symbol);
-        this.coords = coords;
+        this.cardToPutInSlot = cardToPutInSlot;
+        this.position = position;
     }
 
-    public Tuple<Integer, Integer> getCoords(){
-        return this.coords;
+    public int getCoords(){
+        return this.position;
+    }
+
+    public PlayableCard getCardToPutInSlot() {
+        return this.cardToPutInSlot;
     }
 
 }
