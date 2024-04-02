@@ -8,16 +8,20 @@ import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServerRmi implements VirtualServer{
 
     private List<HandleClient> ListClient;
+    private Map<String, HandleClient> MapClientToHandle;
     final Controller MasterController;
     public ServerRmi(List<HandleClient> ActiveList, Controller MasterController)
     {
         this.ListClient = ActiveList;
         this.MasterController = MasterController;
+        MapClientToHandle = new HashMap<>();
     }
     @Override
     public void NewConnection(VirtualClient clientRmi, String nickName) throws RemoteException {
@@ -26,7 +30,9 @@ public class ServerRmi implements VirtualServer{
             throw new RemoteException("Nickname already present");
         }
         else {
-            ListClient.add(new ClientHandleRmi(clientRmi, nickName));
+            HandleClient newCLient = new ClientHandleRmi(clientRmi, nickName);
+            ListClient.add(newCLient);
+            MapClientToHandle.put(nickName,newCLient);
         }
     }
 
@@ -37,7 +43,7 @@ public class ServerRmi implements VirtualServer{
     @Override
     public void CreateGame(String nickName, String gameName, int numPlayer) throws RemoteException {
         try {
-            //MasterController.createGame(nickName, gameName, numPlayer);
+            MasterController.createGame(nickName, gameName, numPlayer, MapClientToHandle.get(nickName));
         } catch (IOException e) {
             throw new RemoteException("Game name already present");
         }
