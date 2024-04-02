@@ -4,6 +4,8 @@ import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.HandleClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
+import java.rmi.RemoteException;
+
 public class ClientHandleRmi extends HandleClient {
 
     private final VirtualClient virtualClientAssociated;
@@ -13,13 +15,13 @@ public class ClientHandleRmi extends HandleClient {
         super.username = nickName;
     }
     @Override
-    public void SendMessageToClient() {
+    public void SendMessageToClient(){
         if(!super.messageQueue.isEmpty()){
             MessageToClient messageToSend;
             synchronized (super.messageQueue){
                 messageToSend = super.messageQueue.poll();
             }
-            virtualClientAssociated.GetMessage(messageToSend);
+            //virtualClientAssociated.GetMessage(messageToSend);
         }
     }
 }

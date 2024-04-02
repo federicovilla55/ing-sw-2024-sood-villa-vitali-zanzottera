@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerRmi;
 
 import it.polimi.ingsw.gc19.Controller.Controller;
+import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.HandleClient;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
@@ -8,6 +9,7 @@ import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,17 +22,19 @@ public class ServerRmi implements VirtualServer{
     public ServerRmi(List<HandleClient> ActiveList, Controller MasterController){
         this.ListClient = ActiveList;
         this.MasterController = MasterController;
+        MapClientToHandle = new HashMap<>();
     }
 
     @Override
-    public void NewConnection(VirtualClient clientRmi, String nickName) throws RemoteException{
+    public void NewConnection(VirtualClient clientRmi,String nickName) throws RemoteException{
         boolean check = MasterController.NewClient(nickName);
         if(!check) {
+            System.err.println("Name already connected");
             throw new RemoteException("Nickname already present");
         }
         else {
             HandleClient newClient = new ClientHandleRmi(clientRmi, nickName);
-            System.err.println("new client connected");
+            System.err.println("new client connected: "+nickName);
             ListClient.add(newClient);
             MapClientToHandle.put(nickName, newClient);
         }
@@ -38,6 +42,7 @@ public class ServerRmi implements VirtualServer{
 
     @Override
     public void NewUser(String nickname) throws RemoteException {
+        System.err.println("new client connected");
     }
 
     @Override
@@ -55,8 +60,8 @@ public class ServerRmi implements VirtualServer{
     }
 
     @Override
-    public void PlaceCard() throws RemoteException {
-
+    public void PlaceCard(String nickName, String cardToInsert, String anchorCard, Direction directionToInsert) throws RemoteException {
+        MasterController.makeMove(nickName,cardToInsert,anchorCard,directionToInsert);
     }
 
     @Override
@@ -72,7 +77,8 @@ public class ServerRmi implements VirtualServer{
     }
 
     @Override
-    public void SendChatTo(String nickName, ArrayList<String> UsersToSend) throws RemoteException {
+    public void SendChatTo(String nickName, ArrayList<String> UsersToSend, String messageToSend) throws RemoteException {
+        MasterController.SendChatMessage(nickName, UsersToSend, messageToSend);
 
     }
 }

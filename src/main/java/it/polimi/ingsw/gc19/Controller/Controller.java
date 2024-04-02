@@ -21,6 +21,8 @@ public class Controller {
 
     public Controller()
     {
+        Players = new ArrayList<>();
+        GameNameToController = new HashMap<>();
         gameStructure = new CurrentGameStructure();
         this.PlayerLock = new Object();
     }
@@ -67,6 +69,11 @@ public class Controller {
         temp.placeInitialCard(nickName, cardOrientation);
     }
 
+    public void SendChatMessage(String nickName, ArrayList<String> PlayerToSend,String messageToSend){
+        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
+        temp.sendChatMessage(PlayerToSend,nickName,messageToSend);
+    }
+
     /*
     * Check if Player Exists, Check if there is game associated, if
     * Yes, send the state of the Game, if no, send list of nonActive games that it can join.
@@ -74,6 +81,7 @@ public class Controller {
     public void Recconect() {
 
     }
+
 
 
 }

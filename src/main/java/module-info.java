@@ -39,4 +39,5 @@ module it.polimi.ingsw.gc19 {
     opens it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
     exports it.polimi.ingsw.gc19.Networking.Server.Message.NetworkMessage;
     opens it.polimi.ingsw.gc19.Networking.Server.Message.NetworkMessage;
+    exports it.polimi.ingsw.gc19.Networking.Client;
 }

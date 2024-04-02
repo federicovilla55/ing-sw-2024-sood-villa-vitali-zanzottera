@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
 import it.polimi.ingsw.gc19.Controller.Controller;
+import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.HandleClient;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
@@ -33,7 +34,7 @@ public class ClientHandleSocket extends HandleClient implements VirtualServer, R
     }
 
     @Override
-    public void NewConnection(VirtualClient ClientRmi, String nickName) throws RemoteException {
+    public void NewConnection(VirtualClient client, String nickName) throws RemoteException {
 
     }
 
@@ -51,10 +52,12 @@ public class ClientHandleSocket extends HandleClient implements VirtualServer, R
     public void JoinGame(String nickName, String GameName) throws RemoteException {
 
     }
+
     @Override
-    public void PlaceCard() throws RemoteException {
+    public void PlaceCard(String nickName, String cardToInsert, String anchorCard, Direction directionToInsert) throws RemoteException {
 
     }
+
 
     @Override
     public void HeartBeat(String nickName) throws RemoteException {
@@ -66,7 +69,7 @@ public class ClientHandleSocket extends HandleClient implements VirtualServer, R
     }
 
     @Override
-    public void SendChatTo(String nickName, ArrayList<String> UsersToSend) throws RemoteException {
+    public void SendChatTo(String nickName, ArrayList<String> UsersToSend, String messageToSend) throws RemoteException {
 
     }
 }

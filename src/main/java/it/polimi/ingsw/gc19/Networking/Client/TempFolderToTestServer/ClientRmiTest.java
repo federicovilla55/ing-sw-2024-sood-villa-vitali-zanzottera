@@ -16,18 +16,22 @@ public class ClientRmiTest extends UnicastRemoteObject implements VirtualClient 
         this.server = server;
     }
 
-    private void run() throws RemoteException {
-        this.server.NewConnection(this, "Aryan");
+    private void run() {
+            try {
+                this.server.NewConnection(this,"Aryan");
+            } catch (RemoteException e) {
+                System.err.println("Name Already present");
+        }
     }
 
     public static void main(String[] args)  throws RemoteException, NotBoundException {
-        Registry registry = LocateRegistry.getRegistry("127.0.0.1", 12122);
+        Registry registry = LocateRegistry.getRegistry(args[0], 12122);
         VirtualServer server = (VirtualServer) registry.lookup("RMIServer");
 
         new ClientRmiTest(server).run();
     }
     @Override
-    public void GetMessage(MessageToClient message) {
-
+    public void GetMessage(MessageToClient message) throws RemoteException{
+        System.err.println("ciaone");
     }
 }
