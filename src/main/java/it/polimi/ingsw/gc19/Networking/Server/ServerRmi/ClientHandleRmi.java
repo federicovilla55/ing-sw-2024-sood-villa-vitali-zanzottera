@@ -3,7 +3,6 @@ package it.polimi.ingsw.gc19.Networking.Server.ServerRmi;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.HandleClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.ToFix.ClientImpl.ServerImpl.ClientHandle;
 
 public class ClientHandleRmi extends HandleClient {
 
@@ -11,15 +10,15 @@ public class ClientHandleRmi extends HandleClient {
 
     public ClientHandleRmi(VirtualClient virtualClientAssociated, String nickName){
         this.virtualClientAssociated = virtualClientAssociated;
-        super.Username = nickName;
+        super.username = nickName;
     }
     @Override
     public void SendMessageToClient() {
-        if(!super.MessageQueue.isEmpty())
+        if(!super.messageQueue.isEmpty())
         {
             MessageToClient messageToSend;
-            synchronized (super.MessageQueue){
-                messageToSend = super.MessageQueue.poll();
+            synchronized (super.messageQueue){
+                messageToSend = super.messageQueue.poll();
             }
             virtualClientAssociated.GetMessage(messageToSend);
         }

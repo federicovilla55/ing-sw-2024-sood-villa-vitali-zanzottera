@@ -220,19 +220,19 @@ public class GameController{
      * @param cardOrientation UP or DOWN card orientation
      */
     public synchronized void placeCard(String nickname, String cardCode, String anchorCode, Direction direction, CardOrientation cardOrientation) {
-        if(!this.gameAssociated.getActivePlayer().getName().equals(nickname)){
-            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN,
-                                                                                       "You cannot place card because player " + this.gameAssociated.getActivePlayer().getName() + " is playing!"));
-            return;
-        }
-        if(this.gameAssociated.getGameState() != GameState.PLAYING){
+        if(!this.gameAssociated.getGameState().equals(GameState.PLAYING)) {
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
-                                                                                       "You cannot place card when game is in state " + this.gameAssociated.getGameState().toString().toLowerCase() + "!"));
+                    "You cannot place a card when game is in " + this.gameAssociated.getGameState().toString().toLowerCase() + " state!"));
             return;
         }
-        if(this.gameAssociated.getTurnState() != TurnState.PLACE){
+
+        if(!this.gameAssociated.getTurnState().equals(TurnState.PLACE)){
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN_STATE,
-                                                                                       "You cannot place card when your turn state is " + this.gameAssociated.getTurnState().toString().toLowerCase() + "!"));
+                    "You cannot place a card when your turn is in " + this.gameAssociated.getTurnState().toString().toLowerCase() + " state!"));
+            return;
+        }
+
+        if(!this.gameAssociated.getActivePlayer().getName().equals(nickname)){
             return;
         }
 
@@ -273,18 +273,7 @@ public class GameController{
      * @param type type CardType, only RESOURCE and GOLD are admissible types
      */
     public synchronized void drawCardFromDeck(String nickname, PlayableCardType type) {
-        if(this.gameAssociated.getActivePlayer().getName().equals(nickname)){
-            return;
-        }
-        if(this.gameAssociated.getGameState() != GameState.PLAYING) {
-            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
-                                                                                       "You cannot pick a card when game is in " + this.gameAssociated.getGameState().toString().toLowerCase() + " state!"));
-        }
-
-        if(this.gameAssociated.getTurnState() != TurnState.DRAW){
-            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN_STATE,
-                                                                                       "You cannot pick a card when your turn is in " + this.gameAssociated.getTurnState().toString().toLowerCase() + " state!"));
-        }
+        if (checkDrawConditions(nickname)) return;
 
         PlayableCard card = null;
         try {
@@ -307,22 +296,8 @@ public class GameController{
      * @param type type CardType, only RESOURCE and GOLD are admissible types
      * @param position an integer between 0 and 1, representing the position of the chosen card
      */
-    public synchronized void drawCardFromTable(String nickname, PlayableCardType type, int position){
-        if(!this.gameAssociated.getActivePlayer().getName().equals(nickname)){
-            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN,
-                                                                                       "You cannot place card because player " + this.gameAssociated.getActivePlayer().getName() + " is playing!"));
-            return;
-        }
-        if(this.gameAssociated.getTurnState() != TurnState.DRAW){
-            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN_STATE,
-                                                                                       "You cannot place card when your turn state is " + this.gameAssociated.getTurnState().toString().toLowerCase() + "!"));
-            return;
-        }
-        if(this.gameAssociated.getGameState() != GameState.PLAYING){
-            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
-                                                                                       "You cannot place card when game is in state " + this.gameAssociated.getGameState().toString().toLowerCase() + "!"));
-            return;
-        }
+    public synchronized void drawCardFromTable(String nickname, PlayableCardType type, int position) {
+        if (checkDrawConditions(nickname)) return;
 
         PlayableCard card = null;
         try {
@@ -342,6 +317,25 @@ public class GameController{
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
         this.setNextPlayer();
+    }
+
+    private boolean checkDrawConditions(String nickname) {
+        if(!this.gameAssociated.getGameState().equals(GameState.PLAYING)) {
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
+                    "You cannot pick a card when game is in " + this.gameAssociated.getGameState().toString().toLowerCase() + " state!"));
+            return true;
+        }
+
+        if(!this.gameAssociated.getTurnState().equals(TurnState.DRAW)){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN_STATE,
+                    "You cannot pick a card when your turn is in " + this.gameAssociated.getTurnState().toString().toLowerCase() + " state!"));
+            return true;
+        }
+
+        if(!this.gameAssociated.getActivePlayer().getName().equals(nickname)){
+            return true;
+        }
+        return false;
     }
 
     /**

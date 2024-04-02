@@ -36,11 +36,13 @@ public class ServerRmi implements VirtualServer{
 
     @Override
     public void CreateGame(String nickName, String gameName, int numPlayer) throws RemoteException {
-        try {
-            //MasterController.createGame(nickName, gameName, numPlayer);
-        } catch (IOException e) {
+        /*
+            try {
+            MasterController.createGame(nickName, gameName, numPlayer);
+            } catch (IOException e) {
             throw new RemoteException("Game name already present");
-        }
+            }
+            */
     }
 
     @Override
