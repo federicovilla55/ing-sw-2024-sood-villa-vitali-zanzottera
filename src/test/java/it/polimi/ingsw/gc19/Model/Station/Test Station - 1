@@ -2,6 +2,9 @@ placeInitialCard(initial_06, UP)
 getVisibleSymbolsInStation() -> (MUSHROOM : 1, VEGETABLE : 1, INSECT : 1, ANIMAL : 1)
 updateCardsInHand(resource_39)
 placeCard(initial_06, resource_39, UP_RIGHT) -> true
+getCardOverAnchor(initial_06, UP_RIGHT) -> true
+getCardOverAnchor(resource_39, DOWN_LEFT) -> false
+getCardOverAnchor(initial_01, UP_RIGHT) -> InvalidCardException
 getVisibleSymbolsInStation() -> (MUSHROOM : 1, VEGETABLE : 1, INSECT : 2)
 getNumPoints() -> 1
 placeCard(resource_39, resource_01, UP_RIGHT) -> InvalidCardException

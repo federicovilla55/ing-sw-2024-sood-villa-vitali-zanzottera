@@ -267,11 +267,12 @@ public class Game extends Publisher{
     public void startGame(){
         this.setFirstPlayer();
         this.activePlayer = this.getFirstPlayer();
-        this.gameState = GameState.PLAYING;
-        this.turnState = TurnState.PLACE;
-        //WHY this.activePlayer is null?
-        //this.getMessageFactory().sendMessageToAllGamePlayers(new StartPlayingGameMessage(this.activePlayer.getName()));
-        //this.getMessageFactory().sendMessageToAllGamePlayers(new TurnStateMessage(this.activePlayer.getName(), this.turnState));
+        if(this.activePlayer!=null) {
+            this.gameState = GameState.PLAYING;
+            this.turnState = TurnState.PLACE;
+            this.getMessageFactory().sendMessageToAllGamePlayers(new StartPlayingGameMessage(this.activePlayer.getName()));
+            this.getMessageFactory().sendMessageToAllGamePlayers(new TurnStateMessage(this.activePlayer.getName(), this.turnState));
+        }
     }
 
     /**
