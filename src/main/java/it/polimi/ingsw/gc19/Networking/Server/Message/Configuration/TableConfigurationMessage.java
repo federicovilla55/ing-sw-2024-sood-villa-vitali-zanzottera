@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Networking.Server.Message.InitialConfiguration;
+package it.polimi.ingsw.gc19.Networking.Server.Message.Configuration;
 
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
