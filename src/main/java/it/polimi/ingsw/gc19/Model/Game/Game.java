@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
 import it.polimi.ingsw.gc19.Controller.JSONParser;
+import it.polimi.ingsw.gc19.Controller.MessageFactory;
 import it.polimi.ingsw.gc19.Enums.GameState;
 import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Model.Card.Card;
@@ -9,31 +10,31 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Model.Chat.Chat;
 import it.polimi.ingsw.gc19.Model.Deck.Deck;
 import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
+import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Station.Station;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableColorsMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.NewPlayerConnectedToGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.StartPlayingGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OtherStationConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 
 import java.io.IOException;
 import java.lang.reflect.MalformedParametersException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * This class represents a game session.
  * Players, Decks and the Table can be accessed and managed through the class.
  */
-public class Game {
-
-    /**
-     * This attribute is a list of winner players
-     */
-    private final List<Player> winnerPlayers;
-
-    /**
-     * This attribute identifies the available colors from which players can
-     * choose the color of their pawn.
-     */
-    private final List<Color> availableColors;
+public class Game extends Publisher{
 
     private TurnState turnState;
     private GameState gameState;
@@ -108,38 +109,34 @@ public class Game {
 
     private boolean finalCondition;
 
+    private final Random rng;
+
+    private final Chat chat;
+
+    public ArrayList<Player> getPlayers() {
+        return this.players;
+    }
+
     public List<Color> getAvailableColors() {
-        return List.copyOf(availableColors);
+        ArrayList<Color> availableColors = new ArrayList<>(List.of(Color.values()));
+        for(Player p : this.players){
+            availableColors.remove(p.getColor());
+        }
+        return availableColors;
     }
 
-    public void removeAvailableColor(Color color) {
-        this.availableColors.remove(color);
-    }
 
-    public List<Player> getWinnerPlayers() {
-        return List.copyOf(winnerPlayers);
-    }
+    public List<Player> computeFinalScoreboard() {
 
-    public void addWinnerPlayer(Player player) {
-        this.winnerPlayers.add(player);
-    }
+        Comparator<Player> byGoalPoints = Comparator.comparing((Player p) -> p.getStation().getPointsFromGoals()).reversed();
+        Comparator<Player> byStationPoints = Comparator.comparing((Player p) -> p.getStation().getNumPoints()).reversed();
 
-    public void computeWinnerPlayers() {
-
-        Comparator<Player> byGoalPoints = Comparator.comparing(Player::getPointsFromGoals).reversed();
-        Comparator<Player> byStationPoints = Comparator.comparing((Player p) -> p.getPlayerStation().getNumPoints()).reversed();
-
-        List<Player> sortedPlayers = this.players.stream()
+        List<Player> sortedPlayers;
+        sortedPlayers = players.stream()
                 .sorted(byGoalPoints.thenComparing(byStationPoints))
-                .toList();
+                .collect(Collectors.toList());
 
-        Player p = null;
-        do {
-            p = sortedPlayers.removeFirst();
-            this.winnerPlayers.add(p);
-        }while(sortedPlayers.getFirst().getPlayerStation().getNumPoints() == p.getPlayerStation().getNumPoints()
-                && sortedPlayers.getFirst().getPointsFromGoals() == p.getPointsFromGoals());
-
+        return sortedPlayers;
     }
 
     /**
@@ -149,9 +146,20 @@ public class Game {
      * @param numPlayers The number of players in the game.
      * @throws IOException if there's an I/O error while reading card files.
      */
-    public Game(int numPlayers) throws IOException{
-        this.winnerPlayers = new ArrayList<>();
-        this.availableColors = new ArrayList<>(Arrays.asList(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED));
+    public Game(int numPlayers) throws IOException {
+        this(numPlayers, new Random().nextLong());
+    }
+
+
+    /**
+     * This constuctor is called directly for testing, removing randomness by fixing the seed of the rng
+     * @param numPlayers The number of players in the game.
+     * @param randomSeed the random seed used to shuffle card and to select first player
+     * @throws IOException if there's an I/O error while reading card files.
+     */
+    public Game(int numPlayers, long randomSeed) throws IOException{
+        super();
+        this.rng = new Random(randomSeed);
         this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
 
@@ -165,10 +173,12 @@ public class Game {
         this.resourceDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.RESOURCE));
         this.goldDeck = new Deck<>(this.stringPlayableCardHashMap.values().stream().filter(c -> c.getCardType() == PlayableCardType.GOLD));
 
-        this.goalDeck.shuffleDeck();
-        this.initialDeck.shuffleDeck();
-        this.goldDeck.shuffleDeck();
-        this.resourceDeck.shuffleDeck();
+        this.goalDeck.shuffleDeck(this.rng);
+        this.initialDeck.shuffleDeck(this.rng);
+        this.goldDeck.shuffleDeck(this.rng);
+        this.resourceDeck.shuffleDeck(this.rng);
+
+        this.chat = new Chat();
 
         this.finalCondition = false;
         this.finalRound = false;
@@ -179,6 +189,21 @@ public class Game {
 
         this.gameState = GameState.SETUP;
         this.turnState = null;
+    }
+
+    @Override
+    public void setMessageFactory(MessageFactory messageFactory) {
+        super.setMessageFactory(messageFactory);
+        this.chat.setMessageFactory(messageFactory);
+    }
+
+    public boolean hasPlayer(String nick){
+        return this.getPlayers().stream()
+                   .anyMatch(p -> p.getName().equals(nick));
+    }
+
+    public Chat getChat(){
+        return this.chat;
     }
 
     /**
@@ -240,8 +265,12 @@ public class Game {
     public void startGame(){
         this.setFirstPlayer();
         this.activePlayer = this.getFirstPlayer();
-        this.gameState = GameState.PLAYING;
-        this.turnState = TurnState.PLACE;
+        if(this.activePlayer!=null) {
+            this.gameState = GameState.PLAYING;
+            this.turnState = TurnState.PLACE;
+            this.getMessageFactory().sendMessageToAllGamePlayers(new StartPlayingGameMessage(this.activePlayer.getName()));
+            this.getMessageFactory().sendMessageToAllGamePlayers(new TurnStateMessage(this.activePlayer.getName(), this.turnState));
+        }
     }
 
     /**
@@ -257,8 +286,7 @@ public class Game {
     private void setFirstPlayer(){
         if(players.size() == numPlayers){
             // Assign the first player to the one at the random index
-            Random random = new Random();
-            this.firstPlayer = players.get(random.nextInt(players.size()));
+            this.firstPlayer = players.get(this.rng.nextInt(players.size()));
         }
     }
 
@@ -291,14 +319,91 @@ public class Game {
             }
         }
 
-        Player player = null;
-        player = new Player(name, this.initialDeck.pickACard(), this.goalDeck.pickACard(), this.goalDeck.pickACard());
+        Player player = new Player(name, this.initialDeck.pickACard(), this.goalDeck.pickACard(), this.goalDeck.pickACard());
+        player.setMessageFactory(this.getMessageFactory());
 
-        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
-        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
-        player.getPlayerStation().addCardInHand(pickCardFromDeck(PlayableCardType.GOLD));
+        player.getStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
+        player.getStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.RESOURCE));
+        player.getStation().updateCardsInHand(pickCardFromDeck(PlayableCardType.GOLD));
 
         players.add(player);
+
+        //Notify to all player different from the current that another player has joined the game
+        this.getMessageFactory().sendMessageToAllGamePlayersExcept(new NewPlayerConnectedToGameMessage(player.getName()), player.getName());
+        //Give to all other players this player station
+        this.getMessageFactory().sendMessageToAllGamePlayersExcept(new OtherStationConfigurationMessage(
+                player.getName(),
+                player.getColor(),
+                player.getStation().getVisibleSymbolsInStation(),
+                player.getStation().getNumPoints(),
+                player.getStation().getPlacedCardSequence()
+        ), player.getName());
+
+        sendCurrentStateToPlayer(player.getName());
+    }
+
+    public void sendCurrentStateToPlayer(String nickname) {
+        //Send to the player the current state of table
+        sendCurrentTableState(nickname);
+
+        //Send to player its own station
+        sendCurrentOwnStationState(nickname);
+
+        //Send to player others station
+        sendCurrentOthersStationState(nickname);
+
+        //Send to player available colors
+        sendCurrentAvailableColors(nickname);
+
+        //Send to player game and turn state
+        this.getMessageFactory().sendMessageToPlayer(nickname, new GameConfigurationMessage(
+                this.gameState,
+                this.turnState,
+                this.getFirstPlayer() != null ? this.getFirstPlayer().getName() : null,
+                this.getActivePlayer() != null ? this.getActivePlayer().getName() : null,
+                this.finalRound,
+                this.numPlayers
+        ));
+
+    }
+
+    public void sendCurrentAvailableColors(String nickname) {
+        this.getMessageFactory().sendMessageToPlayer(nickname, new AvailableColorsMessage(this.getAvailableColors()));
+    }
+
+    public void sendCurrentOwnStationState(String nickname) {
+        this.getMessageFactory().sendMessageToPlayer(nickname, new OwnStationConfigurationMessage(nickname, getPlayerByName(nickname).getColor(),
+                getPlayerByName(nickname).getStation().getCardsInHand(),
+                getPlayerByName(nickname).getStation().getVisibleSymbolsInStation(),
+                getPlayerByName(nickname).getStation().getPrivateGoalCard(),
+                getPlayerByName(nickname).getStation().getNumPoints(),
+                getPlayerByName(nickname).getStation().getInitialCard(),
+                getPlayerByName(nickname).getStation().getPrivateGoalCardInStation(0),
+                getPlayerByName(nickname).getStation().getPrivateGoalCardInStation(1),
+                getPlayerByName(nickname).getStation().getPlacedCardSequence()));
+    }
+
+    public void sendCurrentOthersStationState(String receiver) {
+
+        for(String nickname : players.stream().map(Player::getName).toList()) {
+            if(!nickname.equals(receiver)) {
+                this.getMessageFactory().sendMessageToPlayer(receiver, new OtherStationConfigurationMessage(
+                        nickname,
+                        getPlayerByName(nickname).getColor(),
+                        getPlayerByName(nickname).getStation().getVisibleSymbolsInStation(),
+                        getPlayerByName(nickname).getStation().getNumPoints(),
+                        getPlayerByName(nickname).getStation().getPlacedCardSequence()
+                        ));
+            }
+        }
+    }
+
+    public void sendCurrentTableState(String nickname) {
+        this.getMessageFactory().sendMessageToPlayer(nickname,
+                                                     new TableConfigurationMessage(this.resourceCardsOnTable[0], this.resourceCardsOnTable[1],
+                                                                                          this.goldCardsOnTable[0], this.goldCardsOnTable[1],
+                                                                                          this.publicGoalCardsOnTable[0], this.publicGoalCardsOnTable[1],
+                                                                                          this.resourceDeck.getNextCard().map(PlayableCard::getSeed).orElse(null), this.goldDeck.getNextCard().map(PlayableCard::getSeed).orElse(null)));
     }
 
     /**
@@ -324,6 +429,16 @@ public class Game {
             }
         }
         throw new PlayerNotFoundException("A player with the given name was not found.");
+    }
+
+    public Deck<PlayableCard> getDeckFromType(PlayableCardType type){
+        Deck<PlayableCard> deck;
+        deck = switch (type) {
+            case RESOURCE -> this.resourceDeck;
+            case GOLD -> this.goldDeck;
+            default -> throw new MalformedParametersException("type must be RESOURCE or GOLD");
+        };
+        return deck;
     }
 
     /**
@@ -378,11 +493,11 @@ public class Game {
     public void updateGoalPoints(){
         for(Player p : players){
             int pointsFromGoals = 0;
-            Station station = p.getPlayerStation();
+            Station station = p.getStation();
             pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[0]);
             pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[1]);
             pointsFromGoals += station.updatePoints(station.getPrivateGoalCard());
-            p.setPointsFromGoals(pointsFromGoals);
+            p.getStation().setPointsFromGoals(pointsFromGoals);
         }
     }
 
@@ -409,8 +524,8 @@ public class Game {
         for(Player player : this.players) {
             if (
                     player.getColor() == null ||
-                    player.getPlayerStation().getPrivateGoalCard() == null ||
-                    !player.getPlayerStation().getInitialCardIsPlaced()
+                    player.getStation().getPrivateGoalCard() == null ||
+                    !player.getStation().getInitialCardIsPlaced()
             ) {
                 flag = false;
                 break;
@@ -462,6 +577,18 @@ public class Game {
 
     public boolean isFinalRound() {
         return finalRound;
+    }
+
+    public GoalCard[] getPublicGoalCardsOnTable() {
+        return Arrays.copyOf(this.publicGoalCardsOnTable,this.publicGoalCardsOnTable.length);
+    }
+
+    public PlayableCard[] getResourceCardsOnTable() {
+        return Arrays.copyOf(this.resourceCardsOnTable,this.resourceCardsOnTable.length);
+    }
+
+    public PlayableCard[] getGoldCardsOnTable() {
+        return Arrays.copyOf(this.goldCardsOnTable,this.goldCardsOnTable.length);
     }
 
 }

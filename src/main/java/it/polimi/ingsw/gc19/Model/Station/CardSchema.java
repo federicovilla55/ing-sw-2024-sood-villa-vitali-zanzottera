@@ -158,7 +158,7 @@ class CardSchema{
         Optional<String>[][] matrixToReturn = new Optional[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
         for(int i = 0; i < ImportantConstants.gridDimension; i++){
             for(int k = 0; k < ImportantConstants.gridDimension; k++){
-                matrixToReturn[i][k] = Optional.ofNullable(this.cardSchema[i][k].getCardCode());
+                matrixToReturn[i][k] = Optional.ofNullable(this.cardSchema[i][k]).map(PlayableCard::getCardCode);
             }
         }
         return matrixToReturn;
@@ -246,5 +246,19 @@ class CardSchema{
 
         return numOfPattern;
 
+    }
+
+    public List<Tuple<PlayableCard, Tuple<Integer, Integer>>> getPlacedCardSequence() {
+        List<Tuple<PlayableCard, Tuple<Integer, Integer>>> res = new ArrayList<>(
+                Arrays.stream(this.cardOverlap).flatMapToInt(Arrays::stream).max().orElse(0)
+        );
+        for(int i = 0; i < ImportantConstants.gridDimension; i++) {
+            for(int j = 0; j < ImportantConstants.gridDimension; j++) {
+                if(cardOverlap[i][j] > 0) {
+                    res.add(cardOverlap[i][j]-1, new Tuple<>(this.cardSchema[i][j], new Tuple<>(i,j)));
+                }
+            }
+        }
+        return res;
     }
 }

@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -96,7 +97,8 @@ class TestBuilder {
         try {
             realOutput = singleStationTest.getStation().placeCard(singleStationTest.getGame().getPlayableCardFromCode(arguments[1]).get(),
                                                                   singleStationTest.getGame().getPlayableCardFromCode(arguments[2]).get(),
-                                                                  Direction.valueOf(arguments[3]));
+                                                                  Direction.valueOf(arguments[3]),
+                                                                  singleStationTest.getGame().getPlayableCardFromCode(arguments[2]).get().getCardOrientation());
             singleStationTest.getRealOutput().put(new Triplet<>(fileName, lineNumber, arguments[0]),
                                                   new Tuple<>(null, realOutput));
         } catch (InvalidCardException | InvalidAnchorException e) {
@@ -128,7 +130,7 @@ class TestBuilder {
             }
         }
         singleStationTest.getRealOutput().put(new Triplet<>(fileName, lineNumber, arguments[0]),
-                                              new Tuple<>(null, singleStationTest.getStation().getVisibleSymbolsInStation().clone()));
+                                              new Tuple<>(null, Map.copyOf(singleStationTest.getStation().getVisibleSymbolsInStation())));
         singleStationTest.getExpectedOutput().put(new Triplet<>(fileName, lineNumber, arguments[0]),
                                               new Tuple<>(null, expectedHashMap));
     }

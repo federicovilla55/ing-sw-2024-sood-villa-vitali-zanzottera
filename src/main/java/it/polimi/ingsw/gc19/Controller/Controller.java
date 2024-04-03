@@ -2,104 +2,96 @@ package it.polimi.ingsw.gc19.Controller;
 
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Game.Game;
-import it.polimi.ingsw.gc19.Model.Game.NameAlreadyInUseException;
-
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 import java.io.IOException;
 import java.util.*;
 
 public class Controller {
-    List<String> activeGames;
-    List<String> nonActiveGames;
-    List<String> Players;
-    List<String> ActivePlayers;
-    List<String> NonActivePlayers;
-    Map<String, GameController> PlayerToGameController;
-    Map<String, GameController> GameNameToController;
-
+    private final CurrentGameStructure gameStructure;
     private final Object PlayerLock;
 
-    public Controller()
-    {
-        Players = new ArrayList<String>();
-        ActivePlayers = new ArrayList<String>();
-        NonActivePlayers = new ArrayList<String>();
-        PlayerToGameController = new HashMap<String, GameController>();
-        activeGames = new ArrayList<String>();
-        nonActiveGames = new ArrayList<String>();
+    public Controller() {
+        gameStructure = new CurrentGameStructure();
         this.PlayerLock = new Object();
     }
 
     private boolean checkAlreadyExist(String gameToCheck){
-        for(String games : activeGames) {
-            if(gameToCheck.equals(games)){return true;}
-        }
-        for(String games : nonActiveGames){
-            if(gameToCheck.equals(games)) {return true; }
-        }
-        return false;
+        return gameStructure.checkGameAlreadyExist(gameToCheck);
     }
 
-    public boolean NewClient(String userName)
-    {
-        synchronized (PlayerLock) {
-            if (Players.contains(userName)) {
-                return false;
-            } else {
-                Players.add(userName);
-                return true;
-            }
-        }
-    }
-    public void SetToNonActive(String nickName)
-    {
-        //ActivePlayers.remove(nickName);
-        //NonActivePlayers.add(nickName);
-        if(PlayerToGameController.containsKey(nickName)) {
-            PlayerToGameController.get(nickName).removeClient(nickName);
-        }
+    public boolean clientNameAlreadyTaken(String userName){
+        return this.gameStructure.userNameAlreadyTaken(userName);
     }
 
-    public void SetToActive(String nickName)
-    {
-        //NonActivePlayers.remove(nickName);
-        //ActivePlayers.add(nickName);
-        if(PlayerToGameController.containsKey(nickName)) {
-            PlayerToGameController.get(nickName).addClient(nickName);
+    public synchronized boolean createClient(String playerNickname, Observer<MessageToClient> client){
+        if(!clientNameAlreadyTaken(playerNickname)){
+            this.gameStructure.registerPlayer(playerNickname, client);
+            this.gameStructure.setActivePlayer(playerNickname);
+            return true;
         }
+        else{
+            return false;
+        }
+
     }
 
-    public void createGame(String PlayerNickname, String gameName, int numPlayer) throws IOException {
+    public synchronized void createGame(String gameName, int numPlayer) throws IllegalArgumentException {
+        Game gameToBuild = null;
+
         if(checkAlreadyExist(gameName)){
             throw new IllegalArgumentException("Name already in use");
         }
-        Game tempName = new Game(numPlayer);
-        GameController temp = new GameController(tempName);
-        nonActiveGames.add(gameName);
-        PlayerToGameController.put(PlayerNickname, temp);
-        GameNameToController.put(gameName, temp);
+
+        try {
+            gameToBuild = new Game(numPlayer);
+            //SendGameToAll(gameName);
+        }
+        catch(IOException exception){
+            System.err.println("Occurred IOException while trying to build game " + gameName);
+            //@TODO: implement the logic to handle this exception
+        }
+
+        GameController temp = new GameController(gameToBuild);
+        gameStructure.insertGame(gameName, gameToBuild);
+        gameStructure.registerGameController(gameName, temp);
     }
 
-    public void joinGame(String player, String gameToJoin, String nickToJoin) {
-        if(activeGames.contains(gameToJoin) || (!nonActiveGames.contains(gameToJoin) && !activeGames.contains(gameToJoin))){
-            throw new IllegalStateException("Cannot join this game anymore");
-        }
+    public void registerToGame(String playerName, String gameName){
+        //@TODO: check if playerName exists
+        this.gameStructure.getGameControllerForGame(gameName).addClient(playerName, this.gameStructure.getObserverOfPlayer(playerName));
+        this.gameStructure.insertGameControllerForPlayer(playerName, this.gameStructure.getGameControllerForGame(gameName));
+    }
+
+    public void joinGame(String player, String gameName, Observer<MessageToClient> Client) {
+        Game gameToJoin = gameStructure.getGameFromName(gameName);
+        GameController gameController = gameStructure.getGameControllerForGame(gameName);
+        gameController.addClient(player, Client);
     }
 
     public void makeMove(String nickName, String cardToInsert, String anchorCard, Direction directionToInsert) {
-        GameController temp = PlayerToGameController.get(nickName);
-        temp.placeCard(nickName, cardToInsert, anchorCard, directionToInsert);
+        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
+        temp.placeCard(nickName, cardToInsert, anchorCard, directionToInsert, CardOrientation.UP);
     }
+
     public void setInitialCard(String nickName, CardOrientation cardOrientation){
-        GameController temp = PlayerToGameController.get(nickName);
+        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
         temp.placeInitialCard(nickName, cardOrientation);
     }
 
     /*
-    * Check if Player Exists, Check if there is game associated, if
-    * Yes, send the state of the Game, if no, send list of nonActive games that it can join.
-    * */
+     * Check if Player Exists, Check if there is game associated, if
+     * Yes, send the state of the Game, if no, send list of nonActive games that it can join.
+     * */
     public void Recconect() {
 
     }
+
+    public void SendChatMessage(String nickName, ArrayList<String> usersToSend, String messageToSend){
+        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
+        temp.sendChatMessage(usersToSend, nickName, messageToSend);
+    }
+
 }

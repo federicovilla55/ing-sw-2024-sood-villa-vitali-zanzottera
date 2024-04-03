@@ -1,10 +1,12 @@
 package it.polimi.ingsw.gc19.Model.Chat;
 
-import it.polimi.ingsw.gc19.Model.Game.Player;
+import it.polimi.ingsw.gc19.Model.Publisher;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Chat{
+public class Chat extends Publisher{
     private final ArrayList<Message> messagesInChat;
 
     public Chat(){
@@ -13,6 +15,8 @@ public class Chat{
 
     public void pushMessage(Message messageToPush){
         this.messagesInChat.addFirst(messageToPush);
+        this.getMessageFactory().sendMessageToPlayer(messageToPush.getReceivers(),
+                                                     new NotifyChatMessage(messageToPush.getSenderPlayer(), messageToPush.getMessage()).setHeader(messageToPush.getReceivers()));
     }
 
     @Override

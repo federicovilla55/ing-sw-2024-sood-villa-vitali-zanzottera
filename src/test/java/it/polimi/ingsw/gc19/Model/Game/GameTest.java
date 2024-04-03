@@ -1,5 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
+import it.polimi.ingsw.gc19.Controller.GameController;
+import it.polimi.ingsw.gc19.Controller.MessageFactory;
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
@@ -18,10 +20,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GameTest {
     private Game game;
+    private GameController gameController;
 
     @BeforeEach
     public void setUp() throws IOException {
         game = new Game(4);
+        game.setMessageFactory(new MessageFactory());
     }
 
     /**

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
+import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
@@ -7,18 +8,26 @@ import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Game.Player;
+import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedChooseGoalCard;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPlaceCardMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPlaceInitialCard;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 
-public class Station{
+public class Station extends Publisher{
 
-    private final ArrayList<PlayableCard> cardsInStation;
-    private final HashMap<Symbol, Integer> visibleSymbolsInStation;
+    private final Player ownerPlayer;
+
+    private final ArrayList<PlayableCard> cardsInHand;
+    private final Map<Symbol, Integer> visibleSymbolsInStation;
     private Integer privateGoalCardIdx;
     private int numPoints;
+    private int pointsFromGoals;
 
     private boolean initialCardIsPlaced;
     private final CardSchema cardSchema;
@@ -29,7 +38,9 @@ public class Station{
     /**
      * This constructor creates a Station and its own card schema
      */
-    public Station(PlayableCard initialCard, GoalCard privateGoalCard1, GoalCard privateGoalCard2){
+    public Station(Player ownerPlayer, PlayableCard initialCard, GoalCard privateGoalCard1, GoalCard privateGoalCard2){
+        super();
+        this.ownerPlayer = ownerPlayer;
         this.numPoints = 0;
         this.initialCardIsPlaced = false;
         this.privateGoalCardIdx = null;
@@ -41,7 +52,7 @@ public class Station{
             this.visibleSymbolsInStation.put(s, 0);
         }
 
-        this.cardsInStation = new ArrayList<>();
+        this.cardsInHand = new ArrayList<>();
 
         this.cardSchema = new CardSchema();
 
@@ -51,7 +62,7 @@ public class Station{
      * This method returns the number of visible symbols in this station
      * @return the hashmap of visible symbol - integer
      */
-    public HashMap<Symbol, Integer> getVisibleSymbolsInStation(){
+    public Map<Symbol, Integer> getVisibleSymbolsInStation(){
         return this.visibleSymbolsInStation;
     }
 
@@ -59,7 +70,7 @@ public class Station{
      * This method updates PlayableCard inside this station
      */
     public void updateCardsInHand(PlayableCard toInsert){
-        this.cardsInStation.add(toInsert);
+        this.cardsInHand.add(toInsert);
     }
 
     /**
@@ -75,22 +86,16 @@ public class Station{
      * @return station's private GoalCard
      */
     public GoalCard getPrivateGoalCard(){
+        if (privateGoalCardIdx==null) return null;
         return this.privateGoalCardsInStation[privateGoalCardIdx];
-    }
-
-    /**
-     * This method returns visible cards in this station
-     * @return the ArrayList of visible cards in station
-     */
-    public ArrayList<PlayableCard> getCardsInStation(){
-        return this.cardsInStation;
     }
 
     /**
      * This method sets private GoalCard of the station
      */
-    public void setPrivateGoalCard(int cardIdx){
+    public void setPrivateGoalCard(int cardIdx) {
         this.privateGoalCardIdx = cardIdx;
+        this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(), new AcceptedChooseGoalCard(this.getPrivateGoalCard().getCardCode()));
     }
 
     /**
@@ -113,6 +118,10 @@ public class Station{
             initialCard.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
             this.cardSchema.placeInitialCard(initialCard);
             this.initialCardIsPlaced  = true;
+            //Message
+            this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlaceInitialCard(this.ownerPlayer.getName(),
+                                                                                              initialCard, Map.copyOf(this.visibleSymbolsInStation))); //Chiedere se è necessario mettere clone()
+            //Message
         }
     }
 
@@ -133,6 +142,15 @@ public class Station{
         if(!this.getCardsInHand().contains(toPlace)){
             throw new InvalidCardException();
         }
+        if(!toPlace.enoughResourceToBePlaced(this.visibleSymbolsInStation)){
+            this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(),
+                                                         new RefusedActionMessage(ErrorType.GENERIC, "Attention, you haven't enough resources to place card " + toPlace.getCardCode()));
+        }
+        if(this.cardSchema.isPlaceable(anchor, direction)){
+            this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(),
+                                                         new RefusedActionMessage(ErrorType.GENERIC,
+                                                                                  "Attention, " + toPlace.getCardCode() + " cannot be placed over anchor " + anchor.getCardCode() + " in direction " + direction));
+        }
         return this.cardSchema.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this.visibleSymbolsInStation);
     }
 
@@ -142,36 +160,42 @@ public class Station{
      * @throws InvalidCardException if station doesn't have the card to place.
      * @throws InvalidAnchorException if the anchor isn't in card schema.
      */
-    public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction) throws InvalidCardException, InvalidAnchorException{
+    public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction, CardOrientation cardOrientation) throws InvalidCardException, InvalidAnchorException{
+        toPlace.setCardState(cardOrientation);
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
-            this.cardsInStation.remove(toPlace);
+            this.cardsInHand.remove(toPlace);
             this.cardSchema.placeCard(anchor, toPlace, direction);
             this.getCardsInHand().remove(toPlace);
-            toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
-            for(Direction d : Direction.values()){
-                try{
-                    this.cardSchema.getCardWithAnchor(toPlace, d)
-                                   .flatMap(x -> x.getCorner(d.getOtherCornerPosition()).getSymbol())
-                                   .ifPresent(s -> this.visibleSymbolsInStation.compute(s, (k, v) -> v - 1));
-                }
-                catch(Exception ignored){};
-            }
+            setVisibleSymbols(toPlace);
             updatePoints(toPlace);
+            //Message
+            this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlaceCardMessage(this.ownerPlayer.getName(),
+                                                                                              anchor.getCardCode(), toPlace, direction,
+                                                                                              Map.copyOf(this.visibleSymbolsInStation), this.numPoints));
+            //Message
             return true;
         }
         return false;
+    }
+
+    private void setVisibleSymbols(PlayableCard toPlace) {
+        toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
+        for(Direction d : Direction.values()){
+            try{
+                this.cardSchema.getCardWithAnchor(toPlace, d)
+                               .flatMap(x -> x.getCorner(d.getOtherCornerPosition()).getSymbol())
+                               .ifPresent(s -> this.visibleSymbolsInStation.compute(s, (k, v) -> v - 1));
+            }
+            catch(Exception ignored){};
+        }
     }
 
     /**
      * This method returns visible cards in station
      * @return visible cards in station
      */
-    ArrayList<PlayableCard> getCardsInHand(){
-        return this.cardsInStation;
-    }
-
-    public void addCardInHand(PlayableCard card) {
-        this.getCardsInHand().add(card);
+    public ArrayList<PlayableCard> getCardsInHand(){
+        return this.cardsInHand;
     }
 
     /**
@@ -261,4 +285,19 @@ public class Station{
         return initialCardIsPlaced;
     }
 
+    public PlayableCard getInitialCard() {
+        return initialCard;
+    }
+
+    public int getPointsFromGoals() {
+        return pointsFromGoals;
+    }
+
+    public void setPointsFromGoals(int pointsFromGoals) {
+        this.pointsFromGoals = pointsFromGoals;
+    }
+
+    public List<Tuple<PlayableCard, Tuple<Integer, Integer>>> getPlacedCardSequence() {
+        return this.cardSchema.getPlacedCardSequence();
+    }
 }
