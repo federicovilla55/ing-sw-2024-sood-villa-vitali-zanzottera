@@ -19,7 +19,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.Di
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.EndGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.GamePausedMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.GameResumedMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.NotifyWinnerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;

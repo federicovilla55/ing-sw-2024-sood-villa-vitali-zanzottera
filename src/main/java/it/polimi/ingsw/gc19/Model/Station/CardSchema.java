@@ -247,4 +247,18 @@ class CardSchema{
         return numOfPattern;
 
     }
+
+    public List<Tuple<PlayableCard, Tuple<Integer, Integer>>> getPlacedCardSequence() {
+        List<Tuple<PlayableCard, Tuple<Integer, Integer>>> res = new ArrayList<>(
+                Arrays.stream(this.cardOverlap).flatMapToInt(Arrays::stream).max().orElse(0)
+        );
+        for(int i = 0; i < ImportantConstants.gridDimension; i++) {
+            for(int j = 0; j < ImportantConstants.gridDimension; j++) {
+                if(cardOverlap[i][j] > 0) {
+                    res.add(cardOverlap[i][j]-1, new Tuple<>(this.cardSchema[i][j], new Tuple<>(i,j)));
+                }
+            }
+        }
+        return res;
+    }
 }

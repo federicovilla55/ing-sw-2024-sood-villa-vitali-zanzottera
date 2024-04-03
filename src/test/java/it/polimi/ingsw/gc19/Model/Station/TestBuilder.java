@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -129,7 +130,7 @@ class TestBuilder {
             }
         }
         singleStationTest.getRealOutput().put(new Triplet<>(fileName, lineNumber, arguments[0]),
-                                              new Tuple<>(null, new HashMap<>(this.singleStationTest.getStation().getVisibleSymbolsInStation())));
+                                              new Tuple<>(null, Map.copyOf(singleStationTest.getStation().getVisibleSymbolsInStation())));
         singleStationTest.getExpectedOutput().put(new Triplet<>(fileName, lineNumber, arguments[0]),
                                               new Tuple<>(null, expectedHashMap));
     }

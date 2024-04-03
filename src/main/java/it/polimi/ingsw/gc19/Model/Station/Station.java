@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
+import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
@@ -22,7 +23,7 @@ public class Station extends Publisher{
 
     private final Player ownerPlayer;
 
-    private final ArrayList<PlayableCard> cardsInStation;
+    private final ArrayList<PlayableCard> cardsInHand;
     private final Map<Symbol, Integer> visibleSymbolsInStation;
     private Integer privateGoalCardIdx;
     private int numPoints;
@@ -51,7 +52,7 @@ public class Station extends Publisher{
             this.visibleSymbolsInStation.put(s, 0);
         }
 
-        this.cardsInStation = new ArrayList<>();
+        this.cardsInHand = new ArrayList<>();
 
         this.cardSchema = new CardSchema();
 
@@ -69,7 +70,7 @@ public class Station extends Publisher{
      * This method updates PlayableCard inside this station
      */
     public void updateCardsInHand(PlayableCard toInsert){
-        this.cardsInStation.add(toInsert);
+        this.cardsInHand.add(toInsert);
     }
 
     /**
@@ -87,14 +88,6 @@ public class Station extends Publisher{
     public GoalCard getPrivateGoalCard(){
         if (privateGoalCardIdx==null) return null;
         return this.privateGoalCardsInStation[privateGoalCardIdx];
-    }
-
-    /**
-     * This method returns visible cards in this station
-     * @return the ArrayList of visible cards in station
-     */
-    public List<PlayableCard> getCardsInStation(){
-        return List.copyOf(this.cardsInStation);
     }
 
     /**
@@ -170,7 +163,7 @@ public class Station extends Publisher{
     public boolean placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction, CardOrientation cardOrientation) throws InvalidCardException, InvalidAnchorException{
         toPlace.setCardState(cardOrientation);
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
-            this.cardsInStation.remove(toPlace);
+            this.cardsInHand.remove(toPlace);
             this.cardSchema.placeCard(anchor, toPlace, direction);
             this.getCardsInHand().remove(toPlace);
             setVisibleSymbols(toPlace);
@@ -201,8 +194,8 @@ public class Station extends Publisher{
      * This method returns visible cards in station
      * @return visible cards in station
      */
-    ArrayList<PlayableCard> getCardsInHand(){
-        return this.cardsInStation;
+    public ArrayList<PlayableCard> getCardsInHand(){
+        return this.cardsInHand;
     }
 
     /**
@@ -304,4 +297,7 @@ public class Station extends Publisher{
         this.pointsFromGoals = pointsFromGoals;
     }
 
+    public List<Tuple<PlayableCard, Tuple<Integer, Integer>>> getPlacedCardSequence() {
+        return this.cardSchema.getPlacedCardSequence();
+    }
 }
