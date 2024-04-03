@@ -18,7 +18,7 @@ public class ClientRmiTest extends UnicastRemoteObject implements VirtualClient 
 
     private void run() {
         try {
-            this.server.NewConnection(this,"Aryan");
+            this.server.newConnection(this, "Aryan");
         } catch (RemoteException e) {
             System.err.println("Name Already present");
         }
@@ -30,6 +30,7 @@ public class ClientRmiTest extends UnicastRemoteObject implements VirtualClient 
 
         new ClientRmiTest(server).run();
     }
+
     @Override
     public void GetMessage(MessageToClient message) throws RemoteException{
 

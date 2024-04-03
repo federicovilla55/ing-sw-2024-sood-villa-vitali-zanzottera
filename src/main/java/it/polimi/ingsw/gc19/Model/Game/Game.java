@@ -363,7 +363,7 @@ public class Game extends Publisher{
     public void sendCurrentOthersStationState(String receiver) {
 
         for(String nickname : players.stream().map(Player::getName).toList()) {
-            if(nickname != receiver) {
+            if(!Objects.equals(nickname, receiver)) {
                 this.getMessageFactory().sendMessageToPlayer(receiver, new OtherStationConfigurationMessage(nickname,
                         getPlayerByName(nickname).getStation().getVisibleSymbolsInStation(), getPlayerByName(nickname).getStation().getNumPoints(),
                         getPlayerByName(nickname).getStation().getInitialCard(),

@@ -2,7 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server;
 
 
 import it.polimi.ingsw.gc19.Controller.Controller;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRmi.ServerRmi;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRmi.ServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.ServerTcp;
 
 import java.io.IOException;
@@ -15,15 +15,16 @@ import static java.lang.Math.abs;
 
 public class ServerApp {
 
-    public static List<HandleClient> ActiveClient;
+    public static List<ClientHandler> ActiveClient;
     public static Controller MasterController;
 
     public static long MAXTIME = 10000;
     public static void main(String[] args) throws IOException {
-        List<HandleClient> ListClient = new ArrayList<HandleClient>();;
-        List<HandleClient> ListNonActiveClient = new ArrayList<HandleClient>();
-        Controller MasterController = new Controller();
-        VirtualServer MainRmi = new ServerRmi(ListClient,MasterController);
+        List<ClientHandler> ListClient = new ArrayList<ClientHandler>();;
+        List<ClientHandler> ListNonActiveClient = new ArrayList<ClientHandler>();
+        Controller MasterController = Controller.getController();
+        ServerRMI MainRmi = new ServerRMI();
+        MainRmi.setController(MasterController);
         VirtualServer stub = (VirtualServer) UnicastRemoteObject.exportObject(MainRmi, 0);
         Registry registry = LocateRegistry.createRegistry(12122);
         registry.rebind("RMIServer", stub);
@@ -32,7 +33,7 @@ public class ServerApp {
 
     public void checkActiveClient()
     {
-        for(HandleClient client : ActiveClient){
+        for(ClientHandler client : ActiveClient){
             if(client.getName() != null && abs(client.getGetLastTimeStep()-System.currentTimeMillis()) > MAXTIME) {
                 //MasterController.SetToNonActive(client.getName());
                 //NonActiveClient.add(client);

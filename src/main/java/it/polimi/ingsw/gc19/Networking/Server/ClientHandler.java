@@ -1,28 +1,25 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
-import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
-import java.rmi.RemoteException;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class HandleClient implements Observer<MessageToClient>{
+public class ClientHandler implements Observer<MessageToClient>{
     protected String username;
     protected long getLastTimeStep;
     protected final Queue<MessageToClient> messageQueue;
     private final Object getLastTimeStepLock;
 
-    public HandleClient() {
+    public ClientHandler() {
         this.getLastTimeStepLock = new Object();
         this.messageQueue = new ArrayDeque<>();
         new Thread(){
             @Override
             public void run() {
                 while(true){
-                    HandleClient.this.sendMessage();
+                    ClientHandler.this.sendMessage();
                 }
             }
         }.start();

@@ -1,6 +1,5 @@
 package it.polimi.ingsw.gc19.Networking.Client;
 
-import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
@@ -25,11 +24,10 @@ public class ClientTest{
         it.polimi.ingsw.gc19.Networking.Client.Client client1 = new it.polimi.ingsw.gc19.Networking.Client.Client(virtualServer);
         it.polimi.ingsw.gc19.Networking.Client.Client client2 = new it.polimi.ingsw.gc19.Networking.Client.Client(virtualServer);
         client1.connect("Matteo");
-        client1.newUser("Matteo");
         client2.connect("Mario");
-        client2.newUser("Mario");
         client1.newGame("Matteo", "Game");
         client2.joinGame("Mario", "Game");
+        //client2.joinGame("Mario", "Game1");
         client1.sendChatMessage("Matteo", new ArrayList<>(List.of("Mario", "Matteo")), "Ciao!!!");
 
     }
@@ -45,6 +43,10 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
         this.virtualServer = virtualServer;
     }
 
+    public String getName() {
+        return null;
+    }
+
     @Override
     public void GetMessage(MessageToClient message) {
         System.out.println("FOUND SOMETHING!!!!!!");
@@ -54,23 +56,18 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
     }
 
     public void connect(String name) throws RemoteException {
-        this.virtualServer.NewConnection(this, name);
-    }
-
-    public void newUser(String name) throws RemoteException {
-        System.out.println("-----------------------");
-        this.virtualServer.NewUser(name);
+        this.virtualServer.newConnection(this, name);
     }
 
     public void newGame(String nick, String gameName) throws RemoteException{
-        this.virtualServer.CreateGame(nick, gameName, 2);
+        this.virtualServer.createGame(this, gameName, 2);
     }
 
     public void joinGame(String nick, String game) throws RemoteException {
-        this.virtualServer.JoinGame(nick, game);
+        this.virtualServer.joinGame(this, game);
     }
 
     public void sendChatMessage(String nick, ArrayList<String> receivers, String message) throws RemoteException {
-        this.virtualServer.SendChatTo(nick, receivers, message);
+        this.virtualServer.sendChatMessage(this, receivers, message);
     }
 }

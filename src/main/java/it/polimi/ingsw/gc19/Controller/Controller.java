@@ -2,82 +2,95 @@ package it.polimi.ingsw.gc19.Controller;
 
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Enums.State;
 import it.polimi.ingsw.gc19.Model.Game.Game;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.ObserverPattern.Observer;
+import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
+
 import java.io.IOException;
 import java.util.*;
 
-public class Controller {
-    private final CurrentGameStructure gameStructure;
+public class Controller{
+
+    private static Controller controller = null;
+
+    private final HashMap<String, Tuple<State, GameController>> playerInfo;
+    private final HashMap<String, Tuple<Game, GameController>> gamesInfo;
+
     private final Object PlayerLock;
 
-    public Controller() {
-        gameStructure = new CurrentGameStructure();
+    public static Controller getController(){
+        if(controller == null){
+            controller = new Controller();
+            return controller;
+        }
+        return controller;
+    }
+
+    private Controller(){
+        this.gamesInfo = new HashMap<>();
+        this.playerInfo = new HashMap<>();
         this.PlayerLock = new Object();
     }
 
+
     private boolean checkAlreadyExist(String gameToCheck){
-        return gameStructure.checkGameAlreadyExist(gameToCheck);
+        return this.gamesInfo.containsKey(gameToCheck);
     }
 
     public boolean clientNameAlreadyTaken(String userName){
-        return this.gameStructure.userNameAlreadyTaken(userName);
+        return this.playerInfo.containsKey(userName);
     }
 
-    public synchronized boolean createClient(String playerNickname, Observer<MessageToClient> client){
-        if(!clientNameAlreadyTaken(playerNickname)){
-            this.gameStructure.registerPlayer(playerNickname, client);
-            this.gameStructure.setActivePlayer(playerNickname);
+    public synchronized boolean createClient(String playerNickname, ClientHandler client){
+        if(!this.playerInfo.containsKey(playerNickname)){
+            this.playerInfo.put(playerNickname, new Tuple<>(State.ACTIVE,null));
             return true;
         }
-        else{
-            return false;
-        }
-
+        return false;
     }
 
     public synchronized void createGame(String gameName, int numPlayer) throws IllegalArgumentException {
         Game gameToBuild = null;
+        if (!this.gamesInfo.containsKey(gameName)) {
+            try {
+                gameToBuild = new Game(numPlayer);
+            } catch (IOException exception) {
+                //@TODO: handle this exception
+            }
+            GameController gameController = new GameController(gameToBuild);
+            this.gamesInfo.put(gameName, new Tuple<>(gameToBuild, gameController));
 
-        if(checkAlreadyExist(gameName)){
-            throw new IllegalArgumentException("Name already in use");
         }
-
-        try {
-            gameToBuild = new Game(numPlayer);
-            //SendGameToAll(gameName);
-        }
-        catch(IOException exception){
-            System.err.println("Occurred IOException while trying to build game " + gameName);
-            //@TODO: implement the logic to handle this exception
-        }
-
-        GameController temp = new GameController(gameToBuild);
-        gameStructure.insertGame(gameName, gameToBuild);
-        gameStructure.registerGameController(gameName, temp);
     }
 
-    public void registerToGame(String playerName, String gameName){
-        //@TODO: check if playerName exists
-        this.gameStructure.getGameControllerForGame(gameName).addClient(playerName, this.gameStructure.getObserverOfPlayer(playerName));
-        this.gameStructure.insertGameControllerForPlayer(playerName, this.gameStructure.getGameControllerForGame(gameName));
-    }
+    public void registerToGame(ClientHandler player, String gameName){
+        //Possible exceptions: player not found, game not found, game already full, player already registered to other games...?
+        if(!this.playerInfo.containsKey(player.getName())){
+            throw new IllegalArgumentException();
+        }
+        if(!this.gamesInfo.containsKey(gameName)){
+            throw new IllegalArgumentException();
+        }
+        if(this.gamesInfo.get(gameName).x().getNumPlayers() == this.gamesInfo.get(gameName).x().getNumJoinedPlayer()){
+            throw new IllegalArgumentException();
+        }
+        if(this.playerInfo.get(player.getName()).y() != null){
+            throw new IllegalArgumentException();
+        }
 
-    public void joinGame(String player, String gameName, Observer<MessageToClient> Client) {
-        Game gameToJoin = gameStructure.getGameFromName(gameName);
-        GameController gameController = gameStructure.getGameControllerForGame(gameName);
-        gameController.addClient(player, Client);
+        GameController gameControllerToJoin = this.gamesInfo.get(gameName).y();
+        this.playerInfo.put(player.getName(), new Tuple<>(State.ACTIVE, gameControllerToJoin));
+        gameControllerToJoin.addClient(player.getName(), player);
     }
 
     public void makeMove(String nickName, String cardToInsert, String anchorCard, Direction directionToInsert) {
-        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
+        GameController temp = this.playerInfo.get(nickName).y();
         temp.placeCard(nickName, cardToInsert, anchorCard, directionToInsert, CardOrientation.UP);
     }
 
     public void setInitialCard(String nickName, CardOrientation cardOrientation){
-        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
+        GameController temp = this.playerInfo.get(nickName).y();
         temp.placeInitialCard(nickName, cardOrientation);
     }
 
@@ -89,8 +102,8 @@ public class Controller {
 
     }
 
-    public void SendChatMessage(String nickName, ArrayList<String> usersToSend, String messageToSend){
-        GameController temp = gameStructure.getGameControllerFromPlayer(nickName);
+    public void sendChatMessage(String nickName, ArrayList<String> usersToSend, String messageToSend){
+        GameController temp = this.playerInfo.get(nickName).y();
         temp.sendChatMessage(usersToSend, nickName, messageToSend);
     }
 

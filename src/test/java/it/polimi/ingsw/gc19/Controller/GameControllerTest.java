@@ -5,7 +5,7 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
-import it.polimi.ingsw.gc19.Networking.Server.HandleClient;
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameControllerTest {
 
     private GameController gameController;
-    private HandleClient clientSkeleton;
+    private ClientHandler clientSkeleton;
 
     @BeforeEach
     public void setUp() {
@@ -33,7 +33,7 @@ public class GameControllerTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        clientSkeleton = new HandleClient();
+        clientSkeleton = new ClientHandler();
     }
 
     @Test

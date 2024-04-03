@@ -129,7 +129,7 @@ class TestBuilder {
             }
         }
         singleStationTest.getRealOutput().put(new Triplet<>(fileName, lineNumber, arguments[0]),
-                                              new Tuple<>(null, singleStationTest.getStation().getVisibleSymbolsInStation().clone()));
+                                              new Tuple<>(null, new HashMap<>(this.singleStationTest.getStation().getVisibleSymbolsInStation())));
         singleStationTest.getExpectedOutput().put(new Triplet<>(fileName, lineNumber, arguments[0]),
                                               new Tuple<>(null, expectedHashMap));
     }

@@ -3,19 +3,17 @@ package it.polimi.ingsw.gc19.Controller;
 import it.polimi.ingsw.gc19.Enums.State;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Tuple;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.ObserverPattern.Observer;
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CurrentGameStructure{
 
     private final HashMap<String, Game> games;
-    private final HashMap<String, Tuple<State, Observer<MessageToClient>>> playerState;
+    private final HashMap<String, Tuple<State, ClientHandler>> playerState;
     private final HashMap<String, GameController> playerToGameController;
     private final HashMap<String, GameController> gamesNamesToGameController;
 
@@ -56,11 +54,11 @@ public class CurrentGameStructure{
         this.playerToGameController.put(player, gameController);
     }
 
-    public void registerPlayer(String nick, Observer<MessageToClient> observer){
-        this.playerState.put(nick, new Tuple<>(State.ACTIVE, observer));
+    public void registerPlayer(String nick, ClientHandler client){
+        this.playerState.put(nick, new Tuple<>(State.ACTIVE, client));
     }
 
-    public Observer<MessageToClient> getObserverOfPlayer(String nick){
+    public ClientHandler getObserverOfPlayer(String nick){
         return this.playerState.get(nick).y();
     }
 

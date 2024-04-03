@@ -1,7 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
 import it.polimi.ingsw.gc19.Controller.Controller;
-import it.polimi.ingsw.gc19.Networking.Server.HandleClient;
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -10,12 +10,12 @@ import java.util.List;
 
 public class ServerTcp implements Runnable {
 
-    private  List<HandleClient> ActiveList;
+    private  List<ClientHandler> ActiveList;
     final Controller MasterController;
 
     private ServerSocket serverSocket;
 
-    public ServerTcp(List<HandleClient> ActiveList, Controller MasterController) throws IOException
+    public ServerTcp(List<ClientHandler> ActiveList, Controller MasterController) throws IOException
     {
         this.ActiveList = ActiveList;
         this.MasterController = MasterController;
