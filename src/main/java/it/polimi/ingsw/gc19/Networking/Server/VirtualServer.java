@@ -13,11 +13,11 @@ public interface VirtualServer extends Remote {
     public void newConnection(VirtualClient clientRmi, String nickName) throws RemoteException;
     public void createGame(VirtualClient clientRMI, String gameName, int numPlayer) throws RemoteException;
     public void joinGame(VirtualClient clientRMI, String GameName) throws RemoteException;
-    public void PlaceCard(String nickName,String cardToInsert, String anchorCard, Direction directionToInsert) throws RemoteException;
-    public void HeartBeat(String nickName) throws RemoteException;
-    public void Reconnect() throws RemoteException;
+    public void placeCard(VirtualClient clientRMI, String cardToInsert, String anchorCard, Direction directionToInsert) throws RemoteException;
+    public void heartBeat(VirtualClient clientRMI) throws RemoteException;
+    public void reconnect(VirtualClient clientRMI, String gameName, String nickName) throws RemoteException;
     public void sendChatMessage(VirtualClient clientRMI, ArrayList<String> UsersToSend, String messageToSend) throws RemoteException;
-    public void SetInitialCard(String nickName, CardOrientation cardOrientation)throws RemoteException;
-    public void DrawFromTable(String nickname, PlayableCardType type, int position) throws RemoteException;
-    public void DrawFromDeck(String nickname, PlayableCardType type) throws RemoteException;
+    public void placeInitialCard(VirtualClient clientRMI, CardOrientation cardOrientation) throws RemoteException;
+    public void pickCardFromTable(VirtualClient clientRMI, PlayableCardType type, int position) throws RemoteException;
+    public void pickCardFromDeck(VirtualClient clientRMI, PlayableCardType type) throws RemoteException;
 }

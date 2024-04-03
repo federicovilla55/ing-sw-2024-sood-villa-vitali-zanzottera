@@ -11,8 +11,8 @@ public class ClientHandlerRMI extends ClientHandler {
     private final VirtualClient virtualClientAssociated;
 
     public ClientHandlerRMI(VirtualClient virtualClientAssociated, String nickName){
+        super(nickName);
         this.virtualClientAssociated = virtualClientAssociated;
-        super.username = nickName;
     }
 
     @Override

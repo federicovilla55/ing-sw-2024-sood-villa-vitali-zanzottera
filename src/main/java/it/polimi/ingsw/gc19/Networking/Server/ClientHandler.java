@@ -6,13 +6,15 @@ import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class ClientHandler implements Observer<MessageToClient>{
-    protected String username;
+public abstract class ClientHandler implements Observer<MessageToClient>{
+
+    protected final String username;
     protected long getLastTimeStep;
     protected final Queue<MessageToClient> messageQueue;
     private final Object getLastTimeStepLock;
 
-    public ClientHandler() {
+    public ClientHandler(String username){
+        this.username = username;
         this.getLastTimeStepLock = new Object();
         this.messageQueue = new ArrayDeque<>();
         new Thread(){

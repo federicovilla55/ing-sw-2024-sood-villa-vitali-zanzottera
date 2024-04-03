@@ -5,12 +5,16 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
+import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRmi.ClientHandlerRMI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.MalformedParametersException;
+import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -33,7 +37,12 @@ public class GameControllerTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        clientSkeleton = new ClientHandler();
+        clientSkeleton = new ClientHandlerRMI(new VirtualClient() {
+            @Override
+            public void GetMessage(MessageToClient message) throws RemoteException {
+
+            }
+        }, "Client");
     }
 
     @Test

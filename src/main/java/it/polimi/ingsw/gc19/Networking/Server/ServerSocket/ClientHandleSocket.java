@@ -4,16 +4,22 @@ import it.polimi.ingsw.gc19.Controller.Controller;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ClientHandleSocket extends ClientHandler implements Runnable{
-    private final Socket clientSocket;
+    /*private final Socket clientSocket;
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
-    private Controller MasterController;
-    public ClientHandleSocket(Socket clientSocket, Controller MasterController) throws IOException
+    private Controller MasterController;*/
+
+    public ClientHandleSocket(Socket clientSocket, Controller masterController) {
+        super("User");
+        //this.in = new ObjectInputStream(System.in);
+    }
+    /*public ClientHandleSocket(Socket clientSocket, Controller MasterController) throws IOException
     {
         this.clientSocket = clientSocket;
         //this.nickName = null;
@@ -21,7 +27,7 @@ public class ClientHandleSocket extends ClientHandler implements Runnable{
         in = new  ObjectInputStream(clientSocket.getInputStream());
         //this.getLastTimeStep = System.currentTimeMillis();
         this.MasterController = MasterController;
-    }
+    }*/
 
     public void run() {
 
