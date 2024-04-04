@@ -165,7 +165,7 @@ public class Station extends Publisher{
         if(this.cardIsPlaceable(anchor, toPlace, direction)){
             this.cardsInHand.remove(toPlace);
             this.cardSchema.placeCard(anchor, toPlace, direction);
-            this.getCardsInHand().remove(toPlace);
+            this.cardsInHand.remove(toPlace);
             setVisibleSymbols(toPlace);
             updatePoints(toPlace);
             //Message

@@ -29,17 +29,3 @@ public abstract class MessageToClient implements Remote, Serializable{
     }
 
 }
-
-/**
- *     protected MessageToClient(ArrayList<String> header){
- *         this.header = header;
- *     }
- *
- *     public MessageToClient(String header){
- *         this.header = new ArrayList<>(List.of(header));
- *     }
- *
- *     protected MessageToClient(){
- *
- *     }
- */

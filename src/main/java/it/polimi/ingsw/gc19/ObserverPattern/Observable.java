@@ -6,7 +6,7 @@ public interface Observable<T extends MessageToClient>{
 
     void attachObserver(String nick, Observer<T> observer);
 
-    void removeObserver(Observer<T> observer);
+    void removeObserver(String nick);
 
     void notifyAnonymousObservers(MessageToClient message);
 

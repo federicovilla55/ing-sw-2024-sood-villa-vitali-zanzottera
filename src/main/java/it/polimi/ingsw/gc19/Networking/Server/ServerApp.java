@@ -31,15 +31,4 @@ public class ServerApp {
         ServerTcp MainTcp = new ServerTcp(ListClient, MasterController);
     }
 
-    public void checkActiveClient()
-    {
-        for(ClientHandler client : ActiveClient){
-            if(client.getName() != null && abs(client.getGetLastTimeStep()-System.currentTimeMillis()) > MAXTIME) {
-                //MasterController.SetToNonActive(client.getName());
-                //NonActiveClient.add(client);
-                ActiveClient.remove(client);
-            }
-        }
-    }
-
 }

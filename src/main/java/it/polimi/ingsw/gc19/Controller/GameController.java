@@ -127,7 +127,7 @@ public class GameController{
      */
     public synchronized void removeClient(String nickname) {
         if(this.connectedClients.remove(nickname)) {
-
+            this.messageFactory.removeObserver(nickname);
             if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)){
                 // the client disconnected was the active player: turn goes to next player unless no other client is connected
                 this.messageFactory.sendMessageToAllGamePlayersExcept(new DisconnectedPlayerMessage(nickname), nickname);
