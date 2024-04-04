@@ -152,7 +152,7 @@ public class Game extends Publisher{
 
 
     /**
-     * This constuctor is called directly for testing, removing randomness by fixing the seed of the rng
+     * This constructor is called directly for testing, removing randomness by fixing the seed of the rng
      * @param numPlayers The number of players in the game.
      * @param randomSeed the random seed used to shuffle card and to select first player
      * @throws IOException if there's an I/O error while reading card files.
@@ -352,8 +352,9 @@ public class Game extends Publisher{
         //Send to player others station
         sendCurrentOthersStationState(nickname);
 
-        //Send to player available colors
-        sendCurrentAvailableColors(nickname);
+        //Send to player available colors if gameState is "SETUP"
+        if(GameState.SETUP.equals(this.gameState))
+            sendCurrentAvailableColors(nickname);
 
         //Send to player game and turn state
         this.getMessageFactory().sendMessageToPlayer(nickname, new GameConfigurationMessage(

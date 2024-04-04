@@ -2,7 +2,6 @@ package it.polimi.ingsw.gc19.Networking.Server.Message;
 
 import java.io.Serializable;
 import java.rmi.Remote;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,9 +11,9 @@ import java.util.List;
  */
 public abstract class MessageToClient implements Remote, Serializable{
 
-    private ArrayList<String> header;
+    private List<String> header;
 
-    public MessageToClient setHeader(ArrayList<String> header){
+    public MessageToClient setHeader(List<String> header){
         this.header = header;
         return this;
     }
@@ -24,7 +23,7 @@ public abstract class MessageToClient implements Remote, Serializable{
         return this;
     }
 
-    public ArrayList<String> getHeader(){
+    public List<String> getHeader(){
         return this.header;
     }
 

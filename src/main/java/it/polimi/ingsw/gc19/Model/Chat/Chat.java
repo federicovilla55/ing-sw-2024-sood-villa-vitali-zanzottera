@@ -3,7 +3,6 @@ package it.polimi.ingsw.gc19.Model.Chat;
 import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Chat extends Publisher{

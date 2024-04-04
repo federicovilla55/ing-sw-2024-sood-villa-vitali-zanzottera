@@ -17,14 +17,11 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
         this.username = username;
         this.getLastTimeStepLock = new Object();
         this.messageQueue = new ArrayDeque<>();
-        new Thread(){
-            @Override
-            public void run() {
-                while(true){
-                    ClientHandler.this.sendMessage();
-                }
+        new Thread(() -> {
+            while(true){
+                ClientHandler.this.sendMessage();
             }
-        }.start();
+        }).start();
     }
 
     public void UpdateHeartBeat() {
@@ -39,8 +36,8 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
             return this.getLastTimeStep;
         }
     }
-    public void sendMessageToClient(MessageToClient message){
-
+    public void sendMessageToClient(MessageToClient message) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -7,11 +7,13 @@ import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MessageFactory implements Observable<MessageToClient>{
 
-    private final ArrayList<Observer<MessageToClient>> mockedView;
-    private final HashMap<String, Observer<MessageToClient>> connectedClients;
+    private final List<Observer<MessageToClient>> mockedView;
+    private final Map<String, Observer<MessageToClient>> connectedClients;
 
     public MessageFactory(){
         this.connectedClients = new HashMap<>();
@@ -22,7 +24,7 @@ public class MessageFactory implements Observable<MessageToClient>{
         notifyObservers(message.setHeader(new ArrayList<>(List.of(nick))));
     }
 
-    public void sendMessageToPlayer(ArrayList<String> nick, MessageToClient message){
+    public void sendMessageToPlayer(List<String> nick, MessageToClient message){
         notifyObservers(message.setHeader(nick));
     }
 
@@ -59,6 +61,19 @@ public class MessageFactory implements Observable<MessageToClient>{
     }
 
     @Override
+    public void removeObserver(Observer<MessageToClient> obs) {
+        for (String key : connectedClients
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue().equals(obs))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet())) {
+            connectedClients.remove(key);
+        }
+        mockedView.remove(obs);
+    }
+
+    @Override
     public void notifyObservers(MessageToClient message){
         notifyNamedObservers(message);
         notifyAnonymousObservers(message);
@@ -66,8 +81,9 @@ public class MessageFactory implements Observable<MessageToClient>{
 
     @Override
     public void notifyNamedObservers(MessageToClient message) {
-        for(Observer<MessageToClient> obs : this.connectedClients.values()){
-            obs.update(message);
+        for(Map.Entry<String,Observer<MessageToClient>> obs : this.connectedClients.entrySet()){
+            if (message.getHeader().contains(obs.getKey()))
+                obs.getValue().update(message);
         }
 
     }

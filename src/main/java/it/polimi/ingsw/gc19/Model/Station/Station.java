@@ -1,6 +1,5 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
-import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;

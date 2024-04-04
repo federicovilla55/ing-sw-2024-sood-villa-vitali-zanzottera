@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameControllerTest {
+class GameControllerTest {
 
     private GameController gameController;
     private ClientHandler clientSkeleton;

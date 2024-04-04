@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ChatTest {
+class ChatTest {
     private Chat chat;
     @BeforeEach
     public void setUpTest(){

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.*;
 
-public class StationTest{
+class StationTest{
 
     private ArrayList<SingleStationTest> stationTests;
 
