@@ -49,10 +49,10 @@ public class MessageFactory implements Observable<MessageToClient>{
     }
 
     @Override
-    public void removeObserver(Observer<MessageToClient> observer) {
+    public void removeObserver(String nickName) {
         connectedClients.remove(connectedClients.entrySet()
                                                 .stream()
-                                                .filter(e -> e.getValue().equals(observer))
+                                                .filter(e -> e.getKey().equals(nickName))
                                                 .findAny()
                                                 .orElseThrow(RuntimeException::new)
                                                 .getKey());

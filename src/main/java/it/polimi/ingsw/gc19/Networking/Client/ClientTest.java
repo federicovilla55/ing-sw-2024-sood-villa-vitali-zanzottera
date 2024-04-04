@@ -21,14 +21,17 @@ public class ClientTest{
         VirtualServer virtualServer = (VirtualServer) registry.lookup("RMIServer");
 
         Scanner scanner = new Scanner(System.in);
-        it.polimi.ingsw.gc19.Networking.Client.Client client1 = new it.polimi.ingsw.gc19.Networking.Client.Client(virtualServer);
-        it.polimi.ingsw.gc19.Networking.Client.Client client2 = new it.polimi.ingsw.gc19.Networking.Client.Client(virtualServer);
+        Client client1 = new it.polimi.ingsw.gc19.Networking.Client.Client(virtualServer, "Matteo");
+        Client client2 = new it.polimi.ingsw.gc19.Networking.Client.Client(virtualServer, "Mario");
         client1.connect("Matteo");
         client2.connect("Mario");
         client1.newGame("Matteo", "Game");
         client2.joinGame("Mario", "Game");
         //client2.joinGame("Mario", "Game1");
         client1.sendChatMessage("Matteo", new ArrayList<>(List.of("Mario", "Matteo")), "Ciao!!!");
+        client1.disconnect("Matteo");
+        client1.reconnect("Matteo", "Game");
+
 
     }
 
@@ -38,9 +41,12 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
 
     private final VirtualServer virtualServer;
 
-    public Client(VirtualServer virtualServer) throws RemoteException {
+    private final String name;
+
+    public Client(VirtualServer virtualServer, String name) throws RemoteException {
         super();
         this.virtualServer = virtualServer;
+        this.name = name;
     }
 
     public String getName() {
@@ -49,10 +55,11 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
 
     @Override
     public void GetMessage(MessageToClient message) {
-        System.out.println("FOUND SOMETHING!!!!!!");
-        if(message instanceof NotifyChatMessage){
+        //System.out.println("FOUND SOMETHING!!!!!!");
+        System.out.println(name + " received " + message.getClass() + "  ->  " + message);
+        /*if(message instanceof NotifyChatMessage){
             System.out.println(((NotifyChatMessage) message).getMessage());
-        }
+        }*/
     }
 
     public void connect(String name) throws RemoteException {
@@ -69,5 +76,13 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
 
     public void sendChatMessage(String nick, ArrayList<String> receivers, String message) throws RemoteException {
         this.virtualServer.sendChatMessage(this, receivers, message);
+    }
+
+    public void disconnect(String nick) throws RemoteException{
+        this.virtualServer.disconnect(this, nick);
+    }
+
+    public void reconnect(String nick, String gameName) throws RemoteException{
+        this.virtualServer.reconnect(this, gameName, nick);
     }
 }

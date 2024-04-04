@@ -11,8 +11,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +42,7 @@ public class ServerRMI extends Server implements VirtualServer{
                 synchronized(ServerRMI.serverRMI.lastHeartBeatOfClients){
                     for(var e : ServerRMI.serverRMI.lastHeartBeatOfClients.entrySet()){
                         if(new Date().getTime() - e.getValue() > MAX_DELAY_BETWEEN_HEARTBEAT){
-                            ServerRMI.serverRMI.controller.setPlayerInactive(getNicknameFromVirtualClient(e.getKey()));
+                            ServerRMI.serverRMI.controller.setPlayerInactive(ServerRMI.serverRMI.connectedClients.get(e.getKey()).getName());
                             ServerRMI.serverRMI.connectedClients.remove(e.getKey());
                             ServerRMI.serverRMI.lastHeartBeatOfClients.remove(e.getKey());
                         }
@@ -78,13 +76,22 @@ public class ServerRMI extends Server implements VirtualServer{
     }
 
     @Override
+    public void disconnect(VirtualClient clientRMI, String nickName) throws RemoteException{
+        if(!this.connectedClients.containsKey(clientRMI)){
+            throw new RemoteException("You are not registered to server!");
+        }
+        this.getController().setPlayerInactive(nickName);
+        this.connectedClients.remove(clientRMI);
+        this.lastHeartBeatOfClients.remove(clientRMI);
+    }
+
+    @Override
     public void createGame(VirtualClient clientRMI, String gameName, int numPlayer) throws RemoteException {
         if(!this.connectedClients.containsKey(clientRMI)){
             throw new RemoteException("You are not registered to server!");
         }
         ClientHandlerRMI clientToAdd = this.connectedClients.get(clientRMI);
-        this.getController().createGame(gameName, numPlayer);
-        this.getController().registerToGame(clientToAdd, gameName);
+        this.getController().createGame(gameName, numPlayer, clientToAdd);
     }
 
     @Override
@@ -95,7 +102,6 @@ public class ServerRMI extends Server implements VirtualServer{
         //@TODO: handle exception!
         ClientHandlerRMI clientToAdd = this.connectedClients.get(clientRMI);
         this.getController().registerToGame(clientToAdd, gameName);
-        //this.activeClients.add(clientToAdd);
     }
 
     @Override

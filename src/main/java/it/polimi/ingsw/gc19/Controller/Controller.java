@@ -6,10 +6,12 @@ import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.JoinGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.CreatedGameMessage;
 
 import java.io.IOException;
 import java.util.*;
@@ -45,13 +47,23 @@ public class Controller{
         return false;
     }
 
-    public void setPlayerInactive(String nickName){
-        synchronized(this.playerInfo) {
-            this.playerInfo.get(nickName).removeClient(nickName);
+    public void setPlayerInactive(String nickname){
+        synchronized(this.playerInfo){
+            this.playerInfo.get(nickname).removeClient(nickname);
         }
     }
 
-    public synchronized void createGame(String gameName, int numPlayer) throws IllegalArgumentException {
+    public void setPlayerInactive(ClientHandler client){
+        synchronized(this.playerInfo){
+            if(!this.playerInfo.containsKey(client.getName())){
+                client.sendMessageToClient(new RefusedActionMessage(ErrorType.GENERIC,
+                                                                    "You are not a player of some games!"));
+            }
+            this.playerInfo.get(client.getName()).removeClient(client.getName());
+        }
+    }
+
+    public synchronized void createGame(String gameName, int numPlayer, ClientHandler player) throws IllegalArgumentException {
         Game gameToBuild = null;
         synchronized(this.gamesInfo) {
             if (!this.gamesInfo.containsKey(gameName)) {
@@ -62,6 +74,13 @@ public class Controller{
                 }
                 GameController gameController = new GameController(gameToBuild);
                 this.gamesInfo.put(gameName, new Tuple<>(gameToBuild, gameController));
+                player.sendMessageToClient(new CreatedGameMessage(gameName));
+                this.registerToGame(player, gameName);
+            }
+            else{
+                player.sendMessageToClient(new RefusedActionMessage(ErrorType.NAME_ALREADY_IN_USE,
+                                                                    "Game name " + gameName + " is already in use!"));
+                player.sendMessageToClient(new AvailableGamesMessage(new ArrayList<>(findNonActiveGames())));
             }
         }
     }
@@ -88,6 +107,7 @@ public class Controller{
         gameControllerToJoin = this.gamesInfo.get(gameName).y();
         this.playerInfo.put(player.getName(), gameControllerToJoin);
         gameControllerToJoin.addClient(player.getName(), player); //Problems?
+        //join game message?
     }
 
     private Set<String> findNonActiveGames(){

@@ -15,10 +15,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.Acce
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableColorsMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.DisconnectedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.EndGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.GamePausedMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.GameResumedMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
@@ -88,6 +85,7 @@ public class GameController{
         try {
             this.gameAssociated.getPlayerByName(nickname);
             //player already present in game
+            this.messageFactory.sendMessageToAllGamePlayersExcept(new PlayerReconnectedToGameMessage(nickname), nickname);
             if(!this.connectedClients.contains(nickname)) {
                 this.connectedClients.add(nickname);
                 messageFactory.attachObserver(nickname,Client);
@@ -127,10 +125,10 @@ public class GameController{
      */
     public synchronized void removeClient(String nickname) {
         if(this.connectedClients.remove(nickname)) {
-
+            this.messageFactory.removeObserver(nickname);
+            this.messageFactory.sendMessageToAllGamePlayers(new DisconnectedPlayerMessage(nickname));
             if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)){
                 // the client disconnected was the active player: turn goes to next player unless no other client is connected
-                this.messageFactory.sendMessageToAllGamePlayersExcept(new DisconnectedPlayerMessage(nickname), nickname);
                 if(!this.connectedClients.isEmpty()) {
                     this.gameAssociated.setTurnState(TurnState.PLACE);
                     this.setNextPlayer();

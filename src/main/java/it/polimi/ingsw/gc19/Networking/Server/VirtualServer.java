@@ -20,4 +20,5 @@ public interface VirtualServer extends Remote {
     public void placeInitialCard(VirtualClient clientRMI, CardOrientation cardOrientation) throws RemoteException;
     public void pickCardFromTable(VirtualClient clientRMI, PlayableCardType type, int position) throws RemoteException;
     public void pickCardFromDeck(VirtualClient clientRMI, PlayableCardType type) throws RemoteException;
+    void disconnect(VirtualClient clientRMI, String nickname) throws RemoteException;
 }
