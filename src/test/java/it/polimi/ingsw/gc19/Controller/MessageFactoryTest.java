@@ -42,6 +42,8 @@ class MessageFactoryTest {
         testMessageFactory.attachObserver("Player 2", observer2);
         testMessageFactory.attachObserver("Player 3", observer3);
         testMessageFactory.attachObserver("Player 4", observer4);
+        testMessageFactory.attachObserver("Player 5", observer5);
+        testMessageFactory.removeObserver(observer5);
         //Player 5 is not attached to this message factory: no message should go to it
 
         testMessageFactory.attachObserver(logger);
