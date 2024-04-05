@@ -1,14 +1,5 @@
 package it.polimi.ingsw.gc19.Networking.ToFix.ClientImpl.ServerImpl;
 
-import it.polimi.ingsw.gc19.Networking.Server.Message.NetworkMessage.HeartBeatEvent;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.Socket;
-
 public class ClientHandle /*implements EventHandling, Runnable*/ {
     /*private final Socket clientSocket;
     private ObjectOutputStream out;

@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
 
 public class GameConfigurationMessage extends ConfigurationMessage {
     public GameConfigurationMessage(GameState gameState, TurnState turnState, String firstPlayer, String activePlayer, boolean finalRound, int numPlayers) {
@@ -45,6 +46,11 @@ public class GameConfigurationMessage extends ConfigurationMessage {
 
     public int getNumPlayers() {
         return numPlayers;
+    }
+
+    @Override
+    public void visit(MessageVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

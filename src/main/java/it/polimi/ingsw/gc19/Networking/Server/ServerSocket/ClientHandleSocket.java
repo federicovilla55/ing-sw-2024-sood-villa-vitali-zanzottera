@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
 import it.polimi.ingsw.gc19.Controller.Controller;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +31,11 @@ public class ClientHandleSocket extends ClientHandler implements Runnable{
     }*/
 
     public void run() {
+
+    }
+
+    @Override
+    public void sendMessageToClient(MessageToClient message) {
 
     }
 

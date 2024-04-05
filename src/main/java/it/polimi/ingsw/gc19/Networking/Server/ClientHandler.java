@@ -9,13 +9,10 @@ import java.util.Queue;
 public abstract class ClientHandler implements Observer<MessageToClient>{
 
     protected final String username;
-    protected long getLastTimeStep;
     protected final Queue<MessageToClient> messageQueue;
-    private final Object getLastTimeStepLock;
 
     public ClientHandler(String username){
         this.username = username;
-        this.getLastTimeStepLock = new Object();
         this.messageQueue = new ArrayDeque<>();
         new Thread(() -> {
             while(true){
@@ -24,35 +21,25 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
         }).start();
     }
 
-    public void UpdateHeartBeat() {
-        this.getLastTimeStep = System.currentTimeMillis();
-    }
     public String getName() {
         return this.username;
     }
 
-    public long getGetLastTimeStep(){
-        synchronized (getLastTimeStepLock){
-            return this.getLastTimeStep;
-        }
-    }
-    public void sendMessageToClient(MessageToClient message) {
-        throw new UnsupportedOperationException();
-    }
+    public abstract void sendMessageToClient(MessageToClient message);
 
     @Override
     public void update(MessageToClient message) {
-        synchronized (messageQueue) {
+        synchronized(messageQueue){
             messageQueue.add(message);
             messageQueue.notify();
         }
     }
 
-    private void sendMessage(){
+    protected void sendMessage(){
         MessageToClient messageToSend;
         synchronized(messageQueue){
             if(messageQueue.isEmpty()){
-                messageQueue.notify();
+                messageQueue.notifyAll();
                 try{
                     messageQueue.wait();
                 }
@@ -63,7 +50,7 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
                 if(messageToSend.getHeader().contains(this.username)){
                     this.sendMessageToClient(messageToSend);
                 }
-                this.messageQueue.notify();
+                this.messageQueue.notifyAll();
             }
         }
     }

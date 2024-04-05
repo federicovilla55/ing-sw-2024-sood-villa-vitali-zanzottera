@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer;
 
 import it.polimi.ingsw.gc19.Enums.Color;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
 
 public class AcceptedColorMessage extends AcceptedActionMessage{
 
@@ -18,5 +19,10 @@ public class AcceptedColorMessage extends AcceptedActionMessage{
 
     public String getPlayer() {
         return this.player;
+    }
+
+    @Override
+    public void visit(MessageVisitor visitor) {
+        visitor.visit(this);
     }
 }

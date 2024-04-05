@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.Configuration;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
 
 public class TableConfigurationMessage extends ConfigurationMessage {
 
@@ -59,6 +60,11 @@ public class TableConfigurationMessage extends ConfigurationMessage {
 
     public Symbol getNextSeedOfGoldDeck(){
         return nextSeedOfGoldDeck;
+    }
+
+    @Override
+    public void visit(MessageVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

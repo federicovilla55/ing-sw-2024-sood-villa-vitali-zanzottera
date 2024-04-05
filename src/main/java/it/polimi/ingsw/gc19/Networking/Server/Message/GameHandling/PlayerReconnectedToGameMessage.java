@@ -1,13 +1,12 @@
-package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents;
+package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
 
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.NotifyEventOnGame;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
 
-public class NewPlayerConnectedToGameMessage extends GameHandlingMessage {
-
+public class PlayerReconnectedToGameMessage extends GameHandlingMessage {
     private final String playerName;
 
-    public NewPlayerConnectedToGameMessage(String playerName){
+    public PlayerReconnectedToGameMessage(String playerName){
         this.playerName = playerName;
     }
 

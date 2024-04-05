@@ -22,7 +22,8 @@ public class OwnStationConfigurationMessage extends ConfigurationMessage {
     private final GoalCard goalCard2;
     private final List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence;
 
-    public OwnStationConfigurationMessage(String nick, Color color, List<PlayableCard> cardsInHand, Map<Symbol, Integer> visibleSymbols, GoalCard privateGoalCard, int numPoints, PlayableCard initialCard, GoalCard goalCard1, GoalCard goalCard2, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
+    public OwnStationConfigurationMessage(String nick, Color color, List<PlayableCard> cardsInHand, Map<Symbol, Integer> visibleSymbols, GoalCard privateGoalCard, int numPoints,
+                                          PlayableCard initialCard, GoalCard goalCard1, GoalCard goalCard2, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
         this.nick = nick;
         this.color = color;
         this.cardsInHand = cardsInHand;

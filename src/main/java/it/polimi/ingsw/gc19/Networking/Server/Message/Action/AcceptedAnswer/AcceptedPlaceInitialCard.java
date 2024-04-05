@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,11 @@ public class AcceptedPlaceInitialCard extends AcceptedActionMessage{
 
     public PlayableCard getInitialCard() {
         return this.initialCard;
+    }
+
+    @Override
+    public void visit(MessageVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

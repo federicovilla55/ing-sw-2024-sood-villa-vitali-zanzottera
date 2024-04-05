@@ -1,5 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents;
 
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,11 @@ public class EndGameMessage extends NotifyEventOnGame{
 
     public Map<String, Integer> getUpdatedPoints() {
         return this.updatedPoints;
+    }
+
+    @Override
+    public void visit(MessageVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

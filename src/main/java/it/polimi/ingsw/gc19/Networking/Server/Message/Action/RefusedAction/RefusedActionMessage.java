@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
 
 import java.util.ArrayList;
 
@@ -21,6 +22,11 @@ public class RefusedActionMessage extends AnswerToActionMessage {
 
     public String getDescription(){
         return this.description;
+    }
+
+    @Override
+    public void visit(MessageVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

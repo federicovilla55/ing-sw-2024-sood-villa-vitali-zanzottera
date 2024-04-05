@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.Turn;
 
 import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
 
 public class TurnStateMessage extends MessageToClient{
 
@@ -19,6 +20,11 @@ public class TurnStateMessage extends MessageToClient{
 
     public TurnState getTurnState(){
         return this.turnState;
+    }
+
+    @Override
+    public void visit(MessageVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

@@ -27,4 +27,6 @@ public abstract class MessageToClient implements Remote, Serializable{
         return this.header;
     }
 
+    public abstract void visit(MessageVisitor visitor);
+
 }

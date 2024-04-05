@@ -4,6 +4,7 @@ import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedActionMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,4 +52,10 @@ public class AcceptedPlaceCardMessage extends AcceptedActionMessage{
     public String getNick() {
         return this.nick;
     }
+
+    @Override
+    public void visit(MessageVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }

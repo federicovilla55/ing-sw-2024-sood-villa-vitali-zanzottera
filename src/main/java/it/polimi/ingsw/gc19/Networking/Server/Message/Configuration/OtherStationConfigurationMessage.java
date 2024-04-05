@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
 
 import java.util.List;
 import java.util.Map;
@@ -44,4 +45,10 @@ public class OtherStationConfigurationMessage extends ConfigurationMessage {
     public List<Tuple<PlayableCard, Tuple<Integer, Integer>>> getPlacedCardSequence() {
         return placedCardSequence;
     }
+
+    @Override
+    public void visit(MessageVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }
