@@ -1,8 +1,5 @@
 package it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling;
 
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
-
 public class JoinGameMessage /*extends GameHandlingMessage*/{
 
     private final String gameName;
@@ -20,6 +17,6 @@ public class JoinGameMessage /*extends GameHandlingMessage*/{
     public String getNickname(){
         return this.nickname;
     }
-    
+
 
 }

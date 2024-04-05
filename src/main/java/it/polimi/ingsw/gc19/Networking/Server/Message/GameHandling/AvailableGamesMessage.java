@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
 
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 import java.util.ArrayList;
 
@@ -16,7 +16,7 @@ public class AvailableGamesMessage extends GameHandlingMessage{
     }
 
     @Override
-    public void visit(MessageVisitor visitor) {
+    public void visit(MessageToClientVisitor visitor) {
         visitor.visit(this);
     }
 

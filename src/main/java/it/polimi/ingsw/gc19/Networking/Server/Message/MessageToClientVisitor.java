@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message;
 
 
+import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.ReconnectToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
@@ -9,7 +10,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 
-public interface MessageVisitor{
+public interface MessageToClientVisitor {
     void visit(AcceptedChooseGoalCard message);
     void visit(AcceptedColorMessage message);
     void visit(AcceptedPickCardFromDeckMessage message);
@@ -37,5 +38,6 @@ public interface MessageVisitor{
     void visit(JoinedGameMessage message);
     void visit(PlayerReconnectedToGameMessage message);
     void visit(TurnStateMessage message);
+    void visit(ReconnectToGameMessage message);
 
 }

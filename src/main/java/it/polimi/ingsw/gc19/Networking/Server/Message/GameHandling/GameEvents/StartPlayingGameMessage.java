@@ -1,7 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents;
 
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.NotifyEventOnGame;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 public class StartPlayingGameMessage extends NotifyEventOnGame {
 
@@ -16,7 +15,7 @@ public class StartPlayingGameMessage extends NotifyEventOnGame {
     }
 
     @Override
-    public void visit(MessageVisitor visitor) {
+    public void visit(MessageToClientVisitor visitor) {
         visitor.visit(this);
     }
 

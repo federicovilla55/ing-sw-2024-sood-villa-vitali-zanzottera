@@ -1,11 +1,8 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Configuration;
 
 import it.polimi.ingsw.gc19.Enums.GameState;
-import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Enums.TurnState;
-import it.polimi.ingsw.gc19.Model.Card.GoalCard;
-import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 public class GameConfigurationMessage extends ConfigurationMessage {
     public GameConfigurationMessage(GameState gameState, TurnState turnState, String firstPlayer, String activePlayer, boolean finalRound, int numPlayers) {
@@ -40,7 +37,7 @@ public class GameConfigurationMessage extends ConfigurationMessage {
         return activePlayer;
     }
 
-    public boolean isFinalRound() {
+    public boolean getFinalRound() {
         return finalRound;
     }
 
@@ -49,7 +46,7 @@ public class GameConfigurationMessage extends ConfigurationMessage {
     }
 
     @Override
-    public void visit(MessageVisitor visitor) {
+    public void visit(MessageToClientVisitor visitor) {
         visitor.visit(this);
     }
 

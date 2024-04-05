@@ -1,17 +1,17 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
-import it.polimi.ingsw.gc19.Controller.Controller;
+import it.polimi.ingsw.gc19.Controller.MainServer;
 
 public abstract class Server{
 
-    protected Controller controller;
+    protected MainServer mainServer;
 
-    public void setController(Controller controller){
-        this.controller = controller;
+    public void setController(MainServer mainServer){
+        this.mainServer = mainServer;
     }
 
-    public Controller getController(){
-        return this.controller;
+    public MainServer getController(){
+        return this.mainServer;
     }
 
 }

@@ -25,7 +25,9 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
         return this.username;
     }
 
-    public abstract void sendMessageToClient(MessageToClient message);
+    public void sendMessageToClient(MessageToClient message) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public void update(MessageToClient message) {
@@ -48,7 +50,7 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
             else{
                 messageToSend = this.messageQueue.remove();
                 if(messageToSend.getHeader().contains(this.username)){
-                    this.sendMessageToClient(messageToSend);
+                    this.update(messageToSend);
                 }
                 this.messageQueue.notifyAll();
             }

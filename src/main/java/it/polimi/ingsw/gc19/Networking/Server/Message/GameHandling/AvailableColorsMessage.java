@@ -1,9 +1,8 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
 
 import it.polimi.ingsw.gc19.Enums.Color;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AvailableColorsMessage extends GameHandlingMessage{
@@ -19,7 +18,7 @@ public class AvailableColorsMessage extends GameHandlingMessage{
     }
 
     @Override
-    public void visit(MessageVisitor visitor) {
+    public void visit(MessageToClientVisitor visitor) {
         visitor.visit(this);
     }
 

@@ -1,7 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer;
 
 import it.polimi.ingsw.gc19.Enums.Color;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 public class AcceptedColorMessage extends AcceptedActionMessage{
 
@@ -22,7 +22,7 @@ public class AcceptedColorMessage extends AcceptedActionMessage{
     }
 
     @Override
-    public void visit(MessageVisitor visitor) {
+    public void visit(MessageToClientVisitor visitor) {
         visitor.visit(this);
     }
 }

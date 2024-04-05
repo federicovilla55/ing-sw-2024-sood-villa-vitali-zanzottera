@@ -1,7 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 public class CreatedGameMessage extends GameHandlingMessage{
 
@@ -16,7 +16,7 @@ public class CreatedGameMessage extends GameHandlingMessage{
     }
 
     @Override
-    public void visit(MessageVisitor visitor) {
+    public void visit(MessageToClientVisitor visitor) {
         visitor.visit(this);
     }
 

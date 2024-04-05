@@ -3,11 +3,8 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedActionMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class AcceptedPlaceCardMessage extends AcceptedActionMessage{
@@ -54,7 +51,7 @@ public class AcceptedPlaceCardMessage extends AcceptedActionMessage{
     }
 
     @Override
-    public void visit(MessageVisitor visitor) {
+    public void visit(MessageToClientVisitor visitor) {
         visitor.visit(this);
     }
 

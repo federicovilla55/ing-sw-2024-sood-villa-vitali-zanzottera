@@ -1,9 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Chat;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
-
-import java.util.ArrayList;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 public class NotifyChatMessage extends MessageToClient{
 
@@ -25,7 +23,7 @@ public class NotifyChatMessage extends MessageToClient{
     }
 
     @Override
-    public void visit(MessageVisitor visitor) {
+    public void visit(MessageToClientVisitor visitor) {
         visitor.visit(this);
     }
 

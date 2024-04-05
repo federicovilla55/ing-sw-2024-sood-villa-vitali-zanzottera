@@ -42,7 +42,7 @@ public class ServerRMI extends Server implements VirtualServer{
                 synchronized(ServerRMI.serverRMI.lastHeartBeatOfClients){
                     for(var e : ServerRMI.serverRMI.lastHeartBeatOfClients.entrySet()){
                         if(new Date().getTime() - e.getValue() > MAX_DELAY_BETWEEN_HEARTBEAT){
-                            ServerRMI.serverRMI.controller.setPlayerInactive(ServerRMI.serverRMI.connectedClients.get(e.getKey()).getName());
+                            ServerRMI.serverRMI.mainServer.setPlayerInactive(ServerRMI.serverRMI.connectedClients.get(e.getKey()).getName());
                             ServerRMI.serverRMI.connectedClients.remove(e.getKey());
                             ServerRMI.serverRMI.lastHeartBeatOfClients.remove(e.getKey());
                         }
@@ -64,9 +64,13 @@ public class ServerRMI extends Server implements VirtualServer{
     @Override
     public void newConnection(VirtualClient clientRMI, String nickName) throws RemoteException{
         ClientHandlerRMI newClient = new ClientHandlerRMI(clientRMI, nickName);
-        if(this.getController().createClient(newClient)){
+        if(this.getController().createClient(nickName)){
+            System.err.println("new client connected: " + nickName);
             connectedClients.put(clientRMI, newClient);
-            this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
+        }
+        else {
+            System.err.println("Name already connected");
+            throw new RemoteException("Nickname already present");
         }
     }
 
@@ -86,6 +90,7 @@ public class ServerRMI extends Server implements VirtualServer{
             throw new RemoteException("You are not registered to server!");
         }
         ClientHandlerRMI clientToAdd = this.connectedClients.get(clientRMI);
+        this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
         this.getController().createGame(gameName, numPlayer, clientToAdd);
     }
 
@@ -96,6 +101,7 @@ public class ServerRMI extends Server implements VirtualServer{
         }
         //@TODO: handle exception!
         ClientHandlerRMI clientToAdd = this.connectedClients.get(clientRMI);
+        this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
         this.getController().registerToGame(clientToAdd, gameName);
     }
 
@@ -122,7 +128,7 @@ public class ServerRMI extends Server implements VirtualServer{
         }
         ClientHandlerRMI reconnectedClient = new ClientHandlerRMI(clientRMI, nickName);
         this.connectedClients.put(clientRMI, reconnectedClient);
-        this.controller.reconnect(reconnectedClient, gameName);
+        this.mainServer.reconnect(reconnectedClient, gameName);
         this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
     }
 

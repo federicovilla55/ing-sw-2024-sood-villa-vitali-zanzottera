@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer;
 
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 public class AcceptedChooseGoalCard extends AcceptedActionMessage{
 
@@ -15,7 +15,7 @@ public class AcceptedChooseGoalCard extends AcceptedActionMessage{
     }
 
     @Override
-    public void visit(MessageVisitor visitor) {
+    public void visit(MessageToClientVisitor visitor) {
         visitor.visit(this);
     }
 

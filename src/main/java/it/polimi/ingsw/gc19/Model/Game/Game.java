@@ -330,7 +330,7 @@ public class Game extends Publisher{
 
         //Notify to all player different from the current that another player has joined the game
         this.getMessageFactory().sendMessageToAllGamePlayersExcept(new NewPlayerConnectedToGameMessage(player.getName()), player.getName());
-        //Give to all other players this player station
+        //Give to all other players this player station and table config because cards from deck were picked
         this.getMessageFactory().sendMessageToAllGamePlayersExcept(new OtherStationConfigurationMessage(
                 player.getName(),
                 player.getColor(),
@@ -338,6 +338,13 @@ public class Game extends Publisher{
                 player.getStation().getNumPoints(),
                 player.getStation().getPlacedCardSequence()
         ), player.getName());
+        if (GameState.SETUP.equals(this.gameState))
+            this.getMessageFactory().sendMessageToAllGamePlayersExcept(new TableConfigurationMessage(
+                    this.resourceCardsOnTable[0], this.resourceCardsOnTable[1],
+                    this.goldCardsOnTable[0], this.goldCardsOnTable[1],
+                    this.publicGoalCardsOnTable[0], this.publicGoalCardsOnTable[1],
+                    this.resourceDeck.getNextCard().map(PlayableCard::getSeed).orElse(null),
+                    this.goldDeck.getNextCard().map(PlayableCard::getSeed).orElse(null)), player.getName());
 
         sendCurrentStateToPlayer(player.getName());
     }

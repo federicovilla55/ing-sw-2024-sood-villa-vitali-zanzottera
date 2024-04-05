@@ -1,13 +1,9 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
-import it.polimi.ingsw.gc19.Controller.Controller;
+import it.polimi.ingsw.gc19.Controller.MainServer;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ClientHandleSocket extends ClientHandler implements Runnable{
@@ -16,7 +12,7 @@ public class ClientHandleSocket extends ClientHandler implements Runnable{
     private final ObjectInputStream in;
     private Controller MasterController;*/
 
-    public ClientHandleSocket(Socket clientSocket, Controller masterController) {
+    public ClientHandleSocket(Socket clientSocket, MainServer masterMainServer) {
         super("User");
         //this.in = new ObjectInputStream(System.in);
     }
@@ -35,7 +31,7 @@ public class ClientHandleSocket extends ClientHandler implements Runnable{
     }
 
     @Override
-    public void sendMessageToClient(MessageToClient message) {
+    public void update(MessageToClient message) {
 
     }
 

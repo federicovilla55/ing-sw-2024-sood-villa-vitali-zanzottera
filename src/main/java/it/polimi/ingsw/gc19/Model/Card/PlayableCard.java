@@ -205,6 +205,15 @@ public class PlayableCard extends Card{
         return null;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null) return false;
+        if(obj instanceof PlayableCard playableCardObj){
+            return playableCardObj.getCardCode().equals(this.getCardCode()) && playableCardObj.getCardOrientation() == this.getCardOrientation();
+        }
+        return false;
+    }
+
     /**
      * This interface is the state of a card, either up or down
      */

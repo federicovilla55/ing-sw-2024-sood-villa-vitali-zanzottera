@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.Configuration;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 public class TableConfigurationMessage extends ConfigurationMessage {
 
@@ -63,7 +63,7 @@ public class TableConfigurationMessage extends ConfigurationMessage {
     }
 
     @Override
-    public void visit(MessageVisitor visitor) {
+    public void visit(MessageToClientVisitor visitor) {
         visitor.visit(this);
     }
 

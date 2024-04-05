@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Controller;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,7 +55,7 @@ class MessageFactoryTest {
 
     @Test
     void testSendMessageToPlayer() {
-        testMessageFactory.sendMessageToPlayer("Player 2", new MessageToClient() {});
+        testMessageFactory.sendMessageToPlayer("Player 2", new MessageToClientStub());
         
         assertTrue(observer1.messageQueue.isEmpty());
         assertEquals(1,observer2.messageQueue.size());
@@ -66,7 +67,7 @@ class MessageFactoryTest {
 
     @Test
     void testSendMessageToMultiplePlayers() {
-        testMessageFactory.sendMessageToPlayer(List.of("Player 2", "Player 4"), new MessageToClient() {});
+        testMessageFactory.sendMessageToPlayer(List.of("Player 2", "Player 4"), new MessageToClientStub());
 
         assertTrue(observer1.messageQueue.isEmpty());
         assertEquals(1,observer2.messageQueue.size());
@@ -78,7 +79,7 @@ class MessageFactoryTest {
 
     @Test
     void sendMessageToAllGamePlayers() {
-        testMessageFactory.sendMessageToAllGamePlayers(new MessageToClient() {});
+        testMessageFactory.sendMessageToAllGamePlayers(new MessageToClientStub());
 
         assertEquals(1,observer1.messageQueue.size());
         assertEquals(1,observer2.messageQueue.size());
@@ -90,7 +91,7 @@ class MessageFactoryTest {
 
     @Test
     void sendMessageToAllGamePlayersExcept() {
-        testMessageFactory.sendMessageToAllGamePlayersExcept(new MessageToClient() {}, "Player 3");
+        testMessageFactory.sendMessageToAllGamePlayersExcept(new MessageToClientStub(), "Player 3");
 
         assertEquals(1,observer1.messageQueue.size());
         assertEquals(1,observer2.messageQueue.size());
@@ -98,6 +99,40 @@ class MessageFactoryTest {
         assertEquals(1,observer4.messageQueue.size());
         assertTrue(observer5.messageQueue.isEmpty());
         assertEquals(1,logger.messageQueue.size());
+    }
+
+    @Test
+    void testSendMessageToNonExistingPlayer() {
+        testMessageFactory.sendMessageToPlayer("NonExistingPlayer", new MessageToClientStub());
+
+        assertTrue(observer1.messageQueue.isEmpty());
+        assertTrue(observer2.messageQueue.isEmpty());
+        assertTrue(observer3.messageQueue.isEmpty());
+        assertTrue(observer4.messageQueue.isEmpty());
+        assertTrue(observer5.messageQueue.isEmpty());
+    }
+
+    @Test
+    void testSendMessageWithNoReceivers() {
+        testMessageFactory.sendMessageToPlayer(List.of(), new MessageToClientStub());
+
+        assertTrue(observer1.messageQueue.isEmpty());
+        assertTrue(observer2.messageQueue.isEmpty());
+        assertTrue(observer3.messageQueue.isEmpty());
+        assertTrue(observer4.messageQueue.isEmpty());
+        assertTrue(observer5.messageQueue.isEmpty());
+    }
+
+    @Test
+    void testSendMessageRemoveObserver() {
+        testMessageFactory.removeObserver(observer4);
+        testMessageFactory.sendMessageToAllGamePlayers(new MessageToClientStub());
+
+        assertEquals(1,observer1.messageQueue.size());
+        assertEquals(1,observer2.messageQueue.size());
+        assertEquals(1,observer3.messageQueue.size());
+        assertTrue(observer4.messageQueue.isEmpty());
+        assertTrue(observer5.messageQueue.isEmpty());
     }
 }
 
@@ -127,4 +162,10 @@ class AnonymousObserverStub implements Observer<MessageToClient> {
     public void update(MessageToClient message) {
         messageQueue.add(message);
     }
+}
+
+class MessageToClientStub extends MessageToClient {
+        @Override
+        public void visit(MessageToClientVisitor visitor) {
+        }
 }
