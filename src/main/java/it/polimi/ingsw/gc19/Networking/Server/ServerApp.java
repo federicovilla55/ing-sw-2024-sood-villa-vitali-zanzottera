@@ -22,8 +22,8 @@ public class ServerApp {
     public static void main(String[] args) throws IOException {
         List<ClientHandler> ListClient = new ArrayList<ClientHandler>();;
         List<ClientHandler> ListNonActiveClient = new ArrayList<ClientHandler>();
-        MainServer masterMainServer = MainServer.getController();
-        ServerRMI MainRmi = new ServerRMI(masterMainServer);
+        MainServer masterMainServer = MainServer.getMainServer();
+        ServerRMI MainRmi = new ServerRMI();
         MainRmi.setController(masterMainServer);
         VirtualServer stub = (VirtualServer) UnicastRemoteObject.exportObject(MainRmi, 0);
         Registry registry = LocateRegistry.createRegistry(12122);
