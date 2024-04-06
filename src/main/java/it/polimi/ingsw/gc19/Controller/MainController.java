@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Controller;
 
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
+import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Game.Game;
@@ -147,6 +148,30 @@ public class MainController {
                                                    "Player " + player.getName() + " is not in the game!"));
         }
         this.playerInfo.get(player.getName()).drawCardFromDeck(player.getName(), cardType);
+    }
+
+    public void choosePrivateGoalCard(ClientHandler player, int cardIdx){
+        if(!this.playerInfo.containsKey(player.getName())){
+            player.update(new RefusedActionMessage(ErrorType.GENERIC,
+                                                   "Player " + player.getName() + " is not in the game!"));
+        }
+        this.playerInfo.get(player.getName()).choosePrivateGoal(player.getName(), cardIdx);
+    }
+
+    public void chooseColor(ClientHandler player, Color color){
+        if(!this.playerInfo.containsKey(player.getName())){
+            player.update(new RefusedActionMessage(ErrorType.GENERIC,
+                                                   "Player " + player.getName() + " is not in the game!"));
+        }
+        this.playerInfo.get(player.getName()).chooseColor(player.getName(), color);
+    }
+
+    public void placeInitialCard(ClientHandler player, CardOrientation cardOrientation){
+        if(!this.playerInfo.containsKey(player.getName())){
+            player.update(new RefusedActionMessage(ErrorType.GENERIC,
+                                                   "Player " + player.getName() + " is not in the game!"));
+        }
+        this.playerInfo.get(player.getName()).placeInitialCard(player.getName(), cardOrientation);
     }
 
     /*
