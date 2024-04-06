@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Networking.Server.ServerRmi;
+package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;

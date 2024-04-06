@@ -10,28 +10,28 @@ import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.CreatedGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.CreatedGameMessage;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MainServer{
+public class MainController {
 
-    private static MainServer mainServer = null;
+    private static MainController mainController = null;
 
     private final HashMap<String, GameController> playerInfo;
     private final HashMap<String, Tuple<Game, GameController>> gamesInfo;
 
-    public static MainServer getMainServer(){
-        if(mainServer == null){
-            mainServer = new MainServer();
-            return mainServer;
+    public static MainController getMainServer(){
+        if(mainController == null){
+            mainController = new MainController();
+            return mainController;
         }
-        return mainServer;
+        return mainController;
     }
 
-    private MainServer(){
+    private MainController(){
         this.gamesInfo = new HashMap<>();
         this.playerInfo = new HashMap<>();
     }

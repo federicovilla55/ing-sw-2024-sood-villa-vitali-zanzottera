@@ -38,6 +38,6 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
     opens it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
     exports it.polimi.ingsw.gc19.Networking.Client;
-    exports it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents;
-    opens it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents;
+    opens it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents;
 }

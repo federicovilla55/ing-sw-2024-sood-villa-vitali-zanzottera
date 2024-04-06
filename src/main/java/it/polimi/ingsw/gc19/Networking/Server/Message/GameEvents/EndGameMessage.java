@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents;
+package it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 

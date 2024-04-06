@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
-import it.polimi.ingsw.gc19.Controller.MainServer;
+import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
@@ -12,7 +12,7 @@ public class ClientHandleSocket extends ClientHandler implements Runnable{
     private final ObjectInputStream in;
     private Controller MasterController;*/
 
-    public ClientHandleSocket(Socket clientSocket, MainServer masterMainServer) {
+    public ClientHandleSocket(Socket clientSocket, MainController masterMainController) {
         super("User");
         //this.in = new ObjectInputStream(System.in);
     }

@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Networking.Server.ServerRmi;
+package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
@@ -42,7 +42,7 @@ public class ServerRMI extends Server implements VirtualServer{
                 synchronized(ServerRMI.serverRMI.lastHeartBeatOfClients){
                     for(var e : ServerRMI.serverRMI.lastHeartBeatOfClients.entrySet()){
                         if(new Date().getTime() - e.getValue() > MAX_DELAY_BETWEEN_HEARTBEAT){
-                            ServerRMI.serverRMI.mainServer.setPlayerInactive(ServerRMI.serverRMI.connectedClients.get(e.getKey()).getName());
+                            ServerRMI.serverRMI.mainController.setPlayerInactive(ServerRMI.serverRMI.connectedClients.get(e.getKey()).getName());
                             ServerRMI.serverRMI.connectedClients.remove(e.getKey());
                             ServerRMI.serverRMI.lastHeartBeatOfClients.remove(e.getKey());
                         }
@@ -128,7 +128,7 @@ public class ServerRMI extends Server implements VirtualServer{
         }
         ClientHandlerRMI reconnectedClient = new ClientHandlerRMI(clientRMI, nickName);
         this.connectedClients.put(clientRMI, reconnectedClient);
-        this.mainServer.reconnect(reconnectedClient, gameName);
+        this.mainController.reconnect(reconnectedClient, gameName);
         this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
     }
 

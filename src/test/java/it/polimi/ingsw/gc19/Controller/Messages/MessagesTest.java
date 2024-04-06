@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.Controller.Messages;
 
-import it.polimi.ingsw.gc19.Controller.MainServer;
+import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Controller.JSONParser;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Color;
@@ -15,8 +15,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationCo
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableColorsMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.CreatedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameEvents.NewPlayerConnectedToGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.CreatedGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,14 +31,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MessagesTest{
 
-    private MainServer mainServer;
+    private MainController mainController;
     private Map<String, PlayableCard> playableCards;
     private Map<String, GoalCard> goalCards;
     private ClientStub player1, player2, player3, player4;
 
     @BeforeEach
     public void setUp(){
-        this.mainServer = MainServer.getMainServer();
+        this.mainController = MainController.getMainServer();
 
         try {
             this.playableCards = JSONParser.readPlayableCardFromFile().collect(Collectors.toMap(Card::getCardCode, p -> p));
@@ -56,21 +56,21 @@ public class MessagesTest{
 
     @Test
     public void setUpGameTest(){
-        this.mainServer.createClient(this.player1.getName());
+        this.mainController.createClient(this.player1.getName());
         assertEquals(new CreatedPlayerMessage("player1"), this.player1.getMessage());
 
-        this.mainServer.createClient(this.player2.getName());
+        this.mainController.createClient(this.player2.getName());
         assertEquals(new CreatedPlayerMessage("player2"), this.player2.getMessage());
         //No new messages has been sent to player1
         assertNull(player1.getMessage());
 
-        this.mainServer.createClient(this.player3.getName());
+        this.mainController.createClient(this.player3.getName());
         assertEquals(new CreatedPlayerMessage("player3"), this.player3.getMessage());
 
-        this.mainServer.createClient(this.player4.getName());
+        this.mainController.createClient(this.player4.getName());
         assertEquals(new CreatedPlayerMessage("player4"), this.player4.getMessage());
 
-        this.mainServer.createGame("game1", 4, this.player1);
+        this.mainController.createGame("game1", 4, this.player1);
         assertEquals(new CreatedGameMessage("game1"), player1.getMessage());
         assertEquals(new TableConfigurationMessage(
                 playableCards.get("resource_05").setCardState(CardOrientation.UP),
@@ -123,7 +123,7 @@ public class MessagesTest{
         //No new messages has been sent to player2
         assertNull(player2.getMessage());
 
-        this.mainServer.registerToGame(player2, "game1");
+        this.mainController.registerToGame(player2, "game1");
         assertEquals(new NewPlayerConnectedToGameMessage("player2").setHeader("player1"), player1.getMessage());
         assertEquals(new OtherStationConfigurationMessage(
                 "player2",
@@ -206,7 +206,7 @@ public class MessagesTest{
                 ).setHeader("player2"), player2.getMessage()
         );
 
-        this.mainServer.registerToGame(player3, "game1");
+        this.mainController.registerToGame(player3, "game1");
         tableConfigurationMessage = new TableConfigurationMessage(
             playableCards.get("resource_05").setCardState(CardOrientation.UP),
             playableCards.get("resource_21").setCardState(CardOrientation.UP),
@@ -295,7 +295,7 @@ public class MessagesTest{
                 ).setHeader("player3"), player3.getMessage()
         );
 
-        this.mainServer.registerToGame(player2, "game1");
+        this.mainController.registerToGame(player2, "game1");
         for(ClientStub player : List.of(player1,player2,player3,player4)) {
             player.clearQueue();
         }

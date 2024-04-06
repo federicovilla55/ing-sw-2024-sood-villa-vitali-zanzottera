@@ -8,7 +8,7 @@ import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRmi.ClientHandlerRMI;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GameMainServerTest {
+class GameMainControllerTest {
 
     private GameController gameController;
     private ClientHandler clientSkeleton;
