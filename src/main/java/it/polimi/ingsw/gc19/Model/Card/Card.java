@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
+import java.io.Serializable;
+
 /**
  * This class represents a single card
  */
@@ -18,7 +20,7 @@ import it.polimi.ingsw.gc19.Model.Station.Station;
         @JsonSubTypes.Type(value = PlayableCard.class, name = "playable"),
         @JsonSubTypes.Type(value = GoalCard.class, name = "goal")
 })
-public abstract class Card{
+public abstract class Card implements Serializable {
 
     /**
      * This attribute uniquely identifies the card in game

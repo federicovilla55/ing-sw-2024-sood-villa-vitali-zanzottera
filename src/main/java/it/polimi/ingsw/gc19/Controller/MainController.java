@@ -212,4 +212,8 @@ public class MainController {
         temp.sendChatMessage(usersToSend, player.getName(), messageToSend);
     }
 
+    public static void destroyMainController() {
+        MainController.mainController = null;
+    }
+
 }
