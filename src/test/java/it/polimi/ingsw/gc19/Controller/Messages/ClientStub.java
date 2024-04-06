@@ -26,14 +26,14 @@ public class ClientStub extends ClientHandler{
 
     @Override
     public void update(MessageToClient message) {
-        //Client stub is local, so it doesn't have to send messages over the network.
-        //sendMessageToClient() has to do anything
+        // this client stub is local, does not send messages but saves them in the queue
+        this.messageQueue.add(message);
     }
 
     @Override
     protected void sendMessage(){
         //Client stub is local, so it doesn't have to send messages over the network.
-        //sendMessage() has to do anything
+        //sendMessage() has to do nothing
     }
 
     public ArrayList<MessageToClient> getIncomingMessages(){

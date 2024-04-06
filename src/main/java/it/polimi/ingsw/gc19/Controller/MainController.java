@@ -9,6 +9,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.Error
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.CreatedGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 
 import java.io.IOException;
 import java.util.*;
@@ -34,10 +35,11 @@ public class MainController {
         this.playerInfo = new HashMap<>();
     }
 
-    public boolean createClient(String playerNickname){
+    public boolean createClient(ClientHandler player, String playerNickname){
         synchronized(this.playerInfo) {
             if (!this.playerInfo.containsKey(playerNickname)) {
                 this.playerInfo.put(playerNickname, null);
+                player.update(new CreatedPlayerMessage(playerNickname));
                 return true;
             }
         }
@@ -56,12 +58,12 @@ public class MainController {
         }
     }
 
-    public synchronized void createGame(String gameName, int numPlayer, ClientHandler player) throws IllegalArgumentException {
+    public synchronized void createGame(String gameName, int numPlayer, ClientHandler player, long randomSeed) throws IllegalArgumentException {
         Game gameToBuild = null;
         synchronized(this.gamesInfo) {
             if (!this.gamesInfo.containsKey(gameName)) {
                 try {
-                    gameToBuild = new Game(numPlayer);
+                    gameToBuild = new Game(numPlayer,randomSeed);
                 } catch (IOException exception) {
                     //@TODO: handle this exception
                 }
@@ -76,6 +78,10 @@ public class MainController {
                 player.update(new AvailableGamesMessage(findAvailableGames()));
             }
         }
+    }
+
+    public synchronized void createGame(String gameName, int numPlayer, ClientHandler player) throws IllegalArgumentException {
+        this.createGame(gameName, numPlayer, player, new Random().nextLong());
     }
 
     private void checkPlayer(ClientHandler player){

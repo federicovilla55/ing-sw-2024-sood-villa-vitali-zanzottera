@@ -56,21 +56,21 @@ public class MessagesTest{
 
     @Test
     public void setUpGameTest(){
-        this.mainController.createClient(this.player1.getName());
+        this.mainController.createClient(player1, this.player1.getName());
         assertEquals(new CreatedPlayerMessage("player1"), this.player1.getMessage());
 
-        this.mainController.createClient(this.player2.getName());
+        this.mainController.createClient(player2, this.player2.getName());
         assertEquals(new CreatedPlayerMessage("player2"), this.player2.getMessage());
         //No new messages has been sent to player1
         assertNull(player1.getMessage());
 
-        this.mainController.createClient(this.player3.getName());
+        this.mainController.createClient(player3, this.player3.getName());
         assertEquals(new CreatedPlayerMessage("player3"), this.player3.getMessage());
 
-        this.mainController.createClient(this.player4.getName());
+        this.mainController.createClient(player4, this.player4.getName());
         assertEquals(new CreatedPlayerMessage("player4"), this.player4.getMessage());
 
-        this.mainController.createGame("game1", 4, this.player1);
+        this.mainController.createGame("game1", 4, this.player1, 1);
         assertEquals(new CreatedGameMessage("game1"), player1.getMessage());
         assertEquals(new TableConfigurationMessage(
                 playableCards.get("resource_05").setCardState(CardOrientation.UP),
@@ -295,10 +295,9 @@ public class MessagesTest{
                 ).setHeader("player3"), player3.getMessage()
         );
 
-        this.mainController.registerToGame(player2, "game1");
+        this.mainController.registerToGame(player4, "game1");
         for(ClientStub player : List.of(player1,player2,player3,player4)) {
             player.clearQueue();
         }
     }
-
 }
