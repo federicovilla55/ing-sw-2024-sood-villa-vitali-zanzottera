@@ -15,5 +15,5 @@ public interface GameHandlingMessageVisitor{
     void visit(JoinedGameMessage message);
     void visit(PlayerReconnectedToGameMessage message);
     void visit(GameHandlingError message);
-
+    void visit(DisconnectGameMessage disconnectGameMessage);
 }

@@ -7,10 +7,7 @@ import it.polimi.ingsw.gc19.Model.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 
@@ -59,6 +56,16 @@ public class MainController {
         synchronized(this.playerInfo){
             String gameName = this.playerInfo.get(nickname).y();
             this.playerInfo.put(nickname, new Tuple<>(false, gameName));
+            gamesInfo.get(gameName).y().removeClient(nickname);
+        }
+    }
+
+    public void disconnect(String nickname, ClientHandler player) {
+        synchronized(this.playerInfo) {
+            this.setPlayerInactive(nickname);
+            String gameName = this.playerInfo.get(nickname).y();
+            if (gameName != null)
+                player.update(new DisconnectGameMessage(gameName));
         }
     }
 
@@ -197,14 +204,18 @@ public class MainController {
      * */
     public void reconnect(ClientHandler clientHandler, String gameName){
         if(!this.playerInfo.containsKey(clientHandler.getName())){
-            //clientHandler.sendMessageToClient();
+            clientHandler.update(new GameHandlingError(Error.PLAYER_NOT_REGISTERED_TO_SERVER, "Player with name " + clientHandler.getName() + " is not registered to server!"));
+            return;
         }
         if(!this.gamesInfo.containsKey(gameName)){
-            clientHandler.update(new AvailableGamesMessage(findAvailableGames()));
+            clientHandler.update(new GameHandlingError(Error.GAME_NOT_FOUND, "Game " + gameName + "not found!"));
+            return;
         }
-        if(this.gamesInfo.get(gameName).x().getPlayers().stream().map(Player::getName).noneMatch(n -> n.equals(gameName))){
-            //clientHandler.sendMessageToClient()
+        if(this.gamesInfo.get(gameName).x().getPlayers().stream().map(Player::getName).noneMatch(n -> n.equals(clientHandler.getName()))){
+           clientHandler.update(new GameHandlingError(Error.PLAYER_NOT_IN_GAME, "This player in not in the specified game!"));
+           return;
         }
+        clientHandler.update(new JoinedGameMessage(gameName));
         this.gamesInfo.get(gameName).y().addClient(clientHandler.getName(), clientHandler);
     }
 

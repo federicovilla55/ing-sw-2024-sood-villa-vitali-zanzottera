@@ -6,16 +6,16 @@ import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OtherStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
@@ -608,6 +608,151 @@ public class MessagesTest{
         assertMessageEquals(List.of(player1,player2,player3,player4),
                 new TurnStateMessage("player1", TurnState.PLACE));
 
+        this.clearQueue(List.of(player1,player2,player3,player4));
+
+        mainController.disconnect("player2", player2);
+
+        assertEquals(new DisconnectGameMessage("game1"),
+                player2.getMessage());
+        assertMessageEquals(List.of(player1,player3,player4),
+                new DisconnectedPlayerMessage("player2"));
+
+        mainController.disconnect("player3", player3);
+
+        assertEquals(new DisconnectGameMessage("game1"),
+                player3.getMessage());
+        assertMessageEquals(List.of(player1,player4),
+                new DisconnectedPlayerMessage("player3"));
+        assertNull(player2.getMessage());
+
+        mainController.disconnect("player4", player4);
+
+        assertEquals(new DisconnectGameMessage("game1"),
+                player4.getMessage());
+        assertMessageEquals(player1,
+                new DisconnectedPlayerMessage("player4"));
+        assertNull(player2.getMessage());
+        assertNull(player4.getMessage());
+
+        assertMessageEquals(player1,
+                new GamePausedMessage());
+
+        mainController.createClient(player2, "player2");
+
+        assertMessageEquals(player1,
+                new PlayerReconnectedToGameMessage("player2"));
+
+        assertEquals(new JoinedGameMessage("game1"),
+                player2.getMessage());
+
+        assertMessageEquals(player2,
+                new TableConfigurationMessage(
+                        playableCards.get("resource_05").setCardState(CardOrientation.UP),
+                        playableCards.get("resource_21").setCardState(CardOrientation.UP),
+                        playableCards.get("gold_19").setCardState(CardOrientation.UP),
+                        playableCards.get("gold_23").setCardState(CardOrientation.UP),
+                        goalCards.get("goal_11"),
+                        goalCards.get("goal_15"),
+                        Symbol.VEGETABLE,
+                        Symbol.INSECT
+                ));
+
+        assertMessageEquals(player2,
+                new OwnStationConfigurationMessage(
+                        "player2",
+                        Color.BLUE,
+                        List.of(
+                                playableCards.get("resource_15"),
+                                playableCards.get("resource_37"),
+                                playableCards.get("gold_21")
+                        ),
+                        Map.of(
+                                Symbol.ANIMAL, 0,
+                                Symbol.MUSHROOM, 0,
+                                Symbol.VEGETABLE, 1,
+                                Symbol.INSECT, 2,
+                                Symbol.INK, 0,
+                                Symbol.FEATHER, 0,
+                                Symbol.SCROLL, 0
+                        ),
+                        goalCards.get("goal_01"),
+                        0,
+                        playableCards.get("initial_01").setCardState(CardOrientation.DOWN),
+                        goalCards.get("goal_16"),
+                        goalCards.get("goal_01"),
+                        List.of(
+                                new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25,25))
+                        )
+                ));
+
+        assertMessageEquals(player2,
+                new OtherStationConfigurationMessage(
+                        "player1",
+                        Color.GREEN,
+                        Map.of(
+                                Symbol.ANIMAL, 1,
+                                Symbol.MUSHROOM, 0,
+                                Symbol.VEGETABLE, 1,
+                                Symbol.INSECT, 1,
+                                Symbol.INK, 0,
+                                Symbol.FEATHER, 0,
+                                Symbol.SCROLL, 0
+                        ),
+                        0,
+                        List.of(
+                                new Tuple<>(playableCards.get("initial_05").setCardState(CardOrientation.DOWN), new Tuple<>(25,25))
+                        )
+                ));
+        assertMessageEquals(player2,
+                new OtherStationConfigurationMessage(
+                        "player3",
+                        Color.YELLOW,
+                        Map.of(
+                                Symbol.ANIMAL, 1,
+                                Symbol.MUSHROOM, 1,
+                                Symbol.VEGETABLE, 1,
+                                Symbol.INSECT, 1,
+                                Symbol.INK, 0,
+                                Symbol.FEATHER, 0,
+                                Symbol.SCROLL, 0
+                        ),
+                        0,
+                        List.of(
+                                new Tuple<>(playableCards.get("initial_06").setCardState(CardOrientation.UP), new Tuple<>(25,25))
+                        )
+                ));
+
+        assertMessageEquals(player2,
+                new OtherStationConfigurationMessage(
+                        "player4",
+                        Color.RED,
+                        Map.of(
+                                Symbol.ANIMAL, 0,
+                                Symbol.MUSHROOM, 1,
+                                Symbol.VEGETABLE, 1,
+                                Symbol.INSECT, 0,
+                                Symbol.INK, 0,
+                                Symbol.FEATHER, 0,
+                                Symbol.SCROLL, 0
+                        ),
+                        0,
+                        List.of(
+                                new Tuple<>(playableCards.get("initial_03").setCardState(CardOrientation.DOWN), new Tuple<>(25,25))
+                        )
+                ));
+
+        assertMessageEquals(player2,
+                new GameConfigurationMessage(
+                        GameState.PAUSE,
+                        TurnState.PLACE,
+                        "player1",
+                        "player1",
+                        false,
+                        4
+                ));
+
+        assertMessageEquals(List.of(player1,player2),
+                new GameResumedMessage());
     }
 
 
