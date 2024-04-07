@@ -8,7 +8,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NotifyEventOnGa
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
+import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 
 import java.io.Serializable;
 import java.rmi.*;
@@ -24,11 +24,11 @@ public class ClientTest{
     public static void main(String[] args) throws RemoteException, NotBoundException {
 
         Registry registry = LocateRegistry.getRegistry("RMIServer", 12122);
-        VirtualServer virtualServer = (VirtualServer) registry.lookup("RMIServer");
+        VirtualGameServer virtualGameServer = (VirtualGameServer) registry.lookup("RMIServer");
 
         Scanner scanner = new Scanner(System.in);
-        Client client1 = new Client(virtualServer, "Matteo");
-        Client client2 = new Client(virtualServer, "Mario");
+        Client client1 = new Client(virtualGameServer, "Matteo");
+        Client client2 = new Client(virtualGameServer, "Mario");
         client1.connect("Matteo");
         client2.connect("Mario");
         client1.newGame("Matteo", "Game");
@@ -45,13 +45,13 @@ public class ClientTest{
 
 class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
 
-    private final VirtualServer virtualServer;
+    private final VirtualGameServer virtualGameServer;
 
     private final String name;
 
-    public Client(VirtualServer virtualServer, String name) throws RemoteException {
+    public Client(VirtualGameServer virtualGameServer, String name) throws RemoteException {
         super();
-        this.virtualServer = virtualServer;
+        this.virtualGameServer = virtualGameServer;
         this.name = name;
     }
 
@@ -99,26 +99,26 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
     }
 
     public void connect(String name) throws RemoteException {
-        this.virtualServer.newConnection(this, name);
+        this.virtualGameServer.newConnection(this, name);
     }
 
     public void newGame(String nick, String gameName) throws RemoteException{
-        this.virtualServer.createGame(this, gameName, 2);
+        this.virtualGameServer.createGame(this, gameName, 2);
     }
 
     public void joinGame(String nick, String game) throws RemoteException {
-        this.virtualServer.joinGame(this, game);
+        this.virtualGameServer.joinGame(this, game);
     }
 
     public void sendChatMessage(String nick, ArrayList<String> receivers, String message) throws RemoteException {
-        this.virtualServer.sendChatMessage(this, receivers, message);
+        this.virtualGameServer.sendChatMessage(this, receivers, message);
     }
 
     public void disconnect(String nick) throws RemoteException{
-        this.virtualServer.disconnect(this, nick);
+        this.virtualGameServer.disconnect(this, nick);
     }
 
     public void reconnect(String nick, String gameName) throws RemoteException{
-        this.virtualServer.reconnect(this, gameName, nick);
+        this.virtualGameServer.reconnect(this, gameName, nick);
     }
 }

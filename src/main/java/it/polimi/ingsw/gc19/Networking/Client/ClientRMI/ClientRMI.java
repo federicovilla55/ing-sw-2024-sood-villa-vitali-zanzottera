@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Client.ClientRMI;
 
-import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
+import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -10,23 +10,23 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class ClientRMI extends UnicastRemoteObject implements Remote{
 
-    private final VirtualServer virtualMainServer;
-    private VirtualServer virtualGameServer;
+    private final VirtualGameServer virtualMainServer;
+    private VirtualGameServer virtualGameServer;
 
-    public ClientRMI(VirtualServer virtualServer) throws RemoteException {
-        this.virtualMainServer = virtualServer;
+    public ClientRMI(VirtualGameServer virtualGameServer) throws RemoteException {
+        this.virtualMainServer = virtualGameServer;
         this.virtualGameServer = null;
     }
 
-    public ClientRMI(int port, VirtualServer virtualServer) throws RemoteException {
+    public ClientRMI(int port, VirtualGameServer virtualGameServer) throws RemoteException {
         super(port);
-        this.virtualMainServer = virtualServer;
+        this.virtualMainServer = virtualGameServer;
         this.virtualGameServer = null;
     }
 
-    public ClientRMI(int port, RMIClientSocketFactory csf, RMIServerSocketFactory ssf, VirtualServer virtualServer) throws RemoteException {
+    public ClientRMI(int port, RMIClientSocketFactory csf, RMIServerSocketFactory ssf, VirtualGameServer virtualGameServer) throws RemoteException {
         super(port, csf, ssf);
-        this.virtualMainServer = virtualServer;
+        this.virtualMainServer = virtualGameServer;
         this.virtualGameServer = null;
     }
 

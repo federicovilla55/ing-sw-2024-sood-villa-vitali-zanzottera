@@ -56,37 +56,6 @@ class GameControllerTest {
             public void pushUpdate(MessageToClient message) throws RemoteException {
 
             }
-
-            @Override
-            public void pushUpdate(AnswerToActionMessage answerToActionMessage) throws RemoteException {
-
-            }
-
-            @Override
-            public void pushUpdate(NotifyChatMessage notifyChatMessage) throws RemoteException {
-
-            }
-
-            @Override
-            public void pushUpdate(ConfigurationMessage configurationMessage) throws RemoteException {
-
-            }
-
-            @Override
-            public void pushUpdate(NotifyEventOnGame notifyEventOnGame) throws RemoteException {
-
-            }
-
-            @Override
-            public void pushUpdate(GameHandlingMessage gameHandlingMessage) throws RemoteException {
-
-            }
-
-            @Override
-            public void pushUpdate(TurnStateMessage turnStateMessage) throws RemoteException {
-
-            }
-
         }, "client");
 
     }

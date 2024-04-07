@@ -3,10 +3,11 @@ package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 
 import java.rmi.RemoteException;
 
-public class ClientHandlerRMI extends ClientHandler {
+public class ClientHandlerRMI extends ClientHandler{
 
     private final VirtualClient virtualClientAssociated;
 
@@ -16,12 +17,8 @@ public class ClientHandlerRMI extends ClientHandler {
     }
 
     @Override
-    public void sendMessageToClient(MessageToClient message) {
-        //System.out.println("RMI send message");
-        try{
-            virtualClientAssociated.pushUpdate(message);
-        }
-        catch(RemoteException ignored){ };
+    public void pushUpdate(MessageToClient message) throws RemoteException {
+        virtualClientAssociated.pushUpdate(message);
     }
 
 }

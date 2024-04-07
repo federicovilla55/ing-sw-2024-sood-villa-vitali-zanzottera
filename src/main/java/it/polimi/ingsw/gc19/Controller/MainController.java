@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class MainController {
 
     private static MainController mainController = null;
-
     private final HashMap<String, GameController> playerInfo;
     private final HashMap<String, Tuple<Game, GameController>> gamesInfo;
 

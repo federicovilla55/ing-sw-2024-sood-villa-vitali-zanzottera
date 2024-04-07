@@ -8,7 +8,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NotifyEventOnGa
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
+import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -17,8 +17,8 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 public class ClientRmiTest extends UnicastRemoteObject implements VirtualClient {
-    final VirtualServer server;
-    protected ClientRmiTest(VirtualServer server) throws RemoteException {
+    final VirtualGameServer server;
+    protected ClientRmiTest(VirtualGameServer server) throws RemoteException {
         this.server = server;
     }
 
@@ -32,7 +32,7 @@ public class ClientRmiTest extends UnicastRemoteObject implements VirtualClient 
 
     public static void main(String[] args)  throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry(args[0], 12122);
-        VirtualServer server = (VirtualServer) registry.lookup("RMIServer");
+        VirtualGameServer server = (VirtualGameServer) registry.lookup("RMIServer");
 
         new ClientRmiTest(server).run();
     }

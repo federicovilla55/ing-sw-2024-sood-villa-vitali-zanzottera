@@ -1,10 +1,12 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
+import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityComparator;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
+import java.rmi.RemoteException;
 import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -28,10 +30,8 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
         return this.username;
     }
 
-    public abstract void sendMessageToClient(MessageToClient message);
-
     @Override
-    public void update(MessageToClient message) {
+    public void update(MessageToClient message){
         synchronized(messageQueue){
             messageQueue.add(message);
             messageQueue.notify();
@@ -50,7 +50,12 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
             }
             else{
                 messageToSend = this.messageQueue.remove();
-                this.sendMessageToClient(messageToSend);
+                try {
+                    this.pushUpdate(messageToSend);
+                }
+                catch(RemoteException remoteException){
+                    //@TODO: handle this exception
+                }
                 this.messageQueue.notifyAll();
             }
         }

@@ -7,7 +7,7 @@ import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Server;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
+import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -17,36 +17,36 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ServerRMI extends Server implements VirtualServer{
+public class GameServerRMI extends Server implements VirtualGameServer {
 
-    private static ServerRMI serverRMI = null;
+    private static GameServerRMI serverRMI = null;
 
     private static final long MAX_DELAY_BETWEEN_HEARTBEAT = 20;
 
     private final HashMap<VirtualClient, ClientHandlerRMI> connectedClients;
     private final HashMap<VirtualClient, Long> lastHeartBeatOfClients;
 
-    public static ServerRMI getServerRMI(){
+    public static GameServerRMI getServerRMI(){
         if(serverRMI == null){
-            serverRMI = new ServerRMI();
+            serverRMI = new GameServerRMI();
             return serverRMI;
         }
         return serverRMI;
     }
 
-    public ServerRMI(){
+    public GameServerRMI(){
         super();
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new HashMap<>();
         Runnable checkHeartBeat = new Runnable(){
             @Override
             public void run() {
-                synchronized(ServerRMI.serverRMI.lastHeartBeatOfClients){
-                    for(var e : ServerRMI.serverRMI.lastHeartBeatOfClients.entrySet()){
+                synchronized(GameServerRMI.serverRMI.lastHeartBeatOfClients){
+                    for(var e : GameServerRMI.serverRMI.lastHeartBeatOfClients.entrySet()){
                         if(new Date().getTime() - e.getValue() > MAX_DELAY_BETWEEN_HEARTBEAT){
-                            ServerRMI.serverRMI.mainController.setPlayerInactive(ServerRMI.serverRMI.connectedClients.get(e.getKey()).getName());
-                            ServerRMI.serverRMI.connectedClients.remove(e.getKey());
-                            ServerRMI.serverRMI.lastHeartBeatOfClients.remove(e.getKey());
+                            GameServerRMI.serverRMI.mainController.setPlayerInactive(GameServerRMI.serverRMI.connectedClients.get(e.getKey()).getName());
+                            GameServerRMI.serverRMI.connectedClients.remove(e.getKey());
+                            GameServerRMI.serverRMI.lastHeartBeatOfClients.remove(e.getKey());
                         }
                     }
                 }
