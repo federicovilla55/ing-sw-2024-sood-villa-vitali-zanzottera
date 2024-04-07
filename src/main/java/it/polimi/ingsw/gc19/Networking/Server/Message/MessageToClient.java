@@ -1,13 +1,11 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  *  This is an empty interface representing serializable messages
@@ -31,7 +29,7 @@ public abstract class MessageToClient implements Remote, Serializable{
         return this.header;
     }
 
-    public abstract void visit(MessageToClientVisitor visitor);
+    public abstract void accept(MessageToClientVisitor visitor);
 
     @Override
     public boolean equals(Object o) {

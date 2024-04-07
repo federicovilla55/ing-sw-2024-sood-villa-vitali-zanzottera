@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 public class GameConfigurationMessage extends ConfigurationMessage {
+
     public GameConfigurationMessage(GameState gameState, TurnState turnState, String firstPlayer, String activePlayer, boolean finalRound, int numPlayers) {
         this.gameState = gameState;
         this.turnState = turnState;
@@ -46,8 +47,8 @@ public class GameConfigurationMessage extends ConfigurationMessage {
     }
 
     @Override
-    public void visit(MessageToClientVisitor visitor) {
-        visitor.visit(this);
+    public void accept(MessageToClientVisitor visitor) {
+        if(visitor instanceof ConfigurationMessageVisitor) ((ConfigurationMessageVisitor) visitor).visit(this);
     }
 
 }

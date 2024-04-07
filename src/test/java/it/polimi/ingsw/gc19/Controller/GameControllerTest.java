@@ -7,7 +7,19 @@ import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.AllMessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +33,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GameMainControllerTest {
+class GameControllerTest {
 
     private GameController gameController;
     private ClientHandler clientSkeleton;
@@ -30,6 +42,7 @@ class GameMainControllerTest {
     public void setUp() {
         setUp(1);
     }
+
     public void setUp(long randomSeed) {
         try {
             Game game = new Game(4, randomSeed);
@@ -42,7 +55,9 @@ class GameMainControllerTest {
             public void GetMessage(MessageToClient message) throws RemoteException {
 
             }
-        }, "Client");
+
+        }, "client");
+
     }
 
     @Test

@@ -9,6 +9,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.Error
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.CreatedGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 
 import java.io.IOException;
 import java.util.*;
@@ -39,6 +41,9 @@ public class MainController {
             if (!this.playerInfo.containsKey(playerNickname)) {
                 this.playerInfo.put(playerNickname, null);
                 return true;
+            }
+            else{
+
             }
         }
         return false;
@@ -71,8 +76,8 @@ public class MainController {
                 this.registerToGame(player, gameName);
             }
             else{
-                player.update(new RefusedActionMessage(ErrorType.NAME_ALREADY_IN_USE,
-                                                       "Game name " + gameName + " is already in use!"));
+                player.update(new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE,
+                                                    "Game name " + gameName + " is already in use!"));
                 player.update(new AvailableGamesMessage(findAvailableGames()));
             }
         }
@@ -81,7 +86,7 @@ public class MainController {
     private void checkPlayer(ClientHandler player){
         synchronized(this.playerInfo) {
             if (!this.playerInfo.containsKey(player.getName())) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException(); //guardare meglio
             }
             if (this.playerInfo.get(player.getName()) != null) {
                 throw new IllegalArgumentException();
@@ -99,10 +104,10 @@ public class MainController {
         checkPlayer(player);
         synchronized(this.gamesInfo) {
             if (!this.gamesInfo.containsKey(gameName)) {
-                throw new IllegalArgumentException();
+                player.update(new GameHandlingError(Error.GAME_NOT_FOUND, "Game " + gameName + "not found!"));
             }
             if (this.gamesInfo.get(gameName).x().getNumPlayers() == this.gamesInfo.get(gameName).x().getNumJoinedPlayer()) {
-                throw new IllegalArgumentException();
+                player.update(new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, "Game " + gameName + " is not accessible!"));
             }
         }
         GameController gameControllerToJoin;

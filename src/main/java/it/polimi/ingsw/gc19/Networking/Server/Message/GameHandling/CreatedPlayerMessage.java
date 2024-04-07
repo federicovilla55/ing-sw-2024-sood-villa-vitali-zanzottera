@@ -15,8 +15,8 @@ public class CreatedPlayerMessage extends GameHandlingMessage{
     }
 
     @Override
-    public void visit(MessageToClientVisitor visitor) {
-        visitor.visit(this);
+    public void accept(MessageToClientVisitor visitor) {
+        if(visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);
     }
 
 }

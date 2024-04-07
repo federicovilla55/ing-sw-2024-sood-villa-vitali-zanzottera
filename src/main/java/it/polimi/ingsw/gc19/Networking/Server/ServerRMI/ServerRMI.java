@@ -4,6 +4,8 @@ import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Server;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualServer;
 
@@ -70,14 +72,14 @@ public class ServerRMI extends Server implements VirtualServer{
         }
         else {
             System.err.println("Name already connected");
-            throw new RemoteException("Nickname already present");
+            newClient.update(new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, "Player " + nickName + " is already connected to server!"));
         }
     }
 
     @Override
     public void disconnect(VirtualClient clientRMI, String nickName) throws RemoteException{
         if(!this.connectedClients.containsKey(clientRMI)){
-            throw new RemoteException("You are not registered to server!");
+            throw new RemoteException("You are not registered to server!"); //GUARDARE MEGLIO
         }
         this.getController().setPlayerInactive(nickName);
         this.connectedClients.remove(clientRMI);
@@ -87,7 +89,7 @@ public class ServerRMI extends Server implements VirtualServer{
     @Override
     public void createGame(VirtualClient clientRMI, String gameName, int numPlayer) throws RemoteException {
         if(!this.connectedClients.containsKey(clientRMI)){
-            throw new RemoteException("You are not registered to server!");
+            throw new RemoteException("You are not registered to server!"); //GUARDARE MEGLIO
         }
         ClientHandlerRMI clientToAdd = this.connectedClients.get(clientRMI);
         this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
@@ -97,7 +99,7 @@ public class ServerRMI extends Server implements VirtualServer{
     @Override
     public void joinGame(VirtualClient clientRMI, String gameName) throws RemoteException {
         if(!this.connectedClients.containsKey(clientRMI)){
-            throw new RemoteException("You are not registered to server!");
+            throw new RemoteException("You are not registered to server!"); //GUARDARE MEGLIO
         }
         //@TODO: handle exception!
         ClientHandlerRMI clientToAdd = this.connectedClients.get(clientRMI);

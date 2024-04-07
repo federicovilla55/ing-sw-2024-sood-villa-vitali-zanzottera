@@ -1,9 +1,10 @@
 package it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
-public class ReconnectToGameMessage extends GameHandlingMessage{
+public class ReconnectToGameMessage{
 
     private final String gameToReconnect;
     private final String nickname;
@@ -21,9 +22,9 @@ public class ReconnectToGameMessage extends GameHandlingMessage{
         return this.nickname;
     }
 
-    @Override
-    public void visit(MessageToClientVisitor visitor) {
-        visitor.visit(this);
-    }
+    /*@Override
+    public void accept(MessageToClientVisitor visitor) {
+        if(visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);
+    }*/
 
 }

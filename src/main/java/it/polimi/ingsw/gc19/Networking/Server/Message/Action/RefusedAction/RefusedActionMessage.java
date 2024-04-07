@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction;
 
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
@@ -23,8 +24,8 @@ public class RefusedActionMessage extends AnswerToActionMessage {
     }
 
     @Override
-    public void visit(MessageToClientVisitor visitor) {
-        visitor.visit(this);
+    public void accept(MessageToClientVisitor visitor) {
+        if(visitor instanceof AnswerToActionMessageVisitor) ((AnswerToActionMessageVisitor) visitor).visit(this);
     }
 
 }

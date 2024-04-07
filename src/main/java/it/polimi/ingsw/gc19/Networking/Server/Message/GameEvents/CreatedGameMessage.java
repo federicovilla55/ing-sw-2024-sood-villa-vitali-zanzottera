@@ -1,9 +1,11 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents;
 
+import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.ConfigurationMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
-public class CreatedGameMessage extends GameHandlingMessage{
+public class CreatedGameMessage extends NotifyEventOnGame {
 
     private final String gameName;
 
@@ -16,8 +18,8 @@ public class CreatedGameMessage extends GameHandlingMessage{
     }
 
     @Override
-    public void visit(MessageToClientVisitor visitor) {
-        visitor.visit(this);
+    public void accept(MessageToClientVisitor visitor) {
+        if(visitor instanceof GameEventsMessageVisitor) ((GameEventsMessageVisitor) visitor).visit(this);
     }
 
 }

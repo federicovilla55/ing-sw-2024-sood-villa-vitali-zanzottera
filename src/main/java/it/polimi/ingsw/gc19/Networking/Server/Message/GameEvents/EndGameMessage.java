@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents;
 
+import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 import java.util.List;
@@ -24,8 +25,8 @@ public class EndGameMessage extends NotifyEventOnGame{
     }
 
     @Override
-    public void visit(MessageToClientVisitor visitor) {
-        visitor.visit(this);
+    public void accept(MessageToClientVisitor visitor) {
+        if(visitor instanceof GameEventsMessageVisitor) ((GameEventsMessageVisitor) visitor).visit(this);
     }
 
 }

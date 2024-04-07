@@ -15,8 +15,8 @@ public class StartPlayingGameMessage extends NotifyEventOnGame {
     }
 
     @Override
-    public void visit(MessageToClientVisitor visitor) {
-        visitor.visit(this);
+    public void accept(MessageToClientVisitor visitor) {
+        if(visitor instanceof GameEventsMessageVisitor) ((GameEventsMessageVisitor) visitor).visit(this);
     }
 
 }

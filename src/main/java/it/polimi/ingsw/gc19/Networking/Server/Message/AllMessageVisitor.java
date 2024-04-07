@@ -7,6 +7,12 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GameEventsMessa
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessageVisitor;
 
-public interface MessageToClientVisitor{
+public interface AllMessageVisitor extends AnswerToActionMessageVisitor,
+        NotifyChatMessageVisitor,
+        ConfigurationMessageVisitor,
+        GameEventsMessageVisitor,
+        GameHandlingMessageVisitor,
+        TurnStateMessageVisitor,
+        MessageToClientVisitor{
 
 }

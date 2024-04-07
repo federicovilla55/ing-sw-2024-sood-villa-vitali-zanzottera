@@ -23,8 +23,8 @@ public class NotifyChatMessage extends MessageToClient{
     }
 
     @Override
-    public void visit(MessageToClientVisitor visitor) {
-        visitor.visit(this);
+    public void accept(MessageToClientVisitor visitor) {
+        if(visitor instanceof NotifyChatMessageVisitor) ((NotifyChatMessageVisitor) visitor).visit(this);
     }
 
 }

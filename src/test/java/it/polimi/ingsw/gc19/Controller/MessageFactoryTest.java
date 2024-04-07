@@ -166,6 +166,6 @@ class AnonymousObserverStub implements Observer<MessageToClient> {
 
 class MessageToClientStub extends MessageToClient {
         @Override
-        public void visit(MessageToClientVisitor visitor) {
+        public void accept(MessageToClientVisitor visitor) {
         }
 }

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Turn;
 
 import it.polimi.ingsw.gc19.Enums.TurnState;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
@@ -23,8 +24,8 @@ public class TurnStateMessage extends MessageToClient{
     }
 
     @Override
-    public void visit(MessageToClientVisitor visitor) {
-        visitor.visit(this);
+    public void accept(MessageToClientVisitor visitor) {
+        if(visitor instanceof TurnStateMessageVisitor) ((TurnStateMessageVisitor) visitor).visit(this);
     }
 
 }

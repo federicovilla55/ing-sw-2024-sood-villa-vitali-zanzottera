@@ -78,8 +78,8 @@ public class OwnStationConfigurationMessage extends ConfigurationMessage {
     }
 
     @Override
-    public void visit(MessageToClientVisitor visitor) {
-        visitor.visit(this);
+    public void accept(MessageToClientVisitor visitor) {
+        if(visitor instanceof ConfigurationMessageVisitor) ((ConfigurationMessageVisitor) visitor).visit(this);
     }
 
 }
