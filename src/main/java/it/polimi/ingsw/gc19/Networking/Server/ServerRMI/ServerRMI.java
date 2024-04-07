@@ -66,7 +66,7 @@ public class ServerRMI extends Server implements VirtualServer{
     @Override
     public void newConnection(VirtualClient clientRMI, String nickName) throws RemoteException{
         ClientHandlerRMI newClient = new ClientHandlerRMI(clientRMI, nickName);
-        if(this.getController().createClient(nickName)){
+        if(this.getController().createClient(newClient, nickName)){
             System.err.println("new client connected: " + nickName);
             connectedClients.put(clientRMI, newClient);
         }
