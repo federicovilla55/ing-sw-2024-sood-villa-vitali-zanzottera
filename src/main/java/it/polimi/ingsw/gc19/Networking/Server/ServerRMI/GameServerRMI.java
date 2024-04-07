@@ -4,10 +4,12 @@ import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Server;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
+import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -17,9 +19,38 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class GameServerRMI extends Server implements VirtualGameServer {
+public class GameServerRMI extends Server implements VirtualMainServer{
 
-    private static GameServerRMI serverRMI = null;
+    @Override
+    public void newConnection(VirtualClient clientRMI, String nickName) throws RemoteException {
+        ClientHandler clientHandlerRMI = new ClientHandlerRMI(clientRMI, nickName);
+        this.mainController.createClient(clientRmi, nickName)
+
+    }
+
+    @Override
+    public void createGame(VirtualClient clientRMI, String gameName, int numPlayer) throws RemoteException {
+
+    }
+
+    @Override
+    public void joinGame(VirtualClient clientRMI, String GameName) throws RemoteException {
+
+    }
+
+    @Override
+    public void reconnect(VirtualClient clientRMI, String gameName, String nickName) throws RemoteException {
+
+    }
+
+    @Override
+    public void disconnect(VirtualClient clientRMI, String nickname) throws RemoteException {
+
+    }
+
+}
+
+/*private static GameServerRMI serverRMI = null;
 
     private static final long MAX_DELAY_BETWEEN_HEARTBEAT = 20;
 
@@ -167,5 +198,4 @@ public class GameServerRMI extends Server implements VirtualGameServer {
         this.getController().pickCardFromDeck(this.connectedClients.get(clientRMI), type);
     }
 
-}
-
+ */

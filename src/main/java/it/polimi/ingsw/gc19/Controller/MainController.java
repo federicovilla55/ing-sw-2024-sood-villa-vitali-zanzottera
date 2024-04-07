@@ -19,7 +19,23 @@ import java.util.stream.Collectors;
 
 public class MainController {
 
-    private static MainController mainController = null;
+    private static MainController mainController;
+    private final Set<String> lobbyPlayers;
+
+    public static MainController getMainControllerInstance(){
+        if(mainController == null){
+            mainController = new MainController();
+        }
+        return mainController;
+    }
+
+    private MainController(){
+        this.lobbyPlayers = new HashSet<>();
+    }
+
+}
+
+/*private static MainController mainController = null;
     private final HashMap<String, GameController> playerInfo;
     private final HashMap<String, Tuple<Game, GameController>> gamesInfo;
 
@@ -188,31 +204,29 @@ public class MainController {
     /*
      * Check if Player Exists, Check if there is game associated, if
      * Yes, send the state of the Game, if no, send list of nonActive games that it can join.
-     * */
-    public void reconnect(ClientHandler clientHandler, String gameName){
-        if(!this.playerInfo.containsKey(clientHandler.getName())){
-            //clientHandler.sendMessageToClient();
-        }
-        if(!this.gamesInfo.containsKey(gameName)){
-            clientHandler.update(new AvailableGamesMessage(findAvailableGames()));
-        }
-        if(this.gamesInfo.get(gameName).x().getPlayers().stream().map(Player::getName).noneMatch(n -> n.equals(gameName))){
-            //clientHandler.sendMessageToClient()
-        }
-        this.gamesInfo.get(gameName).y().addClient(clientHandler.getName(), clientHandler);
+     *
+public void reconnect(ClientHandler clientHandler, String gameName){
+    if(!this.playerInfo.containsKey(clientHandler.getName())){
+        //clientHandler.sendMessageToClient();
     }
-
-    public void sendChatMessage(ClientHandler player, ArrayList<String> usersToSend, String messageToSend){
-        if(!this.playerInfo.containsKey(player.getName())){
-            player.update(new RefusedActionMessage(ErrorType.GENERIC,
-                                                   "Player " + player.getName() + " is not in the game!"));
-        }
-        GameController temp = this.playerInfo.get(player.getName());
-        temp.sendChatMessage(usersToSend, player.getName(), messageToSend);
+    if(!this.gamesInfo.containsKey(gameName)){
+        clientHandler.update(new AvailableGamesMessage(findAvailableGames()));
     }
-
-    public static void destroyMainController() {
-        MainController.mainController = null;
+    if(this.gamesInfo.get(gameName).x().getPlayers().stream().map(Player::getName).noneMatch(n -> n.equals(gameName))){
+        //clientHandler.sendMessageToClient()
     }
-
+    this.gamesInfo.get(gameName).y().addClient(clientHandler.getName(), clientHandler);
 }
+
+public void sendChatMessage(ClientHandler player, ArrayList<String> usersToSend, String messageToSend){
+    if(!this.playerInfo.containsKey(player.getName())){
+        player.update(new RefusedActionMessage(ErrorType.GENERIC,
+                                               "Player " + player.getName() + " is not in the game!"));
+    }
+    GameController temp = this.playerInfo.get(player.getName());
+    temp.sendChatMessage(usersToSend, player.getName(), messageToSend);
+}
+
+public static void destroyMainController() {
+    MainController.mainController = null;
+}*/

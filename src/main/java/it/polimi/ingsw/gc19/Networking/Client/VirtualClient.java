@@ -15,12 +15,4 @@ public interface VirtualClient extends Remote{
 
     void pushUpdate(MessageToClient message) throws RemoteException;
 
-    /*
-    void pushUpdate(AnswerToActionMessage answerToActionMessage) throws RemoteException;
-    void pushUpdate(NotifyChatMessage notifyChatMessage) throws RemoteException;
-    void pushUpdate(ConfigurationMessage configurationMessage) throws RemoteException;
-    void pushUpdate(NotifyEventOnGame notifyEventOnGame) throws RemoteException;
-    void pushUpdate(GameHandlingMessage gameHandlingMessage) throws RemoteException;
-    void pushUpdate(TurnStateMessage turnStateMessage) throws RemoteException;*/
-
 }

@@ -10,10 +10,10 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public interface VirtualGameServer extends Remote {
-    public void placeCard(VirtualClient clientRMI, String cardToInsert, String anchorCard, Direction directionToInsert) throws RemoteException;
-    public void heartBeat(VirtualClient clientRMI) throws RemoteException;
-    public void sendChatMessage(VirtualClient clientRMI, ArrayList<String> UsersToSend, String messageToSend) throws RemoteException;
-    public void placeInitialCard(VirtualClient clientRMI, CardOrientation cardOrientation) throws RemoteException;
-    public void pickCardFromTable(VirtualClient clientRMI, PlayableCardType type, int position) throws RemoteException;
-    public void pickCardFromDeck(VirtualClient clientRMI, PlayableCardType type) throws RemoteException;
+    public void placeCard(String cardToInsert, String anchorCard, Direction directionToInsert, CardOrientation orientation) throws RemoteException;
+    public void heartBeat() throws RemoteException;
+    public void sendChatMessage(ArrayList<String> UsersToSend, String messageToSend) throws RemoteException;
+    public void placeInitialCard(CardOrientation cardOrientation) throws RemoteException;
+    public void pickCardFromTable(PlayableCardType type, int position) throws RemoteException;
+    public void pickCardFromDeck(PlayableCardType type) throws RemoteException;
 }
