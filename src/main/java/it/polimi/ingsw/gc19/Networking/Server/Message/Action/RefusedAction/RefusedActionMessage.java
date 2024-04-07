@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 public class RefusedActionMessage extends AnswerToActionMessage {
@@ -13,6 +14,7 @@ public class RefusedActionMessage extends AnswerToActionMessage {
         super();
         this.errorType = errorType;
         this.description = description;
+        this.setPriorityLevel(MessagePriorityLevel.HIGH);
     }
 
     public ErrorType getErrorType(){

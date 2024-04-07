@@ -1,8 +1,10 @@
-package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
+package it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents;
 
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
-public class DisconnectedPlayerMessage extends GameHandlingMessage{
+public class DisconnectedPlayerMessage extends NotifyEventOnGame {
 
     private final String removedNick;
 

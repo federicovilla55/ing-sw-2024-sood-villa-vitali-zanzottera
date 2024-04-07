@@ -57,12 +57,6 @@ public class MainController {
         }
     }
 
-    public void setPlayerInactive(ClientHandler client){
-        synchronized(this.playerInfo){
-            this.playerInfo.get(client.getName()).removeClient(client.getName());
-        }
-    }
-
     public synchronized void createGame(String gameName, int numPlayer, ClientHandler player, long randomSeed) throws IllegalArgumentException {
         Game gameToBuild = null;
         synchronized(this.gamesInfo) {

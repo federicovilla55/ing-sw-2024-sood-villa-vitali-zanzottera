@@ -10,5 +10,8 @@ public interface GameEventsMessageVisitor{
     void visit(GameResumedMessage message);
     void visit(NewPlayerConnectedToGameMessage message);
     void visit(StartPlayingGameMessage message);
+    void visit(BeginFinalRoundMessage message);
+    void visit(DisconnectedPlayerMessage message);
+    void visit(PlayerReconnectedToGameMessage message);
 
 }

@@ -18,9 +18,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GameResumedMess
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableColorsMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.PlayerReconnectedToGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.PlayerReconnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
