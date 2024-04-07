@@ -8,20 +8,20 @@ import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.CreatedGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MainController {
 
     private static MainController mainController = null;
 
-    private final HashMap<String, GameController> playerInfo;
+    private final HashMap<String, Tuple<Boolean, String>> playerInfo;
     private final HashMap<String, Tuple<Game, GameController>> gamesInfo;
 
     public static MainController getMainServer(){
@@ -39,13 +39,17 @@ public class MainController {
 
     public boolean createClient(ClientHandler player, String playerNickname){
         synchronized(this.playerInfo) {
-            if (!this.playerInfo.containsKey(playerNickname)) {
-                this.playerInfo.put(playerNickname, null);
+            if (!this.playerInfo.containsKey(playerNickname) || this.playerInfo.get(playerNickname).y()==null) {
+                this.playerInfo.put(playerNickname, new Tuple<>(true, null));
                 player.update(new CreatedPlayerMessage(playerNickname));
                 return true;
             }
-            else{
-
+            else {
+                if(this.playerInfo.get(playerNickname).x().equals(false)) {
+                    if(this.playerInfo.get(playerNickname).y()!=null)
+                        this.reconnect(player, this.playerInfo.get(playerNickname).y());
+                    return true;
+                }
             }
         }
         return false;
@@ -53,11 +57,12 @@ public class MainController {
 
     public void setPlayerInactive(String nickname){
         synchronized(this.playerInfo){
-            this.playerInfo.get(nickname).removeClient(nickname);
+            String gameName = this.playerInfo.get(nickname).y();
+            this.playerInfo.put(nickname, new Tuple<>(false, gameName));
         }
     }
 
-    public synchronized void createGame(String gameName, int numPlayer, ClientHandler player, long randomSeed) throws IllegalArgumentException {
+    public void createGame(String gameName, int numPlayer, ClientHandler player, long randomSeed) throws IllegalArgumentException {
         Game gameToBuild = null;
         synchronized(this.gamesInfo) {
             if (!this.gamesInfo.containsKey(gameName)) {
@@ -80,7 +85,7 @@ public class MainController {
     }
 
 
-    public synchronized void createGame(String gameName, int numPlayer, ClientHandler player) throws IllegalArgumentException {
+    public void createGame(String gameName, int numPlayer, ClientHandler player) throws IllegalArgumentException {
         this.createGame(gameName, numPlayer, player, new Random().nextLong());
     }
 
@@ -89,7 +94,7 @@ public class MainController {
             if (!this.playerInfo.containsKey(player.getName())) {
                 throw new IllegalArgumentException(); //guardare meglio
             }
-            if (this.playerInfo.get(player.getName()) != null) {
+            if (this.playerInfo.get(player.getName()).y() != null) {
                 throw new IllegalArgumentException();
             }
         }
@@ -113,9 +118,9 @@ public class MainController {
         }
         GameController gameControllerToJoin;
         gameControllerToJoin = this.gamesInfo.get(gameName).y();
-        this.playerInfo.put(player.getName(), gameControllerToJoin);
-        gameControllerToJoin.addClient(player.getName(), player); //Problems?
-        //join game message?
+        this.playerInfo.put(player.getName(), new Tuple<>(true, gameName));
+        player.update(new JoinedGameMessage(gameName));
+        gameControllerToJoin.addClient(player.getName(), player);
     }
 
     private ArrayList<String> findAvailableGames(){
@@ -128,62 +133,63 @@ public class MainController {
         }
     }
 
-    public void makeMove(ClientHandler player, String cardToInsert, String anchorCard, Direction directionToInsert) {
+    public void placeCard(ClientHandler player, String cardToInsert, String anchorCard, Direction directionToInsert, CardOrientation cardOrientation) {
         if(!this.playerInfo.containsKey(player.getName())){
             player.update(new RefusedActionMessage(ErrorType.GENERIC,
                                                    "Player " + player.getName() + " is not in the game!"));
+            return;
         }
-        GameController temp = this.playerInfo.get(player.getName());
-        temp.placeCard(player.getName(), cardToInsert, anchorCard, directionToInsert, CardOrientation.UP);
+        GameController temp = getGameController(player);
+        temp.placeCard(player.getName(), cardToInsert, anchorCard, directionToInsert, cardOrientation);
     }
 
-    public void setInitialCard(ClientHandler player, CardOrientation cardOrientation){
+    private GameController getGameController(ClientHandler player) {
+        return this.gamesInfo.get(playerInfo.get(player.getName()).y()).y();
+    }
+
+    public void placeInitialCard(ClientHandler player, CardOrientation cardOrientation){
         if(!this.playerInfo.containsKey(player.getName())){
             player.update(new RefusedActionMessage(ErrorType.GENERIC,
-                                                   "Player " + player.getName() + " is not in the game!"));
+                    "Player " + player.getName() + " is not in the game!"));
+            return;
         }
-        GameController temp = this.playerInfo.get(player.getName());
-        temp.placeInitialCard(player.getName(), cardOrientation);
+        this.getGameController(player).placeInitialCard(player.getName(), cardOrientation);
     }
 
     public void pickCardFromTable(ClientHandler player, PlayableCardType cardType, int position){
         if(!this.playerInfo.containsKey(player.getName())){
             player.update(new RefusedActionMessage(ErrorType.GENERIC,
                                                    "Player " + player.getName() + " is not in the game!"));
+            return;
         }
-        this.playerInfo.get(player.getName()).drawCardFromTable(player.getName(), cardType, position);
+        this.getGameController(player).drawCardFromTable(player.getName(), cardType, position);
     }
 
     public void pickCardFromDeck(ClientHandler player, PlayableCardType cardType){
         if(!this.playerInfo.containsKey(player.getName())){
             player.update(new RefusedActionMessage(ErrorType.GENERIC,
                                                    "Player " + player.getName() + " is not in the game!"));
+            return;
         }
-        this.playerInfo.get(player.getName()).drawCardFromDeck(player.getName(), cardType);
+        this.getGameController(player).drawCardFromDeck(player.getName(), cardType);
     }
 
     public void choosePrivateGoalCard(ClientHandler player, int cardIdx){
         if(!this.playerInfo.containsKey(player.getName())){
             player.update(new RefusedActionMessage(ErrorType.GENERIC,
                                                    "Player " + player.getName() + " is not in the game!"));
+            return;
         }
-        this.playerInfo.get(player.getName()).choosePrivateGoal(player.getName(), cardIdx);
+        this.getGameController(player).choosePrivateGoal(player.getName(), cardIdx);
     }
 
     public void chooseColor(ClientHandler player, Color color){
         if(!this.playerInfo.containsKey(player.getName())){
             player.update(new RefusedActionMessage(ErrorType.GENERIC,
                                                    "Player " + player.getName() + " is not in the game!"));
+            return;
         }
-        this.playerInfo.get(player.getName()).chooseColor(player.getName(), color);
-    }
-
-    public void placeInitialCard(ClientHandler player, CardOrientation cardOrientation){
-        if(!this.playerInfo.containsKey(player.getName())){
-            player.update(new RefusedActionMessage(ErrorType.GENERIC,
-                                                   "Player " + player.getName() + " is not in the game!"));
-        }
-        this.playerInfo.get(player.getName()).placeInitialCard(player.getName(), cardOrientation);
+        this.getGameController(player).chooseColor(player.getName(), color);
     }
 
     /*
@@ -208,7 +214,7 @@ public class MainController {
             player.update(new RefusedActionMessage(ErrorType.GENERIC,
                                                    "Player " + player.getName() + " is not in the game!"));
         }
-        GameController temp = this.playerInfo.get(player.getName());
+        GameController temp = this.getGameController(player);
         temp.sendChatMessage(usersToSend, player.getName(), messageToSend);
     }
 

@@ -10,14 +10,15 @@ import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Game.PlayerNotFoundException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardFromDeckMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OtherAcceptedPickCardFromDeckMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardFromTable;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.EndGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GamePausedMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GameResumedMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableColorsMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.PlayerReconnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
@@ -310,8 +311,10 @@ public class GameController{
         }
 
         this.gameAssociated.getActivePlayer().getStation().updateCardsInHand(card);
-        this.messageFactory.sendMessageToAllGamePlayers(new AcceptedPickCardFromDeckMessage(nickname,
-                card, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)));
+        this.messageFactory.sendMessageToPlayer(nickname, new OwnAcceptedPickCardFromDeckMessage(nickname,
+                card, type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)));
+        this.messageFactory.sendMessageToAllGamePlayersExcept(new OtherAcceptedPickCardFromDeckMessage(nickname,
+                type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)),nickname);
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
         this.setNextPlayer();
@@ -339,7 +342,7 @@ public class GameController{
         this.gameAssociated.getActivePlayer().getStation().updateCardsInHand(card);
         this.messageFactory.sendMessageToAllGamePlayers(new AcceptedPickCardFromTable(nickname,
                                                                                       card, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null),
-                                                                                      position, gameAssociated.getDeckFromType(type).getNextCard().orElse(null)));
+                                                                                      position, type, gameAssociated.getPlayableCardsOnTable(type)[position]));
 
         if(!this.gameAssociated.drawableCardsArePresent()) {
             this.gameAssociated.setFinalCondition(true);
