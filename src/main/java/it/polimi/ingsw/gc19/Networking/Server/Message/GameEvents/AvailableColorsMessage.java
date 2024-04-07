@@ -20,7 +20,7 @@ public class AvailableColorsMessage extends NotifyEventOnGame{
 
     @Override
     public void accept(MessageToClientVisitor visitor) {
-        if(visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);
+        if(visitor instanceof GameEventsMessageVisitor) ((GameEventsMessageVisitor) visitor).visit(this);
     }
 
 }

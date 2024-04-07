@@ -79,7 +79,6 @@ public class MainController {
             else{
                 player.update(new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE,
                                                     "Game name " + gameName + " is already in use!"));
-                player.update(new AvailableGamesMessage(findAvailableGames()));
             }
         }
     }

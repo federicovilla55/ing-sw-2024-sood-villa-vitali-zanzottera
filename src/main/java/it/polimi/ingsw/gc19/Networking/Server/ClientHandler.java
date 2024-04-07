@@ -12,11 +12,11 @@ import java.util.Queue;
 public abstract class ClientHandler implements Observer<MessageToClient>{
 
     protected final String username;
-    protected final PriorityQueue<MessageToClient> messageQueue;
+    protected final Queue<MessageToClient> messageQueue;
 
     public ClientHandler(String username){
         this.username = username;
-        this.messageQueue = new PriorityQueue<>(new MessagePriorityComparator());
+        this.messageQueue = new ArrayDeque<>();
         new Thread(() -> {
             while(true){
                 ClientHandler.this.sendMessage();
@@ -41,18 +41,18 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
     protected void sendMessage(){
         MessageToClient messageToSend;
         synchronized(messageQueue){
-            if(messageQueue.isEmpty()){
+            while(messageQueue.isEmpty()){
                 messageQueue.notifyAll();
                 try{
                     messageQueue.wait();
                 }
                 catch(InterruptedException ignored){ };
             }
-            else{
-                messageToSend = this.messageQueue.remove();
-                this.sendMessageToClient(messageToSend);
-                this.messageQueue.notifyAll();
-            }
+
+            messageToSend = this.messageQueue.remove();
+            this.sendMessageToClient(messageToSend);
+            this.messageQueue.notifyAll();
+
         }
     }
 

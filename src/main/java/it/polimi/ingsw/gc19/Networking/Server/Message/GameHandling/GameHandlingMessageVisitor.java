@@ -6,7 +6,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.PlayerReconnect
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 
 public interface GameHandlingMessageVisitor{
-    void visit(AvailableColorsMessage message);
+
+    void visit(CreatedGameMessage message);
     void visit(AvailableGamesMessage message);
     void visit(BeginFinalRoundMessage message);
     void visit(CreatedPlayerMessage message);

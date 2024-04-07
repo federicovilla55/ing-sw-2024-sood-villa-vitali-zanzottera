@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer;
 
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 public class OtherAcceptedPickCardFromDeckMessage extends AcceptedPickCardMessage {
@@ -10,8 +11,7 @@ public class OtherAcceptedPickCardFromDeckMessage extends AcceptedPickCardMessag
     }
 
     @Override
-    public void visit(MessageToClientVisitor visitor) {
-        visitor.visit(this);
+    public void accept(MessageToClientVisitor visitor) {
+        if(visitor instanceof AnswerToActionMessageVisitor) ((AnswerToActionMessageVisitor) visitor).visit(this);
     }
-
 }

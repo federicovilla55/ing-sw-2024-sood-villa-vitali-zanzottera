@@ -94,7 +94,7 @@ public class Station extends Publisher{
      */
     public void setPrivateGoalCard(int cardIdx) {
         this.privateGoalCardIdx = cardIdx;
-        this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(), new AcceptedChooseGoalCard(this.getPrivateGoalCard().getCardCode()));
+        this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(), new AcceptedChooseGoalCard(this.getPrivateGoalCard()));
     }
 
     /**

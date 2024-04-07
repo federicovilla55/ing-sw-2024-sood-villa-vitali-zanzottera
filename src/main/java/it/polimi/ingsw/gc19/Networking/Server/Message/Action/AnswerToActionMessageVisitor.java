@@ -6,7 +6,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.Refus
 public interface AnswerToActionMessageVisitor {
     void visit(AcceptedChooseGoalCard message);
     void visit(AcceptedColorMessage message);
-    void visit(AcceptedPickCardFromDeckMessage message);
+    void visit(OwnAcceptedPickCardFromDeckMessage message);
+    void visit(OtherAcceptedPickCardFromDeckMessage message);
     void visit(AcceptedPickCardFromTable message);
     void visit(AcceptedPlaceCardMessage message);
     void visit(AcceptedPlaceInitialCard message);
