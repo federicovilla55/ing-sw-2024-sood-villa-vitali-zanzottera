@@ -56,7 +56,7 @@ class MessageFactoryTest {
     @Test
     void testSendMessageToPlayer() {
         testMessageFactory.sendMessageToPlayer("Player 2", new MessageToClientStub());
-        
+
         assertTrue(observer1.messageQueue.isEmpty());
         assertEquals(1,observer2.messageQueue.size());
         assertTrue(observer3.messageQueue.isEmpty());

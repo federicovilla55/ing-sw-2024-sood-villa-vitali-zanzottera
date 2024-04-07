@@ -6,61 +6,39 @@ import it.polimi.ingsw.gc19.ObserverPattern.Observable;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 public class MessageFactory implements Observable<MessageToClient>{
 
-    private final PriorityQueue<MessageToClient> messagesToBeProcessed;
     private final List<Observer<MessageToClient>> mockedView;
     private final Map<String, Observer<MessageToClient>> connectedClients;
 
     public MessageFactory(){
         this.connectedClients = new HashMap<>();
         this.mockedView = new ArrayList<>();
-        this.messagesToBeProcessed = new PriorityQueue<>(new MessagePriorityComparator());
-        new Thread(){
-            @Override
-            public void run(){
-                MessageFactory.this.notifyObservers();
-            }
-        }.start();
     }
 
     public void sendMessageToPlayer(String nick, MessageToClient message){
-        synchronized(this.messagesToBeProcessed){
-            this.messagesToBeProcessed.add(message.setHeader(new ArrayList<>(List.of(nick))));
-            this.messagesToBeProcessed.notifyAll();
-        }
-        //notifyObservers(message.setHeader(new ArrayList<>(List.of(nick))));
+        notifyObservers(message.setHeader(new ArrayList<>(List.of(nick))));
     }
 
     public void sendMessageToPlayer(List<String> nick, MessageToClient message){
-        synchronized(this.messagesToBeProcessed){
-            this.messagesToBeProcessed.add(message.setHeader(nick));
-            this.messagesToBeProcessed.notifyAll();
-        }
-        //notifyObservers(message.setHeader(nick));
+        notifyObservers(message.setHeader(nick));
     }
 
     public void sendMessageToAllGamePlayers(MessageToClient message){
-        synchronized(this.messagesToBeProcessed){
-            this.messagesToBeProcessed.add(message.setHeader(new ArrayList<>(connectedClients.keySet())));
-            this.messagesToBeProcessed.notifyAll();
-        }
-        //notifyObservers(message.setHeader(new ArrayList<>(connectedClients.keySet())));
+        notifyObservers(message.setHeader(new ArrayList<>(connectedClients.keySet())));
     }
 
     public void sendMessageToAllGamePlayersExcept(MessageToClient message, String ... nickExcept){
+        ArrayList<String> newHeader;
         ArrayList<String> exceptedPlayers = new ArrayList<>(List.of(nickExcept));
-        ArrayList<String> newHeader = connectedClients.keySet()
-                                                      .stream()
-                                                      .filter(p -> !exceptedPlayers.contains(p))
-                                                      .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
-        synchronized(this.messagesToBeProcessed){
-            this.messagesToBeProcessed.add(message.setHeader(newHeader));
-            this.messagesToBeProcessed.notifyAll();
-        }
-        //notifyObservers(message.setHeader(newHeader));
+        newHeader = connectedClients.keySet()
+                                    .stream()
+                                    .filter(p -> !exceptedPlayers.contains(p))
+                                    .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        notifyObservers(message.setHeader(newHeader));
     }
 
     public void attachObserver(Observer<MessageToClient> observer){
@@ -95,30 +73,22 @@ public class MessageFactory implements Observable<MessageToClient>{
         mockedView.remove(obs);
     }
 
-    public void notifyObservers(){
-        synchronized(this.messagesToBeProcessed){
-            while(this.messagesToBeProcessed.isEmpty()){
-                try{
-                    this.messagesToBeProcessed.wait();
-                }catch(InterruptedException ignored){};
-            }
-            notifyNamedObservers(this.messagesToBeProcessed.remove());
-            notifyAnonymousObservers(this.messagesToBeProcessed.remove());
-        }
+    public void notifyObservers(MessageToClient message){
+        notifyAnonymousObservers(message);
+        notifyNamedObservers(message);
     }
 
     @Override
     public void notifyNamedObservers(MessageToClient message) {
-        for(Map.Entry<String,Observer<MessageToClient>> obs : this.connectedClients.entrySet()){
+        for (Map.Entry<String, Observer<MessageToClient>> obs : this.connectedClients.entrySet()) {
             if (message.getHeader().contains(obs.getKey()))
                 obs.getValue().update(message);
         }
-
     }
 
     @Override
     public void notifyAnonymousObservers(MessageToClient message) {
-        for(Observer<MessageToClient> obs : this.mockedView){
+        for (Observer<MessageToClient> obs : this.mockedView) {
             obs.update(message);
         }
     }
