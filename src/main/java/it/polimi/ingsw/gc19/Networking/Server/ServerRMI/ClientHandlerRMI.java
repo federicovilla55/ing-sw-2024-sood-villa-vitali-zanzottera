@@ -16,12 +16,13 @@ public class ClientHandlerRMI extends ClientHandler {
     }
 
     @Override
-    public void update(MessageToClient message) {
+    public void sendMessageToClient(MessageToClient message) {
         //System.out.println("RMI send message");
-        try {
-            virtualClientAssociated.GetMessage(message);
+        try{
+            virtualClientAssociated.pushUpdate(message);
         }
-        catch (RemoteException ignored){ };
+        catch(RemoteException ignored){ };
     }
+
 }
 

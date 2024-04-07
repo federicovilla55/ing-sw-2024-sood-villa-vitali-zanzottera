@@ -1,19 +1,22 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityComparator;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
 import java.util.ArrayDeque;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 public abstract class ClientHandler implements Observer<MessageToClient>{
 
     protected final String username;
-    protected final Queue<MessageToClient> messageQueue;
+    protected final PriorityQueue<MessageToClient> messageQueue;
 
     public ClientHandler(String username){
         this.username = username;
-        this.messageQueue = new ArrayDeque<>();
+        this.messageQueue = new PriorityQueue<>(new MessagePriorityComparator());
         new Thread(() -> {
             while(true){
                 ClientHandler.this.sendMessage();
@@ -25,9 +28,7 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
         return this.username;
     }
 
-    public void sendMessageToClient(MessageToClient message) {
-        throw new UnsupportedOperationException();
-    }
+    public abstract void sendMessageToClient(MessageToClient message);
 
     @Override
     public void update(MessageToClient message) {
@@ -49,9 +50,7 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
             }
             else{
                 messageToSend = this.messageQueue.remove();
-                if(messageToSend.getHeader().contains(this.username)){
-                    this.update(messageToSend);
-                }
+                this.sendMessageToClient(messageToSend);
                 this.messageQueue.notifyAll();
             }
         }

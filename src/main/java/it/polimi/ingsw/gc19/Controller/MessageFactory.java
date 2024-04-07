@@ -1,35 +1,53 @@
 package it.polimi.ingsw.gc19.Controller;
 
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityComparator;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.ObserverPattern.Observable;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MessageFactory implements Observable<MessageToClient>{
 
+    private final PriorityQueue<MessageToClient> messagesToBeProcessed;
     private final List<Observer<MessageToClient>> mockedView;
     private final Map<String, Observer<MessageToClient>> connectedClients;
 
     public MessageFactory(){
         this.connectedClients = new HashMap<>();
         this.mockedView = new ArrayList<>();
+        this.messagesToBeProcessed = new PriorityQueue<>(new MessagePriorityComparator());
+        new Thread(){
+            @Override
+            public void run(){
+                MessageFactory.this.notifyObservers();
+            }
+        }.start();
     }
 
     public void sendMessageToPlayer(String nick, MessageToClient message){
-        notifyObservers(message.setHeader(new ArrayList<>(List.of(nick))));
+        synchronized(this.messagesToBeProcessed){
+            this.messagesToBeProcessed.add(message.setHeader(new ArrayList<>(List.of(nick))));
+            this.messagesToBeProcessed.notifyAll();
+        }
+        //notifyObservers(message.setHeader(new ArrayList<>(List.of(nick))));
     }
 
     public void sendMessageToPlayer(List<String> nick, MessageToClient message){
-        notifyObservers(message.setHeader(nick));
+        synchronized(this.messagesToBeProcessed){
+            this.messagesToBeProcessed.add(message.setHeader(nick));
+            this.messagesToBeProcessed.notifyAll();
+        }
+        //notifyObservers(message.setHeader(nick));
     }
 
     public void sendMessageToAllGamePlayers(MessageToClient message){
-        notifyObservers(message.setHeader(new ArrayList<>(connectedClients.keySet())));
+        synchronized(this.messagesToBeProcessed){
+            this.messagesToBeProcessed.add(message.setHeader(new ArrayList<>(connectedClients.keySet())));
+            this.messagesToBeProcessed.notifyAll();
+        }
+        //notifyObservers(message.setHeader(new ArrayList<>(connectedClients.keySet())));
     }
 
     public void sendMessageToAllGamePlayersExcept(MessageToClient message, String ... nickExcept){
@@ -38,7 +56,11 @@ public class MessageFactory implements Observable<MessageToClient>{
                                                       .stream()
                                                       .filter(p -> !exceptedPlayers.contains(p))
                                                       .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
-        notifyObservers(message.setHeader(newHeader));
+        synchronized(this.messagesToBeProcessed){
+            this.messagesToBeProcessed.add(message.setHeader(newHeader));
+            this.messagesToBeProcessed.notifyAll();
+        }
+        //notifyObservers(message.setHeader(newHeader));
     }
 
     public void attachObserver(Observer<MessageToClient> observer){
@@ -73,10 +95,16 @@ public class MessageFactory implements Observable<MessageToClient>{
         mockedView.remove(obs);
     }
 
-    @Override
-    public void notifyObservers(MessageToClient message){
-        notifyNamedObservers(message);
-        notifyAnonymousObservers(message);
+    public void notifyObservers(){
+        synchronized(this.messagesToBeProcessed){
+            while(this.messagesToBeProcessed.isEmpty()){
+                try{
+                    this.messagesToBeProcessed.wait();
+                }catch(InterruptedException ignored){};
+            }
+            notifyNamedObservers(this.messagesToBeProcessed.remove());
+            notifyAnonymousObservers(this.messagesToBeProcessed.remove());
+        }
     }
 
     @Override
@@ -94,4 +122,5 @@ public class MessageFactory implements Observable<MessageToClient>{
             obs.update(message);
         }
     }
+
 }

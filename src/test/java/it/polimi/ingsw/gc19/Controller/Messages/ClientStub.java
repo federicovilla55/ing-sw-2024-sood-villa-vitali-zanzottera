@@ -11,6 +11,11 @@ public class ClientStub extends ClientHandler{
         super(username);
     }
 
+    @Override
+    public void sendMessageToClient(MessageToClient message) {
+
+    }
+
     void clearQueue() {
         messageQueue.clear();
     }

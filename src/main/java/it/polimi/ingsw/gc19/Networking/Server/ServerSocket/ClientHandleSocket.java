@@ -31,6 +31,11 @@ public class ClientHandleSocket extends ClientHandler implements Runnable{
     }
 
     @Override
+    public void sendMessageToClient(MessageToClient message) {
+
+    }
+
+    @Override
     public void update(MessageToClient message) {
 
     }

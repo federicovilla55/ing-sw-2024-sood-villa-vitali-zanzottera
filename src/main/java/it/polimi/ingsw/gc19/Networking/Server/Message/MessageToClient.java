@@ -14,15 +14,26 @@ import java.util.List;
 public abstract class MessageToClient implements Remote, Serializable{
 
     private List<String> header;
+    private MessagePriorityLevel messagePriorityLevel;
 
     public MessageToClient setHeader(List<String> header){
         this.header = header;
+        this.messagePriorityLevel = MessagePriorityLevel.LOW;
         return this;
     }
 
     public MessageToClient setHeader(String header){
         this.header = new ArrayList<>(List.of(header));
         return this;
+    }
+
+    public MessageToClient setPriorityLevel(MessagePriorityLevel priority){
+        this.messagePriorityLevel = priority;
+        return this;
+    }
+
+    public MessagePriorityLevel getMessagePriorityLevel(){
+        return this.messagePriorityLevel;
     }
 
     public List<String> getHeader(){
@@ -90,4 +101,5 @@ public abstract class MessageToClient implements Remote, Serializable{
 
         return s;
     }
+
 }

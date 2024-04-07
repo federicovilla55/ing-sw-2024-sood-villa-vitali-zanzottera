@@ -7,6 +7,7 @@ import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -52,7 +53,37 @@ class GameControllerTest {
         }
         clientSkeleton = new ClientHandlerRMI(new VirtualClient() {
             @Override
-            public void GetMessage(MessageToClient message) throws RemoteException {
+            public void pushUpdate(MessageToClient message) throws RemoteException {
+
+            }
+
+            @Override
+            public void pushUpdate(AnswerToActionMessage answerToActionMessage) throws RemoteException {
+
+            }
+
+            @Override
+            public void pushUpdate(NotifyChatMessage notifyChatMessage) throws RemoteException {
+
+            }
+
+            @Override
+            public void pushUpdate(ConfigurationMessage configurationMessage) throws RemoteException {
+
+            }
+
+            @Override
+            public void pushUpdate(NotifyEventOnGame notifyEventOnGame) throws RemoteException {
+
+            }
+
+            @Override
+            public void pushUpdate(GameHandlingMessage gameHandlingMessage) throws RemoteException {
+
+            }
+
+            @Override
+            public void pushUpdate(TurnStateMessage turnStateMessage) throws RemoteException {
 
             }
 

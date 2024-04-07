@@ -13,6 +13,4 @@ public interface Observable<T extends MessageToClient>{
 
     void notifyNamedObservers(MessageToClient message);
 
-    void notifyObservers(MessageToClient message);
-
 }
