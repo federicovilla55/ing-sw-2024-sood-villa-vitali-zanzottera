@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.lang.reflect.MalformedParametersException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,7 +54,7 @@ class GameTest {
             assertEquals(38, deckSize, "Resource deck size should be 38");
         }
 
-        assertThrows(MalformedParametersException.class, () -> game.pickCardFromDeck(PlayableCardType.INITIAL));
+        assertThrows(IllegalArgumentException.class, () -> game.pickCardFromDeck(PlayableCardType.INITIAL));
 
         // 40 Gold Cards, 40 Resource Cards, 16 Goal Cards, 6 Initial Cards
         assertEquals(102, game.getInfoAllCards().size());
@@ -67,8 +66,8 @@ class GameTest {
      */
     @Test
     public void testCardsTable() throws CardNotFoundException {
-        assertThrows(MalformedParametersException.class, () -> game.pickCardFromTable(PlayableCardType.INITIAL, 0));
-        assertThrows(MalformedParametersException.class, () -> game.pickCardFromTable(PlayableCardType.INITIAL, 1));
+        assertThrows(IllegalArgumentException.class, () -> game.pickCardFromTable(PlayableCardType.INITIAL, 0));
+        assertThrows(IllegalArgumentException.class, () -> game.pickCardFromTable(PlayableCardType.INITIAL, 1));
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> game.pickCardFromTable(PlayableCardType.GOLD, 2));
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> game.pickCardFromTable(PlayableCardType.RESOURCE, 2));
 

@@ -14,7 +14,7 @@ import java.util.List;
 public abstract class MessageToClient implements Remote, Serializable{
 
     private List<String> header;
-    private MessagePriorityLevel messagePriorityLevel;
+    private MessagePriorityLevel messagePriorityLevel = MessagePriorityLevel.LOW;
 
     protected MessageToClient(){
         this.messagePriorityLevel = MessagePriorityLevel.LOW;

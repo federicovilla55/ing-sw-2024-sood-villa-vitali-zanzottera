@@ -6,13 +6,13 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
 import java.net.Socket;
 
-public class ClientHandleSocket extends ClientHandler implements Runnable{
+public class ClientHandlerSocket extends ClientHandler implements Runnable{
     /*private final Socket clientSocket;
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
     private Controller MasterController;*/
 
-    public ClientHandleSocket(Socket clientSocket, MainController masterMainController) {
+    public ClientHandlerSocket(Socket clientSocket, MainController masterMainController) {
         super("User");
         //this.in = new ObjectInputStream(System.in);
     }

@@ -26,7 +26,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.lang.reflect.MalformedParametersException;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
@@ -385,7 +384,7 @@ class GameControllerTest {
         // wrong card type (INITIAL)
         cardsBefore = gameController.getGameAssociated().getPlayerByName("Player 1").getStation().getCardsInHand();
         assertEquals(2, cardsBefore.size());
-        assertThrows(MalformedParametersException.class, () -> gameController.drawCardFromDeck("Player 1", PlayableCardType.INITIAL));
+        assertThrows(IllegalArgumentException.class, () -> gameController.drawCardFromDeck("Player 1", PlayableCardType.INITIAL));
         cardsAfter = gameController.getGameAssociated().getPlayerByName("Player 1").getStation().getCardsInHand();
         assertTrue(cardsBefore.containsAll(cardsAfter) && cardsAfter.containsAll(cardsBefore));
 
@@ -440,7 +439,7 @@ class GameControllerTest {
         // wrong card type (INITIAL)
         cardsBefore = gameController.getGameAssociated().getPlayerByName("Player 1").getStation().getCardsInHand();
         assertEquals(2, cardsBefore.size());
-        assertThrows(MalformedParametersException.class, () -> gameController.drawCardFromTable("Player 1", PlayableCardType.INITIAL, 0));
+        assertThrows(IllegalArgumentException.class, () -> gameController.drawCardFromTable("Player 1", PlayableCardType.INITIAL, 0));
         cardsAfter = gameController.getGameAssociated().getPlayerByName("Player 1").getStation().getCardsInHand();
         assertTrue(cardsBefore.containsAll(cardsAfter) && cardsAfter.containsAll(cardsBefore));
 

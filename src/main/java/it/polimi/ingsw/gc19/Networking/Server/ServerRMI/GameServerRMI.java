@@ -139,12 +139,12 @@ public class GameServerRMI extends Server implements VirtualMainServer{
     }
 
     @Override
-    public void placeCard(VirtualClient clientRMI, String cardToInsert, String anchorCard, Direction directionToInsert) throws RemoteException {
+    public void placeCard(VirtualClient clientRMI, String cardToInsert, String anchorCard, Direction directionToInsert, CardOrientation cardOrientation) throws RemoteException {
         if(!this.connectedClients.containsKey(clientRMI)){
             throw new RemoteException("You are not registered to server!");
         }
         //@TODO: handle exception!
-        this.getController().makeMove(this.connectedClients.get(clientRMI), cardToInsert, anchorCard, directionToInsert);
+        this.getController().placeCard(this.connectedClients.get(clientRMI), cardToInsert, anchorCard, directionToInsert, cardOrientation);
     }
 
     @Override
@@ -179,7 +179,7 @@ public class GameServerRMI extends Server implements VirtualMainServer{
         if(!this.connectedClients.containsKey(clientRMI)){
             throw new RemoteException("You are not registered to server!");
         }
-        this.getController().setInitialCard(this.connectedClients.get(clientRMI), cardOrientation);
+        this.getController().placeInitialCard(this.connectedClients.get(clientRMI), cardOrientation);
     }
 
     @Override

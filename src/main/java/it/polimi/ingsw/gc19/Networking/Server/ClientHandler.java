@@ -22,15 +22,15 @@ public abstract class ClientHandler implements Observer<MessageToClient>, Virtua
     protected MainController mainController;
     private GameController gameController;
     protected final String username;
-    protected final PriorityQueue<MessageToClient> messageQueue;
+    protected final Queue<MessageToClient> messageQueue;
     protected Long lastSignalFromClient;
-
 
     public ClientHandler(String username, GameController gameController, MainController mainController){
         this.mainController = mainController;
         this.gameController = gameController;
 
         this.username = username;
+        this.messageQueue = new ArrayDeque<>();
 
         this.messageQueue = new PriorityQueue<>(new MessagePriorityComparator());
 
@@ -60,18 +60,18 @@ public abstract class ClientHandler implements Observer<MessageToClient>, Virtua
     protected void sendMessage(){
         MessageToClient messageToSend;
         synchronized(messageQueue){
-            if(messageQueue.isEmpty()){
+            while(messageQueue.isEmpty()){
                 messageQueue.notifyAll();
                 try{
                     messageQueue.wait();
                 }
                 catch(InterruptedException ignored){ };
             }
-            else{
-                messageToSend = this.messageQueue.remove();
-                this.sendMessageToClient(messageToSend);
-                this.messageQueue.notifyAll();
-            }
+
+            messageToSend = this.messageQueue.remove();
+            this.sendMessageToClient(messageToSend);
+            this.messageQueue.notifyAll();
+
         }
     }
 

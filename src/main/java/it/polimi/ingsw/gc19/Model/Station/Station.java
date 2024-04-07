@@ -94,7 +94,7 @@ public class Station extends Publisher{
      */
     public void setPrivateGoalCard(int cardIdx) {
         this.privateGoalCardIdx = cardIdx;
-        this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(), new AcceptedChooseGoalCard(this.getPrivateGoalCard().getCardCode()));
+        this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(), new AcceptedChooseGoalCard(this.getPrivateGoalCard()));
     }
 
     /**
@@ -145,7 +145,7 @@ public class Station extends Publisher{
             this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(),
                                                          new RefusedActionMessage(ErrorType.GENERIC, "Attention, you haven't enough resources to place card " + toPlace.getCardCode()));
         }
-        if(this.cardSchema.isPlaceable(anchor, direction)){
+        if(!this.cardSchema.isPlaceable(anchor, direction)){
             this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(),
                                                          new RefusedActionMessage(ErrorType.GENERIC,
                                                                                   "Attention, " + toPlace.getCardCode() + " cannot be placed over anchor " + anchor.getCardCode() + " in direction " + direction));

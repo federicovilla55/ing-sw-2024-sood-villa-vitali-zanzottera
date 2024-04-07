@@ -4,7 +4,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 public interface GameEventsMessageVisitor{
 
-    void visit(CreatedGameMessage message);
+    void visit(AvailableColorsMessage message);
     void visit(EndGameMessage message);
     void visit(GamePausedMessage message);
     void visit(GameResumedMessage message);

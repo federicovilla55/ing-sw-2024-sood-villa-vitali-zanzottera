@@ -16,7 +16,7 @@ import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
 import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableColorsMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OtherStationConfigurationMessage;
@@ -455,12 +455,12 @@ public class Game extends Publisher{
      * @return The card from a specified deck
      * @throws EmptyDeckException when the deck is empty, return this exception
      */
-    public PlayableCard pickCardFromDeck(PlayableCardType type) throws EmptyDeckException, MalformedParametersException {
+    public PlayableCard pickCardFromDeck(PlayableCardType type) throws EmptyDeckException, IllegalArgumentException {
         Deck<PlayableCard> deck;
         deck = switch (type) {
             case RESOURCE -> this.resourceDeck;
             case GOLD -> this.goldDeck;
-            default -> throw new MalformedParametersException("type must be RESOURCE or GOLD");
+            default -> throw new IllegalArgumentException("type must be RESOURCE or GOLD");
         };
         return deck.pickACard();
     }
@@ -473,7 +473,7 @@ public class Game extends Publisher{
      * @return The card in the specified position if present
      * @throws CardNotFoundException when there is no card, this exception is thrown
      */
-    public PlayableCard pickCardFromTable(PlayableCardType type, int position) throws CardNotFoundException, MalformedParametersException {
+    public PlayableCard pickCardFromTable(PlayableCardType type, int position) throws CardNotFoundException, IllegalArgumentException {
         Deck<PlayableCard> deck;
         PlayableCard[] cardsOnTable = switch (type) {
             case RESOURCE -> {
@@ -484,7 +484,7 @@ public class Game extends Publisher{
                 deck = goldDeck;
                 yield this.goldCardsOnTable;
             }
-            default -> throw new MalformedParametersException("type must be RESOURCE or GOLD");
+            default -> throw new IllegalArgumentException("type must be RESOURCE or GOLD");
         };
         PlayableCard result = cardsOnTable[position];
         if(result==null) {
@@ -597,6 +597,19 @@ public class Game extends Publisher{
 
     public PlayableCard[] getGoldCardsOnTable() {
         return Arrays.copyOf(this.goldCardsOnTable,this.goldCardsOnTable.length);
+    }
+
+    public PlayableCard[] getPlayableCardsOnTable(PlayableCardType type) {
+        return
+                switch (type) {
+                    case RESOURCE -> {
+                        yield this.resourceCardsOnTable;
+                    }
+                    case GOLD -> {
+                        yield this.goldCardsOnTable;
+                    }
+                    default -> throw new IllegalArgumentException();
+                };
     }
 
 }
