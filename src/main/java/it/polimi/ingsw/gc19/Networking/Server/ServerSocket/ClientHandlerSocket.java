@@ -1,10 +1,14 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
+import it.polimi.ingsw.gc19.Controller.GameController;
 import it.polimi.ingsw.gc19.Controller.MainController;
+import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
+import java.io.IOException;
 import java.net.Socket;
+import java.rmi.RemoteException;
 
 public class ClientHandlerSocket extends ClientHandler implements Runnable{
     /*private final Socket clientSocket;
@@ -12,8 +16,8 @@ public class ClientHandlerSocket extends ClientHandler implements Runnable{
     private final ObjectInputStream in;
     private Controller MasterController;*/
 
-    public ClientHandlerSocket(Socket clientSocket, MainController masterMainController) {
-        super("User");
+    public ClientHandlerSocket(Socket clientSocket, MainController masterMainController) throws IOException {
+        super("User", new GameController(new Game(4)));
         //this.in = new ObjectInputStream(System.in);
     }
     /*public ClientHandleSocket(Socket clientSocket, Controller MasterController) throws IOException

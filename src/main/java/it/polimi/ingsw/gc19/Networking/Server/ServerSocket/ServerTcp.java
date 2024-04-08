@@ -33,7 +33,11 @@ public class ServerTcp implements Runnable {
             }
             System.out.println("New client connected: " + clientSocket);
             ClientHandlerSocket Client = null;
-            Client = new ClientHandlerSocket(clientSocket, masterMainController);
+            try {
+                Client = new ClientHandlerSocket(clientSocket, masterMainController);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             ActiveList.add(Client);
             Thread clientHandlerThread = new Thread(Client);
             clientHandlerThread.start();

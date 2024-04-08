@@ -4,14 +4,10 @@ import it.polimi.ingsw.gc19.Controller.MainController;
 
 public abstract class Server{
 
-    protected MainController mainController;
+    protected final MainController mainController;
 
-    public void setController(MainController mainController){
-        this.mainController = mainController;
-    }
-
-    public MainController getController(){
-        return this.mainController;
+    protected Server(){
+        this.mainController = MainController.getMainServer();
     }
 
 }

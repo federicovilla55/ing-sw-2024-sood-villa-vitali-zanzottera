@@ -1,14 +1,16 @@
 package it.polimi.ingsw.gc19.Controller.Messages;
 
+import it.polimi.ingsw.gc19.Controller.GameController;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
+import java.rmi.RemoteException;
 import java.util.*;
 
 public class ClientStub extends ClientHandler{
 
-    public ClientStub(String username) {
-        super(username);
+    public ClientStub(String username, GameController gameController) {
+        super(username, gameController);
     }
 
     @Override

@@ -1,11 +1,13 @@
 package it.polimi.ingsw.gc19.Controller.Messages;
 
+import it.polimi.ingsw.gc19.Controller.GameController;
 import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Controller.JSONParser;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MessagesTest{
 
     private MainController mainController;
+    private GameController gameController;
     private Map<String, PlayableCard> playableCards;
     private Map<String, GoalCard> goalCards;
     private ClientStub player1, player2, player3, player4;
@@ -43,6 +47,7 @@ public class MessagesTest{
         this.mainController = MainController.getMainServer();
 
         try {
+            gameController = new GameController(new Game(4));
             this.playableCards = JSONParser.readPlayableCardFromFile().collect(Collectors.toMap(Card::getCardCode, p -> p));
             this.goalCards = JSONParser.readGoalCardFromFile().collect(Collectors.toMap(Card::getCardCode, p -> p));
         }
@@ -50,26 +55,26 @@ public class MessagesTest{
             e.printStackTrace();
         }
 
-        this.player1 = new ClientStub("player1");
-        this.player2 = new ClientStub("player2");
-        this.player3 = new ClientStub("player3");
-        this.player4 = new ClientStub("player4");
+        this.player1 = new ClientStub("player1", gameController);
+        this.player2 = new ClientStub("player2", gameController);
+        this.player3 = new ClientStub("player3", gameController);
+        this.player4 = new ClientStub("player4", gameController);
     }
 
     @Test
     void testGameCreationAndConfiguration(){
-        this.mainController.createClient(player1, this.player1.getName());
+        this.mainController.createClient(player1);
         assertEquals(new CreatedPlayerMessage("player1"), this.player1.getMessage());
 
-        this.mainController.createClient(player2, this.player2.getName());
+        this.mainController.createClient(player2);
         assertEquals(new CreatedPlayerMessage("player2"), this.player2.getMessage());
         //No new messages has been sent to player1
         assertNull(player1.getMessage());
 
-        this.mainController.createClient(player3, this.player3.getName());
+        this.mainController.createClient(player3);
         assertEquals(new CreatedPlayerMessage("player3"), this.player3.getMessage());
 
-        this.mainController.createClient(player4, this.player4.getName());
+        this.mainController.createClient(player4);
         assertEquals(new CreatedPlayerMessage("player4"), this.player4.getMessage());
 
         this.mainController.createGame("game1", 4, this.player1, 1);
@@ -324,11 +329,11 @@ public class MessagesTest{
     }
 
     @Test
-    void testGameSetup() {
-        this.mainController.createClient(player1, this.player1.getName());
-        this.mainController.createClient(player2, this.player2.getName());
-        this.mainController.createClient(player3, this.player3.getName());
-        this.mainController.createClient(player4, this.player4.getName());
+    void testGameSetup() throws RemoteException {
+        this.mainController.createClient(player1);
+        this.mainController.createClient(player2);
+        this.mainController.createClient(player3);
+        this.mainController.createClient(player4);
 
         this.mainController.createGame("game1", 4, this.player1, 1);
         this.mainController.registerToGame(player2, "game1");
@@ -336,32 +341,32 @@ public class MessagesTest{
         this.mainController.registerToGame(player4, "game1");
         this.clearQueue(List.of(player1,player2,player3,player4));
 
-        this.mainController.chooseColor(player1, Color.GREEN);
+        this.player1.chooseColor(Color.GREEN);
         //All players should receive AcceptedColorMessage
         assertMessageEquals(List.of(player1,player2,player3,player4), new AcceptedColorMessage(player1.getName(), Color.GREEN));
         //All player except player1 should receive AvailableColorsMessage
         assertMessageEquals(List.of(player2,player3,player4), new AvailableColorsMessage(List.of(Color.BLUE,Color.YELLOW,Color.RED)));
 
-        this.mainController.chooseColor(player3, Color.YELLOW);
+        this.player3.chooseColor(Color.YELLOW);
         //All players should receive AcceptedColorMessage
         assertMessageEquals(List.of(player1,player2,player3,player4), new AcceptedColorMessage(player3.getName(), Color.YELLOW));
         //All player except player3 should receive AvailableColorsMessage
         assertMessageEquals(List.of(player1,player2,player4), new AvailableColorsMessage(List.of(Color.BLUE,Color.RED)));
 
-        this.mainController.chooseColor(player2, Color.BLUE);
+        this.player2.chooseColor(Color.BLUE);
 
         this.clearQueue(List.of(player1,player2,player3,player4));
 
         //Invalid action on color already taken
-        this.mainController.chooseColor(player4, Color.BLUE);
+        this.player4.chooseColor(Color.BLUE);
         //player4 should not receive messages
         assertNull(player4.getMessage());
 
-        this.mainController.chooseColor(player4, Color.RED);
+        this.player4.chooseColor(Color.RED);
 
         this.clearQueue(List.of(player1,player2,player3,player4));
 
-        this.mainController.placeInitialCard(player1, CardOrientation.DOWN);
+        this.player1.placeInitialCard(CardOrientation.DOWN);
 
         assertMessageEquals(List.of(player1,player2,player3,player4),
                 new AcceptedPlaceInitialCard("player1",
@@ -378,18 +383,18 @@ public class MessagesTest{
                 ));
 
         //if the card is already placed by a player and tries to be replaced, no message should be sent
-        this.mainController.placeInitialCard(player1, CardOrientation.UP);
+        this.player1.placeInitialCard(CardOrientation.UP);
         assertNull(player1.getMessage());
 
-        this.mainController.placeInitialCard(player2, CardOrientation.DOWN);
+        this.player2.placeInitialCard(CardOrientation.DOWN);
 
-        this.mainController.placeInitialCard(player3, CardOrientation.UP);
+        this.player3.placeInitialCard(CardOrientation.UP);
 
-        this.mainController.placeInitialCard(player4, CardOrientation.DOWN);
+        this.player4.placeInitialCard(CardOrientation.DOWN);
 
         this.clearQueue(List.of(player1,player2,player3,player4));
 
-        this.mainController.choosePrivateGoalCard(player1, 0);
+        this.player1.choosePrivateGoalCard(0);
         //player1 only should receive the chosen private goal card
         assertMessageEquals(player1,
                 new AcceptedChooseGoalCard(goalCards.get("goal_09")));
@@ -397,13 +402,13 @@ public class MessagesTest{
         assertNull(player3.getMessage());
         assertNull(player4.getMessage());
 
-        this.mainController.choosePrivateGoalCard(player2, 1);
+        this.player2.choosePrivateGoalCard(1);
 
-        this.mainController.choosePrivateGoalCard(player3, 0);
+        this.player3.choosePrivateGoalCard(0);
 
         this.clearQueue(List.of(player1,player2,player3,player4));
 
-        this.mainController.choosePrivateGoalCard(player4, 1);
+        this.player4.choosePrivateGoalCard(1);
 
         assertMessageEquals(player4,
                 new AcceptedChooseGoalCard(goalCards.get("goal_04")));
@@ -418,11 +423,11 @@ public class MessagesTest{
     }
 
     @Test
-    void testPlaceCardMessage() {
-        this.mainController.createClient(player1, this.player1.getName());
-        this.mainController.createClient(player2, this.player2.getName());
-        this.mainController.createClient(player3, this.player3.getName());
-        this.mainController.createClient(player4, this.player4.getName());
+    void testPlaceCardMessage() throws RemoteException {
+        this.mainController.createClient(player1);
+        this.mainController.createClient(player2);
+        this.mainController.createClient(player3);
+        this.mainController.createClient(player4);
 
         this.mainController.createGame("game1", 4, this.player1, 1);
         this.mainController.registerToGame(player2, "game1");
@@ -430,32 +435,32 @@ public class MessagesTest{
         this.mainController.registerToGame(player4, "game1");
 
 
-        this.mainController.chooseColor(player1, Color.GREEN);
-        this.mainController.chooseColor(player3, Color.YELLOW);
-        this.mainController.chooseColor(player2, Color.BLUE);
-        this.mainController.chooseColor(player4, Color.RED);
+        this.player1.chooseColor(Color.GREEN);
+        this.player3.chooseColor(Color.YELLOW);
+        this.player2.chooseColor(Color.BLUE);
+        this.player4.chooseColor(Color.RED);
 
-        this.mainController.placeInitialCard(player1, CardOrientation.DOWN);
-        this.mainController.placeInitialCard(player2, CardOrientation.DOWN);
-        this.mainController.placeInitialCard(player3, CardOrientation.UP);
-        this.mainController.placeInitialCard(player4, CardOrientation.DOWN);
+        this.player1.placeInitialCard(CardOrientation.DOWN);
+        this.player2.placeInitialCard(CardOrientation.DOWN);
+        this.player3.placeInitialCard(CardOrientation.UP);
+        this.player4.placeInitialCard(CardOrientation.DOWN);
 
-        this.mainController.choosePrivateGoalCard(player1, 0);
-        this.mainController.choosePrivateGoalCard(player2, 1);
-        this.mainController.choosePrivateGoalCard(player3, 0);
-        this.mainController.choosePrivateGoalCard(player4, 1);
+        this.player1.choosePrivateGoalCard(0);
+        this.player2.choosePrivateGoalCard(1);
+        this.player3.choosePrivateGoalCard(0);
+        this.player4.choosePrivateGoalCard(1);
 
         this.clearQueue(List.of(player1,player2,player3,player4));
 
         //player1 turn
         //player2 action should not work and no message should be sent
-        this.mainController.placeCard(player2, "resource_15", "initial_01", Direction.UP_RIGHT, CardOrientation.UP);
+        this.player2.placeCard("resource_15", "initial_01", Direction.UP_RIGHT, CardOrientation.UP);
         assertNull(player1.getMessage());
         assertNull(player2.getMessage());
         assertNull(player3.getMessage());
         assertNull(player4.getMessage());
 
-        this.mainController.placeCard(player1, "resource_01", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
+        this.player1.placeCard("resource_01", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
         assertMessageEquals(List.of(player1,player2,player3,player4),
                 new AcceptedPlaceCardMessage("player1",
                         "initial_05", playableCards.get("resource_01").setCardState(CardOrientation.UP),
@@ -473,11 +478,11 @@ public class MessagesTest{
     }
 
     @Test
-    void testPickCardFromDeckMessage() {
-        this.mainController.createClient(player1, this.player1.getName());
-        this.mainController.createClient(player2, this.player2.getName());
-        this.mainController.createClient(player3, this.player3.getName());
-        this.mainController.createClient(player4, this.player4.getName());
+    void testPickCardFromDeckMessage() throws RemoteException {
+        this.mainController.createClient(player1);
+        this.mainController.createClient(player2);
+        this.mainController.createClient(player3);
+        this.mainController.createClient(player4);
 
         this.mainController.createGame("game1", 4, this.player1, 1);
         this.mainController.registerToGame(player2, "game1");
@@ -485,33 +490,33 @@ public class MessagesTest{
         this.mainController.registerToGame(player4, "game1");
 
 
-        this.mainController.chooseColor(player1, Color.GREEN);
-        this.mainController.chooseColor(player3, Color.YELLOW);
-        this.mainController.chooseColor(player2, Color.BLUE);
-        this.mainController.chooseColor(player4, Color.RED);
+        this.player1.chooseColor(Color.GREEN);
+        this.player3.chooseColor(Color.YELLOW);
+        this.player2.chooseColor(Color.BLUE);
+        this.player4.chooseColor(Color.RED);
 
-        this.mainController.placeInitialCard(player1, CardOrientation.DOWN);
-        this.mainController.placeInitialCard(player2, CardOrientation.DOWN);
-        this.mainController.placeInitialCard(player3, CardOrientation.UP);
-        this.mainController.placeInitialCard(player4, CardOrientation.DOWN);
+        this.player1.placeInitialCard(CardOrientation.DOWN);
+        this.player2.placeInitialCard(CardOrientation.DOWN);
+        this.player3.placeInitialCard(CardOrientation.UP);
+        this.player4.placeInitialCard(CardOrientation.DOWN);
 
-        this.mainController.choosePrivateGoalCard(player1, 0);
-        this.mainController.choosePrivateGoalCard(player2, 1);
-        this.mainController.choosePrivateGoalCard(player3, 0);
-        this.mainController.choosePrivateGoalCard(player4, 1);
+        this.player1.choosePrivateGoalCard(0);
+        this.player2.choosePrivateGoalCard(1);
+        this.player3.choosePrivateGoalCard(0);
+        this.player4.choosePrivateGoalCard(1);
 
-        this.mainController.placeCard(player1, "resource_01", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
+        this.player1.placeCard("resource_01", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
 
         this.clearQueue(List.of(player1,player2,player3,player4));
 
         //player2 action should not work and no message should be sent
-        this.mainController.pickCardFromDeck(player2, PlayableCardType.GOLD);
+        this.player2.pickCardFromDeck(PlayableCardType.GOLD);
         assertNull(player1.getMessage());
         assertNull(player2.getMessage());
         assertNull(player3.getMessage());
         assertNull(player4.getMessage());
 
-        this.mainController.pickCardFromDeck(player1, PlayableCardType.RESOURCE);
+        this.player1.pickCardFromDeck(PlayableCardType.RESOURCE);
         assertMessageEquals(player1,
                 new OwnAcceptedPickCardFromDeckMessage("player1", playableCards.get("resource_18"), PlayableCardType.RESOURCE, Symbol.INSECT));
         assertMessageEquals(List.of(player2,player3,player4),
@@ -519,11 +524,11 @@ public class MessagesTest{
     }
 
     @Test
-    void testPickCardFromTableMessage() {
-        this.mainController.createClient(player1, this.player1.getName());
-        this.mainController.createClient(player2, this.player2.getName());
-        this.mainController.createClient(player3, this.player3.getName());
-        this.mainController.createClient(player4, this.player4.getName());
+    void testPickCardFromTableMessage() throws RemoteException {
+        this.mainController.createClient(player1);
+        this.mainController.createClient(player2);
+        this.mainController.createClient(player3);
+        this.mainController.createClient(player4);
 
         this.mainController.createGame("game1", 4, this.player1, 1);
         this.mainController.registerToGame(player2, "game1");
@@ -531,33 +536,33 @@ public class MessagesTest{
         this.mainController.registerToGame(player4, "game1");
 
 
-        this.mainController.chooseColor(player1, Color.GREEN);
-        this.mainController.chooseColor(player3, Color.YELLOW);
-        this.mainController.chooseColor(player2, Color.BLUE);
-        this.mainController.chooseColor(player4, Color.RED);
+        this.player1.chooseColor(Color.GREEN);
+        this.player3.chooseColor(Color.YELLOW);
+        this.player2.chooseColor(Color.BLUE);
+        this.player4.chooseColor(Color.RED);
 
-        this.mainController.placeInitialCard(player1, CardOrientation.DOWN);
-        this.mainController.placeInitialCard(player2, CardOrientation.DOWN);
-        this.mainController.placeInitialCard(player3, CardOrientation.UP);
-        this.mainController.placeInitialCard(player4, CardOrientation.DOWN);
+        this.player1.placeInitialCard(CardOrientation.DOWN);
+        this.player2.placeInitialCard(CardOrientation.DOWN);
+        this.player3.placeInitialCard(CardOrientation.UP);
+        this.player4.placeInitialCard(CardOrientation.DOWN);
 
-        this.mainController.choosePrivateGoalCard(player1, 0);
-        this.mainController.choosePrivateGoalCard(player2, 1);
-        this.mainController.choosePrivateGoalCard(player3, 0);
-        this.mainController.choosePrivateGoalCard(player4, 1);
+        this.player1.choosePrivateGoalCard(0);
+        this.player2.choosePrivateGoalCard(1);
+        this.player3.choosePrivateGoalCard(0);
+        this.player4.choosePrivateGoalCard(1);
 
-        this.mainController.placeCard(player1, "resource_01", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
+        this.player1.placeCard("resource_01", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
 
         this.clearQueue(List.of(player1,player2,player3,player4));
 
         //player2 action should not work and no message should be sent
-        this.mainController.pickCardFromTable(player2, PlayableCardType.GOLD, 0);
+        this.player2.pickCardFromTable(PlayableCardType.GOLD, 0);
         assertNull(player1.getMessage());
         assertNull(player2.getMessage());
         assertNull(player3.getMessage());
         assertNull(player4.getMessage());
 
-        this.mainController.pickCardFromTable(player1, PlayableCardType.RESOURCE, 0);
+        this.player1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
         assertMessageEquals(List.of(player1,player2,player3,player4),
                 new AcceptedPickCardFromTable(
                         "player1",
@@ -569,11 +574,11 @@ public class MessagesTest{
     }
 
     @Test
-    void testGameEventsMessages() {
-        this.mainController.createClient(player1, this.player1.getName());
-        this.mainController.createClient(player2, this.player2.getName());
-        this.mainController.createClient(player3, this.player3.getName());
-        this.mainController.createClient(player4, this.player4.getName());
+    void testGameEventsMessages() throws RemoteException {
+        this.mainController.createClient(player1);
+        this.mainController.createClient(player2);
+        this.mainController.createClient(player3);
+        this.mainController.createClient(player4);
 
         this.mainController.createGame("game1", 4, this.player1, 1);
         this.mainController.registerToGame(player2, "game1");
@@ -581,23 +586,23 @@ public class MessagesTest{
         this.mainController.registerToGame(player4, "game1");
 
 
-        this.mainController.chooseColor(player1, Color.GREEN);
-        this.mainController.chooseColor(player3, Color.YELLOW);
-        this.mainController.chooseColor(player2, Color.BLUE);
-        this.mainController.chooseColor(player4, Color.RED);
+        this.player1.chooseColor(Color.GREEN);
+        this.player3.chooseColor(Color.YELLOW);
+        this.player2.chooseColor(Color.BLUE);
+        this.player4.chooseColor(Color.RED);
 
-        this.mainController.placeInitialCard(player1, CardOrientation.DOWN);
-        this.mainController.placeInitialCard(player2, CardOrientation.DOWN);
-        this.mainController.placeInitialCard(player3, CardOrientation.UP);
-        this.mainController.placeInitialCard(player4, CardOrientation.DOWN);
+        this.player1.placeInitialCard(CardOrientation.DOWN);
+        this.player2.placeInitialCard(CardOrientation.DOWN);
+        this.player3.placeInitialCard(CardOrientation.UP);
+        this.player4.placeInitialCard(CardOrientation.DOWN);
 
-        this.mainController.choosePrivateGoalCard(player1, 0);
-        this.mainController.choosePrivateGoalCard(player2, 1);
-        this.mainController.choosePrivateGoalCard(player3, 0);
+        this.player1.choosePrivateGoalCard(0);
+        this.player2.choosePrivateGoalCard(1);
+        this.player3.choosePrivateGoalCard(0);
         this.clearQueue(List.of(player1,player2,player3,player4));
 
 
-        this.mainController.choosePrivateGoalCard(player4, 1);
+        this.player4.choosePrivateGoalCard(1);
 
         assertMessageEquals(player4,
                 new AcceptedChooseGoalCard(goalCards.get("goal_04")));
@@ -637,7 +642,7 @@ public class MessagesTest{
         assertMessageEquals(player1,
                 new GamePausedMessage());
 
-        mainController.createClient(player2, "player2");
+        mainController.createClient(player2);
 
         assertMessageEquals(player1,
                 new PlayerReconnectedToGameMessage("player2"));

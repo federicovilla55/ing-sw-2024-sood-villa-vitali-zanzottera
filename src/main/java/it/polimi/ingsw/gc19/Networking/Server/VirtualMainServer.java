@@ -10,5 +10,6 @@ public interface VirtualMainServer{
     public void joinGame(VirtualClient clientRMI, String GameName) throws RemoteException;
     public void reconnect(VirtualClient clientRMI, String gameName, String nickName) throws RemoteException;
     void disconnect(VirtualClient clientRMI, String nickname) throws RemoteException;
+    public void heartBeat(VirtualClient clientRMI) throws RemoteException;
 
 }

@@ -23,7 +23,7 @@ public class ClientTest{
 
     public static void main(String[] args) throws RemoteException, NotBoundException {
 
-        Registry registry = LocateRegistry.getRegistry("RMIServer", 12122);
+        /*Registry registry = LocateRegistry.getRegistry("RMIServer", 12122);
         VirtualGameServer virtualGameServer = (VirtualGameServer) registry.lookup("RMIServer");
 
         Scanner scanner = new Scanner(System.in);
@@ -36,7 +36,7 @@ public class ClientTest{
         //client2.joinGame("Mario", "Game1");
         client1.sendChatMessage("Matteo", new ArrayList<>(List.of("Mario", "Matteo")), "Ciao!!!");
         client1.disconnect("Matteo");
-        client1.reconnect("Matteo", "Game");
+        client1.reconnect("Matteo", "Game");*/
 
 
     }
@@ -44,8 +44,15 @@ public class ClientTest{
 }
 
 class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
+    protected Client() throws RemoteException {
+    }
 
-    private final VirtualGameServer virtualGameServer;
+    @Override
+    public void pushUpdate(MessageToClient message) throws RemoteException {
+
+    }
+
+    /*private final VirtualGameServer virtualGameServer;
 
     private final String name;
 
@@ -65,37 +72,7 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
         System.out.println(name + " received " + message.getClass() + "  ->  " + message);
         /*if(message instanceof NotifyChatMessage){
             System.out.println(((NotifyChatMessage) message).getMessage());
-        }*/
-    }
-
-    @Override
-    public void pushUpdate(AnswerToActionMessage answerToActionMessage) throws RemoteException {
-
-    }
-
-    @Override
-    public void pushUpdate(NotifyChatMessage notifyChatMessage) throws RemoteException {
-
-    }
-
-    @Override
-    public void pushUpdate(ConfigurationMessage configurationMessage) throws RemoteException {
-
-    }
-
-    @Override
-    public void pushUpdate(NotifyEventOnGame notifyEventOnGame) throws RemoteException {
-
-    }
-
-    @Override
-    public void pushUpdate(GameHandlingMessage gameHandlingMessage) throws RemoteException {
-
-    }
-
-    @Override
-    public void pushUpdate(TurnStateMessage turnStateMessage) throws RemoteException {
-
+        }
     }
 
     public void connect(String name) throws RemoteException {
@@ -120,5 +97,5 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
 
     public void reconnect(String nick, String gameName) throws RemoteException{
         this.virtualGameServer.reconnect(this, gameName, nick);
-    }
+    }*/
 }

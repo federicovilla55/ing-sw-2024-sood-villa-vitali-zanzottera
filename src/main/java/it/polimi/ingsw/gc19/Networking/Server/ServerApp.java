@@ -23,11 +23,10 @@ public class ServerApp {
         List<ClientHandler> ListClient = new ArrayList<ClientHandler>();;
         List<ClientHandler> ListNonActiveClient = new ArrayList<ClientHandler>();
         MainController masterMainController = MainController.getMainServer();
-        GameServerRMI MainRmi = new GameServerRMI();
-        MainRmi.setController(masterMainController);
-        VirtualGameServer stub = (VirtualGameServer) UnicastRemoteObject.exportObject(MainRmi, 0);
+        GameServerRMI MainRmi = GameServerRMI.getInstance();
+        VirtualMainServer stub = (VirtualMainServer) UnicastRemoteObject.exportObject(MainRmi, 0);
         Registry registry = LocateRegistry.createRegistry(12122);
-        registry.rebind("RMIServer", stub);
+        //registry.rebind("RMIServer", stub);
         ServerTcp MainTcp = new ServerTcp(ListClient, masterMainController);
     }
 

@@ -1,41 +1,91 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
-import it.polimi.ingsw.gc19.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Enums.Direction;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
-import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Server;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class GameServerRMI extends Server implements VirtualMainServer{
+public class GameServerRMI extends Server implements VirtualMainServer, Remote{
 
-    @Override
-    public void newConnection(VirtualClient clientRMI, String nickName) throws RemoteException {
-        ClientHandler clientHandlerRMI = new ClientHandlerRMI(clientRMI, nickName);
-        this.mainController.createClient(clientRmi, nickName)
+    private static GameServerRMI gameServerRMI = null;
+    private final HashMap<VirtualClient, ClientHandlerRMI> connectedClients;
+    private final HashMap<VirtualClient, Long> lastHeartBeatOfClients;
 
+    public static GameServerRMI getInstance(){
+        if(gameServerRMI == null){
+            gameServerRMI = new GameServerRMI();
+        }
+        return gameServerRMI;
+    }
+
+    private GameServerRMI(){
+        super();
+        this.connectedClients = new HashMap<>();
+        this.lastHeartBeatOfClients = new HashMap<>();
     }
 
     @Override
-    public void createGame(VirtualClient clientRMI, String gameName, int numPlayer) throws RemoteException {
-
+    public void newConnection(VirtualClient clientRMI, String nickName) throws RemoteException{
+        ClientHandlerRMI clientHandlerRMI;
+        synchronized(this.connectedClients){
+            if(this.connectedClients.containsKey(clientRMI)){
+                clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, "Your virtual client is already registered in server!"));
+                return;
+            }
+        }
+        clientHandlerRMI = new ClientHandlerRMI(clientRMI, nickName);
+        synchronized(this.connectedClients){
+            this.connectedClients.put(clientRMI, clientHandlerRMI);
+        }
+        this.mainController.createClient(clientHandlerRMI);
     }
 
     @Override
-    public void joinGame(VirtualClient clientRMI, String GameName) throws RemoteException {
+    public void createGame(VirtualClient clientRMI, String gameName, int numPlayer) throws RemoteException{
+        ClientHandlerRMI clientHandlerRMI;
+        synchronized(this.connectedClients){
+            if(!this.connectedClients.containsKey(clientRMI)){
+                clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, "Your virtual client is not registered to server! Please register..."));
+                return;
+            }
+            clientHandlerRMI = this.connectedClients.get(clientRMI);
+        }
+        if(this.mainController.createGame(gameName, numPlayer, clientHandlerRMI)){
+            synchronized(this.lastHeartBeatOfClients){
+                this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime()); //@TODO: other methods to handle heartbeats?
+            }
+            Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> runHeartBeatTester(clientRMI),
+                                                                    0, ImportantConstants.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 10, TimeUnit.SECONDS);
+        }
+    }
 
+    @Override
+    public void joinGame(VirtualClient clientRMI, String gameName) throws RemoteException {
+        ClientHandlerRMI clientHandlerRMI;
+        synchronized(this.connectedClients){
+            if(!this.connectedClients.containsKey(clientRMI)){
+                clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, "Your virtual client is not registered to server! Please register..."));
+                return;
+            }
+            clientHandlerRMI = this.connectedClients.get(clientRMI);
+        }
+        if(this.mainController.registerToGame(clientHandlerRMI, gameName)){
+            synchronized(this.lastHeartBeatOfClients){
+                this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime()); //@TODO: other methods to handle heartbeats?
+            }
+            Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> runHeartBeatTester(clientRMI),
+                                                                    0, ImportantConstants.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 10, TimeUnit.SECONDS);
+        }
     }
 
     @Override
@@ -46,6 +96,48 @@ public class GameServerRMI extends Server implements VirtualMainServer{
     @Override
     public void disconnect(VirtualClient clientRMI, String nickname) throws RemoteException {
 
+    }
+
+    public void runHeartBeatTester(VirtualClient virtualClient){
+        boolean removePlayer = false;
+        String playerName;
+        synchronized(this.lastHeartBeatOfClients){
+            if(new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > ImportantConstants.MAX_DELTA_TIME_BETWEEN_HEARTBEATS){
+                removePlayer = true;
+                this.connectedClients.remove(virtualClient);
+            }
+        }
+        if(removePlayer) {
+            synchronized (this.connectedClients) {
+                playerName = this.connectedClients.get(virtualClient).getName();
+                this.connectedClients.remove(virtualClient);
+            }
+            this.mainController.setPlayerInactive(playerName);
+        }
+    }
+
+    @Override
+    public void heartBeat(VirtualClient virtualClient) throws RemoteException{
+        synchronized(this.lastHeartBeatOfClients){
+            this.lastHeartBeatOfClients.put(virtualClient, new Date().getTime());
+        }
+    }
+
+    public void kickPlayersOff(String nickname){
+        VirtualClient toRemove = null;
+        synchronized(this.connectedClients){
+            for(Map.Entry<VirtualClient, ClientHandlerRMI> e : this.connectedClients.entrySet()){
+                if(e.getValue().getName().equals(nickname)){
+                    toRemove = e.getKey();
+                }
+            }
+        }
+        synchronized (this.connectedClients){
+            this.connectedClients.remove(toRemove);
+        }
+        synchronized (this.lastHeartBeatOfClients){
+            this.connectedClients.remove(toRemove);
+        }
     }
 
 }

@@ -2,10 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server;
 
 import it.polimi.ingsw.gc19.Controller.GameController;
 import it.polimi.ingsw.gc19.Controller.MainController;
-import it.polimi.ingsw.gc19.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Enums.Direction;
-import it.polimi.ingsw.gc19.Enums.GameState;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityComparator;
@@ -19,22 +16,15 @@ import java.util.*;
 
 public abstract class ClientHandler implements Observer<MessageToClient>, VirtualGameServer{
 
-    protected MainController mainController;
     private GameController gameController;
     protected final String username;
     protected final Queue<MessageToClient> messageQueue;
-    protected Long lastSignalFromClient;
 
-    public ClientHandler(String username, GameController gameController, MainController mainController){
-        this.mainController = mainController;
+    public ClientHandler(String username, GameController gameController){
         this.gameController = gameController;
 
         this.username = username;
         this.messageQueue = new ArrayDeque<>();
-
-        this.messageQueue = new PriorityQueue<>(new MessagePriorityComparator());
-
-        this.lastSignalFromClient = null;
 
         new Thread(() -> {
             while(true){
@@ -75,10 +65,6 @@ public abstract class ClientHandler implements Observer<MessageToClient>, Virtua
         }
     }
 
-    public void setMainController(MainController mainController){
-        this.mainController = mainController;
-    }
-
     public void setGameController(GameController gameController){
         this.gameController = gameController;
     }
@@ -106,6 +92,16 @@ public abstract class ClientHandler implements Observer<MessageToClient>, Virtua
     @Override
     public void pickCardFromDeck(PlayableCardType type) throws RemoteException {
         this.gameController.drawCardFromDeck(username, type);
+    }
+
+    @Override
+    public void chooseColor(Color color) throws RemoteException {
+        this.gameController.chooseColor(username, color);
+    }
+
+    @Override
+    public void choosePrivateGoalCard(int cardIdx) throws RemoteException {
+        this.gameController.choosePrivateGoal(username, cardIdx);
     }
 
 }

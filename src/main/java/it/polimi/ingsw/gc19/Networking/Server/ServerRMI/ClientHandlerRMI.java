@@ -1,7 +1,9 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
+import com.fasterxml.jackson.databind.introspect.AnnotationCollector;
 import it.polimi.ingsw.gc19.Controller.GameController;
 import it.polimi.ingsw.gc19.Controller.MainController;
+import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
@@ -13,32 +15,23 @@ import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ClientHandlerRMI extends ClientHandler{
 
     private final VirtualClient virtualClientAssociated;
 
-    public ClientHandlerRMI(VirtualClient virtualClientAssociated, String username, GameController gameController, MainController mainController) {
-        super(username, gameController, mainController);
+    public ClientHandlerRMI(VirtualClient virtualClientAssociated, String username, GameController gameController) {
+        super(username, gameController);
         this.virtualClientAssociated = virtualClientAssociated;
-        new Thread(this::runHeartBeatReceiver).start();
     }
 
     public ClientHandlerRMI(VirtualClient virtualClientAssociated, String username) {
-        super(username, null, null);
+        super(username, null);
         this.virtualClientAssociated = virtualClientAssociated;
-        new Thread(this::runHeartBeatReceiver).start();
-    }
 
-    public void runHeartBeatReceiver(){
-        while(true) {
-            try {
-                ClientHandlerRMI.this.heartBeat();
-            }
-            catch(RemoteException remoteException){
-                //@TODO: handle this exception
-            }
-        }
     }
 
     @Override
@@ -48,23 +41,6 @@ public class ClientHandlerRMI extends ClientHandler{
         }
         catch(RemoteException remoteException){
             //@TODO: handle this exception
-        }
-    }
-
-    @Override
-    public void heartBeat() throws RemoteException {
-        long newDate;
-        if(this.lastSignalFromClient == null){
-            this.lastSignalFromClient = new Date().getTime();
-        }
-        else{
-            newDate = new Date().getTime();
-            if(newDate - this.lastSignalFromClient > 20){ //@TODO: fix this value
-                this.mainController.setPlayerInactive(this.username);
-            }
-            else{
-                this.lastSignalFromClient = newDate;
-            }
         }
     }
 
