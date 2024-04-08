@@ -5,31 +5,28 @@ import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Server;
+import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class GameServerRMI extends Server implements VirtualMainServer, Remote{
+public class MainServerRMI extends Server implements VirtualMainServer, Remote{
 
-    private static GameServerRMI gameServerRMI = null;
+    private final Registry registry;
     private final HashMap<VirtualClient, ClientHandlerRMI> connectedClients;
     private final HashMap<VirtualClient, Long> lastHeartBeatOfClients;
 
-    public static GameServerRMI getInstance(){
-        if(gameServerRMI == null){
-            gameServerRMI = new GameServerRMI();
-        }
-        return gameServerRMI;
-    }
-
-    private GameServerRMI(){
+    public MainServerRMI(Registry registry){
         super();
+        this.registry = registry;
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new HashMap<>();
     }
@@ -44,10 +41,11 @@ public class GameServerRMI extends Server implements VirtualMainServer, Remote{
             }
         }
         clientHandlerRMI = new ClientHandlerRMI(clientRMI, nickName);
-        synchronized(this.connectedClients){
-            this.connectedClients.put(clientRMI, clientHandlerRMI);
+        if(this.mainController.createClient(clientHandlerRMI)) {
+            synchronized (this.connectedClients) {
+                this.connectedClients.put(clientRMI, clientHandlerRMI);
+            }
         }
-        this.mainController.createClient(clientHandlerRMI);
     }
 
     @Override
@@ -64,6 +62,10 @@ public class GameServerRMI extends Server implements VirtualMainServer, Remote{
             synchronized(this.lastHeartBeatOfClients){
                 this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime()); //@TODO: other methods to handle heartbeats?
             }
+
+            VirtualGameServer playerVirtualGameServer = (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122); //@TODO: maybe we can have different ports for different games
+            registry.rebind(gameName + "_" + clientHandlerRMI.getName(), playerVirtualGameServer);
+
             Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> runHeartBeatTester(clientRMI),
                                                                     0, ImportantConstants.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 10, TimeUnit.SECONDS);
         }
@@ -89,7 +91,7 @@ public class GameServerRMI extends Server implements VirtualMainServer, Remote{
     }
 
     @Override
-    public void reconnect(VirtualClient clientRMI, String gameName, String nickName) throws RemoteException {
+    public void reconnect(VirtualClient clientRMI, String nickName) throws RemoteException {
 
     }
 
@@ -123,7 +125,12 @@ public class GameServerRMI extends Server implements VirtualMainServer, Remote{
         }
     }
 
-    public void kickPlayersOff(String nickname){
+    //un player può disconnetersi se fa un comando esplicito, oppure se non manda più heartbeat
+    //in entrmbi i casi lo disconnetto dal server
+    //quando un gioco termina il main controller mette il player nella lobby, quindi dal punto di vista del server non dovrebbe cambiare niente
+
+    @Override
+    public void kickPlayerOff(String nickname){ //quando un gioco termina elimino pure il virtual client?
         VirtualClient toRemove = null;
         synchronized(this.connectedClients){
             for(Map.Entry<VirtualClient, ClientHandlerRMI> e : this.connectedClients.entrySet()){

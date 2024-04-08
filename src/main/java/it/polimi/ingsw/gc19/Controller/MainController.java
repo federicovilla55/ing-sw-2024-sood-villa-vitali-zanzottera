@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Controller;
 
+import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
@@ -22,8 +23,8 @@ public class MainController {
 
     private static MainController mainController = null;
 
-    private final HashMap<String, Tuple<State, String>> playerInfo;
-    private final HashMap<String, GameController> gamesInfo;
+    private static final HashMap<String, Tuple<State, String>> playerInfo = new HashMap<>();
+    private static final HashMap<String, GameController> gamesInfo = new HashMap<>();
 
     public static MainController getMainServer(){
         if(mainController == null){
@@ -33,21 +34,16 @@ public class MainController {
         return mainController;
     }
 
-    private MainController(){
-        this.gamesInfo = new HashMap<>();
-        this.playerInfo = new HashMap<>();
-    }
-
     public boolean createClient(ClientHandler player) {
-        synchronized (this.playerInfo) {
-            if (!this.playerInfo.containsKey(player.getName()) || this.playerInfo.get(player.getName()).y() == null) {
-                this.playerInfo.put(player.getName(), new Tuple<>(State.ACTIVE, null));
+        synchronized (MainController.playerInfo) {
+            if (!MainController.playerInfo.containsKey(player.getName()) || MainController.playerInfo.get(player.getName()).y() == null) {
+                MainController.playerInfo.put(player.getName(), new Tuple<>(State.ACTIVE, null));
                 player.update(new CreatedPlayerMessage(player.getName()));
                 return true;
             }
             else {
-                if (this.playerInfo.get(player.getName()).x() == State.INACTIVE && this.playerInfo.get(player.getName()).y() != null) {
-                    this.reconnect(player, this.playerInfo.get(player.getName()).y());
+                if (MainController.playerInfo.get(player.getName()).x() == State.INACTIVE && MainController.playerInfo.get(player.getName()).y() != null) {
+                    this.reconnect(player, MainController.playerInfo.get(player.getName()).y());
                     return true;
                 }
                 return false;
@@ -59,13 +55,23 @@ public class MainController {
         new Thread(){
             @Override
             public void run() {
+                GameController gameController;
+                ArrayList<String> playersToRemove;
                 try{
-                    this.wait(30 * 1000); //@TODO: define constant to handle this delay
+                    this.wait(ImportantConstants.TIME_TO_WAIT_BEFORE_PLAYER_DISCONNECTION * 1000);
                 }
                 catch(InterruptedException interruptedException){
                     //@TODO: handle this exception
                 }
-                //@TODO: remove players and game
+                synchronized(MainController.gamesInfo){
+                    gameController = MainController.gamesInfo.remove(gameName);
+                }
+                playersToRemove = gameController.getConnectedClients();
+                synchronized(MainController.playerInfo){
+                    for(String p : playersToRemove){
+                        MainController.playerInfo.put(p, new Tuple<>(MainController.State.INACTIVE, null));
+                    }
+                }
             }
         }.start();
 
@@ -74,12 +80,12 @@ public class MainController {
     public void setPlayerInactive(String nickname){
         String gameName;
         GameController gameController;
-        synchronized(this.playerInfo){
-            gameName = this.playerInfo.get(nickname).y();
-            this.playerInfo.put(nickname, new Tuple<>(State.INACTIVE, gameName));
+        synchronized(playerInfo){
+            gameName = MainController.playerInfo.get(nickname).y();
+            MainController.playerInfo.put(nickname, new Tuple<>(State.INACTIVE, gameName));
         }
-        synchronized(this.gamesInfo){
-            gameController = this.gamesInfo.get(gameName);
+        synchronized(MainController.gamesInfo){
+            gameController = MainController.gamesInfo.get(gameName);
         }
         if(gameController != null){
             gameController.removeClient(nickname);
@@ -88,8 +94,8 @@ public class MainController {
 
     public void disconnect(String nickname, ClientHandler player) {
         this.setPlayerInactive(nickname);
-        synchronized(this.playerInfo) {
-            String gameName = this.playerInfo.get(nickname).y();
+        synchronized(MainController.playerInfo) {
+            String gameName = MainController.playerInfo.get(nickname).y();
             if(gameName != null) {
                 player.update(new DisconnectGameMessage(gameName));
             }
@@ -98,15 +104,15 @@ public class MainController {
 
     public boolean createGame(String gameName, int numPlayer, ClientHandler player, long randomSeed) throws IllegalArgumentException {
         Game gameToBuild = null;
-        synchronized (this.gamesInfo) {
-            if (!this.gamesInfo.containsKey(gameName)) {
+        synchronized (MainController.gamesInfo) {
+            if (!MainController.gamesInfo.containsKey(gameName)) {
                 try {
                     gameToBuild = new Game(numPlayer, randomSeed);
                 } catch (IOException exception) {
                     //@TODO: handle this exception
                 }
                 GameController gameController = new GameController(gameToBuild);
-                this.gamesInfo.put(gameName, gameController);
+                MainController.gamesInfo.put(gameName, gameController);
                 player.update(new CreatedGameMessage(gameName));
                 this.registerToGame(player, gameName);
                 return true;
@@ -125,14 +131,14 @@ public class MainController {
     }
 
     private boolean checkPlayer(ClientHandler player){
-        synchronized (this.playerInfo) {
-            if (!this.playerInfo.containsKey(player.getName())) {
+        synchronized (MainController.playerInfo) {
+            if (!MainController.playerInfo.containsKey(player.getName())) {
                 //Un player può arrivare qui senza essere in playerInfo?
                 return false;
             }
-            if (this.playerInfo.get(player.getName()).y() != null) {
+            if (MainController.playerInfo.get(player.getName()).y() != null) {
                 player.update(new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME,
-                                                    "You can't join a new game because you are already registered to game " + this.playerInfo.get(player.getName()).y()));
+                                                    "You can't join a new game because you are already registered to game " + MainController.playerInfo.get(player.getName()).y()));
                 return false;
             }
         }
@@ -150,19 +156,19 @@ public class MainController {
         if(!checkPlayer(player)){
             return false;
         }
-        synchronized (this.gamesInfo) {
-            if (!this.gamesInfo.containsKey(gameName)) {
+        synchronized (MainController.gamesInfo) {
+            if (!MainController.gamesInfo.containsKey(gameName)) {
                 player.update(new GameHandlingError(Error.GAME_NOT_FOUND, "Game " + gameName + "not found!"));
                 return false;
             }
-            if (this.gamesInfo.get(gameName).getGameAssociated().getNumPlayers() == this.gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer()) {
+            if (MainController.gamesInfo.get(gameName).getGameAssociated().getNumPlayers() == MainController.gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer()) {
                 player.update(new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, "Game " + gameName + " is not accessible!"));
                 return false;
             }
-            gameControllerToJoin = this.gamesInfo.get(gameName);
+            gameControllerToJoin = MainController.gamesInfo.get(gameName);
         }
-        synchronized (this.playerInfo){
-            this.playerInfo.put(player.getName(), new Tuple<>(State.ACTIVE, gameName));
+        synchronized (MainController.playerInfo){
+            MainController.playerInfo.put(player.getName(), new Tuple<>(State.ACTIVE, gameName));
         }
         player.setGameController(gameControllerToJoin);
         player.update(new JoinedGameMessage(gameName));
@@ -171,8 +177,8 @@ public class MainController {
     }
 
     private ArrayList<String> findAvailableGames() {
-        synchronized (this.gamesInfo) {
-            return this.gamesInfo.entrySet()
+        synchronized (MainController.gamesInfo) {
+            return MainController.gamesInfo.entrySet()
                                  .stream()
                                  .filter(e -> e.getValue().getGameAssociated().getGameState() == GameState.SETUP &&
                                          e.getValue().getGameAssociated().getNumPlayers() != e.getValue().getGameAssociated().getNumJoinedPlayer())
@@ -186,20 +192,20 @@ public class MainController {
      * Yes, send the state of the Game, if no, send list of nonActive games that it can join.
      * */
     public void reconnect(ClientHandler clientHandler, String gameName){
-        if(!this.playerInfo.containsKey(clientHandler.getName())){
+        if(!MainController.playerInfo.containsKey(clientHandler.getName())){
             clientHandler.update(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, "Player with name " + clientHandler.getName() + " is not registered to server!"));
             return;
         }
-        if(!this.gamesInfo.containsKey(gameName)){
+        if(!MainController.gamesInfo.containsKey(gameName)){
             clientHandler.update(new GameHandlingError(Error.GAME_NOT_FOUND, "Game " + gameName + "not found!"));
             return;
         }
-        if(this.gamesInfo.get(gameName).getGameAssociated().getPlayers().stream().map(Player::getName).noneMatch(n -> n.equals(clientHandler.getName()))){
+        if(MainController.gamesInfo.get(gameName).getGameAssociated().getPlayers().stream().map(Player::getName).noneMatch(n -> n.equals(clientHandler.getName()))){
             clientHandler.update(new GameHandlingError(Error.PLAYER_NOT_IN_GAME, "This player in not in the specified game!"));
             return;
         }
         clientHandler.update(new JoinedGameMessage(gameName));
-        this.gamesInfo.get(gameName).addClient(clientHandler.getName(), clientHandler);
+        MainController.gamesInfo.get(gameName).addClient(clientHandler.getName(), clientHandler);
     }
 
     public static void destroyMainController() {

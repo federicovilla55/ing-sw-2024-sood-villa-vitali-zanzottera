@@ -10,4 +10,6 @@ public abstract class Server{
         this.mainController = MainController.getMainServer();
     }
 
+    public abstract void kickPlayerOff(String nickname);
+
 }

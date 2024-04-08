@@ -2,7 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server;
 
 
 import it.polimi.ingsw.gc19.Controller.MainController;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.GameServerRMI;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.ServerTcp;
 
 import java.io.IOException;
@@ -23,10 +23,10 @@ public class ServerApp {
         List<ClientHandler> ListClient = new ArrayList<ClientHandler>();;
         List<ClientHandler> ListNonActiveClient = new ArrayList<ClientHandler>();
         MainController masterMainController = MainController.getMainServer();
-        GameServerRMI MainRmi = GameServerRMI.getInstance();
-        VirtualMainServer stub = (VirtualMainServer) UnicastRemoteObject.exportObject(MainRmi, 0);
         Registry registry = LocateRegistry.createRegistry(12122);
-        //registry.rebind("RMIServer", stub);
+        MainServerRMI MainRmi = new MainServerRMI(registry);
+        VirtualMainServer stub = (VirtualMainServer) UnicastRemoteObject.exportObject(MainRmi, 0);
+        registry.rebind("RMIServer", stub);
         ServerTcp MainTcp = new ServerTcp(ListClient, masterMainController);
     }
 
