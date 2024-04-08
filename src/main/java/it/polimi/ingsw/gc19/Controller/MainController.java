@@ -164,6 +164,7 @@ public class MainController {
         synchronized (this.playerInfo){
             this.playerInfo.put(player.getName(), new Tuple<>(State.ACTIVE, gameName));
         }
+        player.setGameController(gameControllerToJoin);
         player.update(new JoinedGameMessage(gameName));
         gameControllerToJoin.addClient(player.getName(), player);
         return true;
