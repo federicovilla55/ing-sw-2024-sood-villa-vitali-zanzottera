@@ -46,7 +46,7 @@ public class MessagesTest{
         this.mainController = MainController.getMainServer();
 
         try {
-            gameController = new GameController(new Game(4));
+            gameController = new GameController(new Game(4, "game"));
             this.playableCards = JSONParser.readPlayableCardFromFile().collect(Collectors.toMap(Card::getCardCode, p -> p));
             this.goalCards = JSONParser.readGoalCardFromFile().collect(Collectors.toMap(Card::getCardCode, p -> p));
         }

@@ -67,7 +67,7 @@ public class MainController {
                 GameController gameController;
                 ArrayList<String> playersToRemove;
                 try{
-                    this.wait(Settings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION * 1000);
+                    sleep(Settings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION * 1000);
                 }
                 catch(InterruptedException interruptedException){
                     //@TODO: handle this exception
@@ -145,7 +145,7 @@ public class MainController {
         synchronized (MainController.gamesInfo) {
             if (!MainController.gamesInfo.containsKey(gameName)) {
                 try {
-                    gameToBuild = new Game(numPlayer, randomSeed);
+                    gameToBuild = new Game(numPlayer, gameName, randomSeed);
                 } catch (IOException exception) {
                     player.update(new GameHandlingError(Error.CANNOT_BUILD_GAME,
                                                         "Cannot build game because there is an IO Exception. Try later...")

@@ -318,6 +318,10 @@ public class GameController{
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
         this.setNextPlayer();
+
+        this.messageFactory.sendMessageToAllGamePlayers(
+                new TurnStateMessage(this.gameAssociated.getActivePlayer().getName(), this.gameAssociated.getTurnState())
+        );
     }
 
     /**
@@ -423,6 +427,7 @@ public class GameController{
                 && sortedPlayers.getFirst().getStation().getPointsFromGoals() == p.getStation().getPointsFromGoals());
 
         this.gameAssociated.setGameState(GameState.END);
+        MainController.fireGameAndPlayer(getGameAssociated().getGameName());
 
         this.messageFactory.sendMessageToAllGamePlayers(
                 new EndGameMessage(winnerPlayers.stream().map(Player::getName).collect(Collectors.toList()), scoreboard)
@@ -440,6 +445,7 @@ public class GameController{
                 );
             }
             this.gameAssociated.setGameState(GameState.END);
+            MainController.fireGameAndPlayer(getGameAssociated().getGameName());
 
             this.messageFactory.sendMessageToAllGamePlayers(
                     new EndGameMessage(new ArrayList<>(), new HashMap<>())

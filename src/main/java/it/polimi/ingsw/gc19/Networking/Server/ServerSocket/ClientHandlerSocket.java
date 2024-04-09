@@ -17,7 +17,7 @@ public class ClientHandlerSocket extends ClientHandler implements Runnable{
     private Controller MasterController;*/
 
     public ClientHandlerSocket(Socket clientSocket, MainController masterMainController) throws IOException {
-        super("User", new GameController(new Game(4)));
+        super("User", new GameController(new Game(4, "game")));
         //this.in = new ObjectInputStream(System.in);
     }
     /*public ClientHandleSocket(Socket clientSocket, Controller MasterController) throws IOException

@@ -18,7 +18,7 @@ class SingleStationTest{
 
     public SingleStationTest() throws IOException {
         MessageFactory messageFactory = new MessageFactory();
-        this.game = new Game(1);
+        this.game = new Game(1, "game");
         this.game.setMessageFactory(messageFactory);
         this.game.createNewPlayer("player");
         this.game.getPlayerByName("player").setMessageFactory(messageFactory);

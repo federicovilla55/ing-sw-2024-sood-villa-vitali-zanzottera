@@ -53,7 +53,7 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5"); // 128 bits
             // @todo: figure out if it's preferable to use Base64 for bytes to String conversion
-            hashedMessage = Arrays.toString(digest.digest((nickName+clientHandlerRMI.toString()).getBytes()));
+            hashedMessage = Arrays.toString(digest.digest((nickName + clientHandlerRMI.toString()).getBytes()));
         } catch (NoSuchAlgorithmException ignored){ };
 
         if(this.mainController.createClient(clientHandlerRMI)) {
@@ -237,7 +237,6 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
             synchronized (this.connectedClients) {
                 playerName = this.connectedClients.get(virtualClient).x().getName();
             }
-            System.out.println("remove player -> " + playerName);
             this.mainController.setPlayerInactive(playerName);
         }
     }

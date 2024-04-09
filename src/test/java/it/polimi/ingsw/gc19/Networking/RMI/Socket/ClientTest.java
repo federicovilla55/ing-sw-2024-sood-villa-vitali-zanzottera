@@ -9,18 +9,16 @@ import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardFromTable;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OtherAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import org.junit.jupiter.api.*;
 
@@ -438,6 +436,8 @@ public class ClientTest{
         gameServer1.placeCard("resource_23", "initial_05", Direction.UP_RIGHT, CardOrientation.DOWN);
         gameServer1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
+        waitingThread(100);
+
         dummyTurn(gameServer2, client2, PlayableCardType.RESOURCE);
 
         gameServer1.placeCard("resource_01", "initial_05", Direction.UP_LEFT, CardOrientation.UP);
@@ -520,7 +520,8 @@ public class ClientTest{
         //assertTrue(gameController.getGameAssociated().getFinalCondition());
         //assertTrue(gameController.getGameAssociated().isFinalRound());
 
-        dummyTurn(gameServer1, client1, PlayableCardType.RESOURCE);
+        gameServer1.placeCard("resource_28", "resource_39", Direction.UP_RIGHT, CardOrientation.UP);
+        gameServer1.pickCardFromTable(PlayableCardType.RESOURCE, 1);
 
         dummyTurn(gameServer2, client2, PlayableCardType.RESOURCE);
 
@@ -528,6 +529,13 @@ public class ClientTest{
         //assertEquals(GameState.END, gameController.getGameAssociated().getGameState());
         //assertEquals(gameServer1, gameController.getGameAssociated().getWinnerPlayers().getFirst().getName());
         //assertEquals(1, gameController.getGameAssociated().getWinnerPlayers().size());
+
+        this.client1.clearQueue();
+        this.client2.clearQueue();
+
+        waitingThread(10000);
+
+        assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game13"));
     }
 
     private void dummyTurn(VirtualGameServer virtualGameServer, Client client, PlayableCardType cardType) throws RemoteException {
@@ -537,18 +545,39 @@ public class ClientTest{
 
     private void dummyPlace(VirtualGameServer virtualGameServer, Client client) throws RemoteException {
         MessageToClient currMessage = client.getMessage();
-        
-        while(currMessage != null || client.getAnchorCard()==null){
+        MessageToClient latestMessage = null;
+        boolean found = false;
+
+        while(currMessage != null){
             //System.out.println(currMessage.getClass());
+            if((currMessage instanceof AcceptedPickCardFromTable) && (((AcceptedPickCardFromTable) currMessage)).getNick().equals(client.getName())){
+                latestMessage = currMessage;
+            }
             if(currMessage instanceof OwnAcceptedPickCardFromDeckMessage){
-                client.setAnchorCard(client.getCardToPlace());
-                client.setAnchorCard(((OwnAcceptedPickCardFromDeckMessage) currMessage).getPickedCard());
+                latestMessage = currMessage;
+
             }
             if(currMessage instanceof OwnStationConfigurationMessage){
-                client.setCardToPlace(((OwnStationConfigurationMessage) currMessage).getCardsInHand().getFirst());
-                client.setAnchorCard(((OwnStationConfigurationMessage) currMessage).getInitialCard());
+                latestMessage = currMessage;
             }
             currMessage = client.getMessage();
+        }
+
+        switch (latestMessage) {
+            case AcceptedPickCardFromTable acceptedPickCardFromTable -> {
+                client.setAnchorCard(client.getCardToPlace());
+                client.setCardToPlace(acceptedPickCardFromTable.getPickedCard());
+            }
+            case OwnAcceptedPickCardFromDeckMessage ownAcceptedPickCardFromDeckMessage -> {
+                client.setAnchorCard(client.getCardToPlace());
+                client.setCardToPlace(ownAcceptedPickCardFromDeckMessage.getPickedCard());
+            }
+            case OwnStationConfigurationMessage ownStationConfigurationMessage -> {
+                client.setAnchorCard(ownStationConfigurationMessage.getInitialCard());
+                client.setCardToPlace(ownStationConfigurationMessage.getCardsInHand().getFirst());
+            }
+            default -> {
+            }
         }
 
         assert client.getAnchorCard() != null;
@@ -617,7 +646,7 @@ public class ClientTest{
 
 class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
 
-    private final Queue<MessageToClient> incomingMessages;
+    private final Deque<MessageToClient> incomingMessages;
     private final VirtualMainServer virtualMainServer;
     private VirtualGameServer virtualGameServer;
     private String name;

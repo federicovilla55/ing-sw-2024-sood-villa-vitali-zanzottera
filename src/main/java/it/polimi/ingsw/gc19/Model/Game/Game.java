@@ -36,6 +36,8 @@ import java.util.stream.Stream;
  */
 public class Game extends Publisher{
 
+    private final String gameName;
+
     private TurnState turnState;
     private GameState gameState;
     /**
@@ -146,8 +148,8 @@ public class Game extends Publisher{
      * @param numPlayers The number of players in the game.
      * @throws IOException if there's an I/O error while reading card files.
      */
-    public Game(int numPlayers) throws IOException {
-        this(numPlayers, new Random().nextLong());
+    public Game(int numPlayers, String gameName) throws IOException {
+        this(numPlayers, gameName, new Random().nextLong());
     }
 
 
@@ -157,8 +159,10 @@ public class Game extends Publisher{
      * @param randomSeed the random seed used to shuffle card and to select first player
      * @throws IOException if there's an I/O error while reading card files.
      */
-    public Game(int numPlayers, long randomSeed) throws IOException{
+    public Game(int numPlayers, String gameName, long randomSeed) throws IOException{
+
         super();
+        this.gameName = gameName;
         this.rng = new Random(randomSeed);
         this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
@@ -612,4 +616,7 @@ public class Game extends Publisher{
                 };
     }
 
+    public String getGameName() {
+        return gameName;
+    }
 }

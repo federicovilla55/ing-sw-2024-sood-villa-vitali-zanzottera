@@ -45,7 +45,7 @@ class GameControllerTest {
 
     public void setUp(long randomSeed) {
         try {
-            Game game = new Game(4, randomSeed);
+            Game game = new Game(4, "game", randomSeed);
             gameController = new GameController(game, 1);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -23,7 +23,7 @@ class GameTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-        game = new Game(4);
+        game = new Game(4, "game");
         game.setMessageFactory(new MessageFactory());
     }
 
