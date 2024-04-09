@@ -17,7 +17,6 @@ public abstract class MessageToClient implements Remote, Serializable{
     private MessagePriorityLevel messagePriorityLevel = MessagePriorityLevel.LOW;
 
     protected MessageToClient(){
-        this.messagePriorityLevel = MessagePriorityLevel.LOW;
     }
 
     public MessageToClient setHeader(List<String> header){

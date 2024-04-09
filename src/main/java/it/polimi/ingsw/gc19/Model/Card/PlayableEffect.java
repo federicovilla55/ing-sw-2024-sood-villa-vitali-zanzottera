@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
+import java.io.Serializable;
+
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -17,7 +19,7 @@ import it.polimi.ingsw.gc19.Model.Station.Station;
 /**
  * This interface represents the effect of a PlayableCard
  */
-interface PlayableEffect{
+interface PlayableEffect extends Serializable{
 
     /**
      * This method returns a detailed description of card's effect

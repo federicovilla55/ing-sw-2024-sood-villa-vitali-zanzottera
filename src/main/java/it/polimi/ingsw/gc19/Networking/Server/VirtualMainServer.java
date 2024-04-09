@@ -7,10 +7,12 @@ import java.rmi.RemoteException;
 
 public interface VirtualMainServer extends Remote {
     public void newConnection(VirtualClient clientRmi, String nickName) throws RemoteException;
-    public void createGame(VirtualClient clientRMI, String gameName, int numPlayer) throws RemoteException;
-    public void joinGame(VirtualClient clientRMI, String GameName) throws RemoteException;
-    public void reconnect(VirtualClient clientRMI, String nickName) throws RemoteException;
-    void disconnect(VirtualClient clientRMI, String nickname) throws RemoteException;
+    public VirtualGameServer createGame(VirtualClient clientRMI, String gameName, String nickname, int numPlayer) throws RemoteException;
+    VirtualGameServer createGame(VirtualClient clientRMI, String gameName, String nickname, int numPlayer, long randomSeed) throws RemoteException;
+    public VirtualGameServer joinGame(VirtualClient clientRMI, String GameName, String nickname) throws RemoteException;
+    VirtualGameServer joinFirstAvailableGame(VirtualClient clientRMI, String nickName) throws RemoteException;
+    VirtualGameServer reconnect(VirtualClient clientRMI, String nickName, String token) throws RemoteException;
+    void disconnect(VirtualClient clientRMI, String nickName) throws RemoteException;
     public void heartBeat(VirtualClient clientRMI) throws RemoteException;
 
 }

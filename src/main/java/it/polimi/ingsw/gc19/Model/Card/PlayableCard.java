@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Enums.*;
 
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -62,6 +63,7 @@ public class PlayableCard extends Card{
      * implements PlayableEffect
      */
     private PlayableEffect playableEffect;
+
     @JsonCreator
     PlayableCard(
             @JsonProperty("code") String cardCode,
@@ -282,7 +284,7 @@ public class PlayableCard extends Card{
     /**
      * This class implements the up state of the card
      */
-    private class CardUp implements CardState{
+    private class CardUp implements CardState, Serializable{
         @Override
         public void swap(){
             cardState = new CardDown();
@@ -343,7 +345,7 @@ public class PlayableCard extends Card{
     /**
      * This class implements the up state of the card
      */
-    private class CardDown implements CardState{
+    private class CardDown implements CardState, Serializable{
         @Override
         public void swap(){
             cardState = new CardUp();

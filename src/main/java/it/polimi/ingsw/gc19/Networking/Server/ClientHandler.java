@@ -5,6 +5,8 @@ import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityComparator;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
@@ -18,7 +20,12 @@ public abstract class ClientHandler implements Observer<MessageToClient>, Virtua
 
     private GameController gameController;
     protected final String username;
-    protected final Queue<MessageToClient> messageQueue;
+
+    // @todo: maybe use a priority queue.
+    // An example can be done with three ArrayDequeue (one for each priority level)
+    // the methods that use the messageQueue will become more complex (to remove the top
+    // element there's the need to watch all three queues).
+    protected final ArrayDeque<MessageToClient> messageQueue;
 
     public ClientHandler(String username, GameController gameController){
         this.gameController = gameController;
@@ -37,12 +44,24 @@ public abstract class ClientHandler implements Observer<MessageToClient>, Virtua
         return this.username;
     }
 
+    public GameController getGameController(){
+        return this.gameController;
+    }
+
+    public Deque<MessageToClient> getQueueOfMessages(){
+        return this.messageQueue;
+    }
+
     public abstract void sendMessageToClient(MessageToClient message);
 
     @Override
     public void update(MessageToClient message) {
         synchronized(messageQueue){
-            messageQueue.add(message);
+            if(message.getMessagePriorityLevel() == MessagePriorityLevel.HIGH) {
+                messageQueue.addFirst(message);
+            }else{
+                messageQueue.add(message);
+            }
             messageQueue.notify();
         }
     }
@@ -57,11 +76,12 @@ public abstract class ClientHandler implements Observer<MessageToClient>, Virtua
                 }
                 catch(InterruptedException ignored){ };
             }
-
             messageToSend = this.messageQueue.remove();
-            this.sendMessageToClient(messageToSend);
+            //System.out.println(messageToSend.getClass() +  " " + messageToSend.getHeader());
+            if(messageToSend.getHeader().contains(username)) {
+                this.sendMessageToClient(messageToSend);
+            }
             this.messageQueue.notifyAll();
-
         }
     }
 

@@ -29,4 +29,13 @@ public class GameHandlingError extends MessageToClient{
         if(visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if(o == null) return false;
+        if(o instanceof GameHandlingError){
+            return ((GameHandlingError) o).errorType == this.errorType;
+        }
+        return false;
+    }
+
 }

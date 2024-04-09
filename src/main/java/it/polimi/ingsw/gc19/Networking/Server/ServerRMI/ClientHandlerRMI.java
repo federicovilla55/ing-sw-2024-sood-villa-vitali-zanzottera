@@ -13,6 +13,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 
 import java.rmi.RemoteException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -23,23 +24,27 @@ public class ClientHandlerRMI extends ClientHandler{
 
     private final VirtualClient virtualClientAssociated;
 
-    public ClientHandlerRMI(VirtualClient virtualClientAssociated, String username, GameController gameController) {
-        super(username, gameController);
-        this.virtualClientAssociated = virtualClientAssociated;
-    }
-
     public ClientHandlerRMI(VirtualClient virtualClientAssociated, String username) {
         super(username, null);
         this.virtualClientAssociated = virtualClientAssociated;
 
     }
 
+    public ClientHandlerRMI(VirtualClient virtualClientAssociated, ClientHandler clientHandler) {
+        super(clientHandler.getName(), clientHandler.getGameController());
+        this.messageQueue.addAll(clientHandler.getQueueOfMessages());
+        this.virtualClientAssociated = virtualClientAssociated;
+    }
+
     @Override
     public void sendMessageToClient(MessageToClient message) {
         try{
+            //System.out.println(message.getClass() + "  " + message.getHeader());
             virtualClientAssociated.pushUpdate(message);
         }
         catch(RemoteException remoteException){
+            //System.out.println(remoteException.getMessage());
+            //System.out.println("Remote Exception");
             //@TODO: handle this exception
         }
     }

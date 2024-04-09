@@ -10,6 +10,10 @@ public class CreatedPlayerMessage extends GameHandlingMessage{
         this.nick = nick;
     }
 
+    public CreatedPlayerMessage(String nick) {
+        this(nick, null);
+    }
+
     public String getNick() {
         return this.nick;
     }
@@ -17,6 +21,13 @@ public class CreatedPlayerMessage extends GameHandlingMessage{
     @Override
     public void accept(MessageToClientVisitor visitor) {
         if(visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if(o == null) return false;
+        if(! (o instanceof CreatedPlayerMessage)) return false;
+        return ((CreatedPlayerMessage) o).nick.equals(this.nick);
     }
 
 }

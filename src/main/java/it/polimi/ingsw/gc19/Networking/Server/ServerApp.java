@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server;
 
 
 import it.polimi.ingsw.gc19.Controller.MainController;
+import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.ServerTcp;
 
@@ -24,9 +25,9 @@ public class ServerApp {
         List<ClientHandler> ListNonActiveClient = new ArrayList<ClientHandler>();
         MainController masterMainController = MainController.getMainServer();
         Registry registry = LocateRegistry.createRegistry(12122);
-        MainServerRMI MainRmi = new MainServerRMI(registry);
+        MainServerRMI MainRmi = new MainServerRMI();
         VirtualMainServer stub = (VirtualMainServer) UnicastRemoteObject.exportObject(MainRmi, 0);
-        registry.rebind("RMIServer", stub);
+        registry.rebind(Settings.mainRMIServerName, stub);
         ServerTcp MainTcp = new ServerTcp(ListClient, masterMainController);
     }
 

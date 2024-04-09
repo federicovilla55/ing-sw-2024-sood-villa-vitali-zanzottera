@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
+import java.io.Serializable;
+
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -13,7 +15,7 @@ import it.polimi.ingsw.gc19.Model.Station.Station;
         @JsonSubTypes.Type(value = PatternEffect.class, name = "pattern"),
         @JsonSubTypes.Type(value = SymbolEffect.class, name = "symbol")
 })
-interface GoalEffect{
+interface GoalEffect extends Serializable{
     /**
      * This method returns the points gained by placing this card UP.
      * @return points gained by this card effect

@@ -22,9 +22,15 @@ public class ReconnectToGameMessage{
         return this.nickname;
     }
 
-    /*@Override
-    public void accept(MessageToClientVisitor visitor) {
-        if(visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);
-    }*/
+    public String getToken(){
+        return this.token;
+    }
 
+    @Override
+    public boolean equals(Object o){
+        if(o == null) return false;
+        if(! (o instanceof ReconnectToGameMessage)) return false;
+        return ((ReconnectToGameMessage) o).gameToReconnect.equals(this.gameToReconnect)
+                && ((ReconnectToGameMessage) o ).nickname.equals(this.nickname);
+    }
 }

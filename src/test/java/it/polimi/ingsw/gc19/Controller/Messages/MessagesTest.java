@@ -642,7 +642,7 @@ public class MessagesTest{
         assertMessageEquals(player1,
                 new GamePausedMessage());
 
-        mainController.createClient(player2);
+        mainController.reconnect(player2);
 
         assertMessageEquals(player1,
                 new PlayerReconnectedToGameMessage("player2"));
