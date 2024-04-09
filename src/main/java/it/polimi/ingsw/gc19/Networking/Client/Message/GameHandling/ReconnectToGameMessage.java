@@ -9,9 +9,12 @@ public class ReconnectToGameMessage{
     private final String gameToReconnect;
     private final String nickname;
 
-    public ReconnectToGameMessage(String gameToReconnect, String nickname){
+    private final String token;
+
+    public ReconnectToGameMessage(String gameToReconnect, String nickname, String token){
         this.gameToReconnect = gameToReconnect;
         this.nickname = nickname;
+        this.token = token;
     }
 
     public String getGameToReconnect() {

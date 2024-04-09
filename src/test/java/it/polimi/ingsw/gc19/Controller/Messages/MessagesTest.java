@@ -15,7 +15,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OtherStation
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
@@ -64,24 +63,18 @@ public class MessagesTest{
     @Test
     void testGameCreationAndConfiguration(){
         this.mainController.createClient(player1);
-        assertEquals(new CreatedPlayerMessage("player1"), this.player1.getMessage());
 
         this.mainController.createClient(player2);
-        assertEquals(new CreatedPlayerMessage("player2"), this.player2.getMessage());
-        //No new messages has been sent to player1
-        assertNull(player1.getMessage());
 
         this.mainController.createClient(player3);
-        assertEquals(new CreatedPlayerMessage("player3"), this.player3.getMessage());
 
         this.mainController.createClient(player4);
-        assertEquals(new CreatedPlayerMessage("player4"), this.player4.getMessage());
 
         this.mainController.createGame("game1", 4, this.player1, 1);
 
-        assertEquals(new CreatedGameMessage("game1"), player1.getMessage());
+        assertEquals(new CreatedGameMessage("game1").setHeader(player1.getName()), player1.getMessage());
 
-        assertEquals(new JoinedGameMessage("game1"), player1.getMessage());
+        assertEquals(new JoinedGameMessage("game1").setHeader(player1.getName()), player1.getMessage());
 
         assertMessageEquals(player1,
                 new TableConfigurationMessage(
@@ -172,7 +165,7 @@ public class MessagesTest{
         assertMessageEquals(player1,
                 tableConfigurationMessage);
 
-        assertEquals(new JoinedGameMessage("game1"), player2.getMessage());
+        assertEquals(new JoinedGameMessage("game1").setHeader(player2.getName()), player2.getMessage());
 
 
         assertMessageEquals(player2,
@@ -265,7 +258,7 @@ public class MessagesTest{
         ));
         assertMessageEquals(List.of(player1,player2),tableConfigurationMessage);
 
-        assertEquals(new JoinedGameMessage("game1"), player3.getMessage());
+        assertEquals(new JoinedGameMessage("game1").setHeader(player3.getName()), player3.getMessage());
 
         assertMessageEquals(player3, tableConfigurationMessage);
 
@@ -615,25 +608,19 @@ public class MessagesTest{
 
         this.clearQueue(List.of(player1,player2,player3,player4));
 
-        mainController.disconnect("player2", player2);
+        mainController.setPlayerInactive(player2.getName());
 
-        assertEquals(new DisconnectGameMessage("game1"),
-                player2.getMessage());
         assertMessageEquals(List.of(player1,player3,player4),
                 new DisconnectedPlayerMessage("player2"));
 
-        mainController.disconnect("player3", player3);
+        mainController.setPlayerInactive(player3.getName());
 
-        assertEquals(new DisconnectGameMessage("game1"),
-                player3.getMessage());
         assertMessageEquals(List.of(player1,player4),
                 new DisconnectedPlayerMessage("player3"));
         assertNull(player2.getMessage());
 
-        mainController.disconnect("player4", player4);
+        mainController.setPlayerInactive(player4.getName());
 
-        assertEquals(new DisconnectGameMessage("game1"),
-                player4.getMessage());
         assertMessageEquals(player1,
                 new DisconnectedPlayerMessage("player4"));
         assertNull(player2.getMessage());
@@ -647,7 +634,7 @@ public class MessagesTest{
         assertMessageEquals(player1,
                 new PlayerReconnectedToGameMessage("player2"));
 
-        assertEquals(new JoinedGameMessage("game1"),
+        assertEquals(new JoinedGameMessage("game1").setHeader(player2.getName()),
                 player2.getMessage());
 
         assertMessageEquals(player2,

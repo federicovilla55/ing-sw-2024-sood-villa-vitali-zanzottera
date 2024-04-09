@@ -11,8 +11,10 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMes
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
+import it.polimi.ingsw.gc19.Networking.Server.Settings;
 
 import java.io.IOException;
+import java.io.SyncFailedException;
 import java.util.*;
 
 public class MainController {
@@ -73,6 +75,7 @@ public class MainController {
                 synchronized(MainController.gamesInfo){
                     gameController = MainController.gamesInfo.remove(gameName);
                 }
+                gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectGameMessage(gameName));
                 playersToRemove = gameController.getConnectedClients();
                 synchronized(MainController.playerInfo){
                     for(String p : playersToRemove){
