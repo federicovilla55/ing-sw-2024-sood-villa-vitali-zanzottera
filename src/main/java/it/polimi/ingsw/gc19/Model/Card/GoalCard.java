@@ -3,11 +3,13 @@ package it.polimi.ingsw.gc19.Model.Card;
 import com.fasterxml.jackson.annotation.*;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 
+import java.io.Serializable;
+
 /**
  * This class represents a single card
  */
 @JsonTypeName("goal")
-public class GoalCard extends Card{
+public class GoalCard extends Card {
     /**
      * This attribute represents the effect that a goal
      * card has, that is activated when the game finishes

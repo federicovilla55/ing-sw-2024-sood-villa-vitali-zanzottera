@@ -431,10 +431,8 @@ public class ClientTest{
 
         allPlayersPlacedInitialCard(gameServer1, gameServer2, gameServer3, gameServer4);
 
-        this.client3.stopSendingHeartBeat();
-        waitingThread(5000);
-        this.client4.stopSendingHeartBeat();
-        waitingThread(5000);
+        this.client3.disconnect();
+        this.client4.disconnect();
 
         // client1 turn
         gameServer1.placeCard("resource_23", "initial_05", Direction.UP_RIGHT, CardOrientation.DOWN);
@@ -537,27 +535,26 @@ public class ClientTest{
         virtualGameServer.pickCardFromDeck(cardType);
     }
 
-    public void dummyPlace(VirtualGameServer virtualGameServer, Client client) throws RemoteException {
-        PlayableCard cardToPlace = null;
-        PlayableCard anchorCard = null;
-        
+    private void dummyPlace(VirtualGameServer virtualGameServer, Client client) throws RemoteException {
         MessageToClient currMessage = client.getMessage();
         
-        while(currMessage != null){
+        while(currMessage != null || client.getAnchorCard()==null){
+            //System.out.println(currMessage.getClass());
             if(currMessage instanceof OwnAcceptedPickCardFromDeckMessage){
-                anchorCard = cardToPlace;
-                cardToPlace = ((OwnAcceptedPickCardFromDeckMessage) currMessage).getPickedCard();
+                client.setAnchorCard(client.getCardToPlace());
+                client.setAnchorCard(((OwnAcceptedPickCardFromDeckMessage) currMessage).getPickedCard());
             }
             if(currMessage instanceof OwnStationConfigurationMessage){
-                cardToPlace = ((OwnStationConfigurationMessage) currMessage).getCardsInHand().getFirst();
-                anchorCard = ((OwnStationConfigurationMessage) currMessage).getInitialCard();
+                client.setCardToPlace(((OwnStationConfigurationMessage) currMessage).getCardsInHand().getFirst());
+                client.setAnchorCard(((OwnStationConfigurationMessage) currMessage).getInitialCard());
             }
             currMessage = client.getMessage();
         }
 
-        assert anchorCard != null;
-        virtualGameServer.placeCard(cardToPlace.getCardCode(), anchorCard.getCardCode(), Direction.UP_RIGHT, CardOrientation.DOWN);
-        anchorCard = cardToPlace;
+        assert client.getAnchorCard() != null;
+
+        virtualGameServer.placeCard(client.getCardToPlace().getCardCode(), client.getAnchorCard().getCardCode(), Direction.UP_RIGHT, CardOrientation.DOWN);
+        client.setAnchorCard(client.getCardToPlace());
     }
 
     private void allPlayersPlacedInitialCard(VirtualGameServer virtualGameServer1, VirtualGameServer virtualGameServer2, 
@@ -626,6 +623,8 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
     private String name;
     private Boolean sendHeartBeat;
     private String token;
+    private PlayableCard cardToPlace;
+    private PlayableCard anchorCard;
 
     public Client(VirtualMainServer virtualMainServer, String name) throws RemoteException {
         super();
@@ -642,6 +641,7 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
                         try {
                             if (Client.this.sendHeartBeat) {
                                 virtualMainServer.heartBeat(Client.this);
+                                //System.out.println("send heartbeat " + Client.this.name);
                                 Client.this.wait(100);
                             }
                             else{
@@ -654,6 +654,22 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
                 }
             }
         }.start();
+    }
+
+    public PlayableCard getAnchorCard() {
+        return anchorCard;
+    }
+
+    public PlayableCard getCardToPlace() {
+        return cardToPlace;
+    }
+
+    public void setCardToPlace(PlayableCard cardToPlace) {
+        this.cardToPlace = cardToPlace;
+    }
+
+    public void setAnchorCard(PlayableCard anchorCard) {
+        this.anchorCard = anchorCard;
     }
 
     public synchronized void stopSendingHeartBeat(){

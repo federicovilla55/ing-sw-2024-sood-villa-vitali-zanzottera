@@ -43,8 +43,8 @@ public class ClientHandlerRMI extends ClientHandler{
             virtualClientAssociated.pushUpdate(message);
         }
         catch(RemoteException remoteException){
-            //System.out.println(remoteException.getMessage());
-            //System.out.println("Remote Exception");
+            System.out.println(remoteException.getMessage());
+            System.out.println("Remote Exception -> " + message.getClass());
             //@TODO: handle this exception
         }
     }

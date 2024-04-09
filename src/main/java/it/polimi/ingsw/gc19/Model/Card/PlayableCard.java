@@ -12,7 +12,7 @@ import java.util.*;
  * This class represents a single playable card
  */
 @JsonTypeName("playable")
-public class PlayableCard extends Card{
+public class PlayableCard extends Card implements Serializable{
 
     /**
      * This attribute represents card type: Initial, Resource or Gold
