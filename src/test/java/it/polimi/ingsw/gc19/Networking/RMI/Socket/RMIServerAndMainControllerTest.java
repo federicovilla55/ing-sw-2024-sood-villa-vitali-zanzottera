@@ -1,16 +1,12 @@
 package it.polimi.ingsw.gc19.Networking.RMI.Socket;
 
-import it.polimi.ingsw.gc19.Controller.MainController;
-import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardFromTable;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OtherAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
@@ -22,7 +18,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHa
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import org.junit.jupiter.api.*;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.*;
@@ -34,50 +29,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ClientTest{
-
-    /*public static void main(String[] args) throws RemoteException, NotBoundException {
-
-        Registry registry = LocateRegistry.getRegistry("RMIServer", 12122);
-        VirtualMainServer virtualMainServer = (VirtualMainServer) registry.lookup("RMIServer");
-
-        /*Scanner scanner = new Scanner(System.in);
-        Client client1 = new Client(virtualMainServer, "Matteo");
-        Client client2 = new Client(virtualMainServer, "Mario");
-
-        client1.connect("Matteo");
-        client2.connect("Mario");
-        VirtualGameServer virtualGameServer1 = client1.newGame("Matteo", "Game");
-
-        //VirtualGameServer virtualGameServer1 = (VirtualGameServer) registry.lookup("Game_Matteo");
-        client1.setVirtualGameServer(virtualGameServer1);
-        virtualGameServer1.chooseColor(Color.BLUE);
-        //VirtualGameServer virtualGameServer2 = client2.joinGame("Mario", "Game");
-        //VirtualGameServer virtualGameServer2 = (VirtualGameServer) registry.lookup("Game_Mario");
-        client2.setVirtualGameServer(virtualGameServer2);
-        Client client3 = new Client(virtualMainServer, "Marco");
-        client3.connect("Marco");
-        VirtualGameServer virtualGameServer3 = client3.joinFirstAvailableGame();
-        //VirtualGameServer virtualGameServer3 = (VirtualGameServer) registry.lookup("Game_Marco");
-        //virtualGameServer1.chooseColor(Color.RED);
-        //System.out.println(virtualGameServer1.equals(virtualGameServer2));
-        //client2.joinGame("Mario", "Game1");
-        //client1.sendChatMessage("Matteo", new ArrayList<>(List.of("Mario", "Matteo", "Marco")), "Ciao!!!");
-        //client1.disconnect("Matteo");
-        //client1.reconnect("Matteo", "Game");
-
-
-    }*/
-
-    private static Registry registry;
+public class RMIServerAndMainControllerTest {
     private Client client1, client2, client3, client4, client5;
     private static VirtualMainServer virtualMainServer;
-    private VirtualGameServer virtualGameServer1, virtualGameServer2, virtualGameServer3, virtualGameServer4;
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException{
         ServerApp.main(null);
-        registry = LocateRegistry.getRegistry(Settings.mainRMIServerName, 12122);
+        Registry registry = LocateRegistry.getRegistry(Settings.mainRMIServerName, 12122);
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
     }
 
@@ -391,7 +350,7 @@ public class ClientTest{
 
         //Situation: client 2 has disconnected from game
         Client client6 = new Client(virtualMainServer, this.client2.getName());
-        virtualGameServer2 = client2.reconnect();
+        VirtualGameServer virtualGameServer2 = client2.reconnect();
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
         client6.clearQueue();
@@ -536,6 +495,37 @@ public class ClientTest{
         waitingThread(10000);
 
         assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game13"));
+    }
+
+    @Test
+    public void testReconnection() throws RemoteException {
+        this.client1.connect();
+
+        MessageToClient message = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message).getToken();
+
+        VirtualGameServer gameServer1 = this.client1.newGame("game15", 2);
+
+        this.client2.connect();
+        VirtualGameServer gameServer2 = this.client2.joinGame("game15");
+
+        this.client1.clearQueue();
+        this.client1.stopSendingHeartBeat();
+        waitingThread(2500);
+
+        Client client7 = new Client(virtualMainServer, this.client1.getName());
+        waitingThread(1000);
+        client7.setToken(token1);
+        VirtualGameServer gameServer7 = client7.reconnect();
+
+        assertMessageEquals(client7, new JoinedGameMessage("game15"));
+
+        assertNotEquals(gameServer1, gameServer7);
+
+        this.client2.clearQueue();
+        gameServer7.sendChatMessage(new ArrayList<>(List.of(this.client2.getName())), "Send chat message after reconnection");
+        assertMessageEquals(this.client2, new NotifyChatMessage(client7.getName(),"Send chat message after reconnection"));
+        assertNull(this.client1.getMessage());
     }
 
     private void dummyTurn(VirtualGameServer virtualGameServer, Client client, PlayableCardType cardType) throws RemoteException {
@@ -683,6 +673,14 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
                 }
             }
         }.start();
+    }
+
+    public String getToken(){
+        return this.token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public PlayableCard getAnchorCard() {
