@@ -7,7 +7,7 @@ public abstract class Server{
     protected final MainController mainController;
 
     protected Server(){
-        this.mainController = MainController.getMainServer();
+        this.mainController = MainController.getMainController();
     }
 
 }

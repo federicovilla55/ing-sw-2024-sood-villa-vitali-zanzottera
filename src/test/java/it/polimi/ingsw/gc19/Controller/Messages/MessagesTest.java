@@ -16,7 +16,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationCo
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
@@ -43,7 +42,7 @@ public class MessagesTest{
     @BeforeEach
     void setUp(){
         MainController.destroyMainController();
-        this.mainController = MainController.getMainServer();
+        this.mainController = MainController.getMainController();
 
         try {
             gameController = new GameController(new Game(4, "game"));

@@ -1,12 +1,10 @@
 package it.polimi.ingsw.gc19.Controller;
 
-import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.*;
@@ -14,7 +12,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
 
 import java.io.IOException;
-import java.io.SyncFailedException;
 import java.util.*;
 
 public class MainController {
@@ -28,7 +25,7 @@ public class MainController {
     private static final HashMap<String, Tuple<State, String>> playerInfo = new HashMap<>();
     private static final HashMap<String, GameController> gamesInfo = new HashMap<>();
 
-    public static MainController getMainServer(){
+    public static MainController getMainController(){
         if(mainController == null){
             mainController = new MainController();
             return mainController;
