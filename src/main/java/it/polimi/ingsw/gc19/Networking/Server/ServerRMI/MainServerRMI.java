@@ -256,6 +256,17 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
         }
     }
 
+    @Override
+    public void resetMainServer() {
+        synchronized (connectedClients) {
+            this.connectedClients.clear();
+        }
+        synchronized (lastHeartBeatOfClients) {
+            this.lastHeartBeatOfClients.clear();
+        }
+        this.mainController.resetMainController();
+    }
+
     //un player può disconnetersi se fa un comando esplicito, oppure se non manda più heartbeat
     //in entrmbi i casi lo disconnetto dal server
     //quando un gioco termina il main controller mette il player nella lobby, quindi dal punto di vista del server non dovrebbe cambiare niente

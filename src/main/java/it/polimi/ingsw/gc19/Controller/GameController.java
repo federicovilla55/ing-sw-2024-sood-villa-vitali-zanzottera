@@ -427,7 +427,7 @@ public class GameController{
                 && sortedPlayers.getFirst().getStation().getPointsFromGoals() == p.getStation().getPointsFromGoals());
 
         this.gameAssociated.setGameState(GameState.END);
-        MainController.fireGameAndPlayer(getGameAssociated().getGameName());
+        MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());
 
         this.messageFactory.sendMessageToAllGamePlayers(
                 new EndGameMessage(winnerPlayers.stream().map(Player::getName).collect(Collectors.toList()), scoreboard)
@@ -445,7 +445,7 @@ public class GameController{
                 );
             }
             this.gameAssociated.setGameState(GameState.END);
-            MainController.fireGameAndPlayer(getGameAssociated().getGameName());
+            MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());
 
             this.messageFactory.sendMessageToAllGamePlayers(
                     new EndGameMessage(new ArrayList<>(), new HashMap<>())

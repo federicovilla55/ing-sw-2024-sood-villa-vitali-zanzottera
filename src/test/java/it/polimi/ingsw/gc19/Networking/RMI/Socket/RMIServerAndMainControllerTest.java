@@ -37,7 +37,6 @@ public class RMIServerAndMainControllerTest {
     public static void setUpServer() throws IOException, NotBoundException{
         Registry registry;
         ServerApp.main(null);
-        registry = LocateRegistry.getRegistry(Settings.mainRMIServerName, 12122);
         registry = LocateRegistry.getRegistry("localhost", 12122);
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
     }
@@ -58,6 +57,7 @@ public class RMIServerAndMainControllerTest {
         this.client3.disconnect();
         this.client4.disconnect();
         this.client5.disconnect();
+        virtualMainServer.resetMainServer();
     }
 
     @Test
@@ -87,18 +87,6 @@ public class RMIServerAndMainControllerTest {
         this.client5.setName("client1");
         this.client5.connect();
         assertMessageEquals(this.client5, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
-        this.client5.setName("client5");
-
-        this.client1.stopSendingHeartBeat();
-        this.client2.stopSendingHeartBeat();
-        this.client3.stopSendingHeartBeat();
-        this.client4.startSendingHeartBeat();
-
-        try{
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Test
@@ -123,14 +111,6 @@ public class RMIServerAndMainControllerTest {
         this.client2.clearQueue();
         this.client2.newGame("game1", 2);
         assertMessageEquals(this.client2, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
-
-        this.client1.stopSendingHeartBeat();
-        this.client2.stopSendingHeartBeat();
-        try{
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Test
@@ -167,11 +147,6 @@ public class RMIServerAndMainControllerTest {
         gameServer3.chooseColor(Color.BLUE);
         assertMessageEquals(new ArrayList<>(List.of(this.client3, this.client2, this.client1)), new AcceptedColorMessage(this.client3.getName(), Color.BLUE));
         assertMessageEquals(new ArrayList<>(List.of(this.client2, this.client1)), new AvailableColorsMessage(new ArrayList<>(List.of(Color.GREEN, Color.YELLOW, Color.RED))));
-
-        this.client1.stopSendingHeartBeat();
-        this.client2.stopSendingHeartBeat();
-        this.client3.stopSendingHeartBeat();
-        waitingThread(1000);
     }
 
     @Test
@@ -308,7 +283,7 @@ public class RMIServerAndMainControllerTest {
         this.client1.startSendingHeartBeat();
         this.client1.clearQueue();
         this.client1.reconnect();
-        assertMessageEquals(this.client1, new AvailableGamesMessage(new ArrayList<>(List.of("game1", "game11"))));
+        assertMessageEquals(this.client1, new AvailableGamesMessage(new ArrayList<>(List.of("game11"))));
 
         this.client1.clearQueue();
         this.client1.reconnect();
@@ -352,7 +327,7 @@ public class RMIServerAndMainControllerTest {
 
         //Situation: client 2 has disconnected from game
         Client client6 = new Client(virtualMainServer, this.client2.getName());
-        VirtualGameServer virtualGameServer2 = client2.reconnect();
+        gameServer2 = client2.reconnect();
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
         client6.clearQueue();
@@ -396,8 +371,6 @@ public class RMIServerAndMainControllerTest {
         // client1 turn
         gameServer1.placeCard("resource_23", "initial_05", Direction.UP_RIGHT, CardOrientation.DOWN);
         gameServer1.pickCardFromTable(PlayableCardType.GOLD, 1);
-
-        waitingThread(100);
 
         dummyTurn(gameServer2, client2, PlayableCardType.RESOURCE);
 
@@ -494,7 +467,7 @@ public class RMIServerAndMainControllerTest {
         this.client1.clearQueue();
         this.client2.clearQueue();
 
-        waitingThread(10000);
+        waitingThread(4000);
 
         assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game13"));
     }

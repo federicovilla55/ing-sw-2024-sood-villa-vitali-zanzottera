@@ -20,6 +20,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMes
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,18 +35,15 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MessagesTest{
 
     private MainController mainController;
-    private GameController gameController;
     private Map<String, PlayableCard> playableCards;
     private Map<String, GoalCard> goalCards;
     private ClientStub player1, player2, player3, player4;
 
     @BeforeEach
     void setUp(){
-        MainController.destroyMainController();
         this.mainController = MainController.getMainController();
 
         try {
-            gameController = new GameController(new Game(4, "game"));
             this.playableCards = JSONParser.readPlayableCardFromFile().collect(Collectors.toMap(Card::getCardCode, p -> p));
             this.goalCards = JSONParser.readGoalCardFromFile().collect(Collectors.toMap(Card::getCardCode, p -> p));
         }
@@ -53,20 +51,26 @@ public class MessagesTest{
             e.printStackTrace();
         }
 
-        this.player1 = new ClientStub("player1", gameController);
-        this.player2 = new ClientStub("player2", gameController);
-        this.player3 = new ClientStub("player3", gameController);
-        this.player4 = new ClientStub("player4", gameController);
+        this.player1 = new ClientStub("player1", null);
+        this.player2 = new ClientStub("player2", null);
+        this.player3 = new ClientStub("player3", null);
+        this.player4 = new ClientStub("player4", null);
+    }
+
+    @AfterEach
+    void tearDown() {
+        mainController.resetMainController();
+        this.player1.setGameController(null);
+        this.player2.setGameController(null);
+        this.player3.setGameController(null);
+        this.player4.setGameController(null);
     }
 
     @Test
     void testGameCreationAndConfiguration(){
         this.mainController.createClient(player1);
-
         this.mainController.createClient(player2);
-
         this.mainController.createClient(player3);
-
         this.mainController.createClient(player4);
 
         this.mainController.createGame("game1", 4, this.player1, 1);
