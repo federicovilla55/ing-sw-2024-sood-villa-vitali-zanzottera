@@ -1,5 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -8,14 +10,19 @@ import java.util.*;
 
 class StationTest{
 
-    private ArrayList<SingleStationTest> stationTests;
+    private static ArrayList<SingleStationTest> stationTests;
 
-    @BeforeEach
-    public void setUpTest() throws IOException{
+    @BeforeAll
+    public static void setUpTest() throws IOException{
         stationTests = new ArrayList<>();
         stationTests.add(new TestBuilder("src/test/java/it/polimi/ingsw/gc19/Model/Station/Test Station - 1").buildTest());
         stationTests.add(new TestBuilder("src/test/java/it/polimi/ingsw/gc19/Model/Station/Test Station - 2").buildTest());
         stationTests.add(new TestBuilder("src/test/java/it/polimi/ingsw/gc19/Model/Station/Test Station - 3").buildTest());
+    }
+
+    @AfterAll
+    public static void tearDownTest() {
+        stationTests = null;
     }
 
     @Test

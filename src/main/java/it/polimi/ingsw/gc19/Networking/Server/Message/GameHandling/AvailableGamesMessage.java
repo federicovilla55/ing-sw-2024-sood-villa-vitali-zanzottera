@@ -3,15 +3,16 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AvailableGamesMessage extends GameHandlingMessage{
-    private final ArrayList<String> availableGames;
+    private final List<String> availableGames;
 
-    public AvailableGamesMessage(ArrayList<String> availableGames){
+    public AvailableGamesMessage(List<String> availableGames){
         this.availableGames = availableGames;
     }
 
-    public ArrayList<String> getAvailableGames() {
+    public List<String> getAvailableGames() {
         return this.availableGames;
     }
 
