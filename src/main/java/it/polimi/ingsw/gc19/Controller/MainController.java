@@ -53,7 +53,7 @@ public class MainController {
             }
             else {
                 player.update(new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE,
-                                                    "Player " + player.getName() + " already in use!");
+                                                    "Player " + player.getName() + " already in use!").setHeader(player.getName()));
                 return false;
             }
         }
@@ -66,7 +66,7 @@ public class MainController {
      * before doing all above operations.
      * @param gameName is the name of the game to delete
      */
-    public static void fireGameAndPlayer(String gameName){
+    public void fireGameAndPlayer(String gameName){
         new Thread(){
             @Override
             public void run() {
