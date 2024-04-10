@@ -10,6 +10,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
+import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
 import java.io.IOException;
 import java.util.*;
@@ -25,6 +26,10 @@ public class MainController {
     private static final HashMap<String, Tuple<State, String>> playerInfo = new HashMap<>();
     private static final HashMap<String, GameController> gamesInfo = new HashMap<>();
 
+    /**
+     * This method is used for implementing Singleton pattern in {@link MainController}
+     * @return {@link MainController} static instance
+     */
     public static MainController getMainController(){
         if(mainController == null){
             mainController = new MainController();
@@ -33,12 +38,13 @@ public class MainController {
         return mainController;
     }
 
-    /***
-     *  Creates new Player if:
-     * 1. There is no other player with the same name.
-     * 2. The player is currently inactive.
-     * @todo: The game the player was playing ended (figure out if we want to handle it here or in the reconnect).
-     * */
+    /**
+     * This method creates a client. First it checks if player's name is already in use.
+     * If so, it returns false; otherwise it creates a new client and puts it in the lobby.
+     * A player is in lobby if its {@link State} is <code>State.ACTIVE</code> and it has no associated game.
+     * @param player is the {@link ClientHandler} corresponding to player
+     * @return <code>true</code> if and only if the player has been correctly created
+     */
     public boolean createClient(ClientHandler player) {
         synchronized (MainController.playerInfo) {
             if (!MainController.playerInfo.containsKey(player.getName())) {
@@ -46,17 +52,21 @@ public class MainController {
                 return true;
             }
             else {
-                if(MainController.playerInfo.containsKey(player.getName())){
-                    player.update(new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE,
-                                                        "Player " + player.getName() + " already in use!")
+                player.update(new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE,
+                                                    "Player " + player.getName() + " already in use!")
                                           .setHeader(player.getName()));
-                    return false;
-                }
                 return false;
             }
         }
     }
 
+    /**
+     * This method is used to delete a game from <code>gamesInfo</code> when it finishes. Consequently,
+     * it also kicks the game players inside the lobby, sending them a {@link DisconnectGameMessage}.
+     * Responsible thread sleeps for <code>Settings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION</code>
+     * before doing all above operations.
+     * @param gameName is the name of the game to delete
+     */
     public static void fireGameAndPlayer(String gameName){
         new Thread(){
             @Override
@@ -85,11 +95,28 @@ public class MainController {
 
     }
 
-    //inactive, null => in lobby and inactive
-    //active, null => in lobby and active
-    //inactive, not null => inactive and in game
-    //active, not null => active and in game
-
+    /**
+     * This method handles player {@link State}. We can have four different situation:
+     * <ul>
+     *     <li>
+     *         <code>(State.INACTIVE, null)</code>: in lobby and inactive
+     *     </li>
+     *     <li>
+     *          <code>(State.ACTIVE, null)</code>: in lobby and active
+     *     </li>
+     *     <li>
+     *          <code>(State.INACTIVE, not null)</code>: in game and inactive
+     *     </li>
+     *     <li>
+     *      <code>(State.ACTIVE, not null)</code>: in game and active
+     *     </li>
+     * </ul>
+     * When a lobby player is signaled to be inactive his state is set to <code>State.INACTIVE</code> and
+     * it's deleted from <code>playersInfo</code>.
+     * When a game player is signaled to be inactive his state becomes <code>State.INACTIVE</code> and
+     * this method calls {@link GameController#removeClient(String)} to remove player's observer.
+     * @param nickname nickname of the player became inactive
+     */
     public void setPlayerInactive(String nickname){
         Tuple<State, String> playerInfo;
         String gameName;
@@ -114,6 +141,13 @@ public class MainController {
         }
     }
 
+    /**
+     * This method is used when a player ask explicitly to be disconnected both
+     * from game or lobby. It removes the player from <code>playerInfo</code> and
+     * if player has an associated game signals to its game controller that it has
+     * to be removed.
+     * @param player player's o be disconnected {@link ClientHandler}
+     */
     public void disconnect(ClientHandler player) {
         GameController gameController;
         String gameName = null;
@@ -134,7 +168,20 @@ public class MainController {
         }
     }
 
-    public boolean createGame(String gameName, int numPlayer, ClientHandler player, long randomSeed) throws IllegalArgumentException {
+    /**
+     * This method creates a new game. First, it calls {@link MainController#checkPlayer(ClientHandler)} to test if player
+     * can create a new game (not registered to other games).
+     * Then, it checks if {@param gameName} is already in use: if yes, then send to player {@link GameHandlingError}
+     * with <code>ErrorType.CANNOT_BUILD_GAME</code>.
+     * If all is ok, it builds a new game along with its game controller, sends a {@link CreatedGameMessage} to player
+     * and registers him to the game.
+     * @param gameName game name chosen by the client
+     * @param numPlayer number of player chosen by the client
+     * @param player {@link ClientHandler} of the player building the game
+     * @param randomSeed random seed of the game
+     * @return true if game has been correctly created
+     */
+    public boolean createGame(String gameName, int numPlayer, ClientHandler player, long randomSeed){
         Game gameToBuild = null;
         if(!checkPlayer(player)){
             return false;
@@ -164,15 +211,29 @@ public class MainController {
         }
     }
 
+    /**
+     * This method acts the same as {@link MainController#createGame} but random seed is not specified by the player.
+     * @param gameName game name chosen by the player
+     * @param numPlayer number of players chosen by the game builder player
+     * @param player {@link ClientHandler} of the game builder player
+     * @return true if the game has been correctly created
+     */
 
-    public boolean createGame(String gameName, int numPlayer, ClientHandler player) throws IllegalArgumentException {
+    public boolean createGame(String gameName, int numPlayer, ClientHandler player){
         return this.createGame(gameName, numPlayer, player, new Random().nextLong());
     }
 
+    /**
+     * This method checks if a player can be registered to some games.
+     * Player must not have the same name of other registered players and must not be in
+     * other active games.
+     * @param player {@link ClientHandler} of the player to check
+     * @return true if a player can be registered to a game
+     */
     private boolean checkPlayer(ClientHandler player){
         synchronized (MainController.playerInfo) {
             if (!MainController.playerInfo.containsKey(player.getName())) {
-                return false; //See if this condition is reachable
+                return false;
             }
             if (MainController.playerInfo.get(player.getName()).y() != null) {
                 player.update(new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME,
@@ -184,6 +245,13 @@ public class MainController {
         return true;
     }
 
+    /**
+     * This method registers a player to an available game: the first
+     * of the <code>ArrayList<String></code> returned by {@link MainController#findAvailableGames()}
+     * It send to player {@link GameHandlingError} with error type <code>NO_GAMES_FREE_TO_JOIN</code> if no game is available.
+     * @param player is the {@link ClientHandler} of the player to be registered
+     * @return name of joined game if it exists, otherwise null.
+     */
     public String registerToFirstAvailableGame(ClientHandler player) {
         ArrayList<String> availableGames = findAvailableGames();
         if(!findAvailableGames().isEmpty()) {
@@ -201,6 +269,17 @@ public class MainController {
         }
     }
 
+    /**
+     * This method register a player to the game named <code>gameName</code>. It checks if
+     * the player has enough right to be registered to a game with {@link MainController#checkPlayer(ClientHandler)}.
+     * Then it checks if the specified game exists, and it is accessible (in <code>SETUP</code> and with
+     * {@link Game#getNumJoinedPlayer()} not equal to {@link Game#getNumPlayers()}).
+     * If yes, it sets entry <code>(State.ACTIVE, gameName)</code> in <code>playerInfo</code> and calls
+     * {@link GameController#addClient(String, Observer)} to register the new player.
+     * @param player {@link ClientHandler} of the player to be added
+     * @param gameName name of the game to be registered to
+     * @return true if {@param player} has been correctly registered to specified game
+     * */
     public boolean registerToGame(ClientHandler player, String gameName){
         GameController gameControllerToJoin;
         if(!checkPlayer(player)){
@@ -230,6 +309,12 @@ public class MainController {
         return true;
     }
 
+    /**
+     * This method finds all available games. Nothing can be guaranteed about the other
+     * of available games name in the array list returned. For example, if game <code>A</code> has been
+     * available for more than <code>B</code>, first element of the array list can be <code>B</code>.
+     * @return an <code>ArrayList<String></code> containing all available games names.
+     */
     private ArrayList<String> findAvailableGames() {
         synchronized (MainController.gamesInfo) {
             return MainController.gamesInfo.entrySet()
@@ -241,6 +326,16 @@ public class MainController {
         }
     }
 
+    /**
+     * This method is responsible for advanced functionality resilience to disconnection.
+     * It is used when a player wants to reconnect to a game. Player cannot reconnect while they are in lobby.
+     * First, it checks if player is registered in <code>playerInfo</code> and then if it is part
+     * of some game. If the answer is no, then it sends {@link AvailableGamesMessage}, otherwise signals
+     * to game controller associated to the game that a player has reconnected and updates <code>playerInfo</code>
+     * putting <code>(State.ACTIVE, gameName)</code>
+     * @param clientHandler player's to be reconnected {@link ClientHandler}
+     * @return true if player can be reconnected
+     */
     public boolean reconnect(ClientHandler clientHandler){
         String gameName = null;
         synchronized (MainController.playerInfo){
@@ -275,6 +370,9 @@ public class MainController {
         }
     }
 
+    /**
+     * This static method destroy an instance of {@link MainController}
+     */
     public static void destroyMainController() {
         MainController.mainController = null;
         synchronized (MainController.playerInfo) {
