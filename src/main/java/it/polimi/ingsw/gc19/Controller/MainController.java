@@ -14,6 +14,9 @@ import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MainController {
 
@@ -67,33 +70,24 @@ public class MainController {
      * @param gameName is the name of the game to delete
      */
     public void fireGameAndPlayer(String gameName){
-        new Thread(){
-            @Override
-            public void run() {
-                GameController gameController;
-                ArrayList<String> playersToRemove;
-                try{
-                    sleep(Settings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION * 1000);
-                }
-                catch(InterruptedException interruptedException){
-                    //@TODO: handle this exception
-                }
-                synchronized(gamesInfo){
-                    gameController = gamesInfo.remove(gameName);
-                }
-                if(gameController!=null) {
-                    gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectGameMessage(gameName));
-                    playersToRemove = gameController.getConnectedClients();
-                    synchronized (playerInfo) {
-                        for (String p : playersToRemove) {
-                            playerInfo.put(p, new Tuple<>(MainController.State.ACTIVE, null));
-                            gameController.removeClient(p);
-                        }
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.schedule(() ->{
+            GameController gameController;
+            ArrayList<String> playersToRemove;
+            synchronized(gamesInfo){
+                gameController = gamesInfo.remove(gameName);
+            }
+            if(gameController!=null) {
+                gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectGameMessage(gameName));
+                playersToRemove = gameController.getConnectedClients();
+                synchronized (playerInfo) {
+                    for (String p : playersToRemove) {
+                        playerInfo.put(p, new Tuple<>(MainController.State.ACTIVE, null));
+                        gameController.removeClient(p);
                     }
                 }
             }
-        }.start();
-
+        }, Settings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION, TimeUnit.SECONDS);
     }
 
     /**

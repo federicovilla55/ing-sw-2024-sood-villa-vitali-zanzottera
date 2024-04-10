@@ -28,6 +28,8 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
         super();
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new HashMap<>();
+
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::runHeartBeatTesterForClient,0, 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 100, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -40,7 +42,6 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
      * @param nickName nickname chosen by the player
      * @throws RemoteException exception thrown if something goes wrong
      */
-
     @Override
     public void newConnection(VirtualClient clientRMI, String nickName) throws RemoteException{
         ClientHandlerRMI clientHandlerRMI;
@@ -70,9 +71,6 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
             }
 
             clientHandlerRMI.update(new CreatedPlayerMessage(clientHandlerRMI.getName(), hashedMessage).setHeader(clientHandlerRMI.getName()));
-
-            Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> runHeartBeatTesterForClient(clientRMI),
-                                                                    0, 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 50, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -189,8 +187,8 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
      * connected to server (in other words if it correctly sends heartbeats). If yes, reconnection is no needed.
      * Otherwise, it is necessary to check tokens. If there is another {@link VirtualClient} with the same token
      * in <code>connectedClients</code> then reconnection can take place. Otherwise, requesting player is faking to be
-     * some other and it returns null. Lastly, it exports the new game server, insert first heartbeat inside
-     * <code>lastHeartBeatOfClients</code> and starts thread for {@link MainServerRMI#runHeartBeatTesterForClient(VirtualClient)}
+     * some other and it returns null. Lastly, it exports the new game server and insert first heartbeat inside
+     * <code>lastHeartBeatOfClients</code>.
      * @param clientRMI virtual client of the player who wants to reconnect
      * @param nicName nickname of client
      * @param token private token of the client
@@ -230,12 +228,7 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
                 this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
             }
             if(this.mainController.reconnect(clientHandlerRMI)){
-                VirtualGameServer playerVirtualGameServer = (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
-
-                Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> runHeartBeatTesterForClient(clientRMI),
-                                                                        0, 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 50, TimeUnit.MILLISECONDS);
-
-                return playerVirtualGameServer;
+                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
             }
         }
         else {
@@ -279,27 +272,18 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
     }
 
 
-    private void runHeartBeatTesterForClient(VirtualClient virtualClient){ //@TODO: one thread for single player or one for all?
-        boolean removePlayer = false;
+    private void runHeartBeatTesterForClient(){
         String playerName;
-        synchronized (this.lastHeartBeatOfClients){
-            if(!this.lastHeartBeatOfClients.containsKey(virtualClient)){
-                Thread.currentThread().interrupt();
+        synchronized(this.lastHeartBeatOfClients) {
+            for (VirtualClient virtualClient : this.lastHeartBeatOfClients.keySet()) {
+                if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
+                    this.lastHeartBeatOfClients.remove(virtualClient);
+                    synchronized (this.connectedClients) {
+                        playerName = this.connectedClients.get(virtualClient).x().getName();
+                    }
+                    this.mainController.setPlayerInactive(playerName);
+                }
             }
-        }
-        synchronized(this.lastHeartBeatOfClients){
-            if(new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS){
-                //System.out.println(new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient));
-                removePlayer = true;
-                this.lastHeartBeatOfClients.remove(virtualClient);
-            }
-        }
-        if(removePlayer) {
-            synchronized (this.connectedClients) {
-                playerName = this.connectedClients.get(virtualClient).x().getName();
-            }
-            this.mainController.setPlayerInactive(playerName);
-            Thread.currentThread().interrupt();
         }
     }
 
@@ -311,7 +295,6 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
     @Override
     public void heartBeat(VirtualClient virtualClient) throws RemoteException{
         synchronized(this.lastHeartBeatOfClients){
-            //System.out.println("Ricevuto hearthbeat");
             if(this.lastHeartBeatOfClients.containsKey(virtualClient)) {
                 this.lastHeartBeatOfClients.put(virtualClient, new Date().getTime());
             }
