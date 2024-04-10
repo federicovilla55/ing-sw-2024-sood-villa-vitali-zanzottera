@@ -77,7 +77,7 @@ public class ClientTest{
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException{
         ServerApp.main(null);
-        registry = LocateRegistry.getRegistry(Settings.mainRMIServerName, 12122);
+        registry = LocateRegistry.getRegistry("localhost", 12122);
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
     }
 
