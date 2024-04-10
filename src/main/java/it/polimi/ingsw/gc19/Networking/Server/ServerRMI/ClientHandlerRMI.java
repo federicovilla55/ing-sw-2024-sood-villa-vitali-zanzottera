@@ -36,15 +36,18 @@ public class ClientHandlerRMI extends ClientHandler{
         this.virtualClientAssociated = virtualClientAssociated;
     }
 
+    /**
+     * This method sends a message to the client using RMI. It overrides
+     * method {@link ClientHandler#sendMessageToClient(MessageToClient)} for <code>ClientHandler</code>
+     * @param message the message to be sent to client
+     */
     @Override
     public void sendMessageToClient(MessageToClient message) {
         try{
-            //System.out.println(message.getClass() + "  " + message.getHeader());
             virtualClientAssociated.pushUpdate(message);
         }
         catch(RemoteException remoteException){
-            //System.out.println(remoteException.getMessage());
-            //System.out.println("Remote Exception -> " + message.getClass());
+            //System.out.println("Remote Exception: " + remoteException.getMessage() + "  -> " + message.getClass());
             //@TODO: handle this exception
         }
     }
