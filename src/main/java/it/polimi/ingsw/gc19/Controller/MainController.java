@@ -287,6 +287,5 @@ public class MainController {
             MainController.gamesInfo.clear();
         }
     }
-
 }
 
