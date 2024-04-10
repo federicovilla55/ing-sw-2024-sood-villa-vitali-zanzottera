@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Controller.GameController;
 import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
+import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
@@ -20,7 +21,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ClientHandlerRMI extends ClientHandler{
+public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer {
 
     private final VirtualClient virtualClientAssociated;
 
@@ -39,14 +40,14 @@ public class ClientHandlerRMI extends ClientHandler{
     /**
      * This method sends a message to the client using RMI. It overrides
      * method {@link ClientHandler#sendMessageToClient(MessageToClient)} for <code>ClientHandler</code>
+     *
      * @param message the message to be sent to client
      */
     @Override
     public void sendMessageToClient(MessageToClient message) {
-        try{
+        try {
             virtualClientAssociated.pushUpdate(message);
-        }
-        catch(RemoteException remoteException){
+        } catch (RemoteException remoteException) {
             //System.out.println("Remote Exception: " + remoteException.getMessage() + "  -> " + message.getClass());
             //@TODO: handle this exception
         }

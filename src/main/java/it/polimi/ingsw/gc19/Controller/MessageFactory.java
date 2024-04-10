@@ -20,20 +20,39 @@ public class MessageFactory implements Observable<MessageToClient>{
         this.mockedView = new ArrayList<>();
     }
 
+    /**
+     * This method is used to send a message to a single player
+     * @param nick nickname of the player to send the message to
+     * @param message message to send
+     */
     public void sendMessageToPlayer(String nick, MessageToClient message){
         notifyObservers(message.setHeader(new ArrayList<>(List.of(nick))));
     }
 
+    /**
+     * This method is used to a message to a group of player in the game
+     * @param nick list of nickname to send message to
+     * @param message message to send
+     */
     public void sendMessageToPlayer(List<String> nick, MessageToClient message){
         notifyObservers(message.setHeader(nick));
     }
 
+    /**
+     * This method is used to send a message to all game players
+     * @param message message to send
+     */
     public void sendMessageToAllGamePlayers(MessageToClient message){
         synchronized (this.connectedClients) {
             notifyObservers(message.setHeader(new ArrayList<>(connectedClients.keySet())));
         }
     }
 
+    /**
+     * This method is used to send a message to all game players except {@param nickExcept}
+     * @param message message to send
+     * @param nickExcept player that hasn't to receive the message
+     */
     public void sendMessageToAllGamePlayersExcept(MessageToClient message, String ... nickExcept){
         ArrayList<String> newHeader;
         ArrayList<String> exceptedPlayers = new ArrayList<>(List.of(nickExcept));
@@ -46,12 +65,21 @@ public class MessageFactory implements Observable<MessageToClient>{
         notifyObservers(message.setHeader(newHeader));
     }
 
+    /**
+     * This method is used to attach an anonymous observer to {@link MessageFactory}
+     * @param observer observer to attach
+     */
     public void attachObserver(Observer<MessageToClient> observer){
         synchronized (this.mockedView) {
             this.mockedView.add(observer);
         }
     }
 
+    /**
+     * This method is used to attach a named observer to {@link MessageFactory}
+     * @param nickname nickname of player owning {@param observer}
+     * @param observer the observer of the player
+     */
     @Override
     public void attachObserver(String nickname, Observer<MessageToClient> observer){
         synchronized (this.connectedClients) {
@@ -59,6 +87,10 @@ public class MessageFactory implements Observable<MessageToClient>{
         }
     }
 
+    /**
+     * This method is used to remove a named observer from the message factory
+     * @param nickName name of the player owning the observer to remove
+     */
     @Override
     public void removeObserver(String nickName) {
         synchronized (this.connectedClients) {
@@ -71,6 +103,10 @@ public class MessageFactory implements Observable<MessageToClient>{
         }
     }
 
+    /**
+     * This method is used to remove an anonymous observer from the message factory
+     * @param obs anonymous observer to remove
+     */
     @Override
     public void removeObserver(Observer<MessageToClient> obs) {
         synchronized (this.connectedClients) {
@@ -88,11 +124,15 @@ public class MessageFactory implements Observable<MessageToClient>{
         }
     }
 
-    public void notifyObservers(MessageToClient message){
+    private void notifyObservers(MessageToClient message){
         notifyAnonymousObservers(message);
         notifyNamedObservers(message);
     }
 
+    /**
+     * This method is used to notify named observers.
+     * @param message message to send to named observers
+     */
     @Override
     public void notifyNamedObservers(MessageToClient message) {
         synchronized (this.connectedClients) {
@@ -103,6 +143,10 @@ public class MessageFactory implements Observable<MessageToClient>{
         }
     }
 
+    /**
+     * This method is used to notify anonymous observers
+     * @param message message to send to anonymous observer
+     */
     @Override
     public void notifyAnonymousObservers(MessageToClient message) {
         synchronized (this.mockedView) {
