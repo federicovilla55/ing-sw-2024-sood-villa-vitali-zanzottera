@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
 import it.polimi.ingsw.gc19.Controller.GameController;
+import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
@@ -19,6 +20,7 @@ import java.util.*;
  */
 public abstract class ClientHandler implements Observer<MessageToClient>, VirtualGameServer{
 
+    protected final MainController mainController = MainController.getMainController();
     private GameController gameController;
     protected final String username;
 

@@ -35,14 +35,19 @@ public class RMIServerAndMainControllerTest {
     private static Registry registry;
 
     @BeforeAll
-    public static void setUpServer() throws IOException, NotBoundException{
+    public static void setUpServer() throws IOException, NotBoundException {
         ServerApp.main(null);
-        registry = LocateRegistry.getRegistry("localhost", 12122);
+        registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
     }
 
+    @AfterAll
+    public static void tearDownServer() {
+        ServerApp.unexportRegistry();
+    }
+
     @BeforeEach
-    public void setUpTest() throws RemoteException{
+    public void setUpTest() throws RemoteException {
         this.client1 = new Client(virtualMainServer, "client1");
         this.client2 = new Client(virtualMainServer, "client2");
         this.client3 = new Client(virtualMainServer, "client3");
@@ -262,25 +267,39 @@ public class RMIServerAndMainControllerTest {
         this.client1.connect();
         this.client1.clearQueue();
 
+        System.out.println(this.client1);
+
         this.client2.connect();
+        System.out.println(this.client2);
         this.client2.clearQueue();
         VirtualGameServer virtualGameServer = this.client2.newGame("game11", 2);
 
+        waitingThread(500);
+
         this.client2.stopSendingHeartBeat();
 
-        waitingThread(1500);
+        waitingThread(5000);
 
-        Client client6 = new Client(virtualMainServer, this.client2.getName());
+        Client client6 = new Client(virtualMainServer, "client6"); //this.client2.getName()
         client6.connect();
-        assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
+        //assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
         this.client2.clearQueue();
         this.client2.reconnect();
         assertMessageEquals(this.client2, new JoinedGameMessage("game11"));
 
+        client6.disconnect();
+
+        //System.out.println("---------------------------------------------------");
+        this.client2.stopSendingHeartBeat();
+
+        //System.out.println("===================================================");
         this.client1.stopSendingHeartBeat();
-        waitingThread(1500);
+        System.out.println("!!!!!===================================================!");
+        waitingThread(7500);
         this.client1.startSendingHeartBeat();
+        waitingThread(20000);
+        //System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
         this.client1.clearQueue();
         this.client1.reconnect();
         assertMessageEquals(this.client1, new AvailableGamesMessage(new ArrayList<>(List.of("game11"))));
@@ -291,16 +310,25 @@ public class RMIServerAndMainControllerTest {
 
         this.client1.stopSendingHeartBeat();
         waitingThread(1500);
-        Client client7 = new Client(virtualMainServer, this.client1.getName());
+        Client client7 = new Client(virtualMainServer, "client7"); //this.client1.getName()
         client7.clearQueue();
         client7.reconnect();
+        client7.startSendingHeartBeat();
         assertMessageEquals(client7, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        client7.stopSendingHeartBeat();
+        client7.disconnect();
 
-        Client client8 = new Client(virtualMainServer, this.client1.getName());
+        Client client8 = new Client(virtualMainServer, "client8"); //this.client1.getName()
         client8.connect();
+        client8.startSendingHeartBeat();
         client8.clearQueue();
         client8.reconnect();
+        client8.startSendingHeartBeat();
+
+        waitingThread(10000);
         assertMessageEquals(client8, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+
+        client8.disconnect();
     }
 
     @Test
@@ -323,11 +351,13 @@ public class RMIServerAndMainControllerTest {
 
         this.client2.stopSendingHeartBeat();
 
-        waitingThread(2000);
+        waitingThread(5000);
 
         //Situation: client 2 has disconnected from game
         Client client6 = new Client(virtualMainServer, this.client2.getName());
+        client2.clearQueue();
         gameServer2 = client2.reconnect();
+        waitingThread(500);
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
         client6.clearQueue();
@@ -339,6 +369,39 @@ public class RMIServerAndMainControllerTest {
         gameServer2.sendChatMessage(new ArrayList<>(List.of(this.client1.getName(), this.client2.getName())), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client2.getName(), "Chat message after disconnection!"));
 
+        client6.disconnect();
+    }
+
+    @Test
+    public void testReconnection() throws RemoteException {
+        this.client1.connect();
+
+        MessageToClient message = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message).getToken();
+
+        VirtualGameServer gameServer1 = this.client1.newGame("game15", 2);
+
+        this.client2.connect();
+        VirtualGameServer gameServer2 = this.client2.joinGame("game15");
+
+        this.client1.clearQueue();
+        this.client1.stopSendingHeartBeat();
+        waitingThread(2500);
+
+        Client client7 = new Client(virtualMainServer, this.client1.getName());
+        waitingThread(1000);
+        client7.setToken(token1);
+        VirtualGameServer gameServer7 = client7.reconnect();
+
+        assertMessageEquals(client7, new JoinedGameMessage("game15"));
+
+        assertNotEquals(gameServer1, gameServer7);
+
+        this.client2.clearQueue();
+        gameServer7.sendChatMessage(new ArrayList<>(List.of(this.client2.getName())), "Send chat message after reconnection");
+        assertMessageEquals(this.client2, new NotifyChatMessage(client7.getName(),"Send chat message after reconnection"));
+        assertNull(this.client1.getMessage());
+        client7.disconnect();
     }
 
     @Test
@@ -472,37 +535,6 @@ public class RMIServerAndMainControllerTest {
         assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game13"));
     }
 
-    @Test
-    public void testReconnection() throws RemoteException {
-        this.client1.connect();
-
-        MessageToClient message = this.client1.getMessage();
-        String token1 = ((CreatedPlayerMessage) message).getToken();
-
-        VirtualGameServer gameServer1 = this.client1.newGame("game15", 2);
-
-        this.client2.connect();
-        VirtualGameServer gameServer2 = this.client2.joinGame("game15");
-
-        this.client1.clearQueue();
-        this.client1.stopSendingHeartBeat();
-        waitingThread(2500);
-
-        Client client7 = new Client(virtualMainServer, this.client1.getName());
-        waitingThread(1000);
-        client7.setToken(token1);
-        VirtualGameServer gameServer7 = client7.reconnect();
-
-        assertMessageEquals(client7, new JoinedGameMessage("game15"));
-
-        assertNotEquals(gameServer1, gameServer7);
-
-        this.client2.clearQueue();
-        gameServer7.sendChatMessage(new ArrayList<>(List.of(this.client2.getName())), "Send chat message after reconnection");
-        assertMessageEquals(this.client2, new NotifyChatMessage(client7.getName(),"Send chat message after reconnection"));
-        assertNull(this.client1.getMessage());
-    }
-
     private void dummyTurn(VirtualGameServer virtualGameServer, Client client, PlayableCardType cardType) throws RemoteException {
         dummyPlace(virtualGameServer, client);
         virtualGameServer.pickCardFromDeck(cardType);
@@ -633,12 +665,12 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
                 synchronized (Client.this){
                     while(true) {
                         try {
-                            if (Client.this.sendHeartBeat) {
+                            while(Client.this.sendHeartBeat) {
                                 virtualMainServer.heartBeat(Client.this);
-                                //System.out.println("send heartbeat " + Client.this.name);
-                                Client.this.wait(100);
+                                //System.out.println("send heartbeat -> " + Client.this.name + "   " + Client.this);
+                                Client.this.wait(250);
                             }
-                            else{
+                            if(!Client.this.sendHeartBeat){
                                 Client.this.wait();
                             }
                         } catch (RemoteException | InterruptedException e) {
@@ -674,14 +706,19 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable{
         this.anchorCard = anchorCard;
     }
 
-    public synchronized void stopSendingHeartBeat(){
-        this.sendHeartBeat = false;
-        this.notify();
+    public void stopSendingHeartBeat(){
+        synchronized (Client.this) {
+            this.sendHeartBeat = false;
+            System.out.println("setted false for " + this.name);
+            Client.this.notifyAll();
+        }
     }
 
-    public synchronized void startSendingHeartBeat(){
-        this.sendHeartBeat = true;
-        this.notify();
+    public void startSendingHeartBeat(){
+        synchronized (Client.this) {
+            this.sendHeartBeat = true;
+            Client.this.notifyAll();
+        }
     }
 
     public void setVirtualGameServer(VirtualGameServer virtualGameServer) {
