@@ -32,10 +32,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RMIServerAndMainControllerTest {
     private Client client1, client2, client3, client4, client5;
     private static VirtualMainServer virtualMainServer;
+    private static Registry registry;
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException{
-        Registry registry;
         ServerApp.main(null);
         registry = LocateRegistry.getRegistry("localhost", 12122);
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
