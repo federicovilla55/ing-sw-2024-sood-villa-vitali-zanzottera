@@ -8,40 +8,66 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  This is an empty interface representing serializable messages
- *  sent from Server to Client
+ * This abstract class represents a generic message that server
+ * can send to client. Every message has its own priority.
  */
 public abstract class MessageToClient implements Remote, Serializable{
 
     private List<String> header;
     private MessagePriorityLevel messagePriorityLevel = MessagePriorityLevel.LOW;
 
-    protected MessageToClient(){
-    }
-
+    /**
+     * This method sets the header to the message. Header is the list
+     * of players to which the message will be sent
+     * @param header the list of players to whom message will be sent
+     * @return the current updated {@link MessageToClient}
+     */
     public MessageToClient setHeader(List<String> header){
         this.header = header;
         return this;
     }
 
+    /**
+     * This method sets the header to the message. Header is the list
+     * of players to which the message will be sent
+     * @param header is the player to whom message wil be sent
+     * @return
+     */
     public MessageToClient setHeader(String header){
         this.header = new ArrayList<>(List.of(header));
         return this;
     }
 
+    /**
+     * Setter for priority level of message
+     * @param priority the {@link MessagePriorityLevel} associated to the message
+     * @return the updated {@link MessageToClient} object
+     */
     public MessageToClient setPriorityLevel(MessagePriorityLevel priority){
         this.messagePriorityLevel = priority;
         return this;
     }
 
+    /**
+     * Getter for priority level of the message
+     * @return the priority level of the message
+     */
     public MessagePriorityLevel getMessagePriorityLevel(){
         return this.messagePriorityLevel;
     }
 
+    /**
+     * Getter for message header
+     * @return the header of the message
+     */
     public List<String> getHeader(){
         return this.header;
     }
 
+    /**
+     * Implementation of the visitor pattern
+     * @param visitor {@link MessageToClientVisitor} visitor of the message
+     */
     public abstract void accept(MessageToClientVisitor visitor);
 
     @Override

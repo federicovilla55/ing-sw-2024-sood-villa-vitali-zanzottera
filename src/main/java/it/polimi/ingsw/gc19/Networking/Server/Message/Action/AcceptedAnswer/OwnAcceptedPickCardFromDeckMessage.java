@@ -6,6 +6,10 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
+/**
+ * This message is sent by server to notify the player who placed a
+ * card about the updates in his station
+ */
 public class OwnAcceptedPickCardFromDeckMessage extends AcceptedPickCardMessage{
     public OwnAcceptedPickCardFromDeckMessage(String nick, PlayableCard pickedCard, PlayableCardType deckType, Symbol symbol) {
         super(nick, pickedCard, deckType, symbol);

@@ -17,14 +17,26 @@ public class AcceptedPickCardFromTable extends AcceptedPickCardMessage{
         this.position = position;
     }
 
+    /**
+     * Getter for position of card to put on table
+     * @return coords of card to put on table
+     */
     public int getCoords(){
         return this.position;
     }
 
+    /**
+     * Getter for card to put in empty slot on table
+     * @return card to place on table
+     */
     public PlayableCard getCardToPutInSlot() {
         return this.cardToPutInSlot;
     }
 
+    /**
+     * Implementation of the visitor pattern
+     * @param visitor {@link MessageToClientVisitor} visitor of the message
+     */
     @Override
     public void accept(MessageToClientVisitor visitor) {
         if(visitor instanceof AnswerToActionMessageVisitor) ((AnswerToActionMessageVisitor) visitor).visit(this);
