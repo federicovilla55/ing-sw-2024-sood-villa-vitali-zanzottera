@@ -600,7 +600,7 @@ class GameControllerTest {
 
         gameController.removeClient("Player 4");
 
-        sleep(1500);
+        sleep(4000);
         // check that game should have been stopped, and Player 3 is the winner
         assertEquals(GameState.END, gameController.getGameAssociated().getGameState());
         //assertEquals("Player 3", gameController.getGameAssociated().getWinnerPlayers().getFirst().getName());

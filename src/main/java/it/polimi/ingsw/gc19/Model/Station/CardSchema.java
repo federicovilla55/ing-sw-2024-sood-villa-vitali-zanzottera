@@ -94,11 +94,12 @@ class CardSchema{
         if(!this.cardPosition.containsKey(anchor)){
             throw new InvalidAnchorException();
         }
-        if(this.cardSchema[this.cardPosition.get(anchor).x() + direction.getX()][this.cardPosition.get(anchor).y() + direction.getY()] != null){
-            return false;
-        }
         currentX = this.cardPosition.get(anchor).x() + direction.getX();
         currentY = this.cardPosition.get(anchor).y() + direction.getY();
+        if(this.cardSchema[currentX][currentY] != null){
+            return false;
+        }
+
         for(Direction dir : Direction.values()){
             neighborCard = this.cardSchema[currentX + dir.getX()][currentY + dir.getY()];
             if(neighborCard != null && !neighborCard.canPlaceOver(dir.getOtherCornerPosition())){

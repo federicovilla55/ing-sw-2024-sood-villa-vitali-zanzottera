@@ -8,6 +8,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Controller.MainController;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
@@ -15,17 +16,20 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-public class MainServerRMI extends Server implements VirtualMainServer{
+public class MainServerRMI extends Server implements VirtualMainServer, Remote{
 
     private final HashMap<VirtualClient, Tuple<ClientHandlerRMI, String>> connectedClients;
-    private final HashMap<VirtualClient, RMIAgentForHeartBeat> rmiAgentsForHeart;
+    private final HashMap<VirtualClient, Long> lastHeartBeatOfClients;
 
     public MainServerRMI(){
         super();
         this.connectedClients = new HashMap<>();
-        this.rmiAgentsForHeart = new HashMap<>();
+        this.lastHeartBeatOfClients = new HashMap<>();
+
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::runHeartBeatTesterForClient,0, 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -37,17 +41,16 @@ public class MainServerRMI extends Server implements VirtualMainServer{
      * @param clientRMI virtual client of player who wants to create a connection
      * @param nickName nickname chosen by the player
      * @throws RemoteException exception thrown if something goes wrong
-     * @return {@link VirtualHeartBeatServer} for heartbeat notification
      */
     @Override
-    public VirtualHeartBeatServer newConnection(VirtualClient clientRMI, String nickName) throws RemoteException{
+    public void newConnection(VirtualClient clientRMI, String nickName) throws RemoteException{
         ClientHandlerRMI clientHandlerRMI;
         synchronized(this.connectedClients){
             if(this.connectedClients.containsKey(clientRMI)){
                 clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
                                                            "Your virtual client is already registered in server!")
                                              .setHeader(nickName));
-                return null;
+                return;
             }
         }
 
@@ -63,14 +66,12 @@ public class MainServerRMI extends Server implements VirtualMainServer{
             synchronized (this.connectedClients) {
                 this.connectedClients.put(clientRMI, new Tuple<>(clientHandlerRMI, hashedMessage));
             }
+            synchronized(this.lastHeartBeatOfClients){
+                this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
+            }
+
             clientHandlerRMI.update(new CreatedPlayerMessage(clientHandlerRMI.getName(), hashedMessage).setHeader(clientHandlerRMI.getName()));
-
-            RMIAgentForHeartBeat rmiAgentForHeartBeat = new RMIAgentForHeartBeat(this, clientRMI);
-
-            return (VirtualHeartBeatServer) UnicastRemoteObject.exportObject(rmiAgentForHeartBeat, 12122);
         }
-
-        return null;
     }
 
     /**
@@ -92,7 +93,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
             return null;
         }
         if(this.mainController.createGame(gameName, numPlayer, clientHandlerRMI)){
-            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, new Random(1).nextInt(10000, 64000));
+            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
         }
         return null;
     }
@@ -116,7 +117,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
             return null;
         }
         if(this.mainController.createGame(gameName, numPlayer, clientHandlerRMI, randomSeed)){
-            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, new Random(2).nextInt(10000, 64000));
+            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
         }
         return null;
     }
@@ -157,7 +158,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     public VirtualGameServer joinGame(VirtualClient clientRMI, String gameName, String nickName) throws RemoteException {
         ClientHandlerRMI clientHandlerRMI = getClientHandlerForVirtualClient(clientRMI, nickName);
         if(this.mainController.registerToGame(clientHandlerRMI, gameName)){
-            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, new Random(3).nextInt(10000, 64000));
+            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
         }
         return null;
     }
@@ -176,12 +177,10 @@ public class MainServerRMI extends Server implements VirtualMainServer{
         ClientHandlerRMI clientHandlerRMI = getClientHandlerForVirtualClient(clientRMI, nickName);
         String gameName = this.mainController.registerToFirstAvailableGame(clientHandlerRMI);
         if(gameName != null){
-            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, new Random(4).nextInt(10000, 64000));
+            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
         }
         return null;
     }
-
-    //public VirtualHeartBeatServer getYourVirtualHeartBeatServer
 
     /**
      * This method support advanced functionality resilience to disconnection. It checks if client is already
@@ -191,22 +190,22 @@ public class MainServerRMI extends Server implements VirtualMainServer{
      * some other and it returns null. Lastly, it exports the new game server and insert first heartbeat inside
      * <code>lastHeartBeatOfClients</code>.
      * @param clientRMI virtual client of the player who wants to reconnect
-     * @param nicName nickname of client
+     * @param nickName nickname of client
      * @param token private token of the client
      * @return {@link VirtualGameServer} remote object of the game server
      * @throws RemoteException exception thrown if something goes wrong
      */
     @Override
-    public Tuple<VirtualGameServer, VirtualHeartBeatServer> reconnect(VirtualClient clientRMI, String nicName, String token) throws RemoteException {
+    public VirtualGameServer reconnect(VirtualClient clientRMI, String nickName, String token) throws RemoteException {
         VirtualClient clientRMIBefore = null;
         ClientHandlerRMI clientHandlerRMI = null;
         boolean found = false;
 
-        synchronized (this.connectedClients){
-            if(this.connectedClients.containsKey(clientRMI)){
+        synchronized (this.lastHeartBeatOfClients){
+            if(this.lastHeartBeatOfClients.containsKey(clientRMI)){
                 clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
                                                            "You cannot reconnect to server because you are already connected!")
-                                             .setHeader(nicName));
+                                             .setHeader(nickName));
                 return null;
             }
         }
@@ -229,7 +228,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
                 this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
             }
             if(this.mainController.reconnect(clientHandlerRMI)){
-                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, new Random(5).nextInt(10000,64000));
+                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
             }
         }
         else {
@@ -237,7 +236,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
                 if(!this.connectedClients.containsKey(clientRMI)) {
                     clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER,
                                                                "You are not registered to server! Please register")
-                                                 .setHeader(nicName));
+                                                 .setHeader(nickName));
                 }
             }
         }
@@ -273,47 +272,20 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     }
 
 
-    public void notifyVirtualClientIsInactive(VirtualClient virtualClient){
+    private void runHeartBeatTesterForClient(){
         String playerName;
-        synchronized (this.connectedClients){
-            playerName = this.connectedClients.get(virtualClient).x().getName();
-            //System.err.println("removing " + playerName);
-            if(playerName != null) {
-                this.mainController.setPlayerInactive(playerName);
-            }
-        }
-    }
-
-    /*
-    String playerName;
-        VirtualClient virtualClientToRemove = null;
         synchronized(this.lastHeartBeatOfClients) {
             for (VirtualClient virtualClient : this.lastHeartBeatOfClients.keySet()) {
-                System.err.println(lastHeartBeatOfClients.entrySet());
-                if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
-                    System.err.println("found something " + virtualClient);
+                if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 4) {
                     this.lastHeartBeatOfClients.remove(virtualClient);
-                    virtualClientToRemove = virtualClient;
                     synchronized (this.connectedClients) {
-                        playerName = this.connectedClients.get(virtualClientToRemove).x().getName();
-                        System.err.println("removing " + playerName);
+                        playerName = this.connectedClients.get(virtualClient).x().getName();
                     }
-                    if(playerName != null) {
-                        this.mainController.setPlayerInactive(playerName);
-                    }
+                    this.mainController.setPlayerInactive(playerName);
                 }
             }
         }
-        /*if(virtualClientToRemove != null){
-            synchronized (this.connectedClients) {
-                playerName = this.connectedClients.get(virtualClientToRemove).x().getName();
-                System.out.println("removing " + playerName);
-            }
-            if(playerName != null) {
-                this.mainController.setPlayerInactive(playerName);
-            }
-        }
-     */
+    }
 
     /**
      * This method notifies to the server that client is still alive.
@@ -323,9 +295,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     @Override
     public void heartBeat(VirtualClient virtualClient) throws RemoteException{
         synchronized(this.lastHeartBeatOfClients){
-            System.out.println("received heartbeat from " + virtualClient);
             if(this.lastHeartBeatOfClients.containsKey(virtualClient)) {
-                //System.out.println("stored heartbeat from " + virtualClient);
                 this.lastHeartBeatOfClients.put(virtualClient, new Date().getTime());
             }
         }
