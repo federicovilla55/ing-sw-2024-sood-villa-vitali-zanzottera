@@ -51,6 +51,7 @@ public class RMIServerAndMainControllerTest {
         ServerApp.main(null);
         registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+        overloadTest(100);
     }
 
     @AfterAll
@@ -80,6 +81,39 @@ public class RMIServerAndMainControllerTest {
         this.client5.disconnect();
         this.client5.destroyHeartBeatThread();
         virtualMainServer.resetMainServer();
+    }
+
+    private static void overloadTest(int numberOfClients) throws RemoteException {
+        for(int i = 0; i < numberOfClients; i++){
+            Client client = new Client(virtualMainServer, "client overload " + Integer.toString(i));
+            new Thread(){
+                @Override
+                public void run(){
+                    int numberOfReps = new Random().nextInt(10, 100);
+                    for(int i = 0; i < numberOfReps; i++){
+                        try {
+                            client.connect();
+
+                            try{
+                                Thread.sleep(new Random().nextInt(1500, 3000));
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            client.reconnect();
+                        } catch (RemoteException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    try {
+                        client.disconnect();
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
+                    }
+                    Thread.currentThread().interrupt();
+                }
+            }.start();
+        }
     }
 
     @Test
@@ -315,9 +349,10 @@ public class RMIServerAndMainControllerTest {
         assertMessageEquals(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
 
     }
-    
+
     @Test
     public void testDisconnectionWhileInLobby() throws RemoteException {
+
         this.client1.connect();
 
         this.client2.connect();
