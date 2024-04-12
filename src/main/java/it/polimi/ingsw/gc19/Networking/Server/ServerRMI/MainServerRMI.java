@@ -16,20 +16,21 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MainServerRMI extends Server implements VirtualMainServer, Remote{
 
     private final HashMap<VirtualClient, Tuple<ClientHandlerRMI, String>> connectedClients;
-    private final HashMap<VirtualClient, Long> lastHeartBeatOfClients;
+    private final ConcurrentHashMap<VirtualClient, Long> lastHeartBeatOfClients;
 
     public MainServerRMI(){
         super();
         this.connectedClients = new HashMap<>();
-        this.lastHeartBeatOfClients = new HashMap<>();
-
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::runHeartBeatTesterForClient,0, 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
+        this.lastHeartBeatOfClients =new ConcurrentHashMap<>();
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -66,9 +67,9 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
             synchronized (this.connectedClients) {
                 this.connectedClients.put(clientRMI, new Tuple<>(clientHandlerRMI, hashedMessage));
             }
-            synchronized(this.lastHeartBeatOfClients){
+            //synchronized(this.lastHeartBeatOfClients) {
                 this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
-            }
+                //}
 
             clientHandlerRMI.update(new CreatedPlayerMessage(clientHandlerRMI.getName(), hashedMessage).setHeader(clientHandlerRMI.getName()));
         }
@@ -200,15 +201,13 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
         VirtualClient clientRMIBefore = null;
         ClientHandlerRMI clientHandlerRMI = null;
         boolean found = false;
-
-        synchronized (this.lastHeartBeatOfClients){
-            if(this.lastHeartBeatOfClients.containsKey(clientRMI)){
-                clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
-                                                           "You cannot reconnect to server because you are already connected!")
-                                             .setHeader(nickName));
-                return null;
-            }
+        if(this.lastHeartBeatOfClients.containsKey(clientRMI)){
+            clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
+                                                       "You cannot reconnect to server because you are already connected!")
+                                         .setHeader(nickName));
+            return null;
         }
+
 
         synchronized (this.connectedClients) {
             for (var v : this.connectedClients.entrySet()) {
@@ -223,10 +222,9 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
         }
 
         if(found){
-            synchronized (this.lastHeartBeatOfClients){
-                this.lastHeartBeatOfClients.remove(clientRMIBefore);
-                this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
-            }
+            this.lastHeartBeatOfClients.remove(clientRMIBefore);
+            this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
+
             if(this.mainController.reconnect(clientHandlerRMI)){
                 return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
             }
@@ -265,16 +263,15 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
                 clientHandlerRMI = this.connectedClients.remove(clientRMI).x();
             }
         }
-        synchronized (this.lastHeartBeatOfClients){
-            this.lastHeartBeatOfClients.remove(clientRMI);
-        }
+        this.lastHeartBeatOfClients.remove(clientRMI);
+
         this.mainController.disconnect(clientHandlerRMI);
     }
 
 
     private void runHeartBeatTesterForClient(){
         String playerName;
-        synchronized(this.lastHeartBeatOfClients) {
+        //synchronized(this.lastHeartBeatOfClients) {
             for (VirtualClient virtualClient : this.lastHeartBeatOfClients.keySet()) {
                 if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 4) {
                     this.lastHeartBeatOfClients.remove(virtualClient);
@@ -284,7 +281,7 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
                     this.mainController.setPlayerInactive(playerName);
                 }
             }
-        }
+        //}
     }
 
     /**
@@ -294,11 +291,11 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
      */
     @Override
     public void heartBeat(VirtualClient virtualClient) throws RemoteException{
-        synchronized(this.lastHeartBeatOfClients){
+        //synchronized(this.lastHeartBeatOfClients){
             if(this.lastHeartBeatOfClients.containsKey(virtualClient)) {
                 this.lastHeartBeatOfClients.put(virtualClient, new Date().getTime());
             }
-        }
+        //}
     }
 
     /**

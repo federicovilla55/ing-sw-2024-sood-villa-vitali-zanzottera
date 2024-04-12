@@ -315,11 +315,10 @@ public class RMIServerAndMainControllerTest {
         assertMessageEquals(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
 
     }
-
+    
     @Test
     public void testDisconnectionWhileInLobby() throws RemoteException {
         this.client1.connect();
-
 
         this.client2.connect();
 
@@ -681,7 +680,7 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable 
         this.incomingMessages = new ArrayDeque<>();
         this.sendHeartBeat = false;
         this.token = null;
-        heartBeatThread = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::heartBeat, 0, 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS, TimeUnit.MILLISECONDS);
+        heartBeatThread = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::heartBeat, 0, 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
     }
 
     private synchronized void heartBeat() {

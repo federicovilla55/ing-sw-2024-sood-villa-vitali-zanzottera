@@ -33,7 +33,7 @@ public class RMIAgentForHeartBeat implements VirtualHeartBeatServer{
         synchronized (this.lockObj){
             if(this.lastHeartBeatFromClient - new Date().getTime() > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS){
                 this.state = State.INACTIVE;
-                this.mainServerRMI.notifyVirtualClientIsInactive(this.virtualClientToControl);
+                //this.mainServerRMI.notifyVirtualClientIsInactive(this.virtualClientToControl);
             }
         }
     }
