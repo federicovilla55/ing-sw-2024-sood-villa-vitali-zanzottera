@@ -51,7 +51,7 @@ public class RMIServerAndMainControllerTest {
         ServerApp.main(null);
         registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
-        overloadTest(100);
+        overloadTest(2500);
     }
 
     @AfterAll
@@ -86,33 +86,7 @@ public class RMIServerAndMainControllerTest {
     private static void overloadTest(int numberOfClients) throws RemoteException {
         for(int i = 0; i < numberOfClients; i++){
             Client client = new Client(virtualMainServer, "client overload " + Integer.toString(i));
-            new Thread(){
-                @Override
-                public void run(){
-                    int numberOfReps = new Random().nextInt(10, 100);
-                    for(int i = 0; i < numberOfReps; i++){
-                        try {
-                            client.connect();
-
-                            try{
-                                Thread.sleep(new Random().nextInt(1500, 3000));
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-
-                            client.reconnect();
-                        } catch (RemoteException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    try {
-                        client.disconnect();
-                    } catch (RemoteException e) {
-                        throw new RuntimeException(e);
-                    }
-                    Thread.currentThread().interrupt();
-                }
-            }.start();
+            client.connect();
         }
     }
 

@@ -103,7 +103,7 @@ public class MainController {
      *          <code>(State.INACTIVE, not null)</code>: in game and inactive
      *     </li>
      *     <li>
-     *      <code>(State.ACTIVE, not null)</code>: in game and active
+     *          <code>(State.ACTIVE, not null)</code>: in game and active
      *     </li>
      * </ul>
      * When a lobby player is signaled to be inactive his state is set to <code>State.INACTIVE</code> and

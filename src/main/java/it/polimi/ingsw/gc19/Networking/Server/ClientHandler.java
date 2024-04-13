@@ -15,13 +15,12 @@ import java.util.*;
  * This class represents the "network interface" with which server can communicate with
  * one client both sending and receiving messages.
  * It implements <code>Observer<MessageToClient></code> so that <code>Observable<MessageToClient></code>
- * can push in its queue their messages. Also, it implements {@link VirtualGameServer} because
- * client remotely will be invoking these methods.
+ * can push in its queue their messages.
  */
-public abstract class ClientHandler implements Observer<MessageToClient>, VirtualGameServer{
+public abstract class ClientHandler implements Observer<MessageToClient>{
 
     protected final MainController mainController = MainController.getMainController();
-    private GameController gameController;
+    protected GameController gameController;
     protected final String username;
 
     // @TODO: maybe use a priority queue.
@@ -100,7 +99,7 @@ public abstract class ClientHandler implements Observer<MessageToClient>, Virtua
         MessageToClient messageToSend;
         synchronized(messageQueue){
             while(messageQueue.isEmpty()){
-                messageQueue.notifyAll();
+                //messageQueue.notifyAll();
                 try{
                     messageQueue.wait();
                 }
@@ -121,81 +120,6 @@ public abstract class ClientHandler implements Observer<MessageToClient>, Virtua
      */
     public void setGameController(GameController gameController){
         this.gameController = gameController;
-    }
-
-    /**
-     * Remote method with which player can a place card
-     * @param cardToInsert card's to insert code
-     * @param anchorCard anchor's code
-     * @param directionToInsert direction in which place the card
-     * @param orientation orientation of the placed card
-     * @throws RemoteException exception thrown if something goes wrong
-     */
-    @Override
-    public void placeCard(String cardToInsert, String anchorCard, Direction directionToInsert, CardOrientation orientation) throws RemoteException {
-        this.gameController.placeCard(username, cardToInsert, anchorCard, directionToInsert, orientation);
-    }
-
-    /**
-     * Remote method with which player can send a chat message
-     * @param usersToSend users to send message to
-     * @param messageToSend message to be sent
-     * @throws RemoteException exception thrown if something goes wrong
-     */
-    @Override
-    public void sendChatMessage(ArrayList<String> usersToSend, String messageToSend) throws RemoteException {
-        this.gameController.sendChatMessage(usersToSend, username, messageToSend);
-    }
-
-    /**
-     * Remote method used by player to place the initial card.
-     * @param cardOrientation orientation of the initial card
-     * @throws RemoteException exception thrown if something goes wrong
-     */
-    @Override
-    public void placeInitialCard(CardOrientation cardOrientation) throws RemoteException {
-        this.gameController.placeInitialCard(username, cardOrientation);
-    }
-
-    /**
-     * Remote method used by player to pick card from table
-     * @param type type of card to be picked
-     * @param position position on the table of the card
-     * @throws RemoteException exception thrown if something goes wrong
-     */
-    @Override
-    public void pickCardFromTable(PlayableCardType type, int position) throws RemoteException {
-        this.gameController.drawCardFromTable(username, type, position);
-    }
-
-    /**
-     * Remote method used by player to pick card from table
-     * @param type type of card to be picked
-     * @throws RemoteException exception thrown if something goes wrong
-     */
-    @Override
-    public void pickCardFromDeck(PlayableCardType type) throws RemoteException {
-        this.gameController.drawCardFromDeck(username, type);
-    }
-
-    /**
-     * Remote method used by player to choose color
-     * @param color color chosen
-     * @throws RemoteException exception thrown if something goes wrong
-     */
-    @Override
-    public void chooseColor(Color color) throws RemoteException {
-        this.gameController.chooseColor(username, color);
-    }
-
-    /**
-     * Remote method with which player can choose his private goal card
-     * @param cardIdx index of the card chosen
-     * @throws RemoteException exception thrown if something goes wrong
-     */
-    @Override
-    public void choosePrivateGoalCard(int cardIdx) throws RemoteException {
-        this.gameController.choosePrivateGoal(username, cardIdx);
     }
 
 }
