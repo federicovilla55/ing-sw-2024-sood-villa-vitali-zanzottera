@@ -1,15 +1,23 @@
 package it.polimi.ingsw.gc19.Networking.Client.Message.Action;
 
-public class ChosenGoalCardMessage implements ActionMessage{
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
 
-    private final String chosenCard;
+public class ChosenGoalCardMessage extends ActionMessage{
 
-    public ChosenGoalCardMessage(String chosenCard){
-        this.chosenCard = chosenCard;
+    private final int cardIdx;
+
+    public ChosenGoalCardMessage(String nickname, int cardIdx){
+        super(nickname);
+        this.cardIdx = cardIdx;
     }
 
-    public String getChosenCard() {
-        return this.chosenCard;
+    public int getCardIdx() {
+        return this.cardIdx;
+    }
+
+    @Override
+    public void accept(MessageToServerVisitor visitor){
+        if(visitor instanceof ActionMessageVisitor) ((ActionMessageVisitor) visitor).visit(this);
     }
 
 }

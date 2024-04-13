@@ -461,11 +461,4 @@ public class GameController{
         this.gameAssociated.getChat().pushMessage(new Message(message, senderNick, receivers));
     }
 
-    //Un attimo che runno itest
-    //Due minuti
-    /*public synchronized boolean isGameFUll()
-    {
-        //if(gameAssociated)
-    }*/
-
 }
