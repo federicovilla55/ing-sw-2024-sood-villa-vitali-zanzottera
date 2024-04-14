@@ -15,7 +15,7 @@ public class PlayerChatMessage extends MessageToServer{
     private final ArrayList<String> receivers;
     private final String message;
 
-    PlayerChatMessage(ArrayList<String> receivers, String sender, String message){
+    public PlayerChatMessage(ArrayList<String> receivers, String sender, String message){
         super(sender);
         this.receivers = receivers;
         this.message = message;

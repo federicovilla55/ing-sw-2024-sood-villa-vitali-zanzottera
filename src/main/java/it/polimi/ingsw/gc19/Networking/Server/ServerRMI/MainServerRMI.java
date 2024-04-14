@@ -29,7 +29,7 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
     public MainServerRMI(){
         super();
         this.connectedClients = new HashMap<>();
-        this.lastHeartBeatOfClients =new ConcurrentHashMap<>();
+        this.lastHeartBeatOfClients = new ConcurrentHashMap<>();
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
@@ -56,7 +56,7 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
         }
 
         clientHandlerRMI = new ClientHandlerRMI(clientRMI, nickName);
-        String hashedMessage = "";
+        String hashedMessage = clientHandlerRMI.computeHashOfClientHandler();
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5"); // 128 bits
             // @TODO: figure out if it's preferable to use Base64 for bytes to String conversion
@@ -67,9 +67,7 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
             synchronized (this.connectedClients) {
                 this.connectedClients.put(clientRMI, new Tuple<>(clientHandlerRMI, hashedMessage));
             }
-            //synchronized(this.lastHeartBeatOfClients) {
-                this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
-                //}
+            this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
 
             clientHandlerRMI.update(new CreatedPlayerMessage(clientHandlerRMI.getName(), hashedMessage).setHeader(clientHandlerRMI.getName()));
         }
@@ -251,21 +249,18 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
      */
     @Override
     public void disconnect(VirtualClient clientRMI, String nickName) throws RemoteException {
-        ClientHandlerRMI clientHandlerRMI;
         synchronized (this.connectedClients){
             if(!this.connectedClients.containsKey(clientRMI)){
                 clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER,
                                                            "Your virtual client is not registered to server! Please register...")
-                                             .setHeader(nickName));
+                                             .setHeader((nickName == null) ? "" : nickName));
                 return;
             }
             else{
-                clientHandlerRMI = this.connectedClients.remove(clientRMI).x();
+                this.mainController.disconnect(this.connectedClients.remove(clientRMI).x());
             }
         }
         this.lastHeartBeatOfClients.remove(clientRMI);
-
-        this.mainController.disconnect(clientHandlerRMI);
     }
 
 

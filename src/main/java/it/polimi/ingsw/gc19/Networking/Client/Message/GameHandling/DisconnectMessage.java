@@ -4,7 +4,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
 
 public class DisconnectMessage extends GameHandlingMessage{
 
-    protected DisconnectMessage(String nickname) {
+    public DisconnectMessage(String nickname) {
         super(nickname);
     }
 

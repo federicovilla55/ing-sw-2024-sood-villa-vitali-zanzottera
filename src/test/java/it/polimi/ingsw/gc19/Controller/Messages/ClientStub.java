@@ -19,6 +19,8 @@ public class ClientStub extends ClientHandler {
         super(username, gameController);
     }
 
+    public ClientStub(String username){super(username);}
+
     @Override
     public void sendMessageToClient(MessageToClient message) {
 

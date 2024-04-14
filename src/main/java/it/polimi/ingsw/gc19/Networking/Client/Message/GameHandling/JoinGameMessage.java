@@ -1,11 +1,14 @@
 package it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling;
 
-public class JoinGameMessage /*extends GameHandlingMessage*/{
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
+
+public class JoinGameMessage extends GameHandlingMessage{
 
     private final String gameName;
     private final String nickname;
 
     public JoinGameMessage(String gameName, String nickname){
+        super(nickname);
         this.gameName = gameName;
         this.nickname = nickname;
     }

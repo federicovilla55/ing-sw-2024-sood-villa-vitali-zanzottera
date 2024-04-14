@@ -1,15 +1,14 @@
 package it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling;
 
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
-public class ReconnectToGameMessage extends GameHandlingMessage {
+public class ReconnectToServerMessage extends GameHandlingMessage {
 
     private final String gameToReconnect;
     private final String nickname;
     private final String token;
 
-    public ReconnectToGameMessage(String nickname, String gameToReconnect, String token){
+    public ReconnectToServerMessage(String nickname, String gameToReconnect, String token){
         super(nickname);
         this.gameToReconnect = gameToReconnect;
         this.nickname = nickname;
@@ -36,9 +35,9 @@ public class ReconnectToGameMessage extends GameHandlingMessage {
     @Override
     public boolean equals(Object o){
         if(o == null) return false;
-        if(! (o instanceof ReconnectToGameMessage)) return false;
-        return ((ReconnectToGameMessage) o).gameToReconnect.equals(this.gameToReconnect)
-                && ((ReconnectToGameMessage) o ).nickname.equals(this.nickname);
+        if(! (o instanceof ReconnectToServerMessage)) return false;
+        return ((ReconnectToServerMessage) o).gameToReconnect.equals(this.gameToReconnect)
+                && ((ReconnectToServerMessage) o ).nickname.equals(this.nickname);
     }
 
 }

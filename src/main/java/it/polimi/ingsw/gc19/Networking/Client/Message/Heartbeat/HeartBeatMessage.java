@@ -5,7 +5,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
 
 public class HeartBeatMessage extends MessageToServer{
 
-    protected HeartBeatMessage(String nickname) {
+    public HeartBeatMessage(String nickname) {
         super(nickname);
     }
 
