@@ -3,10 +3,11 @@ package it.polimi.ingsw.gc19.Networking.Server;
 
 import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
-import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.ServerTcp;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.MainServerTCP;
 
 import java.io.IOException;
 import java.rmi.NoSuchObjectException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -33,10 +34,18 @@ public class ServerApp {
         //List<ClientHandler> ListClient = new ArrayList<ClientHandler>();;
         //List<ClientHandler> ListNonActiveClient = new ArrayList<ClientHandler>();
         //MainController masterMainController = MainController.getMainController();
+        startRMI();
+        startTCP();
+    }
+
+    public static void startRMI() throws RemoteException {
         registry = LocateRegistry.createRegistry(1099);
         stub = (VirtualMainServer) UnicastRemoteObject.exportObject(ServerApp.getVirtualMainServer(),0);
         registry.rebind(Settings.mainRMIServerName, stub);
-        //ServerTcp MainTcp = new ServerTcp(ListClient, masterMainController);
+    }
+
+    public static void startTCP(){
+        MainServerTCP MainTcp = new MainServerTCP();
     }
 
     public static void unexportRegistry() {

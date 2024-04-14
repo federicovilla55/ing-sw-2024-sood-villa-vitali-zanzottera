@@ -9,6 +9,8 @@ import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
 import it.polimi.ingsw.gc19.ObserverPattern.Observer;
 
 import java.rmi.RemoteException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -19,9 +21,8 @@ import java.util.*;
  */
 public abstract class ClientHandler implements Observer<MessageToClient>{
 
-    protected final MainController mainController = MainController.getMainController();
     protected GameController gameController;
-    protected final String username;
+    protected String username;
 
     // @TODO: maybe use a priority queue.
     // An example can be done with three ArrayDequeue (one for each priority level)
@@ -40,6 +41,14 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
                 ClientHandler.this.sendMessage();
             }
         }).start();
+    }
+
+    public ClientHandler(String username){
+        this(username, null);
+    }
+
+    public ClientHandler(){
+        this(null, null);
     }
 
     /**
@@ -99,7 +108,6 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
         MessageToClient messageToSend;
         synchronized(messageQueue){
             while(messageQueue.isEmpty()){
-                //messageQueue.notifyAll();
                 try{
                     messageQueue.wait();
                 }
@@ -120,6 +128,17 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
      */
     public void setGameController(GameController gameController){
         this.gameController = gameController;
+    }
+
+    public String computeHashOfClientHandler(){
+        String hashedMessage = "";
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            hashedMessage = Arrays.toString(digest.digest((this.username + this.toString()).getBytes()));
+        } catch (NoSuchAlgorithmException ignored) { };
+
+        return hashedMessage;
     }
 
 }

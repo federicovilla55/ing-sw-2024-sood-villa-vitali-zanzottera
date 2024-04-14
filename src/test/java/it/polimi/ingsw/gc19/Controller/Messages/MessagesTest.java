@@ -51,10 +51,10 @@ public class MessagesTest{
             e.printStackTrace();
         }
 
-        this.player1 = new ClientStub("player1", null);
-        this.player2 = new ClientStub("player2", null);
-        this.player3 = new ClientStub("player3", null);
-        this.player4 = new ClientStub("player4", null);
+        this.player1 = new ClientStub("player1");
+        this.player2 = new ClientStub("player2");
+        this.player3 = new ClientStub("player3");
+        this.player4 = new ClientStub("player4");
     }
 
     @AfterEach

@@ -23,6 +23,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class is used server-side to represents a client that
+ * is connected to server using RMI. It acts as a {@link VirtualGameServer}
+ * for that client: each player has his onw {@link VirtualGameServer} when he connects
+ * to a game.
+ */
 public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer {
 
     private final VirtualClient virtualClientAssociated;

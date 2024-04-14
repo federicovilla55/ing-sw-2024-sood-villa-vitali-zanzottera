@@ -24,10 +24,10 @@ import java.util.Map;
  */
 public class MessageHandler implements AllMessageVisitor {
     // @todo: use a clientUpdater instead
-    //private ClientRMI clientRMI;
+    private ClientRMI clientRMI;
 
-    public MessageHandler(/*ClientRMI clientRMI*/){
-        //this.clientRMI = clientRMI;
+    public MessageHandler(ClientRMI clientRMI){
+        this.clientRMI = clientRMI;
     }
 
     @Override
@@ -152,8 +152,9 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(CreatedPlayerMessage message) {
-        /*this.clientRMI.nickname = message.getNick();
-        this.clientRMI.token = message.getToken();*/
+        this.clientRMI.setNickname(message.getNick());
+        this.clientRMI.setToken(message.getToken());
+        System.out.println("Visit finita...");
     }
 
     @Override
@@ -163,7 +164,7 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(JoinedGameMessage message) {
-        //this.clientRMI.gameName = message.getGameName();
+        this.clientRMI.setGameName(message.getGameName());
     }
 
     @Override

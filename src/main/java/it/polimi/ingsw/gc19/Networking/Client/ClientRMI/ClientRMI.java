@@ -32,13 +32,14 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
 
     private String nickname;
     private String token;
+    private String gameName;
 
     private final MessageHandler messageHandler;
 
     public ClientRMI(VirtualMainServer virtualMainServer) throws RemoteException {
         this.virtualMainServer = virtualMainServer;
         this.virtualGameServer = null;
-        this.messageHandler = new MessageHandler();
+        this.messageHandler = new MessageHandler(this);
         this.incomingMessages = new ArrayDeque<>();
     }
 
@@ -180,14 +181,64 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         }
     }
 
-    @Override
-    public void pushUpdate(MessageToClient message) throws RemoteException {
-        message.accept(this.messageHandler);
-        synchronized (this.incomingMessages){
-            this.incomingMessages.add(message);
+    public void waitForMessage(Class<? extends MessageToClient> messageToClientClass) {
+        synchronized (this.incomingMessages) {
+            while (this.incomingMessages.stream().noneMatch(messageToClientClass::isInstance)) {
+                try {
+                    this.incomingMessages.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
-
     }
 
+    public MessageToClient getMessage() {
+        return getMessage(MessageToClient.class);
+    }
 
+    public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass) {
+        synchronized (this.incomingMessages) {
+            while (!this.incomingMessages.isEmpty()) {
+                MessageToClient res = this.incomingMessages.remove();
+                if (messageToClientClass.isInstance(res)) return res;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void pushUpdate(MessageToClient message) throws RemoteException {
+        //System.out.println(message);
+        synchronized (this.incomingMessages){
+            this.incomingMessages.add(message);
+            this.incomingMessages.notifyAll();
+        }
+        message.accept(this.messageHandler);
+        System.out.println("aggiunta " + this.nickname + message.getClass());
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setGameName(String gameName){
+        this.gameName =gameName;
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void clearMessages(){
+        this.incomingMessages.clear();
+    }
 }
