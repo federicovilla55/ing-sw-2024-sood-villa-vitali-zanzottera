@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.Networking.Server;
 
 import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
-import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.MainServerTCP;
+//import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.MainServerTCP;
 
 import java.io.IOException;
 import java.rmi.NoSuchObjectException;
@@ -45,7 +45,7 @@ public class ServerApp {
     }
 
     public static void startTCP(){
-        MainServerTCP MainTcp = new MainServerTCP();
+        //MainServerTCP MainTcp = new MainServerTCP();
     }
 
     public static void unexportRegistry() {

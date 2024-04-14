@@ -22,4 +22,9 @@ public enum NotAvailableCorner implements Corner {
         return Optional.empty();
     }
 
+    @Override
+    public String stringEmoji() {
+        return "  ";
+    }
+
 }

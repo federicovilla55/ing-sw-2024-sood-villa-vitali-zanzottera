@@ -33,4 +33,6 @@ public interface Corner extends Serializable{
      * @return symbol in the corner
      */
     Optional<Symbol> getSymbol();
+
+    String stringEmoji();
 }
