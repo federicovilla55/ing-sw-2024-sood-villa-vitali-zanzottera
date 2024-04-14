@@ -34,6 +34,7 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.ObserverPattern;
     exports it.polimi.ingsw.gc19.Model.Station;
     exports it.polimi.ingsw.gc19.Model.Chat;
+    exports it.polimi.ingsw.gc19.Networking.Client.Message;
     exports it.polimi.ingsw.gc19.Networking.Server;
     exports it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
     opens it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;

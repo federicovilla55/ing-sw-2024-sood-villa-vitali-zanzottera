@@ -5,8 +5,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMes
 
 public interface GameHandlingMessageVisitor{
     void visit(CreateNewGameMessage message);
-    void visit(JoinedGameMessage message);
     void visit(NewUserMessage message);
     void visit(ReconnectToGameMessage message);
-
+    void visit(DisconnectMessage message);
+    void visit(JoinGameMessage message);
 }

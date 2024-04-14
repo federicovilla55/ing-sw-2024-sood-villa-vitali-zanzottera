@@ -18,5 +18,9 @@ public class JoinGameMessage /*extends GameHandlingMessage*/{
         return this.nickname;
     }
 
+    @Override
+    public void accept(MessageToServerVisitor visitor){
+        if(visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);
+    }
 
 }
