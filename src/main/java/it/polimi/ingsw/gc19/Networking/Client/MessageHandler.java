@@ -23,11 +23,10 @@ import java.util.Map;
  * Handles incoming messages from the server to the client by implementing the AllMessageVisitor interface (design patter visitor).
  */
 public class MessageHandler implements AllMessageVisitor {
-    // @todo: use a clientUpdater instead
-    private ClientRMI clientRMI;
+    private ClientInterface client;
 
-    public MessageHandler(ClientRMI clientRMI){
-        this.clientRMI = clientRMI;
+    public MessageHandler(ClientInterface client){
+        this.client = client;
     }
 
     @Override
@@ -112,7 +111,8 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(EndGameMessage message) {
-
+        // If the game is ended there should be no more interaction
+        // with the game server.
     }
 
     @Override
@@ -137,7 +137,7 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(CreatedGameMessage message) {
-        // this.clientRMI.gameName = message.getGameName();
+        this.client.setGameName(message.getGameName());
     }
 
     @Override
@@ -152,19 +152,18 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(CreatedPlayerMessage message) {
-        this.clientRMI.setNickname(message.getNick());
-        this.clientRMI.setToken(message.getToken());
-        System.out.println("Visit finita...");
+        this.client.setNickname(message.getNick());
+        this.client.setToken(message.getToken());
     }
 
     @Override
     public void visit(DisconnectedPlayerMessage message) {
-
+        // If a player is disconnected it has no game server associated.
     }
 
     @Override
     public void visit(JoinedGameMessage message) {
-        this.clientRMI.setGameName(message.getGameName());
+        this.client.setGameName(message.getGameName());
     }
 
     @Override

@@ -34,7 +34,8 @@ public abstract class MessageToClient implements Remote, Serializable{
      * @return
      */
     public MessageToClient setHeader(String header){
-        this.header = new ArrayList<>(List.of(header));
+        this.header = (header==null) ? null : new ArrayList<>(List.of(header));
+        if(this.header != null) this.header.sort(null);
         return this;
     }
 
