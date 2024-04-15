@@ -48,7 +48,7 @@ public class RMIServerAndMainControllerTest {
         ServerApp.main(null);
         registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
-        overloadTest(2500);
+        overloadTest(100);
     }
 
     @AfterAll

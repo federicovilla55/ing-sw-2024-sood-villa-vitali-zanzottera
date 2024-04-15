@@ -6,6 +6,8 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
@@ -22,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Represents a client using RMI for communication with the server.
  */
-public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualClient {
+public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualClient, ClientInterface {
 
     private final VirtualMainServer virtualMainServer;
     private VirtualGameServer virtualGameServer;
@@ -61,6 +63,16 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
             this.virtualGameServer =
                     this.virtualMainServer.createGame(
                             this, gameName, this.nickname, numPlayers);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void createGame(String gameName, int numPlayers, int seed){
+        try {
+            this.virtualGameServer =
+                    this.virtualMainServer.createGame(
+                            this, gameName, this.nickname, numPlayers, seed);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -165,7 +177,7 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         }
     }
 
-    void chooseColor(Color color){
+    public void chooseColor(Color color){
         try {
             this.virtualGameServer.chooseColor(color);
         } catch (RemoteException e) {
@@ -173,7 +185,7 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         }
     }
 
-    void choosePrivateGoalCard(int cardIdx){
+    public void choosePrivateGoalCard(int cardIdx){
         try {
             this.virtualGameServer.choosePrivateGoalCard(cardIdx);
         } catch (RemoteException e) {
@@ -209,17 +221,20 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
 
     @Override
     public void pushUpdate(MessageToClient message) throws RemoteException {
-        //System.out.println(message);
         synchronized (this.incomingMessages){
             this.incomingMessages.add(message);
             this.incomingMessages.notifyAll();
         }
+
         message.accept(this.messageHandler);
-        System.out.println("aggiunta " + this.nickname + message.getClass());
     }
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getToken(){
+        return this.token;
     }
 
     public void setNickname(String nickname) {
@@ -238,7 +253,19 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         return gameName;
     }
 
+    public VirtualGameServer getVirtualGameServer(){
+        return this.virtualGameServer;
+    }
+
+    public void setVirtualGameServer(VirtualGameServer virtualGameServer){
+        this.virtualGameServer = virtualGameServer;
+    }
+
     public void clearMessages(){
         this.incomingMessages.clear();
+    }
+
+    public void endGame(){
+
     }
 }

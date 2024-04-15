@@ -147,7 +147,7 @@ public class PlayableCard extends Card implements Serializable{
      * @return ArrayList of Symbol of resources in the center
      * of the card (it is always empty when the card is on front)
      */
-    public ArrayList<Symbol> getPermanentResources(){
+    public List<Symbol> getPermanentResources(){
         return this.cardState.getPermanentResources();
     }
 
@@ -270,7 +270,7 @@ public class PlayableCard extends Card implements Serializable{
          * @return ArrayList<Symbol> of resources in the center
          * of the card (it is always empty when the card is on front)
          */
-        ArrayList<Symbol> getPermanentResources();
+        List<Symbol> getPermanentResources();
         /**
          * This method computes symbols on the visible side of the card
          * depending on its state
@@ -321,7 +321,7 @@ public class PlayableCard extends Card implements Serializable{
         }
 
         @Override
-        public ArrayList<Symbol> getPermanentResources() {
+        public List<Symbol> getPermanentResources() {
             return new ArrayList<>();
         }
 
@@ -377,8 +377,8 @@ public class PlayableCard extends Card implements Serializable{
         }
 
         @Override
-        public ArrayList<Symbol> getPermanentResources() {
-            return permanentResources;
+        public List<Symbol> getPermanentResources() {
+            return List.copyOf(permanentResources);
         }
 
         @Override

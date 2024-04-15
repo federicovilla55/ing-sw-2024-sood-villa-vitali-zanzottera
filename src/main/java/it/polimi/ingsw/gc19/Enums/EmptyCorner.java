@@ -28,4 +28,9 @@ public enum EmptyCorner implements Corner{
         return Optional.empty();
     }
 
+    @Override
+    public String stringEmoji() {
+        return "\uD83D\uDFE8";
+    }
+
 }
