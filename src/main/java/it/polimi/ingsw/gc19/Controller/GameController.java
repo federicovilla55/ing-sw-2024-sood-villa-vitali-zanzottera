@@ -10,6 +10,7 @@ import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Game.PlayerNotFoundException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OtherAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardFromTable;
@@ -23,7 +24,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPla
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.PlayerReconnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
-import it.polimi.ingsw.gc19.ObserverPattern.Observer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
+import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,6 +54,7 @@ public class GameController{
      * This attribute is the model of the game
      */
     private final Game gameAssociated;
+    private final ArrayList<ClientHandler> observerClientHandlers;
 
     /**
      * This constructor creates a GameController to manage a game
@@ -72,6 +75,7 @@ public class GameController{
         gameAssociated.setMessageFactory(this.messageFactory);
         this.connectedClients = new ArrayList<>();
         this.timeout = timeout;
+        this.observerClientHandlers = new ArrayList<>();
     }
 
     public Game getGameAssociated() {
@@ -86,14 +90,15 @@ public class GameController{
      * This method adds a client with given nickname to the game
      * @param nickname the name of the client to add
      */
-    public synchronized void addClient(String nickname, Observer<MessageToClient> Client) {
+    public synchronized void addClient(String nickname, ClientHandler client) {
         try {
             this.gameAssociated.getPlayerByName(nickname);
             //player already present in game
             this.messageFactory.sendMessageToAllGamePlayersExcept(new PlayerReconnectedToGameMessage(nickname), nickname);
             if(!this.connectedClients.contains(nickname)) {
                 this.connectedClients.add(nickname);
-                messageFactory.attachObserver(nickname,Client);
+                messageFactory.attachObserver(nickname, client);
+                observerClientHandlers.add(client);
                 // send to connected client all info needed
                 this.gameAssociated.sendCurrentStateToPlayer(nickname);
                 if(this.gameAssociated.getGameState().equals(GameState.PAUSE)) {
@@ -118,7 +123,8 @@ public class GameController{
             //new player
             if(this.gameAssociated.getNumJoinedPlayer() < this.gameAssociated.getNumPlayers()) {
                 this.connectedClients.add(nickname);
-                messageFactory.attachObserver(nickname,Client);
+                messageFactory.attachObserver(nickname, client);
+                observerClientHandlers.add(client);
                 this.gameAssociated.createNewPlayer(nickname);
             }
         }
@@ -131,6 +137,12 @@ public class GameController{
     public synchronized void removeClient(String nickname) {
         if(this.connectedClients.remove(nickname)) {
             this.messageFactory.removeObserver(nickname);
+
+            for(ClientHandler c : this.observerClientHandlers){
+                if(c.getName().equals(nickname)) c.setGameController(null);
+            }
+            this.observerClientHandlers.removeIf(c -> c.getName().equals(nickname));
+
             this.messageFactory.sendMessageToAllGamePlayers(new DisconnectedPlayerMessage(nickname));
             if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)){
                 // the client disconnected was the active player: turn goes to next player unless no other client is connected
@@ -454,10 +466,7 @@ public class GameController{
     }
 
     public synchronized void sendChatMessage(ArrayList<String> receivers, String senderNick, String message){
-        if(!this.gameAssociated.hasPlayer(senderNick) ||
-                !new HashSet<>(this.gameAssociated.getPlayers().stream().map(Player::getName).collect(Collectors.toList())).containsAll(receivers)){
-            return;
-        }
+        receivers.retainAll(this.gameAssociated.getPlayers().stream().map(Player::getName).collect(Collectors.toList()));
         this.gameAssociated.getChat().pushMessage(new Message(message, senderNick, receivers));
     }
 

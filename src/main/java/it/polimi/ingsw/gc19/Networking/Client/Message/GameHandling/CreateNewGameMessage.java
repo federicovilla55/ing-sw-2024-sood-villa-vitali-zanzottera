@@ -6,17 +6,13 @@ public class CreateNewGameMessage extends GameHandlingMessage {
 
     private final String gameName;
     private final int numPlayer;
+    private final long randomSeed;
 
-    public CreateNewGameMessage(String nickname, String gameName, int numPlayer){
+    public CreateNewGameMessage(String nickname, String gameName, int numPlayer, long randoMseed){
         super(nickname);
         this.gameName = gameName;
         this.numPlayer = numPlayer;
-    }
-
-    public CreateNewGameMessage(String gameName, int numPlayer, String nickname){
-        super(nickname);
-        this.gameName = gameName;
-        this.numPlayer = numPlayer;
+        this.randomSeed = randoMseed;
     }
 
     public String getGameName(){
@@ -25,6 +21,10 @@ public class CreateNewGameMessage extends GameHandlingMessage {
 
     public int getNumPlayer(){
         return this.numPlayer;
+    }
+
+    public long getRandomSeed(){
+        return this.randomSeed;
     }
 
     @Override

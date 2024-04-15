@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Networking.RMI.Socket;
+package it.polimi.ingsw.gc19.Networking.RMI;
 
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Color;
@@ -34,10 +34,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -535,10 +532,15 @@ public class RMIServerAndMainControllerTest {
         //assertEquals(gameServer1, gameController.getGameAssociated().getWinnerPlayers().getFirst().getName());
         //assertEquals(1, gameController.getGameAssociated().getWinnerPlayers().size());
 
-
         waitingThread(4000);
-
         assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game13"));
+
+        waitingThread(2000);
+        client2.clearQueue();
+        gameServer1.sendChatMessage(new ArrayList<String>(List.of(this.client2.getName())), "After game end!");
+        waitingThread(500);
+        assertNull(client2.getMessage());
+        assertMessageEquals(client1, new GameHandlingError(Error.GAME_NOT_FOUND, null));
     }
 
     @Test
@@ -577,6 +579,11 @@ public class RMIServerAndMainControllerTest {
 
         assertMessageEquals(this.client2, new NotifyChatMessage(client7.getName(), "Send chat message after reconnection"));
         assertNull(this.client1.getMessage());
+
+        gameServer2.sendChatMessage(new ArrayList<>(List.of(this.client2.getName(), client1.getName())), "Send chat message after reconnection");
+
+        assertMessageEquals(List.of(this.client2, client7), new NotifyChatMessage(this.client2.getName(), "Send chat message after reconnection"));
+        assertNull(this.client1.getMessage());
     }
 
     private void dummyTurn(VirtualGameServer virtualGameServer, Client client, PlayableCardType cardType) throws RemoteException {
@@ -597,7 +604,6 @@ public class RMIServerAndMainControllerTest {
         client.setCardToPlace(latestMessage.getCardsInHand().getFirst());
 
         virtualGameServer.placeCard(client.getCardToPlace().getCardCode(), client.getAnchorCard().getCardCode(), Direction.UP_RIGHT, CardOrientation.DOWN);
-        client.setAnchorCard(client.getCardToPlace());
     }
 
     private void dummyPlace(VirtualGameServer virtualGameServer, Client client) throws RemoteException {
@@ -611,7 +617,6 @@ public class RMIServerAndMainControllerTest {
         client.setCardToPlace(latestMessage.getPickedCard());
 
         virtualGameServer.placeCard(client.getCardToPlace().getCardCode(), client.getAnchorCard().getCardCode(), Direction.UP_RIGHT, CardOrientation.DOWN);
-        client.setAnchorCard(client.getCardToPlace());
     }
 
     private void allPlayersPlacedInitialCard(VirtualGameServer virtualGameServer1, VirtualGameServer virtualGameServer2, VirtualGameServer virtualGameServer3, VirtualGameServer virtualGameServer4) throws RemoteException {
@@ -680,7 +685,7 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable 
     private String token;
     private PlayableCard cardToPlace;
     private PlayableCard anchorCard;
-    private ScheduledFuture<?> heartBeatThread;
+    private final ScheduledFuture<?> heartBeatThread;
 
     public Client(VirtualMainServer virtualMainServer, String name) throws RemoteException {
         super();

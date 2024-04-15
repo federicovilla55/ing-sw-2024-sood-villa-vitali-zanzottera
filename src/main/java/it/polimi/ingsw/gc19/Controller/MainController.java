@@ -10,7 +10,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
-import it.polimi.ingsw.gc19.ObserverPattern.Observer;
+import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
 
 import java.io.IOException;
 import java.util.*;
@@ -71,13 +71,13 @@ public class MainController {
      */
     public void fireGameAndPlayer(String gameName){
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.schedule(() ->{
+        scheduler.schedule(() -> {
             GameController gameController;
             ArrayList<String> playersToRemove;
             synchronized(gamesInfo){
                 gameController = gamesInfo.remove(gameName);
             }
-            if(gameController!=null) {
+            if(gameController != null) {
                 gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectGameMessage(gameName));
                 playersToRemove = gameController.getConnectedClients();
                 synchronized (playerInfo) {
@@ -270,7 +270,7 @@ public class MainController {
      * Then it checks if the specified game exists, and it is accessible (in <code>SETUP</code> and with
      * {@link Game#getNumJoinedPlayer()} not equal to {@link Game#getNumPlayers()}).
      * If yes, it sets entry <code>(State.ACTIVE, gameName)</code> in <code>playerInfo</code> and calls
-     * {@link GameController#addClient(String, Observer)} to register the new player.
+     * {@link GameController#addClient(String, ClientHandler)} to register the new player.
      * @param player {@link ClientHandler} of the player to be added
      * @param gameName name of the game to be registered to
      * @return true if {@param player} has been correctly registered to specified game
@@ -355,7 +355,8 @@ public class MainController {
             }
             clientHandler.update(new JoinedGameMessage(gameName).setHeader(clientHandler.getName()));
             this.gamesInfo.get(gameName).addClient(clientHandler.getName(), clientHandler);
-            clientHandler.setGameController(this.gamesInfo.get(gameName));
+            System.out.println(this.gamesInfo.get(gameName));
+            //clientHandler.setGameController(this.gamesInfo.get(gameName));
 
             synchronized (this.playerInfo) {
                 playerInfo.put(clientHandler.getName(), new Tuple<>(State.ACTIVE, gameName));

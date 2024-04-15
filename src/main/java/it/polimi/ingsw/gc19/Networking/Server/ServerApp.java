@@ -4,6 +4,7 @@ package it.polimi.ingsw.gc19.Networking.Server;
 import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.MainServerTCP;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.TCPConnectionAcceptor;
 
 import java.io.IOException;
 import java.rmi.NoSuchObjectException;
@@ -29,6 +30,7 @@ public class ServerApp {
     private static Registry registry;
 
     private static VirtualMainServer stub;
+    private static TCPConnectionAcceptor MainTcp;
 
     public static void main(String[] args) throws IOException {
         //List<ClientHandler> ListClient = new ArrayList<ClientHandler>();;
@@ -45,7 +47,8 @@ public class ServerApp {
     }
 
     public static void startTCP(){
-        MainServerTCP MainTcp = new MainServerTCP();
+        MainTcp = new TCPConnectionAcceptor(new MainServerTCP());
+        MainTcp.start();
     }
 
     public static void unexportRegistry() {
@@ -55,5 +58,9 @@ public class ServerApp {
         } catch (NoSuchObjectException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void stopTCP(){
+        MainTcp.interrupt();
     }
 }

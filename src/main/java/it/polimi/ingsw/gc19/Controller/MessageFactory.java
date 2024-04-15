@@ -1,16 +1,16 @@
 package it.polimi.ingsw.gc19.Controller;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.ObserverPattern.Observable;
-import it.polimi.ingsw.gc19.ObserverPattern.Observer;
+import it.polimi.ingsw.gc19.ObserverPattern.ObservableMessageToClient;
+import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MessageFactory implements Observable<MessageToClient>{
+public class MessageFactory implements ObservableMessageToClient<MessageToClient> {
 
-    private final List<Observer<MessageToClient>> mockedView;
-    private final Map<String, Observer<MessageToClient>> connectedClients;
+    private final List<ObserverMessageToClient<MessageToClient>> mockedView;
+    private final Map<String, ObserverMessageToClient<MessageToClient>> connectedClients;
 
     public MessageFactory(){
         this.connectedClients = new HashMap<>();
@@ -64,23 +64,23 @@ public class MessageFactory implements Observable<MessageToClient>{
 
     /**
      * This method is used to attach an anonymous observer to {@link MessageFactory}
-     * @param observer observer to attach
+     * @param observerMessageToClient observer to attach
      */
-    public void attachObserver(Observer<MessageToClient> observer){
+    public void attachObserver(ObserverMessageToClient<MessageToClient> observerMessageToClient){
         synchronized (this.mockedView) {
-            this.mockedView.add(observer);
+            this.mockedView.add(observerMessageToClient);
         }
     }
 
     /**
      * This method is used to attach a named observer to {@link MessageFactory}
      * @param nickname nickname of player owning {@param observer}
-     * @param observer the observer of the player
+     * @param observerMessageToClient the observer of the player
      */
     @Override
-    public void attachObserver(String nickname, Observer<MessageToClient> observer){
+    public void attachObserver(String nickname, ObserverMessageToClient<MessageToClient> observerMessageToClient){
         synchronized (this.connectedClients) {
-            this.connectedClients.put(nickname, observer);
+            this.connectedClients.put(nickname, observerMessageToClient);
         }
     }
 
@@ -105,7 +105,7 @@ public class MessageFactory implements Observable<MessageToClient>{
      * @param obs anonymous observer to remove
      */
     @Override
-    public void removeObserver(Observer<MessageToClient> obs) {
+    public void removeObserver(ObserverMessageToClient<MessageToClient> obs) {
         synchronized (this.connectedClients) {
             for (String key : connectedClients
                     .entrySet()
@@ -133,7 +133,7 @@ public class MessageFactory implements Observable<MessageToClient>{
     @Override
     public void notifyNamedObservers(MessageToClient message) {
         synchronized (this.connectedClients) {
-            for (Map.Entry<String, Observer<MessageToClient>> obs : this.connectedClients.entrySet()) {
+            for (Map.Entry<String, ObserverMessageToClient<MessageToClient>> obs : this.connectedClients.entrySet()) {
                 if (message.getHeader().contains(obs.getKey()))
                     obs.getValue().update(message);
             }
@@ -147,7 +147,7 @@ public class MessageFactory implements Observable<MessageToClient>{
     @Override
     public void notifyAnonymousObservers(MessageToClient message) {
         synchronized (this.mockedView) {
-            for (Observer<MessageToClient> obs : this.mockedView) {
+            for (ObserverMessageToClient<MessageToClient> obs : this.mockedView) {
                 obs.update(message);
             }
         }
