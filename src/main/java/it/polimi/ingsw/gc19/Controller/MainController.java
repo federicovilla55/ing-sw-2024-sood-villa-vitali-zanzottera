@@ -355,8 +355,7 @@ public class MainController {
             }
             clientHandler.update(new JoinedGameMessage(gameName).setHeader(clientHandler.getName()));
             this.gamesInfo.get(gameName).addClient(clientHandler.getName(), clientHandler);
-            System.out.println(this.gamesInfo.get(gameName));
-            //clientHandler.setGameController(this.gamesInfo.get(gameName));
+            clientHandler.setGameController(this.gamesInfo.get(gameName));
 
             synchronized (this.playerInfo) {
                 playerInfo.put(clientHandler.getName(), new Tuple<>(State.ACTIVE, gameName));

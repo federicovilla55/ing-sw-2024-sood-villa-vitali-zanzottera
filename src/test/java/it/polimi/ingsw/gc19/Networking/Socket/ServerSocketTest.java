@@ -144,6 +144,7 @@ public class ServerSocketTest {
         assertNull(this.client2.getMessage());
     }
 
+    @Deprecated
     @Test
     public void testFirePlayersAndGames() throws RemoteException {
 
@@ -332,6 +333,7 @@ public class ServerSocketTest {
         assertMessageEquals(List.of(this.client2, this.client1), new NewPlayerConnectedToGameMessage(this.client3.getName()));
     }
 
+    @Deprecated
     @Test
     public void testReconnection() throws RemoteException {
         this.client1.setOt("c1");
@@ -360,22 +362,15 @@ public class ServerSocketTest {
         Client client7 = new Client(this.client1.getName());
         client7.setToken(token1);
         client7.setOt("c7");
-
         client7.reconnect();
 
         assertMessageEquals(client7, new JoinedGameMessage("game15"));
-
-        /*try {
-            Thread.sleep(3500);
-        }
-        catch (InterruptedException interruptedException){ };*/
 
         client7.sendChatMessage(new ArrayList<>(List.of(this.client2.getName())), "Send chat message after reconnection");
 
         System.out.println("ss");
 
         assertMessageEquals(this.client2, new NotifyChatMessage(client7.getName(), "Send chat message after reconnection"));
-        System.out.println("ss");
         assertNull(this.client1.getMessage());
 
         client2.sendChatMessage(new ArrayList<>(List.of(this.client2.getName(), client1.getName())), "Send chat message after reconnection!");
@@ -538,7 +533,7 @@ class Client{
         while (true){
             try{
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
-                System.out.println(name + " / " + ot +  " -> " + incomingMessage);
+                //System.out.println(name + " / " + ot +  " -> " + incomingMessage);
             } catch (IOException  | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }

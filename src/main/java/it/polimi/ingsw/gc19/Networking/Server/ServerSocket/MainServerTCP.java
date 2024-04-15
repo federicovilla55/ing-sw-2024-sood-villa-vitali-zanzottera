@@ -204,15 +204,14 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                         socketBefore = v.getKey();
                         closeSocket(socketBefore);
                         clientSocketBefore = v.getValue().x();
-                        connectedClients.remove(socketBefore);
 
                         connectedClients.get(clientSocket).x().pullClientHandlerSocketConfigIntoThis(clientSocketBefore);
-                        System.out.println(connectedClients.get(clientSocket).x().getGameController());
                         connectedClients.put(clientSocket, new Tuple<>(connectedClients.get(clientSocket).x(), connectedClients.get(clientSocket).y()));
                         found = true;
                         break;
                     }
                 }
+                connectedClients.remove(socketBefore);
             }
 
             if(found){

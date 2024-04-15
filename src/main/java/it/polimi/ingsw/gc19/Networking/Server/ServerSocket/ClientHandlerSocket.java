@@ -12,6 +12,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NotifyEventOnGame;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
@@ -52,8 +53,6 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         this.lockOnWrite = new Object();
 
         this.messageVisitor = new ClientToServerGameMessageVisitor();
-
-        //@TODO: if message queue then use executor
     }
 
     public ClientHandlerSocket(Socket socket){
@@ -62,7 +61,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
     public void pullClientHandlerSocketConfigIntoThis(ClientHandlerSocket clientHandler){
         this.username = clientHandler.username;
-        this.gameController = clientHandler.getGameController();
+        //this.gameController = clientHandler.getGameController();
         this.readIncomingMessages = clientHandler.readIncomingMessages;
         this.writeOutputMessages = clientHandler.writeOutputMessages;
         this.messageQueue.addAll(clientHandler.getQueueOfMessages());
@@ -106,6 +105,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
                     this.lockOnWrite.wait();
                 }
                 catch (InterruptedException interruptedException){
+                    System.out.println("error");
                     //@TODO: handle this exception
                 }
             }
@@ -113,12 +113,20 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
                 try {
                     this.outputStream.writeObject(message);
                     this.finalizeSending();
+                    if(message instanceof NotifyChatMessage) System.out.println("arrivato " + username);
                 }
                 catch(IOException ioException){
-                    //@TODO: handle this exception
+                    if(message instanceof DisconnectedPlayerMessage){
+                        System.out.println("disc " + ((DisconnectedPlayerMessage) message).getRemovedNick());
+                    }
+                    System.out.println(username + " -> " + ioException.getMessage() + " " + message.getClass());
                 }
             }
         }
+    }
+
+    public Socket getSocket(){
+        return this.socket;
     }
 
     /**
