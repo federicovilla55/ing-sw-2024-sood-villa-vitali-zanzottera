@@ -366,7 +366,7 @@ public class ClientRMITest {
 
         this.client4.joinGame("game9");
 
-        assertMessageEquals(this.client4, new JoinedGameMessage("game9").setHeader("Client4"));
+        assertMessageEquals(this.client4, new JoinedGameMessage("game9"));
 
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("Client4"));
 

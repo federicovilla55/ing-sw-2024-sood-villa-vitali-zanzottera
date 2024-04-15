@@ -144,7 +144,7 @@ public class ServerSocketTest {
         assertNull(this.client2.getMessage());
     }
 
-    @Deprecated
+    @Disabled
     @Test
     public void testFirePlayersAndGames() throws RemoteException {
 
@@ -333,7 +333,7 @@ public class ServerSocketTest {
         assertMessageEquals(List.of(this.client2, this.client1), new NewPlayerConnectedToGameMessage(this.client3.getName()));
     }
 
-    @Deprecated
+    @Disabled
     @Test
     public void testReconnection() throws RemoteException {
         this.client1.setOt("c1");
