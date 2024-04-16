@@ -1,8 +1,10 @@
 package it.polimi.ingsw.gc19.View.TUI;
 
 import it.polimi.ingsw.gc19.Controller.JSONParser;
+import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Tuple;
 import it.polimi.ingsw.gc19.View.TUIView;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -35,11 +37,11 @@ public class TUICardViewTest {
                 System.out.println(cardString + ":");
                 card = stringPlayableCardHashMap.get(cardString);
                 cardTUIView = tuiView.cardTUIView(card);
-                tuiView.printTUICardView(cardTUIView);
+                tuiView.printTUIView(cardTUIView);
                 card.swapCard();
                 System.out.println();
                 cardTUIView = tuiView.cardTUIView(card);
-                tuiView.printTUICardView(cardTUIView);
+                tuiView.printTUIView(cardTUIView);
                 System.out.println();
             }
         }
@@ -48,13 +50,29 @@ public class TUICardViewTest {
             System.out.println(cardString + ":");
             card = stringPlayableCardHashMap.get(cardString);
             cardTUIView = tuiView.cardTUIView(card);
-            tuiView.printTUICardView(cardTUIView);
+            tuiView.printTUIView(cardTUIView);
             card.swapCard();
             System.out.println();
             cardTUIView = tuiView.cardTUIView(card);
-            tuiView.printTUICardView(cardTUIView);
+            tuiView.printTUIView(cardTUIView);
             System.out.println();
         }
+    }
+
+    @Test
+    public void testPlayerAreaTUIView() {
+        String[][] playerAreaTUIView;
+
+        playerAreaTUIView = tuiView.playerAreaTUIView(
+                List.of(
+                        new Tuple<>(stringPlayableCardHashMap.get("initial_03").setCardState(CardOrientation.DOWN), new Tuple<>(25,25)),
+                        new Tuple<>(stringPlayableCardHashMap.get("resource_01").setCardState(CardOrientation.UP), new Tuple<>(24,26)),
+                        new Tuple<>(stringPlayableCardHashMap.get("gold_26").setCardState(CardOrientation.UP), new Tuple<>(23,27)),
+                        new Tuple<>(stringPlayableCardHashMap.get("resource_11").setCardState(CardOrientation.UP), new Tuple<>(24,28))
+                )
+        );
+
+        tuiView.printTUIView(playerAreaTUIView);
     }
 
 }
