@@ -107,7 +107,7 @@ public class ClientRMITest {
 
         this.client1.createGame("game1", 2);
 
-        assertMessageEquals(this.client1, new CreatedGameMessage("game1").setHeader("Client1"));
+        assertMessageEquals(this.client1, new CreatedGameMessage("game1"));
 
         //Player already registered to some games
 
@@ -135,14 +135,14 @@ public class ClientRMITest {
 
         this.client1.createGame("game3", 3);
 
-        assertMessageEquals(this.client1, new CreatedGameMessage("game3").setHeader("Client1"));
+        assertMessageEquals(this.client1, new CreatedGameMessage("game3"));
 
 
         this.client2.connect("Client2");
 
         this.client2.joinGame("game3");
 
-        assertMessageEquals(this.client2, new JoinedGameMessage("game3").setHeader("Client2"));
+        assertMessageEquals(this.client2, new JoinedGameMessage("game3"));
 
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("Client2"));
 
@@ -152,7 +152,7 @@ public class ClientRMITest {
         this.client3.joinGame("game3");
         VirtualGameServer gameServer3 = this.client3.getVirtualGameServer();
 
-        assertMessageEquals(this.client3, new JoinedGameMessage("game3").setHeader("Client3"));
+        assertMessageEquals(this.client3, new JoinedGameMessage("game3"));
         assertMessageEquals(new NewPlayerConnectedToGameMessage("Client3"), this.client1, this.client2);
 
 
@@ -308,14 +308,14 @@ public class ClientRMITest {
 
         this.client1.createGame("game5", 2);
 
-        assertMessageEquals(this.client1, new CreatedGameMessage("game5").setHeader("Client1"));
+        assertMessageEquals(this.client1, new CreatedGameMessage("game5"));
 
 
         this.client2.connect("Client2");
 
         this.client2.joinGame("game5");
 
-        assertMessageEquals(this.client2, new JoinedGameMessage("game5").setHeader("Client2"));
+        assertMessageEquals(this.client2, new JoinedGameMessage("game5"));
 
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("Client2"));
 
@@ -333,7 +333,7 @@ public class ClientRMITest {
 
         this.client1.createGame("game8", 2);
 
-        assertMessageEquals(this.client1, new CreatedGameMessage("game8").setHeader("Client1"));
+        assertMessageEquals(this.client1, new CreatedGameMessage("game8"));
 
         client1.waitForMessage(TableConfigurationMessage.class);
         client1.clearMessages();
@@ -343,7 +343,7 @@ public class ClientRMITest {
 
         this.client2.joinGame("game8");
 
-        assertMessageEquals(this.client2, new JoinedGameMessage("game8").setHeader("Client2"));
+        assertMessageEquals(this.client2, new JoinedGameMessage("game8"));
 
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("Client2"));
 
@@ -359,14 +359,14 @@ public class ClientRMITest {
 
         VirtualGameServer gameServer3 = this.client3.getVirtualGameServer();
 
-        assertMessageEquals(this.client3, new CreatedGameMessage("game9").setHeader("Client3"));
+        assertMessageEquals(this.client3, new CreatedGameMessage("game9"));
 
 
         this.client4.connect("Client4");
 
         this.client4.joinGame("game9");
 
-        assertMessageEquals(this.client4, new JoinedGameMessage("game9").setHeader("Client4"));
+        assertMessageEquals(this.client4, new JoinedGameMessage("game9"));
 
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("Client4"));
 
@@ -394,7 +394,6 @@ public class ClientRMITest {
         client1.waitForMessage(GameConfigurationMessage.class);
         client1.clearMessages();
 
-
         this.client2.connect("Client2");
 
         this.client2.joinGame("game4");
@@ -418,7 +417,7 @@ public class ClientRMITest {
         VirtualGameServer gameServer3 = this.client3.getVirtualGameServer();
         assertNotNull(gameServer3);
 
-        assertMessageEquals(this.client3, new CreatedGameMessage("game7").setHeader("Client3"));
+        assertMessageEquals(this.client3, new CreatedGameMessage("game7"));
 
 
         this.client4.connect("Client4");
@@ -427,7 +426,7 @@ public class ClientRMITest {
         VirtualGameServer gameServer4 = this.client4.getVirtualGameServer();
         assertNotNull(gameServer4);
 
-        assertMessageEquals(this.client4, new JoinedGameMessage("game7").setHeader("Client4"));
+        assertMessageEquals(this.client4, new JoinedGameMessage("game7"));
 
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("Client4"));
 
