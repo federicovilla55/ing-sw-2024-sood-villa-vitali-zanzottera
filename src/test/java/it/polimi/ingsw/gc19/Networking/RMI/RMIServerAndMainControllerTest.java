@@ -45,7 +45,7 @@ public class RMIServerAndMainControllerTest {
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException {
-        ServerApp.main(null);
+        ServerApp.startRMI();
         registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
         overloadTest(100);
