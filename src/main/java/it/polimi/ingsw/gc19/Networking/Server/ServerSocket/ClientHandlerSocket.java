@@ -47,8 +47,8 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         }
         this.outputStream = objectOutputStreamToBuild;
 
-        this.readIncomingMessages = false;
-        this.writeOutputMessages = false;
+        this.readIncomingMessages = true;
+        this.writeOutputMessages = true;
         this.lockOnRead = new Object();
         this.lockOnWrite = new Object();
 
@@ -61,7 +61,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
     public void pullClientHandlerSocketConfigIntoThis(ClientHandlerSocket clientHandler){
         this.username = clientHandler.username;
-        //this.gameController = clientHandler.getGameController();
+        this.gameController = clientHandler.getGameController();
         this.readIncomingMessages = clientHandler.readIncomingMessages;
         this.writeOutputMessages = clientHandler.writeOutputMessages;
         this.messageQueue.addAll(clientHandler.getQueueOfMessages());
@@ -99,13 +99,14 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
     @Override
     public void sendMessageToClient(MessageToClient message) {
+        if(message instanceof JoinedGameMessage) System.out.println(username +  "   " + this.writeOutputMessages + "   " + this.socket);
         synchronized (this.lockOnWrite) {
             while(!this.writeOutputMessages){
                 try{
                     this.lockOnWrite.wait();
                 }
                 catch (InterruptedException interruptedException){
-                    System.out.println("error");
+                    //System.out.println("error");
                     //@TODO: handle this exception
                 }
             }
@@ -113,12 +114,8 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
                 try {
                     this.outputStream.writeObject(message);
                     this.finalizeSending();
-                    if(message instanceof NotifyChatMessage) System.out.println("arrivato " + username);
                 }
                 catch(IOException ioException){
-                    if(message instanceof DisconnectedPlayerMessage){
-                        System.out.println("disc " + ((DisconnectedPlayerMessage) message).getRemovedNick());
-                    }
                     System.out.println(username + " -> " + ioException.getMessage() + " " + message.getClass());
                 }
             }
@@ -177,7 +174,6 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
     private class ClientToServerGameMessageVisitor implements MessageToServerVisitor, ActionMessageVisitor, PlayerChatMessageVisitor{
         @Override
         public void visit(ChosenGoalCardMessage message){
-            System.out.println(username + " -> " + gameController);
             ClientHandlerSocket.this.gameController.choosePrivateGoal(ClientHandlerSocket.this.username, message.getCardIdx());
         }
 

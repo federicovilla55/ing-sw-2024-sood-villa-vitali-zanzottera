@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
+import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Model.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
@@ -34,30 +35,37 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
     }
 
     @Override
-    public void update(Socket senderSocket, MessageToServer message) {
+    public synchronized void update(Socket senderSocket, MessageToServer message) {
         synchronized (this.messageHandler) {
             this.messageHandler.handleMessageToMainServer(senderSocket, message);
         }
     }
 
     @Override
-    public boolean accept(MessageToServer message) {
+    public synchronized boolean accept(MessageToServer message) {
         return message instanceof GameHandlingMessage || message instanceof HeartBeatMessage;
     }
 
-    private void runHeartBeatTesterForClient(Socket socket, String nick){
-        while(!Thread.currentThread().isInterrupted()) {
+    private synchronized void runHeartBeatTesterForClient(Socket socket, String nick){
+        synchronized (lastHeartBeatOfClients) {
             if (new Date().getTime() - this.lastHeartBeatOfClients.get(socket).x() > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
+                System.out.println("removing -> " + socket + "   " + nick);
                 if (nick != null) {
+                    System.out.println("removing -> " + socket + "   " + nick);
                     mainController.setPlayerInactive(nick);
+                    synchronized (this.connectedClients) {
+                        //this.connectedClients.get(socket).x().stopReadingMessages();
+                        //this.connectedClients.get(socket).x().stopWritingMessages();
+                    }
+                    this.lastHeartBeatOfClients.get(socket).y().shutdownNow();
                 }
-                this.lastHeartBeatOfClients.get(socket).y().shutdownNow();
-                //@TODO: what to do with out messages? Disable also them?
-                synchronized (this.connectedClients) {
-                    this.connectedClients.get(socket).x().stopReadingMessages();
-                    this.connectedClients.get(socket).x().stopWritingMessages();
+                else{
+                    //closeSocket(socket);
+                    synchronized (this.connectedClients) {
+                        this.connectedClients.remove(socket);
+                    }
+                    this.lastHeartBeatOfClients.get(socket).y().shutdownNow();
                 }
-                this.lastHeartBeatOfClients.remove(socket);
             }
         }
     }
@@ -66,7 +74,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
      * This method is called by TCPConnectionAcceptor to notify that a client has only connected but has sent nothing
      * @param socket
      */
-    public void registerSocket(Socket socket, MessageToServerDispatcher messageToServerDispatcher){
+    public synchronized void registerSocket(Socket socket, MessageToServerDispatcher messageToServerDispatcher){
         ClientHandlerSocket clientHandlerSocket;
         synchronized (this.connectedClients){
             if(!this.connectedClients.containsKey(socket)) {
@@ -77,15 +85,12 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 messageToServerDispatcher.attachObserver(clientHandlerSocket);
                 this.connectedClients.put(socket, new Tuple<>(clientHandlerSocket, null));
                 //At the beginning with socket we can only send messages, not receive them
-                clientHandlerSocket.startWritingMessages();
-                clientHandlerSocket.stopReadingMessages();
+                //clientHandlerSocket.startWritingMessages();
+                //clientHandlerSocket.stopReadingMessages();
 
-                synchronized (this.lastHeartBeatOfClients){
-                    ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1);
-                    this.lastHeartBeatOfClients.put(socket, new Tuple<>(new Date().getTime(), executorService));
-                    executorService.schedule(() -> runHeartBeatTesterForClient(socket, null), 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS, TimeUnit.MILLISECONDS);
-                }
-
+                ScheduledExecutorService heartBeatTester = new ScheduledThreadPoolExecutor(1);
+                heartBeatTester.schedule(() -> runHeartBeatTesterForClient(socket, null), 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 3 / 2, TimeUnit.MILLISECONDS);
+                lastHeartBeatOfClients.put(socket, new Tuple<>(new Date().getTime(), heartBeatTester));
             }
             else{
                 this.connectedClients.get(socket).x().sendMessageToClient(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
@@ -95,7 +100,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         }
     }
 
-    public ClientHandlerSocket getClientHandlerFromSocket(Socket socket, String nick){
+    public synchronized ClientHandlerSocket getClientHandlerFromSocket(Socket socket, String nick){
         synchronized (this.connectedClients){
             if(!this.connectedClients.containsKey(socket)){
                 //@TODO: there can be this case?
@@ -120,6 +125,15 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         }
     }
 
+    private void buildHeartBeatTester(String nickname, Socket clientSocket) {
+        synchronized (this.lastHeartBeatOfClients) {
+            lastHeartBeatOfClients.get(clientSocket).y().shutdownNow();
+            ScheduledExecutorService heartBeatTester = new ScheduledThreadPoolExecutor(1);
+            heartBeatTester.schedule(() -> runHeartBeatTesterForClient(clientSocket, nickname), 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 3 / 2, TimeUnit.MILLISECONDS);
+            lastHeartBeatOfClients.put(clientSocket, new Tuple<>(new Date().getTime(), heartBeatTester));
+        }
+    }
+
     private class MessageToMainServerVisitor implements GameHandlingMessageVisitor, HeartBeatMessageVisitor, MessageToServerVisitor{
 
         private Socket clientSocket;
@@ -138,8 +152,8 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
             if(clientHandlerSocket != null){
                 mainController.createGame(message.getGameName(), message.getNumPlayer(), clientHandlerSocket, message.getRandomSeed());
                 synchronized (connectedClients){
-                    connectedClients.get(clientSocket).x().startReadingMessages();
-                    connectedClients.get(clientSocket).x().startWritingMessages();
+                    //connectedClients.get(clientSocket).x().startReadingMessages();
+                    //connectedClients.get(clientSocket).x().startWritingMessages();
                 }
             }
         }
@@ -165,10 +179,10 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 }
             }
 
-            //Seting the username associated to client handler
+            //Setting the username associated to client handler
             clientHandlerSocket.setUsername(nickname);
-            clientHandlerSocket.startWritingMessages();
-            clientHandlerSocket.stopReadingMessages();
+            //clientHandlerSocket.startWritingMessages();
+            //clientHandlerSocket.stopReadingMessages();
             String hashedMessage = computeHashOfClientHandler(clientHandlerSocket, nickname);
 
             if(mainController.createClient(clientHandlerSocket)){
@@ -179,12 +193,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 //@TODO: capire se il fatto che le operazioni non sono atomiche in bloccco è uyn problema
                 //Uccido il thread che prima si occupava degli heartbeat con nickname null (giocatore non ha ancora registrato il suo nome)
                 //e lo ritiro su con il nome giusto
-                synchronized (lastHeartBeatOfClients) {
-                    lastHeartBeatOfClients.get(clientSocket).y().shutdownNow();
-                    ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
-                    lastHeartBeatOfClients.put(clientSocket, new Tuple<>(new Date().getTime(), scheduledExecutorService));
-                    scheduledExecutorService.schedule(() -> runHeartBeatTesterForClient(clientSocket, nickname), 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 5, TimeUnit.MILLISECONDS);
-                }
+                buildHeartBeatTester(nickname, clientSocket);
 
                 clientHandlerSocket.sendMessageToClient(new CreatedPlayerMessage(nickname, hashedMessage).setHeader(nickname));
             }
@@ -193,42 +202,60 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         @Override
         public void visit(ReconnectToServerMessage message) {
             Socket socketBefore = null;
-            ClientHandlerSocket clientSocketBefore;
             boolean found = false;
 
             synchronized (connectedClients){
                 for(var v : connectedClients.entrySet()){
-                    if(v.getValue().y() != null && v.getValue().y().equals(message.getToken())){
-                        v.getValue().x().stopSendingMessages();
-
+                    if(v.getValue().y() != null && v.getValue().y().equals(message.getToken())) {
                         socketBefore = v.getKey();
-                        closeSocket(socketBefore);
-                        clientSocketBefore = v.getValue().x();
 
-                        connectedClients.get(clientSocket).x().pullClientHandlerSocketConfigIntoThis(clientSocketBefore);
-                        connectedClients.put(clientSocket, new Tuple<>(connectedClients.get(clientSocket).x(), connectedClients.get(clientSocket).y()));
+                        System.out.println("FOUND!!!!!!!!!!!!!!!!!!!!!!!!");
+
+                        if(mainController.isPlayerActive(nickname)){
+                            System.out.println("trying to reconnect from " + socketBefore + " from client " + nickname);
+                            connectedClients.get(clientSocket).x().sendMessageToClient(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
+                                                                                                             "You are trying to reconnect a client that is already connected to sever!")
+                                                                                               .setHeader(nickname));
+                            System.out.println("okkkkkkkkkkkkkkkkkkkkkkkkk");
+                            return;
+                        }
+
                         found = true;
                         break;
                     }
                 }
-                connectedClients.remove(socketBefore);
             }
 
             if(found){
-                lastHeartBeatOfClients.get(socketBefore).y().shutdownNow();
-                lastHeartBeatOfClients.remove(socketBefore);
-                ScheduledExecutorService heartBeatExecutor = new ScheduledThreadPoolExecutor(1);
-                heartBeatExecutor.schedule(() -> runHeartBeatTesterForClient(clientSocket, nickname), 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 5, TimeUnit.MILLISECONDS);
-                lastHeartBeatOfClients.put(clientSocket, new Tuple<>(new Date().getTime(), heartBeatExecutor));
+
+                if(!socketBefore.equals(clientSocket)){
+                    System.out.println(" -------------------- " + nickname + "  -> " + connectedClients.get(socketBefore).x().canWrite());
+                    connectedClients.get(clientSocket).x().pullClientHandlerSocketConfigIntoThis(connectedClients.get(socketBefore).x());
+                    connectedClients.put(clientSocket, new Tuple<>(connectedClients.get(clientSocket).x(), connectedClients.get(socketBefore).y()));
+                    connectedClients.remove(socketBefore);
+                }
+                else{
+                    System.out.println(" -----------!!!!!! " + nickname + "  -> " + connectedClients.get(clientSocket).x().canWrite());
+                }
+
+                synchronized (lastHeartBeatOfClients) {
+                    System.out.println("searching for " + socketBefore + "  " + lastHeartBeatOfClients.containsKey(socketBefore));
+                    if(!socketBefore.equals(clientSocket)) {
+                        lastHeartBeatOfClients.remove(socketBefore);
+                    }
+                    buildHeartBeatTester(nickname, clientSocket);
+                }
 
                 synchronized (connectedClients){
-                    if(connectedClients.get(clientSocket).x() != null){
+                    if(connectedClients.get(clientSocket).x().getName() != null){
+                        System.out.println("okkkk");
                         mainController.reconnect(connectedClients.get(clientSocket).x());
                     }
                 }
             }
             else{
                 synchronized (connectedClients){
+                    System.out.println("reconnect -> " + nickname);
                     connectedClients.get(clientSocket).x().sendMessageToClient(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER,
                                                                                                      "You are not registered to server! Please register...")
                                                                                        .setHeader(nickname));
@@ -239,23 +266,27 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         @Override
         public void visit(DisconnectMessage message) {
             synchronized (connectedClients){
-                connectedClients.get(clientSocket).x().stopWritingMessages();
-                connectedClients.get(clientSocket).x().stopReadingMessages();
+                if(connectedClients.containsKey(clientSocket)) {
+                    //connectedClients.get(clientSocket).x().stopWritingMessages();
+                    //connectedClients.get(clientSocket).x().stopReadingMessages();
 
-                //Killing thread responsible for sending messages
-                connectedClients.get(clientSocket).x().stopSendingMessages();
+                    //Killing thread responsible for sending messages
+                    //connectedClients.get(clientSocket).x().stopSendingMessages();
 
-                if(connectedClients.get(clientSocket).y() != null) {
-                    mainController.disconnect(connectedClients.remove(clientSocket).x());
-                }
-                else{
-                    connectedClients.remove(clientSocket);
+                    if (connectedClients.get(clientSocket).y() != null) {
+                        mainController.disconnect(connectedClients.remove(clientSocket).x());
+                    }
+                    else {
+                        connectedClients.remove(clientSocket);
+                    }
                 }
                 closeSocket(clientSocket);
             }
-            if(lastHeartBeatOfClients.containsKey(clientSocket)) {
-                lastHeartBeatOfClients.get(clientSocket).y().shutdownNow();
-                lastHeartBeatOfClients.remove(clientSocket);
+            synchronized (lastHeartBeatOfClients) {
+                if (lastHeartBeatOfClients.containsKey(clientSocket)) {
+                    lastHeartBeatOfClients.get(clientSocket).y().shutdownNow();
+                    lastHeartBeatOfClients.remove(clientSocket);
+                }
             }
 
             try {
@@ -274,8 +305,8 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 if(mainController.registerToGame(clientHandlerSocket, message.getGameName())) {
                     synchronized (connectedClients) {
                         //System.out.println(message.getNickname() + " -> " + message.getGameName() + "  " + connectedClients.get(clientSocket).x().getGameController());
-                        connectedClients.get(clientSocket).x().startReadingMessages();
-                        connectedClients.get(clientSocket).x().startWritingMessages();
+                        //connectedClients.get(clientSocket).x().startReadingMessages();
+                        //connectedClients.get(clientSocket).x().startWritingMessages();
                     }
                 }
             }
@@ -288,8 +319,8 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 if(mainController.registerToFirstAvailableGame(clientHandlerSocket) != null) {
                     synchronized (connectedClients) {
                         //System.out.println(message.getNickname() + " -> " + message.getGameName() + "  " + connectedClients.get(clientSocket).x().getGameController());
-                        connectedClients.get(clientSocket).x().startReadingMessages();
-                        connectedClients.get(clientSocket).x().startWritingMessages();
+                        //connectedClients.get(clientSocket).x().startReadingMessages();
+                        //connectedClients.get(clientSocket).x().startWritingMessages();
                     }
                 }
             }
@@ -298,13 +329,11 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         @Override
         public void visit(HeartBeatMessage message) {
             String nickname = message.getNickname();
-            ScheduledExecutorService heartBeatTester;
-            if(lastHeartBeatOfClients.containsKey(clientSocket)){
-                heartBeatTester = lastHeartBeatOfClients.get(clientSocket).y();
-                heartBeatTester.shutdownNow();
-                ScheduledExecutorService heartTester = new ScheduledThreadPoolExecutor(1);
-                heartTester.schedule(() -> runHeartBeatTesterForClient(clientSocket, nickname), 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 5, TimeUnit.MILLISECONDS);
-                lastHeartBeatOfClients.put(clientSocket, new Tuple<>(new Date().getTime(), heartBeatTester));
+            synchronized (lastHeartBeatOfClients) {
+                if (lastHeartBeatOfClients.containsKey(clientSocket)) {
+                    //System.out.println("heartbeat from " + message.getNickname());
+                    buildHeartBeatTester(nickname, clientSocket);
+                }
             }
         }
     }

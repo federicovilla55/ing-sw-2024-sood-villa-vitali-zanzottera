@@ -38,7 +38,8 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
 
     private final MessageHandler messageHandler;
 
-    public ClientRMI(VirtualMainServer virtualMainServer) throws RemoteException {
+    public ClientRMI(VirtualMainServer virtualMainServer, String nickname) throws RemoteException {
+        this.nickname = nickname;
         this.virtualMainServer = virtualMainServer;
         this.virtualGameServer = null;
         this.messageHandler = new MessageHandler(this);
@@ -49,13 +50,18 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
 
     }
 
-    public void connect(String nickname){
+    public void connect(){
         try{
             this.virtualMainServer.newConnection(this, nickname);
             startSendingHeartbeat();
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void connect(String nickname) {
+
     }
 
     public void createGame(String gameName, int numPlayers){

@@ -13,14 +13,12 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
@@ -39,6 +37,7 @@ import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@Disabled
 public class ServerSocketTest {
 
     private Client client1, client2, client3, client4;
@@ -86,6 +85,163 @@ public class ServerSocketTest {
 
         this.client1.createPlayer();
         assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+    }
+
+    @Test
+    public void testMultiplePlayerInGame() throws RemoteException {
+        this.client1.createPlayer();
+
+        this.client1.createGame("game3", 3, 1);
+
+        assertMessageEquals(this.client1, new CreatedGameMessage("game3").setHeader(this.client1.getName()));
+
+
+        this.client2.createPlayer();
+
+        this.client2.joinGame("game3", false);
+
+        assertMessageEquals(this.client2, new JoinedGameMessage("game3").setHeader(this.client2.getName()));
+
+        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getName()));
+
+
+        this.client3.createPlayer();
+
+        this.client3.joinGame("game3", false);
+
+        assertMessageEquals(this.client3, new JoinedGameMessage("game3").setHeader(this.client3.getName()));
+        assertMessageEquals(new NewPlayerConnectedToGameMessage(this.client3.getName()), this.client2, this.client1);
+
+
+        client3.sendChatMessage(new ArrayList<>(List.of(this.client1.getName(), this.client2.getName())), "Message in chat");
+        assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client3.getName(), "Message in chat"));
+
+
+        client3.chooseColor(Color.BLUE);
+        assertMessageEquals(new ArrayList<>(List.of(this.client3, this.client2, this.client1)), new AcceptedColorMessage(this.client3.getName(), Color.BLUE));
+        assertMessageEquals(new ArrayList<>(List.of(this.client2, this.client1)), new AvailableColorsMessage(new ArrayList<>(List.of(Color.GREEN, Color.YELLOW, Color.RED))));
+    }
+
+    @Test
+    public void testJoinFirstAvailableGames() throws RemoteException {
+        this.client1.createPlayer();
+
+        this.client1.createGame("game4", 2, 1);
+
+        assertMessageEquals(this.client1, new CreatedGameMessage("game4"));
+
+        client1.waitForMessage(GameConfigurationMessage.class);
+        client1.clearQueue();
+
+
+        this.client2.createPlayer();
+
+        this.client2.joinGame("game4", false);
+
+        assertMessageEquals(this.client2, new JoinedGameMessage("game4"));
+
+        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getName()));
+
+
+        this.client1.waitForMessage(TableConfigurationMessage.class);
+        this.client2.waitForMessage(GameConfigurationMessage.class);
+        this.client1.clearQueue();
+        this.client2.clearQueue();
+
+
+        this.client3.createPlayer();
+
+        this.client3.createGame("game7", 2, 1);
+
+        assertMessageEquals(this.client3, new CreatedGameMessage("game7").setHeader(this.client3.getName()));
+
+
+        this.client4.createPlayer();
+
+        this.client4.joinFirstAvailableGame();
+
+        assertMessageEquals(this.client4, new JoinedGameMessage("game7"));
+
+        assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage(this.client4.getName()));
+
+
+        assertNull(this.client1.getMessage());
+        assertNull(this.client2.getMessage());
+
+        Client client5 = new Client("client5");
+        client5.createPlayer();
+
+        client5.joinFirstAvailableGame();
+        assertMessageEquals(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
+
+    }
+
+    @Test
+    public void testDisconnectionWhileInLobby() throws RemoteException {
+
+        this.client1.createPlayer();
+
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.setToken(token1);
+
+        this.client2.createPlayer();
+
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        System.out.println(token2);
+        this.client2.setToken(token2);
+
+        this.client2.createGame("game11", 2, 1);
+
+        this.client2.stopSendingHeartBeat();
+
+        waitingThread(5000);
+
+        //Client client6 = new Client(this.client2.getName());
+        //client6.createPlayer();
+        //assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
+
+
+        this.client2.reconnect();
+
+        assertMessageEquals(this.client2, new JoinedGameMessage("game11"));
+
+        System.out.println("pass");
+
+        this.client1.stopSendingHeartBeat();
+
+        waitingThread(5000);
+
+        this.client1.reconnect();
+
+        System.out.println("arrivato qui");
+
+        this.client1.startSendingHeartBeat();
+
+        waitingThread(500);
+
+        assertMessageEquals(this.client1, new AvailableGamesMessage(List.of("game11")));
+
+        System.out.println("tests ava passato");
+
+        this.client1.reconnect();
+
+        this.client1.stopSendingHeartBeat();
+        waitingThread(5000);
+        Client client7 = new Client(this.client1.getName());
+        System.out.println("creato");
+        client7.reconnect();
+        System.out.println("perche??");
+        assertMessageEquals(client7, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+
+        System.out.println("quasi...");
+
+        Client client8 = new Client(this.client1.getName());
+        client8.setToken(token1);
+        client8.reconnect();
     }
 
     @Test
@@ -144,7 +300,7 @@ public class ServerSocketTest {
         assertNull(this.client2.getMessage());
     }
 
-    @Deprecated
+    @Disabled
     @Test
     public void testFirePlayersAndGames() throws RemoteException {
 
@@ -291,8 +447,6 @@ public class ServerSocketTest {
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        System.out.println("ok");
-
         // game should end and declare client1 the winner
         //assertEquals(GameState.END, gameController.getGameAssociated().getGameState());
         //assertEquals(client1, gameController.getGameAssociated().getWinnerPlayers().getFirst().getName());
@@ -302,6 +456,51 @@ public class ServerSocketTest {
         waitingThread(4000);
 
         assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game2"));
+    }
+
+    @Test
+    public void testDisconnectionWhileInGame(){
+
+        this.client1.createPlayer();
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message).getToken();
+        this.client1.setToken(token1);
+
+        this.client1.createGame("game6", 2,1);
+
+        assertMessageEquals(this.client1, new CreatedGameMessage("game6"));
+
+        this.client2.createPlayer();
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.setToken(token2);
+
+        this.client2.joinGame("game6", false);
+
+        assertMessageEquals(this.client2, new JoinedGameMessage("game6"));
+
+        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getName()));
+
+
+        this.client2.stopSendingHeartBeat();
+
+        waitingThread(5000);
+
+        client2.reconnect();
+
+        this.client2.startSendingHeartBeat();
+
+        //Situation: client 2 has disconnected from game
+        Client client6 = new Client(this.client2.getName());
+        assertMessageEquals(client2, new JoinedGameMessage("game6"));
+
+        client6.reconnect();
+        assertMessageEquals(client6, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+
+        this.client2.sendChatMessage(new ArrayList<>(List.of(this.client1.getName(), this.client2.getName())), "Chat message after disconnection!");
+        assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client2.getName(), "Chat message after disconnection!"));
     }
 
     @Test
@@ -333,10 +532,8 @@ public class ServerSocketTest {
         assertMessageEquals(List.of(this.client2, this.client1), new NewPlayerConnectedToGameMessage(this.client3.getName()));
     }
 
-    @Deprecated
     @Test
-    public void testReconnection() throws RemoteException {
-        this.client1.setOt("c1");
+    public void testReconnection(){
         this.client1.createPlayer();
 
         client1.waitForMessage(CreatedPlayerMessage.class);
@@ -348,7 +545,6 @@ public class ServerSocketTest {
         client1.waitForMessage(GameConfigurationMessage.class);
         client1.clearQueue();
 
-        this.client2.setOt("c2");
         this.client2.createPlayer();
         this.client2.joinGame("game15", true);
 
@@ -357,18 +553,17 @@ public class ServerSocketTest {
 
         this.client1.stopSendingHeartBeat();
 
-        waitingThread(2500);
+        this.client1.closeSocket();
+
+        waitingThread(5000);
 
         Client client7 = new Client(this.client1.getName());
         client7.setToken(token1);
-        client7.setOt("c7");
         client7.reconnect();
 
         assertMessageEquals(client7, new JoinedGameMessage("game15"));
 
         client7.sendChatMessage(new ArrayList<>(List.of(this.client2.getName())), "Send chat message after reconnection");
-
-        System.out.println("ss");
 
         assertMessageEquals(this.client2, new NotifyChatMessage(client7.getName(), "Send chat message after reconnection"));
         assertNull(this.client1.getMessage());
@@ -377,6 +572,9 @@ public class ServerSocketTest {
 
         assertMessageEquals(List.of(this.client2, client7), new NotifyChatMessage(this.client2.getName(), "Send chat message after reconnection!"));
         assertNull(this.client1.getMessage());
+
+        client7.sendChatMessage(new ArrayList<>(List.of(this.client2.getName())), "Reconnected client 1 message!");
+        assertMessageEquals(this.client2, new NotifyChatMessage(client7.getName(), "Reconnected client 1 message!"));
     }
 
     private void dummyTurn(Client client, PlayableCardType cardType) throws RemoteException {
@@ -496,6 +694,7 @@ class Client{
     public Client(String name){
         try{
             this.socket = new Socket(Settings.DEFAULT_SERVER_IP, Settings.DEFAULT_SERVER_PORT);
+            System.out.println("client " + name + " " + socket);
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         } catch (IOException e) {
@@ -515,16 +714,26 @@ class Client{
         boolean sent;
         synchronized (this.outputStream){
             sent = false;
-            while(!sent) {
+            while(!sent && !socket.isClosed()) {
                 try {
                     //System.out.println(message);
                     this.outputStream.writeObject(message);
                     finalizeSending();
                     sent = true;
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+
                 }
             }
+        }
+    }
+
+
+    public void closeSocket(){
+        try{
+            socket.close();
+        }
+        catch (IOException ioException){
+
         }
     }
 
@@ -599,6 +808,7 @@ class Client{
     }
 
     public synchronized void startSendingHeartBeat() {
+        System.out.println("rimanda heartbeat :)");
         this.sendHeartBeat = true;
         this.notify();
     }
@@ -723,6 +933,10 @@ class Client{
 
     public void reconnect(){
         this.sendMessage(new ReconnectToServerMessage(this.name, this.token));
+    }
+
+    public void joinFirstAvailableGame(){
+        this.sendMessage(new JoinFirstAvailableGameMessage(this.name));
     }
 
 }

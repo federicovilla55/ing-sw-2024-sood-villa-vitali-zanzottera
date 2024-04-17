@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.Remote;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,7 +24,12 @@ public abstract class MessageToClient implements Remote, Serializable{
      * @return the current updated {@link MessageToClient}
      */
     public MessageToClient setHeader(List<String> header){
-        this.header = header;
+        List<String> sorted = null;
+        if(header != null) {
+            sorted = new ArrayList<>(header);
+            Collections.sort(sorted);
+        }
+        this.header = sorted;
         return this;
     }
 
@@ -34,8 +40,7 @@ public abstract class MessageToClient implements Remote, Serializable{
      * @return
      */
     public MessageToClient setHeader(String header){
-        this.header = (header==null) ? null : new ArrayList<>(List.of(header));
-        if(this.header != null) this.header.sort(null);
+        this.setHeader((header==null) ? null : new ArrayList<>(List.of(header)));
         return this;
     }
 

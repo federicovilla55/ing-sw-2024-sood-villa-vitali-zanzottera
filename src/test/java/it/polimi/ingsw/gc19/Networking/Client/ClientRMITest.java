@@ -53,41 +53,41 @@ public class ClientRMITest {
 
     @BeforeEach
     public void setUpTest() throws RemoteException {
-        this.client1 = new ClientRMI(virtualMainServer);
-        this.client2 = new ClientRMI(virtualMainServer);
-        this.client3 = new ClientRMI(virtualMainServer);
-        this.client4 = new ClientRMI(virtualMainServer);
-        this.client5 = new ClientRMI(virtualMainServer);
+        this.client1 = new ClientRMI(virtualMainServer, "client1");
+        this.client2 = new ClientRMI(virtualMainServer, "client2");
+        this.client3 = new ClientRMI(virtualMainServer, "client3");
+        this.client4 = new ClientRMI(virtualMainServer, "client4");
+        this.client5 = new ClientRMI(virtualMainServer, "client5");
         clientsAnchors = new HashMap<>();
     }
 
     @Test
     public void testClientCreation() throws InterruptedException {
-        this.client1.connect("Client1");
-        assertMessageEquals(this.client1, new CreatedPlayerMessage("Client1"));
+        this.client1.connect();
+        assertMessageEquals(this.client1, new CreatedPlayerMessage("client1"));
     }
 
     @Test
     public void testCreateClient() throws RemoteException, InterruptedException {
-        this.client1.connect("client1");
+        this.client1.connect();
         assertMessageEquals(this.client1, new CreatedPlayerMessage("client1"));
-        this.client2.connect("client2");
+        this.client2.connect();
 
         assertMessageEquals(this.client2, new CreatedPlayerMessage("client2"));
         assertNull(this.client1.getMessage());
-        this.client3.connect("client3");
+        this.client3.connect();
 
         assertMessageEquals(this.client3, new CreatedPlayerMessage("client3"));
         assertNull(this.client1.getMessage());
         assertNull(this.client2.getMessage());
-        this.client4.connect("client4");
+        this.client4.connect();
 
         assertMessageEquals(this.client4, new CreatedPlayerMessage("client4"));
         assertNull(this.client1.getMessage());
         assertNull(this.client2.getMessage());
         assertNull(this.client3.getMessage());
 
-        this.client1.connect("client1");
+        this.client1.connect();
 
         assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
         assertNull(this.client2.getMessage());
@@ -96,18 +96,18 @@ public class ClientRMITest {
 
         //Create new client with other name
         this.client5.setNickname("client1");
-        this.client5.connect("client1");
+        this.client5.connect();
 
         assertMessageEquals(this.client5, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
     }
 
     @Test
     public void testCreateGame() throws RemoteException {
-        this.client1.connect("Client1");
+        this.client1.connect();
 
         this.client1.createGame("game1", 2);
 
-        assertMessageEquals(this.client1, new CreatedGameMessage("game1").setHeader("Client1"));
+        assertMessageEquals(this.client1, new CreatedGameMessage("game1"));
 
         //Player already registered to some games
 
@@ -122,7 +122,7 @@ public class ClientRMITest {
         assertMessageEquals(this.client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
 
         //Game name already in use
-        this.client2.connect("Client2");
+        this.client2.connect();
 
         this.client2.createGame("game1", 2);
 
@@ -131,47 +131,47 @@ public class ClientRMITest {
 
     @Test
     public void testMultiplePlayerInGame() throws RemoteException {
-        this.client1.connect("Client1");
+        this.client1.connect();
 
         this.client1.createGame("game3", 3);
 
-        assertMessageEquals(this.client1, new CreatedGameMessage("game3").setHeader("Client1"));
+        assertMessageEquals(this.client1, new CreatedGameMessage("game3"));
 
 
-        this.client2.connect("Client2");
+        this.client2.connect();
 
         this.client2.joinGame("game3");
 
-        assertMessageEquals(this.client2, new JoinedGameMessage("game3").setHeader("Client2"));
+        assertMessageEquals(this.client2, new JoinedGameMessage("game3"));
 
-        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("Client2"));
+        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
 
-        this.client3.connect("Client3");
+        this.client3.connect();
 
         this.client3.joinGame("game3");
         VirtualGameServer gameServer3 = this.client3.getVirtualGameServer();
 
-        assertMessageEquals(this.client3, new JoinedGameMessage("game3").setHeader("Client3"));
-        assertMessageEquals(new NewPlayerConnectedToGameMessage("Client3"), this.client1, this.client2);
+        assertMessageEquals(this.client3, new JoinedGameMessage("game3"));
+        assertMessageEquals(List.of(this.client2, this.client1), new NewPlayerConnectedToGameMessage("client3"));
 
 
-        gameServer3.sendChatMessage(new ArrayList<>(List.of("Client1", "Client2")), "Message in chat");
-        assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage("Client3", "Message in chat"));
+        gameServer3.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Message in chat");
+        assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage("client3", "Message in chat"));
 
 
         gameServer3.chooseColor(Color.BLUE);
-        assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2, this.client3)), new AcceptedColorMessage("Client3", Color.BLUE));
-        assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new AvailableColorsMessage(new ArrayList<>(List.of(Color.GREEN, Color.YELLOW, Color.RED))));
+        assertMessageEquals(new ArrayList<>(List.of(this.client3, this.client2, this.client1)), new AcceptedColorMessage("client3", Color.BLUE));
+        assertMessageEquals(new ArrayList<>(List.of(this.client2, this.client1)), new AvailableColorsMessage(new ArrayList<>(List.of(Color.GREEN, Color.YELLOW, Color.RED))));
     }
 
     @Test
     public void testFirePlayersAndGames() throws RemoteException {
 
-        this.client1.connect("Client1");
-        this.client2.connect("client2");
-        this.client3.connect("Client3");
-        this.client4.connect("Client4");
+        this.client1.connect();
+        this.client2.connect();
+        this.client3.connect();
+        this.client4.connect();
 
         this.client1.createGame("game13", 4, 1);
         VirtualGameServer gameServer1 = this.client1.getVirtualGameServer();
@@ -304,23 +304,23 @@ public class ClientRMITest {
 
     @Test
     public void testPlayerCanJoinFullGame() throws RemoteException {
-        this.client1.connect("Client1");
+        this.client1.connect();
 
         this.client1.createGame("game5", 2);
 
-        assertMessageEquals(this.client1, new CreatedGameMessage("game5").setHeader("Client1"));
+        assertMessageEquals(this.client1, new CreatedGameMessage("game5"));
 
 
-        this.client2.connect("Client2");
+        this.client2.connect();
 
         this.client2.joinGame("game5");
 
-        assertMessageEquals(this.client2, new JoinedGameMessage("game5").setHeader("Client2"));
+        assertMessageEquals(this.client2, new JoinedGameMessage("game5"));
 
-        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("Client2"));
+        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
 
-        this.client3.connect("Client3");
+        this.client3.connect();
 
         this.client3.joinGame("game5");
 
@@ -329,23 +329,23 @@ public class ClientRMITest {
 
     @Test
     public void testMultipleGames() throws RemoteException {
-        this.client1.connect("Client1");
+        this.client1.connect();
 
         this.client1.createGame("game8", 2);
 
-        assertMessageEquals(this.client1, new CreatedGameMessage("game8").setHeader("Client1"));
+        assertMessageEquals(this.client1, new CreatedGameMessage("game8"));
 
         client1.waitForMessage(TableConfigurationMessage.class);
         client1.clearMessages();
 
 
-        this.client2.connect("Client2");
+        this.client2.connect();
 
         this.client2.joinGame("game8");
 
-        assertMessageEquals(this.client2, new JoinedGameMessage("game8").setHeader("Client2"));
+        assertMessageEquals(this.client2, new JoinedGameMessage("game8"));
 
-        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("Client2"));
+        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
 
         this.client1.waitForMessage(TableConfigurationMessage.class);
@@ -353,29 +353,29 @@ public class ClientRMITest {
         this.client1.clearMessages();
         this.client2.clearMessages();
 
-        this.client3.connect("Client3");
+        this.client3.connect();
 
         this.client3.createGame("game9", 2);
 
         VirtualGameServer gameServer3 = this.client3.getVirtualGameServer();
 
-        assertMessageEquals(this.client3, new CreatedGameMessage("game9").setHeader("Client3"));
+        assertMessageEquals(this.client3, new CreatedGameMessage("game9"));
 
 
-        this.client4.connect("Client4");
+        this.client4.connect();
 
         this.client4.joinGame("game9");
 
-        assertMessageEquals(this.client4, new JoinedGameMessage("game9").setHeader("Client4"));
+        assertMessageEquals(this.client4, new JoinedGameMessage("game9"));
 
-        assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("Client4"));
+        assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("client4"));
 
 
         assertNull(this.client1.getMessage());
         assertNull(this.client2.getMessage());
 
-        gameServer3.sendChatMessage(new ArrayList<>(List.of("Client3", "Client4")), "Message in chat");
-        assertMessageEquals(new ArrayList<>(List.of(this.client3, this.client4)), new NotifyChatMessage("Client3", "Message in chat"));
+        gameServer3.sendChatMessage(new ArrayList<>(List.of("client3", "client4")), "Message in chat");
+        assertMessageEquals(new ArrayList<>(List.of(this.client3, this.client4)), new NotifyChatMessage("client3", "Message in chat"));
 
         assertNull(this.client1.getMessage());
         assertNull(this.client2.getMessage());
@@ -383,7 +383,7 @@ public class ClientRMITest {
 
     @Test
     public void testJoinFirstAvailableGames() throws RemoteException {
-        this.client1.connect("Client1");
+        this.client1.connect();
 
         this.client1.createGame("game4", 2);
         VirtualGameServer gameServer1 = this.client1.getVirtualGameServer();
@@ -395,7 +395,7 @@ public class ClientRMITest {
         client1.clearMessages();
 
 
-        this.client2.connect("Client2");
+        this.client2.connect();
 
         this.client2.joinGame("game4");
         VirtualGameServer gameServer2 = this.client2.getVirtualGameServer();
@@ -403,7 +403,7 @@ public class ClientRMITest {
 
         assertMessageEquals(this.client2, new JoinedGameMessage("game4"));
 
-        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("Client2"));
+        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
 
         this.client1.waitForMessage(TableConfigurationMessage.class);
@@ -412,31 +412,31 @@ public class ClientRMITest {
         this.client2.clearMessages();
 
 
-        this.client3.connect("Client3");
+        this.client3.connect();
 
         this.client3.createGame("game7", 2);
         VirtualGameServer gameServer3 = this.client3.getVirtualGameServer();
         assertNotNull(gameServer3);
 
-        assertMessageEquals(this.client3, new CreatedGameMessage("game7").setHeader("Client3"));
+        assertMessageEquals(this.client3, new CreatedGameMessage("game7"));
 
 
-        this.client4.connect("Client4");
+        this.client4.connect();
 
         this.client4.joinFirstAvailableGame();
         VirtualGameServer gameServer4 = this.client4.getVirtualGameServer();
         assertNotNull(gameServer4);
 
-        assertMessageEquals(this.client4, new JoinedGameMessage("game7").setHeader("Client4"));
+        assertMessageEquals(this.client4, new JoinedGameMessage("game7"));
 
-        assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("Client4"));
+        assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("client4"));
 
 
         assertNull(this.client1.getMessage());
         assertNull(this.client2.getMessage());
 
-        this.client5 = new ClientRMI(virtualMainServer);
-        this.client5.connect("client5");
+        this.client5 = new ClientRMI(virtualMainServer, "client5");
+        this.client5.connect();
 
         this.client5.joinFirstAvailableGame();
         VirtualGameServer gameServer5 = this.client5.getVirtualGameServer();
@@ -448,9 +448,9 @@ public class ClientRMITest {
     @Test
     public void testDisconnectionWhileInLobby() throws RemoteException {
 
-        this.client1.connect("Client1");
+        this.client1.connect();
 
-        this.client2.connect("Client2");
+        this.client2.connect();
 
         this.client2.createGame("game11", 2);
 
@@ -462,8 +462,8 @@ public class ClientRMITest {
             throw new RuntimeException(e);
         }
 
-        ClientRMI client6 = new ClientRMI(virtualMainServer);
-        client6.connect("Client2");
+        ClientRMI client6 = new ClientRMI(virtualMainServer, "client2");
+        client6.connect();
         assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
 
@@ -497,20 +497,20 @@ public class ClientRMITest {
             throw new RuntimeException(e);
         }
 
-        ClientRMI client7 = new ClientRMI(virtualMainServer);
+        ClientRMI client7 = new ClientRMI(virtualMainServer, "client7");
         // @todo: how is the reconnect running without any values in names and token (null values only)???
         client7.reconnect();
         assertMessageEquals(client7, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
-        ClientRMI client8 = new ClientRMI(virtualMainServer);
-        client8.connect("Client1");
+        ClientRMI client8 = new ClientRMI(virtualMainServer, "client8");
+        client8.connect();
         client8.reconnect();
         assertMessageEquals(client8, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
     }
 
     @Test
     public void testDisconnectionWhileInGame() throws RemoteException {
-        this.client1.connect("Client1");
+        this.client1.connect();
 
         this.client1.createGame("game6", 2);
         VirtualGameServer gameServer1 = this.client1.getVirtualGameServer();
@@ -519,7 +519,7 @@ public class ClientRMITest {
         assertMessageEquals(this.client1, new CreatedGameMessage("game6"));
 
 
-        this.client2.connect("Client2");
+        this.client2.connect();
 
         this.client2.joinGame("game6");
         VirtualGameServer gameServer2 = this.client2.getVirtualGameServer();
@@ -527,7 +527,7 @@ public class ClientRMITest {
 
         assertMessageEquals(this.client2, new JoinedGameMessage("game6"));
 
-        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("Client2"));
+        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
 
         this.client2.stopSendingHeartbeat();
@@ -545,20 +545,20 @@ public class ClientRMITest {
         this.client2.stopSendingHeartbeat();
 
         //Situation: client 2 has disconnected from game
-        ClientRMI client6 = new ClientRMI(virtualMainServer);
+        ClientRMI client6 = new ClientRMI(virtualMainServer, "client6");
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
         client6.reconnect();
         assertMessageEquals(client6, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
-        gameServer2.sendChatMessage(new ArrayList<>(List.of("Client1", "Client2")), "Chat message after disconnection!");
-        assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage("Client2", "Chat message after disconnection!"));
+        gameServer2.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Chat message after disconnection!");
+        assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage("client2", "Chat message after disconnection!"));
 
     }
 
     @Test
     public void testReconnection() throws RemoteException {
-        this.client1.connect("Client1");
+        this.client1.connect();
 
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message = this.client1.getMessage();
@@ -570,7 +570,7 @@ public class ClientRMITest {
         client1.waitForMessage(GameConfigurationMessage.class);
         client1.clearMessages();
 
-        this.client2.connect("Client2");
+        this.client2.connect();
         this.client2.joinGame("game15");
         VirtualGameServer gameServer2 = this.client2.getVirtualGameServer();
 
@@ -585,9 +585,9 @@ public class ClientRMITest {
             throw new RuntimeException(e);
         }
 
-        ClientRMI client7 = new ClientRMI(virtualMainServer);
+        ClientRMI client7 = new ClientRMI(virtualMainServer, "client7");
         client7.setToken(token1);
-        client7.setNickname("Client1");
+        client7.setNickname("client1");
         client7.reconnect();
         VirtualGameServer gameServer7 = client7.getVirtualGameServer();
 
@@ -596,9 +596,9 @@ public class ClientRMITest {
         assertNotEquals(gameServer1, gameServer7);
 
 
-        gameServer7.sendChatMessage(new ArrayList<>(List.of("Client2")), "Send chat message after reconnection");
+        gameServer7.sendChatMessage(new ArrayList<>(List.of("client2")), "Send chat message after reconnection");
 
-        assertMessageEquals(this.client2, new NotifyChatMessage("Client1", "Send chat message after reconnection"));
+        assertMessageEquals(this.client2, new NotifyChatMessage("client1", "Send chat message after reconnection"));
         assertNull(this.client1.getMessage());
     }
 

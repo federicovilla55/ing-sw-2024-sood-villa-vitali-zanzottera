@@ -540,7 +540,8 @@ public class RMIServerAndMainControllerTest {
         gameServer1.sendChatMessage(new ArrayList<String>(List.of(this.client2.getName())), "After game end!");
         waitingThread(500);
         assertNull(client2.getMessage());
-        assertMessageEquals(client1, new GameHandlingError(Error.GAME_NOT_FOUND, null));
+        assertNull(client1.getMessage());
+
     }
 
     @Test

@@ -6,6 +6,7 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.JoinGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
@@ -100,6 +101,7 @@ public abstract class ClientHandler implements ObserverMessageToClient<MessageTo
      */
     @Override
     public void update(MessageToClient message) {
+        System.out.println("arrivato presso client handler " + username + " message " + message.getClass() + "  " + this.hashCode() + "\n" + this.toString());
         synchronized(messageQueue){
             if(message.getMessagePriorityLevel() == MessagePriorityLevel.HIGH) {
                 messageQueue.addFirst(message);
@@ -125,7 +127,7 @@ public abstract class ClientHandler implements ObserverMessageToClient<MessageTo
                 catch(InterruptedException ignored){ };
             }
             messageToSend = this.messageQueue.remove();
-            //System.out.println(messageToSend.getClass() +  " " + messageToSend.getHeader());
+            System.out.println(messageToSend.getClass() +  " " + messageToSend.getHeader());
             if(messageToSend.getHeader().contains(username)) {
                 this.sendMessageToClient(messageToSend);
             }

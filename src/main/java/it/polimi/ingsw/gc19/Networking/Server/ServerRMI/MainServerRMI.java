@@ -254,6 +254,7 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
                 //@TODO: check if it is possible to have errors here? If client has already disconnected what happens?
             }
             else{
+                connectedClients.get(clientRMI).x().stopSendingMessages();
                 this.mainController.disconnect(this.connectedClients.remove(clientRMI).x());
             }
         }

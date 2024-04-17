@@ -270,7 +270,7 @@ public class MainController {
      * Then it checks if the specified game exists, and it is accessible (in <code>SETUP</code> and with
      * {@link Game#getNumJoinedPlayer()} not equal to {@link Game#getNumPlayers()}).
      * If yes, it sets entry <code>(State.ACTIVE, gameName)</code> in <code>playerInfo</code> and calls
-     * {@link GameController#addClient(String, ClientHandler)} to register the new player.
+     * {@link GameController#addClient(String, ObserverMessageToClient)} to register the new player.
      * @param player {@link ClientHandler} of the player to be added
      * @param gameName name of the game to be registered to
      * @return true if {@param player} has been correctly registered to specified game
@@ -354,6 +354,7 @@ public class MainController {
                 return false;
             }
             clientHandler.update(new JoinedGameMessage(gameName).setHeader(clientHandler.getName()));
+            this.gamesInfo.get(gameName).removeClient(clientHandler.getName());
             this.gamesInfo.get(gameName).addClient(clientHandler.getName(), clientHandler);
             clientHandler.setGameController(this.gamesInfo.get(gameName));
 
@@ -363,6 +364,12 @@ public class MainController {
 
             return true;
         }
+    }
+
+    public boolean isPlayerActive(String nick) {
+        Tuple<State, String> playerInfo =  this.playerInfo.get(nick);
+        if(playerInfo == null) return false;
+        return playerInfo.x() == State.ACTIVE;
     }
 
     /**

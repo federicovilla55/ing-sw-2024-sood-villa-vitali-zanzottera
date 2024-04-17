@@ -54,7 +54,6 @@ public class GameController{
      * This attribute is the model of the game
      */
     private final Game gameAssociated;
-    private final ArrayList<ClientHandler> observerClientHandlers;
 
     /**
      * This constructor creates a GameController to manage a game
@@ -75,7 +74,6 @@ public class GameController{
         gameAssociated.setMessageFactory(this.messageFactory);
         this.connectedClients = new ArrayList<>();
         this.timeout = timeout;
-        this.observerClientHandlers = new ArrayList<>();
     }
 
     public Game getGameAssociated() {
@@ -90,7 +88,7 @@ public class GameController{
      * This method adds a client with given nickname to the game
      * @param nickname the name of the client to add
      */
-    public synchronized void addClient(String nickname, ClientHandler client) {
+    public synchronized void addClient(String nickname, ObserverMessageToClient<MessageToClient> client) {
         try {
             this.gameAssociated.getPlayerByName(nickname);
             //player already present in game
@@ -98,7 +96,6 @@ public class GameController{
             if(!this.connectedClients.contains(nickname)) {
                 this.connectedClients.add(nickname);
                 messageFactory.attachObserver(nickname, client);
-                observerClientHandlers.add(client);
                 // send to connected client all info needed
                 this.gameAssociated.sendCurrentStateToPlayer(nickname);
                 if(this.gameAssociated.getGameState().equals(GameState.PAUSE)) {
@@ -124,7 +121,6 @@ public class GameController{
             if(this.gameAssociated.getNumJoinedPlayer() < this.gameAssociated.getNumPlayers()) {
                 this.connectedClients.add(nickname);
                 messageFactory.attachObserver(nickname, client);
-                observerClientHandlers.add(client);
                 this.gameAssociated.createNewPlayer(nickname);
             }
         }
@@ -137,11 +133,6 @@ public class GameController{
     public synchronized void removeClient(String nickname) {
         if(this.connectedClients.remove(nickname)) {
             this.messageFactory.removeObserver(nickname);
-
-            for(ClientHandler c : this.observerClientHandlers){
-                if(c.getName().equals(nickname)) c.setGameController(null);
-            }
-            this.observerClientHandlers.removeIf(c -> c.getName().equals(nickname));
 
             this.messageFactory.sendMessageToAllGamePlayers(new DisconnectedPlayerMessage(nickname));
             if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)){
