@@ -1,13 +1,11 @@
 package it.polimi.ingsw.gc19.Controller.Messages;
 
-import it.polimi.ingsw.gc19.Controller.GameController;
 import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Controller.JSONParser;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
@@ -75,9 +73,9 @@ public class MessagesTest{
 
         this.mainController.createGame("game1", 4, this.player1, 1);
 
-        assertEquals(new CreatedGameMessage("game1").setHeader(player1.getName()), player1.getMessage());
+        assertEquals(new CreatedGameMessage("game1").setHeader(player1.getUsername()), player1.getMessage());
 
-        assertEquals(new JoinedGameMessage("game1").setHeader(player1.getName()), player1.getMessage());
+        assertEquals(new JoinedGameMessage("game1").setHeader(player1.getUsername()), player1.getMessage());
 
         assertMessageEquals(player1,
                 new TableConfigurationMessage(
@@ -168,7 +166,7 @@ public class MessagesTest{
         assertMessageEquals(player1,
                 tableConfigurationMessage);
 
-        assertEquals(new JoinedGameMessage("game1").setHeader(player2.getName()), player2.getMessage());
+        assertEquals(new JoinedGameMessage("game1").setHeader(player2.getUsername()), player2.getMessage());
 
 
         assertMessageEquals(player2,
@@ -261,7 +259,7 @@ public class MessagesTest{
         ));
         assertMessageEquals(List.of(player1,player2),tableConfigurationMessage);
 
-        assertEquals(new JoinedGameMessage("game1").setHeader(player3.getName()), player3.getMessage());
+        assertEquals(new JoinedGameMessage("game1").setHeader(player3.getUsername()), player3.getMessage());
 
         assertMessageEquals(player3, tableConfigurationMessage);
 
@@ -339,13 +337,13 @@ public class MessagesTest{
 
         this.player1.chooseColor(Color.GREEN);
         //All players should receive AcceptedColorMessage
-        assertMessageEquals(List.of(player1,player2,player3,player4), new AcceptedColorMessage(player1.getName(), Color.GREEN));
+        assertMessageEquals(List.of(player1,player2,player3,player4), new AcceptedColorMessage(player1.getUsername(), Color.GREEN));
         //All player except player1 should receive AvailableColorsMessage
         assertMessageEquals(List.of(player2,player3,player4), new AvailableColorsMessage(List.of(Color.BLUE,Color.YELLOW,Color.RED)));
 
         this.player3.chooseColor(Color.YELLOW);
         //All players should receive AcceptedColorMessage
-        assertMessageEquals(List.of(player1,player2,player3,player4), new AcceptedColorMessage(player3.getName(), Color.YELLOW));
+        assertMessageEquals(List.of(player1,player2,player3,player4), new AcceptedColorMessage(player3.getUsername(), Color.YELLOW));
         //All player except player3 should receive AvailableColorsMessage
         assertMessageEquals(List.of(player1,player2,player4), new AvailableColorsMessage(List.of(Color.BLUE,Color.RED)));
 
@@ -611,18 +609,18 @@ public class MessagesTest{
 
         this.clearQueue(List.of(player1,player2,player3,player4));
 
-        mainController.setPlayerInactive(player2.getName());
+        mainController.setPlayerInactive(player2.getUsername());
 
         assertMessageEquals(List.of(player1,player3,player4),
                 new DisconnectedPlayerMessage("player2"));
 
-        mainController.setPlayerInactive(player3.getName());
+        mainController.setPlayerInactive(player3.getUsername());
 
         assertMessageEquals(List.of(player1,player4),
                 new DisconnectedPlayerMessage("player3"));
         assertNull(player2.getMessage());
 
-        mainController.setPlayerInactive(player4.getName());
+        mainController.setPlayerInactive(player4.getUsername());
 
         assertMessageEquals(player1,
                 new DisconnectedPlayerMessage("player4"));
@@ -637,7 +635,7 @@ public class MessagesTest{
         assertMessageEquals(player1,
                 new PlayerReconnectedToGameMessage("player2"));
 
-        assertEquals(new JoinedGameMessage("game1").setHeader(player2.getName()),
+        assertEquals(new JoinedGameMessage("game1").setHeader(player2.getUsername()),
                 player2.getMessage());
 
         assertMessageEquals(player2,
@@ -756,7 +754,7 @@ public class MessagesTest{
     }
     private void assertMessageEquals(List<ClientStub> receivers, MessageToClient message) {
         List<String> receiversName;
-        receiversName = receivers.stream().map(ClientStub::getName).toList();
+        receiversName = receivers.stream().map(ClientStub::getUsername).toList();
         message.setHeader(receiversName);
         for(ClientStub receiver : receivers) {
             assertEquals(message, receiver.getMessage());

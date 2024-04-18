@@ -1,9 +1,5 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
-import com.fasterxml.jackson.databind.introspect.AnnotationCollector;
-import it.polimi.ingsw.gc19.Controller.GameController;
-import it.polimi.ingsw.gc19.Controller.MainController;
-import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
@@ -13,17 +9,10 @@ import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 
 import java.rmi.RemoteException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class is used server-side to represents a client that
@@ -42,7 +31,7 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
     }
 
     public ClientHandlerRMI(VirtualClient virtualClientAssociated, ClientHandler clientHandler) {
-        super(clientHandler.getName(), clientHandler.getGameController());
+        super(clientHandler.getUsername(), clientHandler.getGameController());
         this.messageQueue.addAll(clientHandler.getQueueOfMessages());
         this.virtualClientAssociated = virtualClientAssociated;
     }

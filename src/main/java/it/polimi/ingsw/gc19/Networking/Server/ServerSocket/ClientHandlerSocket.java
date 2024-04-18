@@ -155,14 +155,6 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         return message instanceof ActionMessage || message instanceof PlayerChatMessage;
     }
 
-    public void closeSocket(){
-        try{
-            this.socket.close();
-        } catch (IOException e) {
-            //@TODO: handle this exception
-        }
-    }
-
     public boolean canRead(){
         return this.readIncomingMessages;
     }

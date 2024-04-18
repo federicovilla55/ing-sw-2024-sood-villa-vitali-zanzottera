@@ -37,7 +37,6 @@ import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-@Disabled
 public class ServerSocketTest {
 
     private Client client1, client2, client3, client4;
@@ -174,6 +173,8 @@ public class ServerSocketTest {
         client5.joinFirstAvailableGame();
         assertMessageEquals(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
 
+        client5.disconnect();
+
     }
 
     @Test
@@ -237,11 +238,14 @@ public class ServerSocketTest {
         System.out.println("perche??");
         assertMessageEquals(client7, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
+        client7.disconnect();
+
         System.out.println("quasi...");
 
         Client client8 = new Client(this.client1.getName());
         client8.setToken(token1);
         client8.reconnect();
+        client8.disconnect();
     }
 
     @Test
@@ -258,6 +262,7 @@ public class ServerSocketTest {
 
 
         this.client3.createPlayer();
+        assertMessageEquals(this.client3, new CreatedPlayerMessage(this.client3.getName()));
         this.client3.joinGame("game5", false);
         assertMessageEquals(this.client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
     }
@@ -266,7 +271,7 @@ public class ServerSocketTest {
     public void testMultipleGames(){
         this.client1.createPlayer();
         this.client1.createGame("game8", 2, 1);
-        assertMessageEquals(this.client1, new CreatedGameMessage("game8").setHeader(this.client1.getName()));
+        assertMessageEquals(this.client1, new CreatedGameMessage("game8"));
         client1.waitForMessage(TableConfigurationMessage.class);
         client1.clearQueue();
 
@@ -281,6 +286,7 @@ public class ServerSocketTest {
         this.client2.clearQueue();
 
         this.client3.createPlayer();
+        assertMessageEquals(this.client3, new CreatedPlayerMessage(this.client3.getName()));
         this.client3.createGame("game9", 2, 1);
         assertMessageEquals(this.client3, new CreatedGameMessage("game9").setHeader(this.client3.getName()));
 
@@ -501,6 +507,8 @@ public class ServerSocketTest {
 
         this.client2.sendChatMessage(new ArrayList<>(List.of(this.client1.getName(), this.client2.getName())), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client2.getName(), "Chat message after disconnection!"));
+
+        client6.disconnect();
     }
 
     @Test
@@ -515,6 +523,7 @@ public class ServerSocketTest {
         assertMessageEquals(this.client1, new CreatedGameMessage("game1"));
 
         this.client2.createPlayer();
+        assertMessageEquals(this.client2, new CreatedPlayerMessage(this.client2.getName()));
         this.client2.createGame("game1", 2, 1);
         assertMessageEquals(this.client2, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
 
@@ -575,6 +584,8 @@ public class ServerSocketTest {
 
         client7.sendChatMessage(new ArrayList<>(List.of(this.client2.getName())), "Reconnected client 1 message!");
         assertMessageEquals(this.client2, new NotifyChatMessage(client7.getName(), "Reconnected client 1 message!"));
+
+        client7.disconnect();
     }
 
     private void dummyTurn(Client client, PlayableCardType cardType) throws RemoteException {

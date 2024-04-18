@@ -1,21 +1,11 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
 import it.polimi.ingsw.gc19.Controller.GameController;
-import it.polimi.ingsw.gc19.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Enums.Color;
-import it.polimi.ingsw.gc19.Enums.Direction;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.JoinGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
 
-import java.rmi.RemoteException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -24,11 +14,10 @@ import java.util.*;
  * It implements <code>Observer<MessageToClient></code> so that <code>Observable<MessageToClient></code>
  * can push in its queue their messages.
  */
-public abstract class ClientHandler implements ObserverMessageToClient<MessageToClient> {
+public abstract class ClientHandler extends Thread implements ObserverMessageToClient<MessageToClient> {
 
     protected GameController gameController;
     protected String username;
-    private final Thread senderThread;
 
     // @TODO: maybe use a priority queue.
     // An example can be done with three ArrayDequeue (one for each priority level)
@@ -41,14 +30,13 @@ public abstract class ClientHandler implements ObserverMessageToClient<MessageTo
 
         this.username = username;
         this.messageQueue = new ArrayDeque<>();
+    }
 
-        this.senderThread = new Thread(() -> {
-            while(true){
-                ClientHandler.this.sendMessage();
-            }
-        });
-
-        this.senderThread.start();
+    @Override
+    public void run(){
+        while(!Thread.currentThread().isInterrupted()){
+            ClientHandler.this.sendMessage();
+        }
     }
 
     public ClientHandler(String username){
@@ -63,7 +51,7 @@ public abstract class ClientHandler implements ObserverMessageToClient<MessageTo
      * Getter method for player name
      * @return player name bound to this {@link ClientHandler}
      */
-    public String getName() {
+    public String getUsername() {
         return this.username;
     }
 
@@ -89,10 +77,6 @@ public abstract class ClientHandler implements ObserverMessageToClient<MessageTo
      * @param message message to be sent
      */
     public abstract void sendMessageToClient(MessageToClient message);
-
-    public void stopSendingMessages(){
-        this.senderThread.interrupt(); //@TODO: HANDLE INTERRUPTED EXCEPTION!!
-    }
 
     /**
      * This method is used by Observable to push a {@link MessageToClient} message inside the queue
