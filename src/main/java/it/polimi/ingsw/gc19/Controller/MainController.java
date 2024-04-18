@@ -78,12 +78,13 @@ public class MainController {
                 gameController = gamesInfo.remove(gameName);
             }
             if(gameController != null) {
+                System.out.println("sending from fire games and players");
                 gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectGameMessage(gameName));
                 playersToRemove = gameController.getConnectedClients();
                 synchronized (playerInfo) {
                     for (String p : playersToRemove) {
                         playerInfo.put(p, new Tuple<>(MainController.State.ACTIVE, null));
-                        gameController.removeClient(p);
+                        gameController.removeClientAtTheEndOfGame(p);
                     }
                 }
             }
@@ -159,6 +160,7 @@ public class MainController {
         }
         if(gameController != null) {
             gameController.removeClient(player.getUsername());
+            System.out.println("sending from disconnect");
             player.update(new DisconnectGameMessage(gameName).setHeader(player.getUsername()));
         }
     }
@@ -270,7 +272,7 @@ public class MainController {
      * Then it checks if the specified game exists, and it is accessible (in <code>SETUP</code> and with
      * {@link Game#getNumJoinedPlayer()} not equal to {@link Game#getNumPlayers()}).
      * If yes, it sets entry <code>(State.ACTIVE, gameName)</code> in <code>playerInfo</code> and calls
-     * {@link GameController#addClient(String, ObserverMessageToClient)} to register the new player.
+     * {@link GameController#addClient(String, ClientHandler)} to register the new player.
      * @param player {@link ClientHandler} of the player to be added
      * @param gameName name of the game to be registered to
      * @return true if {@param player} has been correctly registered to specified game
@@ -298,7 +300,7 @@ public class MainController {
         synchronized (this.playerInfo){
             this.playerInfo.put(player.getUsername(), new Tuple<>(State.ACTIVE, gameName));
         }
-        player.setGameController(gameControllerToJoin);
+        //player.setGameController(gameControllerToJoin);
         player.update(new JoinedGameMessage(gameName).setHeader(player.getUsername()));
         gameControllerToJoin.addClient(player.getUsername(), player);
         return true;
@@ -356,7 +358,7 @@ public class MainController {
             clientHandler.update(new JoinedGameMessage(gameName).setHeader(clientHandler.getUsername()));
             this.gamesInfo.get(gameName).removeClient(clientHandler.getUsername());
             this.gamesInfo.get(gameName).addClient(clientHandler.getUsername(), clientHandler);
-            clientHandler.setGameController(this.gamesInfo.get(gameName));
+            //clientHandler.setGameController(this.gamesInfo.get(gameName));
 
             synchronized (this.playerInfo) {
                 playerInfo.put(clientHandler.getUsername(), new Tuple<>(State.ACTIVE, gameName));

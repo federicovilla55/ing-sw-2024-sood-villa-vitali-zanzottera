@@ -48,7 +48,7 @@ public class GameController{
     /**
      * List of nicknames of all connected clients
      */
-    private final List<String> connectedClients;
+    private final Map<String, ClientHandler> connectedClients;
 
     /**
      * This attribute is the model of the game
@@ -72,7 +72,7 @@ public class GameController{
         this.messageFactory = new MessageFactory();
         this.gameAssociated = gameAssociated;
         gameAssociated.setMessageFactory(this.messageFactory);
-        this.connectedClients = new ArrayList<>();
+        this.connectedClients = new HashMap<>();
         this.timeout = timeout;
     }
 
@@ -81,20 +81,21 @@ public class GameController{
     }
 
     public ArrayList<String> getConnectedClients() {
-        return new ArrayList<>(connectedClients);
+        return new ArrayList<>(connectedClients.keySet());
     }
 
     /**
      * This method adds a client with given nickname to the game
      * @param nickname the name of the client to add
      */
-    public synchronized void addClient(String nickname, ObserverMessageToClient<MessageToClient> client) {
+    public synchronized void addClient(String nickname, ClientHandler client) {
         try {
             this.gameAssociated.getPlayerByName(nickname);
             //player already present in game
             this.messageFactory.sendMessageToAllGamePlayersExcept(new PlayerReconnectedToGameMessage(nickname), nickname);
-            if(!this.connectedClients.contains(nickname)) {
-                this.connectedClients.add(nickname);
+            if(!this.connectedClients.containsKey(nickname)) {
+                this.connectedClients.put(nickname, client);
+                client.setGameController(this);
                 messageFactory.attachObserver(nickname, client);
                 // send to connected client all info needed
                 this.gameAssociated.sendCurrentStateToPlayer(nickname);
@@ -119,7 +120,8 @@ public class GameController{
         } catch (PlayerNotFoundException e) {
             //new player
             if(this.gameAssociated.getNumJoinedPlayer() < this.gameAssociated.getNumPlayers()) {
-                this.connectedClients.add(nickname);
+                this.connectedClients.put(nickname, client);
+                client.setGameController(this);
                 messageFactory.attachObserver(nickname, client);
                 this.gameAssociated.createNewPlayer(nickname);
             }
@@ -131,7 +133,10 @@ public class GameController{
      * @param nickname the name of the client to remove
      */
     public synchronized void removeClient(String nickname) {
-        if(this.connectedClients.remove(nickname)) {
+        ClientHandler clientToRemove = this.connectedClients.remove(nickname);
+
+        if(clientToRemove != null) {
+            clientToRemove.setGameController(null);
             this.messageFactory.removeObserver(nickname);
 
             this.messageFactory.sendMessageToAllGamePlayers(new DisconnectedPlayerMessage(nickname));
@@ -162,13 +167,23 @@ public class GameController{
         }
     }
 
+    public synchronized void removeClientAtTheEndOfGame(String nick){
+        System.out.println(connectedClients);
+        ClientHandler clientToRemove = this.connectedClients.remove(nick);
+
+        if(this.gameAssociated.getGameState() == GameState.END && clientToRemove != null){
+            clientToRemove.setGameController(null);
+            this.messageFactory.removeObserver(nick);
+        }
+    }
+
     /**
      * This method sets a color for the given player
      * @param nickname the name of the player
      * @param color the chosen color
      */
     public synchronized void chooseColor(String nickname, Color color) {
-        if(!this.connectedClients.contains(nickname)) return;
+        if(!this.connectedClients.containsKey(nickname)) return;
 
         if(!this.gameAssociated.getGameState().equals(GameState.SETUP)){
             this.messageFactory.sendMessageToPlayer(nickname,
@@ -192,7 +207,7 @@ public class GameController{
      * @param cardIdx an index, 0 or 1, representing which card is being chosen
      */
     public synchronized void choosePrivateGoal(String nickname, int cardIdx) {
-        if(!this.connectedClients.contains(nickname)) return;
+        if(!this.connectedClients.containsKey(nickname)) return;
         if(cardIdx<0||cardIdx>=2){
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GOAL_CARD_ERROR,
                                                                                        "Goal card chosen is not valid!"));
@@ -219,7 +234,7 @@ public class GameController{
      * @param cardOrientation the orientation of the card of type CardOrientation (UP, DOWN)
      */
     public synchronized void placeInitialCard(String nickname, CardOrientation cardOrientation) {
-        if(!this.connectedClients.contains(nickname)) return;
+        if(!this.connectedClients.containsKey(nickname)) return;
 
         if(this.gameAssociated.getGameState() != GameState.SETUP){
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
@@ -400,7 +415,7 @@ public class GameController{
                 }
             }
             this.gameAssociated.setActivePlayer(selectedPlayer);
-        } while(!this.connectedClients.contains(selectedPlayer.getName()));
+        } while(!this.connectedClients.containsKey(selectedPlayer.getName()));
 
     }
 
@@ -420,7 +435,7 @@ public class GameController{
         List<Player> winnerPlayers = new ArrayList<>();
 
         //remove not connected players from possible winners
-        sortedPlayers.removeIf(p -> !this.connectedClients.contains(p.getName()));
+        sortedPlayers.removeIf(p -> !this.connectedClients.containsKey(p.getName()));
 
         Player p;
         do {
@@ -444,7 +459,7 @@ public class GameController{
                 //Notify winner
                 this.messageFactory.sendMessageToAllGamePlayers(
                         // the Map is empty because there is no score to update
-                        new EndGameMessage(this.connectedClients, new HashMap<>())
+                        new EndGameMessage(new ArrayList<>(this.connectedClients.keySet()), new HashMap<>())
                 );
             }
             this.gameAssociated.setGameState(GameState.END);

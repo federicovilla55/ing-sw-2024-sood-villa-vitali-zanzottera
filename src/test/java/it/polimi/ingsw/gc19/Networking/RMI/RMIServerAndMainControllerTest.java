@@ -532,15 +532,19 @@ public class RMIServerAndMainControllerTest {
         //assertEquals(gameServer1, gameController.getGameAssociated().getWinnerPlayers().getFirst().getName());
         //assertEquals(1, gameController.getGameAssociated().getWinnerPlayers().size());
 
+        client1.clearQueue();
+        client2.clearQueue();
+
         waitingThread(4000);
+        assertEquals(this.client2.getIncomingMessages().size(), 1);
+        assertEquals(this.client1.getIncomingMessages().size(), 1);
         assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game13"));
 
         waitingThread(2000);
-        client2.clearQueue();
         gameServer1.sendChatMessage(new ArrayList<String>(List.of(this.client2.getName())), "After game end!");
         waitingThread(500);
         assertNull(client2.getMessage());
-        assertNull(client1.getMessage());
+        assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NOT_FOUND, null));
 
     }
 
@@ -705,6 +709,10 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable 
                     //System.out.println("send heartbeat " + Client.this.name);
                 }
             } catch (RemoteException e) {}
+    }
+
+    public Deque<MessageToClient> getIncomingMessages(){
+        return this.incomingMessages;
     }
 
     public String getToken() {

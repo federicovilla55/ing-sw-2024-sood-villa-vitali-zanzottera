@@ -32,18 +32,18 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
     }
 
     @Override
-    public synchronized void update(Socket senderSocket, MessageToServer message) {
+    public void update(Socket senderSocket, MessageToServer message) {
         synchronized (this.messageHandler) {
             this.messageHandler.handleMessageToMainServer(senderSocket, message);
         }
     }
 
     @Override
-    public synchronized boolean accept(MessageToServer message) {
+    public boolean accept(MessageToServer message) {
         return message instanceof GameHandlingMessage || message instanceof HeartBeatMessage;
     }
 
-    private synchronized void runHeartBeatTesterForClient(Socket socket, String nick){
+    private void runHeartBeatTesterForClient(Socket socket, String nick){
         synchronized (lastHeartBeatOfClients) {
             if (new Date().getTime() - this.lastHeartBeatOfClients.get(socket).x() > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
                 System.out.println("removing -> " + socket + "   " + nick);
@@ -71,7 +71,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
      * This method is called by TCPConnectionAcceptor to notify that a client has only connected but has sent nothing
      * @param socket
      */
-    public synchronized void registerSocket(Socket socket, MessageToServerDispatcher messageToServerDispatcher){
+    public void registerSocket(Socket socket, MessageToServerDispatcher messageToServerDispatcher){
         ClientHandlerSocket clientHandlerSocket;
         synchronized (this.connectedClients){
             if(!this.connectedClients.containsKey(socket)) {
@@ -102,7 +102,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         }
     }
 
-    public synchronized ClientHandlerSocket getClientHandlerFromSocket(Socket socket, String nick){
+    public ClientHandlerSocket getClientHandlerFromSocket(Socket socket, String nick){
         synchronized (this.connectedClients){
             if(!this.connectedClients.containsKey(socket)){
                 //@TODO: there can be this case?
