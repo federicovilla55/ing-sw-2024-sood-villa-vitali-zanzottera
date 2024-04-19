@@ -112,7 +112,7 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
             }
             messageToSend = this.messageQueue.remove();
             System.out.println(messageToSend.getClass() +  " " + messageToSend.getHeader());
-            if(messageToSend.getHeader().contains(username)) {
+            if(messageToSend.getHeader() == null || messageToSend.getHeader().contains(username)) {
                 this.sendMessageToClient(messageToSend);
             }
             this.messageQueue.notifyAll();

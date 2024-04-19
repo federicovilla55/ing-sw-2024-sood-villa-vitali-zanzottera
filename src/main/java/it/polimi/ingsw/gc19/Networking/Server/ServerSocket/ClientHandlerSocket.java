@@ -112,11 +112,12 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
             }
             synchronized (this.outputStream){
                 try {
+                    this.outputStream.reset();
                     this.outputStream.writeObject(message);
-                    this.finalizeSending();
+                    this.outputStream.flush();
                 }
                 catch(IOException ioException){
-                    System.out.println(username + " -> " + ioException.getMessage() + " " + message.getClass());
+                    System.out.println(username + " -> " + ioException.getMessage() + "   " +  ioException.getClass() + "   " + ioException.getCause() + " " + message.getClass());
                 }
             }
         }
@@ -132,7 +133,6 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
     private void finalizeSending(){
         try {
             this.outputStream.flush();
-            this.outputStream.reset();
         }
         catch (IOException ioException){
             //@TODO: handle this exception
@@ -166,37 +166,87 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
     private class ClientToServerGameMessageVisitor implements MessageToServerVisitor, ActionMessageVisitor, PlayerChatMessageVisitor{
         @Override
         public void visit(ChosenGoalCardMessage message){
-            ClientHandlerSocket.this.gameController.choosePrivateGoal(ClientHandlerSocket.this.username, message.getCardIdx());
+            if(gameController != null){
+                ClientHandlerSocket.this.gameController.choosePrivateGoal(ClientHandlerSocket.this.username, message.getCardIdx());
+            }
+            else{
+                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                                            .setHeader(username));
+            }
         }
 
         @Override
         public void visit(DirectionOfInitialCardMessage message){
-            ClientHandlerSocket.this.gameController.placeInitialCard(ClientHandlerSocket.this.username, message.getDirectionOfInitialCard());
+            if(gameController != null){
+                ClientHandlerSocket.this.gameController.placeInitialCard(ClientHandlerSocket.this.username, message.getDirectionOfInitialCard());
+            }
+            else{
+                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                                            .setHeader(username));
+            }
         }
 
         @Override
         public void visit(PlaceCardMessage message) {
-            ClientHandlerSocket.this.gameController.placeCard(message.getNickname(), message.getCardToPlaceCode(), message.getAnchorCode(), message.getDirection(), message.getCardOrientation());
+            if(gameController != null){
+                ClientHandlerSocket.this.gameController.placeCard(message.getNickname(), message.getCardToPlaceCode(), message.getAnchorCode(), message.getDirection(), message.getCardOrientation());
+            }
+            else{
+                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                                            .setHeader(username));
+            }
         }
 
         @Override
         public void visit(ChosenColorMessage message) {
-            ClientHandlerSocket.this.gameController.chooseColor(message.getNickname(), message.getChosenColor());
+            if(gameController != null){
+                ClientHandlerSocket.this.gameController.chooseColor(message.getNickname(), message.getChosenColor());
+            }
+            else{
+                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                                            .setHeader(username));
+            }
         }
 
         @Override
         public void visit(PickCardFromDeckMessage message) {
-            ClientHandlerSocket.this.gameController.drawCardFromDeck(message.getNickname(), message.getType());
+            if(gameController != null){
+                ClientHandlerSocket.this.gameController.drawCardFromDeck(message.getNickname(), message.getType());
+            }
+            else{
+                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                                            .setHeader(username));
+            }
         }
 
         @Override
         public void visit(PickCardFromTableMessage message) {
-            ClientHandlerSocket.this.gameController.drawCardFromTable(message.getNickname(), message.getType(), message.getPosition());
+            if(gameController != null) {
+                ClientHandlerSocket.this.gameController.drawCardFromTable(message.getNickname(), message.getType(), message.getPosition());
+            }
+            else{
+                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                                            .setHeader(username));
+            }
         }
 
         @Override
         public void visit(PlayerChatMessage message) {
-            ClientHandlerSocket.this.gameController.sendChatMessage(message.getReceivers(), message.getNickname(), message.getMessage());
+            if(gameController != null) {
+                ClientHandlerSocket.this.gameController.sendChatMessage(message.getReceivers(), message.getNickname(), message.getMessage());
+            }
+            else{
+                System.out.println("kkkkkkkkkkkkkkkkkkk");
+                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                                            .setHeader(username));
+            }
         }
 
     }

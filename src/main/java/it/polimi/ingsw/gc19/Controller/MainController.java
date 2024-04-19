@@ -10,7 +10,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
-import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
 
 import java.io.IOException;
 import java.util.*;
@@ -71,20 +70,19 @@ public class MainController {
      */
     public void fireGameAndPlayer(String gameName){
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.schedule(() -> {
+        scheduler.schedule(() ->{
             GameController gameController;
             ArrayList<String> playersToRemove;
             synchronized(gamesInfo){
                 gameController = gamesInfo.remove(gameName);
             }
-            if(gameController != null) {
-                System.out.println("sending from fire games and players");
+            if(gameController!=null) {
                 gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectGameMessage(gameName));
                 playersToRemove = gameController.getConnectedClients();
                 synchronized (playerInfo) {
                     for (String p : playersToRemove) {
                         playerInfo.put(p, new Tuple<>(MainController.State.ACTIVE, null));
-                        gameController.removeClientAtTheEndOfGame(p);
+                        gameController.removeClient(p);
                     }
                 }
             }
@@ -122,7 +120,7 @@ public class MainController {
         if(playerInfo == null) return;
         if(playerInfo.x() == State.ACTIVE && playerInfo.y() == null){
             synchronized (this.playerInfo){
-                this.playerInfo.remove(nickname);
+                this.playerInfo.put(nickname, new Tuple<>(State.INACTIVE, null));
                 return;
             }
         }
@@ -150,6 +148,7 @@ public class MainController {
         synchronized (this.playerInfo){
             if(this.playerInfo.containsKey(player.getUsername())) {
                 gameName = this.playerInfo.remove(player.getUsername()).y();
+                if(gameName == null) return;
             }
             else{
                 return;
@@ -160,7 +159,9 @@ public class MainController {
         }
         if(gameController != null) {
             gameController.removeClient(player.getUsername());
-            System.out.println("sending from disconnect");
+            if(gameController.getGameAssociated().getGameState() == GameState.SETUP && gameController.getConnectedClients().isEmpty()){
+                this.gamesInfo.remove(gameName);
+            }
             player.update(new DisconnectGameMessage(gameName).setHeader(player.getUsername()));
         }
     }
@@ -300,7 +301,7 @@ public class MainController {
         synchronized (this.playerInfo){
             this.playerInfo.put(player.getUsername(), new Tuple<>(State.ACTIVE, gameName));
         }
-        //player.setGameController(gameControllerToJoin);
+        player.setGameController(gameControllerToJoin);
         player.update(new JoinedGameMessage(gameName).setHeader(player.getUsername()));
         gameControllerToJoin.addClient(player.getUsername(), player);
         return true;
@@ -358,7 +359,7 @@ public class MainController {
             clientHandler.update(new JoinedGameMessage(gameName).setHeader(clientHandler.getUsername()));
             this.gamesInfo.get(gameName).removeClient(clientHandler.getUsername());
             this.gamesInfo.get(gameName).addClient(clientHandler.getUsername(), clientHandler);
-            //clientHandler.setGameController(this.gamesInfo.get(gameName));
+            clientHandler.setGameController(this.gamesInfo.get(gameName));
 
             synchronized (this.playerInfo) {
                 playerInfo.put(clientHandler.getUsername(), new Tuple<>(State.ACTIVE, gameName));
@@ -368,10 +369,13 @@ public class MainController {
         }
     }
 
-    public boolean isPlayerActive(String nick) {
-        Tuple<State, String> playerInfo =  this.playerInfo.get(nick);
-        if(playerInfo == null) return false;
-        return playerInfo.x() == State.ACTIVE;
+    public boolean isPlayerActive(String nick){
+        synchronized (this.playerInfo){
+            System.out.println(playerInfo.keySet());
+            if(!this.playerInfo.containsKey(nick)) return false;
+            System.out.println("passed");
+            return this.playerInfo.get(nick).x() == State.ACTIVE;
+        }
     }
 
     /**

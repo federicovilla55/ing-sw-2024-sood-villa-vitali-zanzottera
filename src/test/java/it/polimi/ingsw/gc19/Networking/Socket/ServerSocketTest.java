@@ -14,6 +14,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigur
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
@@ -87,12 +88,18 @@ public class ServerSocketTest {
     }
 
     @Test
-    public void testMultiplePlayerInGame() throws RemoteException {
+    public void testMultiplePlayerInGame(){
         this.client1.createPlayer();
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.setToken(token1);
+
+        assertNotNull(client1.getToken());
 
         this.client1.createGame("game3", 3, 1);
 
-        assertMessageEquals(this.client1, new CreatedGameMessage("game3").setHeader(this.client1.getName()));
+        assertMessageEquals(this.client1, new CreatedGameMessage("game3"));
 
 
         this.client2.createPlayer();
@@ -108,6 +115,8 @@ public class ServerSocketTest {
 
         this.client3.joinGame("game3", false);
 
+        waitingThread(500);
+
         assertMessageEquals(this.client3, new JoinedGameMessage("game3").setHeader(this.client3.getName()));
         assertMessageEquals(new NewPlayerConnectedToGameMessage(this.client3.getName()), this.client2, this.client1);
 
@@ -122,8 +131,14 @@ public class ServerSocketTest {
     }
 
     @Test
-    public void testJoinFirstAvailableGames() throws RemoteException {
+    public void testJoinFirstAvailableGames(){
         this.client1.createPlayer();
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.setToken(token1);
+
+        assertNotNull(client1.getToken());
 
         this.client1.createGame("game4", 2, 1);
 
@@ -178,7 +193,55 @@ public class ServerSocketTest {
     }
 
     @Test
-    public void testDisconnectionWhileInLobby() throws RemoteException {
+    public void testMultipleReconnection(){
+        this.client1.createPlayer();
+
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.setToken(token1);
+
+        this.client1.reconnect();
+        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+
+        this.client1.reconnect();
+        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+
+        this.client1.createPlayer();
+        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+
+        this.client1.reconnect();
+        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+
+        this.client1.clearQueue();
+        this.client1.stopSendingHeartBeat();
+        waitingThread(3000);
+        this.client1.startSendingHeartBeat();
+        this.client1.reconnect();
+        this.client1.waitForMessage(MessageToClient.class);
+
+        this.client1.createGame("game25", 3, 1);
+        assertMessageEquals(this.client1, new CreatedGameMessage("game25"));
+        System.out.println("lllllllll");
+        this.client2.createPlayer();
+        this.client2.startSendingHeartBeat();
+        this.client3.createPlayer();
+        this.client3.startSendingHeartBeat();
+        this.client2.joinGame("game25", false);
+        assertMessageEquals(this.client2, new JoinedGameMessage("game25"));
+        this.client3.joinGame("game25", false);
+        assertMessageEquals(this.client3, new JoinedGameMessage("game25"));
+
+        this.client1.clearQueue();
+        this.client1.stopSendingHeartBeat();
+        waitingThread(2500);
+
+        this.client1.sendChatMessage(List.of(this.client2.getName(), this.client3.getName()), "Chat message after heartbeat dead!");
+        assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NOT_FOUND, null));
+    }
+
+    @Test
+    public void testDisconnectionWhileInLobby(){
 
         this.client1.createPlayer();
 
@@ -236,7 +299,7 @@ public class ServerSocketTest {
         System.out.println("creato");
         client7.reconnect();
         System.out.println("perche??");
-        assertMessageEquals(client7, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client7, new GameHandlingError(Error.COULD_NOT_RECONNECT, null));
 
         client7.disconnect();
 
@@ -245,6 +308,7 @@ public class ServerSocketTest {
         Client client8 = new Client(this.client1.getName());
         client8.setToken(token1);
         client8.reconnect();
+        assertMessageEquals(this.client1, new AvailableGamesMessage(List.of("game11")));
         client8.disconnect();
     }
 
@@ -306,6 +370,30 @@ public class ServerSocketTest {
         assertNull(this.client2.getMessage());
     }
 
+    @Test
+    public void testCreateClientAfterDisconnection(){
+        Client client7 = new Client("client7");
+        client7.createPlayer();
+
+        client7.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message7 = client7.getMessage();
+        String token7 = ((CreatedPlayerMessage) message7).getToken();
+
+        client7.createGame("game18", 2, 1);
+        waitingThread(1500);
+        
+        client7.disconnect();
+        
+        Client client8 = new Client(client7.getName());
+        client8.createPlayer();
+        client8.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message8 = client8.getMessage();
+        String token8 = ((CreatedPlayerMessage) message8).getToken();
+
+        client8.joinFirstAvailableGame();
+        assertMessageEquals(client8, new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
+    }
+
     @Disabled
     @Test
     public void testFirePlayersAndGames() throws RemoteException {
@@ -324,118 +412,121 @@ public class ServerSocketTest {
         allPlayersChoosePrivateGoal(client1, client2, client3, client4);
         allPlayersPlacedInitialCard(client1, client2, client3, client4);
 
-        assertMessageEquals(List.of(this.client4, this.client3, this.client2, this.client1), new StartPlayingGameMessage(this.client1.getName()));
+        assertMessageWithHeaderEquals(this.client1,  new StartPlayingGameMessage(this.client1.getName()), "client1", "client2", "client3", "client4");
 
-        assertMessageEquals(List.of(this.client4, this.client3, this.client2, this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2", "client3", "client4");
 
         this.client3.disconnect();
         this.client4.disconnect();
 
-        //assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client3"), "client1", "client2", "client4");
+        assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client4"), "client1", "client2");
+
+
         client1.placeCard("resource_23", "initial_05", Direction.UP_RIGHT, CardOrientation.DOWN);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
         dummyFirstTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_01", "initial_05", Direction.UP_LEFT, CardOrientation.UP);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_39", "resource_01", Direction.UP_LEFT, CardOrientation.DOWN);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_23", "resource_23", Direction.UP_RIGHT, CardOrientation.UP);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_40", "gold_23", Direction.UP_LEFT, CardOrientation.DOWN);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_05", "gold_39", Direction.UP_RIGHT, CardOrientation.DOWN);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_03", "resource_05", Direction.UP_RIGHT, CardOrientation.DOWN);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_06", "resource_05", Direction.DOWN_RIGHT, CardOrientation.UP);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_20", "gold_23", Direction.DOWN_RIGHT, CardOrientation.DOWN);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_08", "gold_20", Direction.DOWN_RIGHT, CardOrientation.DOWN);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 1);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_21", "gold_20", Direction.UP_RIGHT, CardOrientation.DOWN);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_28", "resource_08", Direction.DOWN_RIGHT, CardOrientation.UP);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_30", "gold_28", Direction.UP_RIGHT, CardOrientation.UP);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 0);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_39", "resource_21", Direction.UP_RIGHT, CardOrientation.UP);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
         //assertFalse(gameController.getGameAssociated().getFinalCondition());
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_24", "resource_21", Direction.DOWN_RIGHT, CardOrientation.UP);
         // client1 reached 20 points: final condition should be true, but not in final round
         //assertTrue(gameController.getGameAssociated().getFinalCondition());
         //assertFalse(gameController.getGameAssociated().isFinalRound());
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
         //assertTrue(gameController.getGameAssociated().getFinalCondition());
@@ -446,9 +537,9 @@ public class ServerSocketTest {
         //assertTrue(gameController.getGameAssociated().getFinalCondition());
         //assertTrue(gameController.getGameAssociated().isFinalRound());
 
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_28", "resource_39", Direction.UP_RIGHT, CardOrientation.UP);
-        assertMessageEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.DRAW));
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getName(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 1);
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
@@ -472,6 +563,7 @@ public class ServerSocketTest {
         MessageToClient message = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message).getToken();
         this.client1.setToken(token1);
+        this.client1.startSendingHeartBeat();
 
         this.client1.createGame("game6", 2,1);
 
@@ -494,16 +586,18 @@ public class ServerSocketTest {
 
         waitingThread(5000);
 
+        System.out.println("----------------------");
+
         client2.reconnect();
 
         this.client2.startSendingHeartBeat();
 
         //Situation: client 2 has disconnected from game
-        Client client6 = new Client(this.client2.getName());
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
+        Client client6 = new Client(this.client2.getName());
         client6.reconnect();
-        assertMessageEquals(client6, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client6, new GameHandlingError(Error.COULD_NOT_RECONNECT, null));
 
         this.client2.sendChatMessage(new ArrayList<>(List.of(this.client1.getName(), this.client2.getName())), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client2.getName(), "Chat message after disconnection!"));
@@ -590,13 +684,13 @@ public class ServerSocketTest {
 
     private void dummyTurn(Client client, PlayableCardType cardType) throws RemoteException {
         dummyPlace(client);
-        assertMessageEquals(this.client2, new TurnStateMessage(this.client2.getName(), TurnState.DRAW));
+        assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getName(), TurnState.DRAW));
         client.pickCardFromDeck(cardType);
     }
 
     private void dummyFirstTurn(Client client, PlayableCardType cardType){
         dummyFirstPlace(client);
-        assertMessageEquals(this.client2, new TurnStateMessage(this.client2.getName(), TurnState.DRAW));
+        assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getName(), TurnState.DRAW));
         client.pickCardFromDeck(cardType);
     }
 
@@ -607,7 +701,12 @@ public class ServerSocketTest {
         client.setAnchorCard(latestMessage.getInitialCard());
         client.setCardToPlace(latestMessage.getCardsInHand().getFirst());
 
-        assertMessageEquals(this.client2, new TurnStateMessage(this.client2.getName(), TurnState.PLACE));
+        // remove other client turns
+        assertMessageWithHeaderEquals(client, new TurnStateMessage("client1", TurnState.PLACE), "client1", "client2", "client3", "client4");
+        assertMessageWithHeaderEquals(client, new TurnStateMessage("client1", TurnState.DRAW), "client1", "client2");
+
+        assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getName(), TurnState.PLACE));
+
         client.placeCard(client.getCardToPlace().getCardCode(), client.getAnchorCard().getCardCode(), Direction.UP_RIGHT, CardOrientation.DOWN);
     }
 
@@ -622,7 +721,10 @@ public class ServerSocketTest {
         client.setAnchorCard(client.getCardToPlace());
         client.setCardToPlace(latestMessage.getPickedCard());
 
-        assertMessageEquals(this.client2, new TurnStateMessage(this.client2.getName(), TurnState.PLACE));
+        assertMessageWithHeaderEquals(client, new TurnStateMessage("client1", TurnState.PLACE), "client1", "client2");
+        assertMessageWithHeaderEquals(client, new TurnStateMessage("client1", TurnState.DRAW), "client1", "client2");
+
+        assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getName(), TurnState.PLACE));
 
         client.placeCard(client.getCardToPlace().getCardCode(), client.getAnchorCard().getCardCode(), Direction.UP_RIGHT, CardOrientation.DOWN);
     }
@@ -667,6 +769,18 @@ public class ServerSocketTest {
         }
     }
 
+    private void assertMessageWithHeaderEquals(Client receiver, MessageToClient message, String ... header) {
+        assertMessageWithHeaderEquals(List.of(receiver), message, header);
+    }
+
+    private void assertMessageWithHeaderEquals(List<Client> receivers, MessageToClient message, String ... header) {
+        message.setHeader(Arrays.stream(header).toList());
+        for (Client receiver : receivers) {
+            receiver.waitForMessage(message.getClass());
+            assertEquals(message, receiver.getMessage(message.getClass()));
+        }
+    }
+
     private void clearQueue(List<Client> clients) {
         for (Client player : clients) {
             player.clearQueue();
@@ -696,11 +810,6 @@ class Client{
     private PlayableCard anchorCard;
     private final ScheduledExecutorService heartBeatThread = Executors.newSingleThreadScheduledExecutor();
     private final ExecutorService receiverThread = Executors.newSingleThreadExecutor();
-    private String ot = null;
-
-    public void setOt(String ot) {
-        this.ot = ot;
-    }
 
     public Client(String name){
         try{
@@ -714,25 +823,27 @@ class Client{
 
         this.name = name;
         this.incomingMessages = new ArrayDeque<>();
-        this.sendHeartBeat = false;
+        this.sendHeartBeat = true;
         this.token = null;
 
-        this.heartBeatThread.scheduleAtFixedRate(this::heartBeat, 0, 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 5, TimeUnit.MILLISECONDS);
+        this.heartBeatThread.scheduleAtFixedRate(this::heartBeat, 0, 400, TimeUnit.MILLISECONDS);
         this.receiverThread.submit(this::receiveMessages);
     }
 
     public void sendMessage(MessageToServer message){
         boolean sent;
+        int numOfTry = 0;
         synchronized (this.outputStream){
             sent = false;
-            while(!sent && !socket.isClosed()) {
+            while(!sent && !socket.isClosed() && numOfTry < 25) {
                 try {
-                    //System.out.println(message);
+                    //if(message instanceof HeartBeatMessage) System.out.println("heartbeat from " + name);
                     this.outputStream.writeObject(message);
                     finalizeSending();
                     sent = true;
                 } catch (Exception e) {
-
+                    System.out.println("err while sending " + message.getClass() + "  " + numOfTry);
+                    numOfTry++;
                 }
             }
         }
@@ -773,6 +884,7 @@ class Client{
 
     private synchronized void heartBeat() {
         if (this.sendHeartBeat) {
+            //if(this.name.equals("client1")) System.err.println("invato da client1");
             this.sendMessage(new HeartBeatMessage(this.name));
         }
     }
@@ -815,13 +927,12 @@ class Client{
 
     public synchronized void stopSendingHeartBeat() {
         this.sendHeartBeat = false;
-        this.notify();
+        this.notifyAll();
     }
 
     public synchronized void startSendingHeartBeat() {
-        System.out.println("rimanda heartbeat :)");
         this.sendHeartBeat = true;
-        this.notify();
+        this.notifyAll();
     }
 
     public String getName() {
@@ -918,7 +1029,6 @@ class Client{
     }
     
     public void pickCardFromTable(PlayableCardType type, int position){
-        this.waitForMessage(TurnStateMessage.class);
         this.sendMessage(new PickCardFromTableMessage(name, type, position));
     }
     

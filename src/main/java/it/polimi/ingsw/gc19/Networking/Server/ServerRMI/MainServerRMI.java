@@ -229,6 +229,11 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
                                                                "You are not registered to server! Please register")
                                                  .setHeader(nickName));
                 }
+                else{
+                    clientRMI.pushUpdate(new GameHandlingError(Error.COULD_NOT_RECONNECT,
+                                                               "Could not reconnect to server!")
+                                                 .setHeader(nickName));
+                }
             }
         }
         return null;

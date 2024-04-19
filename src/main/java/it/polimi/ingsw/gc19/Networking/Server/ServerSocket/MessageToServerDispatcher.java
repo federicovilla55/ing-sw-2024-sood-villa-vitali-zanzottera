@@ -60,6 +60,7 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
 
             if(incomingMessage != null) {
                 synchronized (this.attachedObserver) {
+                    System.out.println("processing " + incomingMessage.getClass());
                     for (ObserverMessageToServer<MessageToServer> o : this.attachedObserver) {
                         if (o.accept(incomingMessage)) o.update(socket, incomingMessage);
                     }

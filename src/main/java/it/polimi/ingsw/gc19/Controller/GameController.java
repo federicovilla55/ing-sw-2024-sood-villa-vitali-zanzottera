@@ -10,6 +10,7 @@ import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Game.PlayerNotFoundException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OtherAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
@@ -22,10 +23,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.Refus
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.PlayerReconnectedToGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
-import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -88,15 +87,15 @@ public class GameController{
      * This method adds a client with given nickname to the game
      * @param nickname the name of the client to add
      */
-    public synchronized void addClient(String nickname, ClientHandler client) {
+    public synchronized void addClient(String nickname, ClientHandler clientHandler) {
         try {
             this.gameAssociated.getPlayerByName(nickname);
             //player already present in game
             this.messageFactory.sendMessageToAllGamePlayersExcept(new PlayerReconnectedToGameMessage(nickname), nickname);
             if(!this.connectedClients.containsKey(nickname)) {
-                this.connectedClients.put(nickname, client);
-                client.setGameController(this);
-                messageFactory.attachObserver(nickname, client);
+                this.connectedClients.put(nickname, clientHandler);
+                clientHandler.setGameController(this);
+                messageFactory.attachObserver(nickname, clientHandler);
                 // send to connected client all info needed
                 this.gameAssociated.sendCurrentStateToPlayer(nickname);
                 if(this.gameAssociated.getGameState().equals(GameState.PAUSE)) {
@@ -120,9 +119,9 @@ public class GameController{
         } catch (PlayerNotFoundException e) {
             //new player
             if(this.gameAssociated.getNumJoinedPlayer() < this.gameAssociated.getNumPlayers()) {
-                this.connectedClients.put(nickname, client);
-                client.setGameController(this);
-                messageFactory.attachObserver(nickname, client);
+                this.connectedClients.put(nickname, clientHandler);
+                clientHandler.setGameController(this);
+                messageFactory.attachObserver(nickname, clientHandler);
                 this.gameAssociated.createNewPlayer(nickname);
             }
         }
@@ -133,12 +132,10 @@ public class GameController{
      * @param nickname the name of the client to remove
      */
     public synchronized void removeClient(String nickname) {
-        ClientHandler clientToRemove = this.connectedClients.remove(nickname);
-
-        if(clientToRemove != null) {
-            clientToRemove.setGameController(null);
+        ClientHandler clientHandlerToRemove = this.connectedClients.remove(nickname);
+        if(clientHandlerToRemove != null) {
+            clientHandlerToRemove.setGameController(null);
             this.messageFactory.removeObserver(nickname);
-
             this.messageFactory.sendMessageToAllGamePlayers(new DisconnectedPlayerMessage(nickname));
             if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)){
                 // the client disconnected was the active player: turn goes to next player unless no other client is connected
@@ -164,16 +161,6 @@ public class GameController{
                 }).start();
                 this.messageFactory.sendMessageToAllGamePlayers(new GamePausedMessage());
             }
-        }
-    }
-
-    public synchronized void removeClientAtTheEndOfGame(String nick){
-        System.out.println(connectedClients);
-        ClientHandler clientToRemove = this.connectedClients.remove(nick);
-
-        if(this.gameAssociated.getGameState() == GameState.END && clientToRemove != null){
-            clientToRemove.setGameController(null);
-            this.messageFactory.removeObserver(nick);
         }
     }
 
@@ -262,13 +249,13 @@ public class GameController{
     public synchronized void placeCard(String nickname, String cardCode, String anchorCode, Direction direction, CardOrientation cardOrientation) {
         if(!this.gameAssociated.getGameState().equals(GameState.PLAYING)) {
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
-                    "You cannot place a card when game is in " + this.gameAssociated.getGameState().toString().toLowerCase() + " state!"));
+                                                                                       "You cannot place a card when game is in " + this.gameAssociated.getGameState().toString().toLowerCase() + " state!"));
             return;
         }
 
         if(!this.gameAssociated.getTurnState().equals(TurnState.PLACE)){
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN_STATE,
-                    "You cannot place a card when your turn is in " + this.gameAssociated.getTurnState().toString().toLowerCase() + " state!"));
+                                                                                       "You cannot place a card when your turn is in " + this.gameAssociated.getTurnState().toString().toLowerCase() + " state!"));
             return;
         }
 
@@ -282,7 +269,7 @@ public class GameController{
         if(anchor.isPresent() && toPlace.isPresent()) {
             try {
                 boolean checkPlacing = this.gameAssociated.getActivePlayer().getStation()
-                        .placeCard(anchor.get(), toPlace.get(), direction, cardOrientation);
+                                                          .placeCard(anchor.get(), toPlace.get(), direction, cardOrientation);
                 if(!checkPlacing) return;
             } catch (InvalidCardException e) {
                 //Message
@@ -321,7 +308,7 @@ public class GameController{
 
         PlayableCard card = null;
         try {
-             card = this.gameAssociated.pickCardFromDeck(type);
+            card = this.gameAssociated.pickCardFromDeck(type);
         }
         catch (EmptyDeckException e){
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.EMPTY_DECK, "You cannot pick a card from deck " + type.toString().toLowerCase()  + " because is empty!"));
@@ -330,9 +317,9 @@ public class GameController{
 
         this.gameAssociated.getActivePlayer().getStation().updateCardsInHand(card);
         this.messageFactory.sendMessageToPlayer(nickname, new OwnAcceptedPickCardFromDeckMessage(nickname,
-                card, type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)));
+                                                                                                 card, type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)));
         this.messageFactory.sendMessageToAllGamePlayersExcept(new OtherAcceptedPickCardFromDeckMessage(nickname,
-                type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)),nickname);
+                                                                                                       type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)),nickname);
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
         this.setNextPlayer();
@@ -381,13 +368,13 @@ public class GameController{
     private boolean checkDrawConditions(String nickname) {
         if(!this.gameAssociated.getGameState().equals(GameState.PLAYING)) {
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
-                    "You cannot pick a card when game is in " + this.gameAssociated.getGameState().toString().toLowerCase() + " state!"));
+                                                                                       "You cannot pick a card when game is in " + this.gameAssociated.getGameState().toString().toLowerCase() + " state!"));
             return true;
         }
 
         if(!this.gameAssociated.getTurnState().equals(TurnState.DRAW)){
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_TURN_STATE,
-                    "You cannot pick a card when your turn is in " + this.gameAssociated.getTurnState().toString().toLowerCase() + " state!"));
+                                                                                       "You cannot pick a card when your turn is in " + this.gameAssociated.getTurnState().toString().toLowerCase() + " state!"));
             return true;
         }
 
@@ -472,7 +459,10 @@ public class GameController{
     }
 
     public synchronized void sendChatMessage(ArrayList<String> receivers, String senderNick, String message){
-        receivers.retainAll(this.gameAssociated.getPlayers().stream().map(Player::getName).collect(Collectors.toList()));
+        if(!this.gameAssociated.hasPlayer(senderNick) ||
+                !new HashSet<>(this.gameAssociated.getPlayers().stream().map(Player::getName).collect(Collectors.toList())).containsAll(receivers)){
+            return;
+        }
         this.gameAssociated.getChat().pushMessage(new Message(message, senderNick, receivers));
     }
 

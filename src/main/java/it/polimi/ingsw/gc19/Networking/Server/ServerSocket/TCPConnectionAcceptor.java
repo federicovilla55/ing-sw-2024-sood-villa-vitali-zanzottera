@@ -14,13 +14,14 @@ public class TCPConnectionAcceptor extends Thread{
     private final MainServerTCP mainServerTCP;
 
     public TCPConnectionAcceptor(MainServerTCP mainServerTCP){
+        super();
         this.mainServerTCP = mainServerTCP;
 
         try {
             this.serverSocket = new ServerSocket(Settings.DEFAULT_SERVER_PORT);
         }
         catch (IOException ioException){
-            //@TODO: handle this exception
+            System.out.println(ioException.getMessage());
         }
     }
 
@@ -38,14 +39,23 @@ public class TCPConnectionAcceptor extends Thread{
             assert clientSocket != null;
 
             messageToServerDispatcher = new MessageToServerDispatcher(clientSocket);
+            messageToServerDispatcher.start();
             messageToServerDispatcher.attachObserver(this.mainServerTCP);
             mainServerTCP.registerSocket(clientSocket, messageToServerDispatcher);
-            messageToServerDispatcher.start();
         }
     }
 
     @Override
     public void interrupt() {
+        try {
+            serverSocket.close();
+        }
+        catch (IOException ioException){
+            System.out.println(ioException.getMessage());
+        }
+
+        mainServerTCP.resetMainServer();
+
         super.interrupt();
     }
 
