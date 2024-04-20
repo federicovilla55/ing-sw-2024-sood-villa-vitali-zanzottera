@@ -42,13 +42,9 @@ public class ServerSocketTest {
 
     private Client client1, client2, client3, client4;
 
-    @BeforeAll
-    public static void startServer(){
-        ServerApp.startTCP();
-    }
-
     @BeforeEach
     public void setUp(){
+        ServerApp.startTCP();
         this.client1 = new Client("client1");
         this.client2 = new Client("client2");
         this.client3 = new Client("client3");
@@ -65,10 +61,6 @@ public class ServerSocketTest {
         this.client3.stopClient();
         this.client4.disconnect();
         this.client4.stopClient();
-    }
-
-    @AfterAll
-    public static void stopTCPServer(){
         ServerApp.stopTCP();
     }
 
@@ -818,7 +810,7 @@ class Client{
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("s" + e);
         }
 
         this.name = name;
@@ -831,20 +823,19 @@ class Client{
     }
 
     public void sendMessage(MessageToServer message){
-        boolean sent;
+        boolean sent = false;
         int numOfTry = 0;
-        synchronized (this.outputStream){
-            sent = false;
-            while(!sent && !socket.isClosed() && numOfTry < 25) {
-                try {
-                    //if(message instanceof HeartBeatMessage) System.out.println("heartbeat from " + name);
+        while(!Thread.currentThread().isInterrupted() && !sent && !socket.isClosed() && numOfTry < 25) {
+            try {
+                //if(message instanceof HeartBeatMessage) System.out.println("heartbeat from " + name);
+                synchronized (this.outputStream) {
                     this.outputStream.writeObject(message);
                     finalizeSending();
-                    sent = true;
-                } catch (Exception e) {
-                    System.out.println("err while sending " + message.getClass() + "  " + numOfTry);
-                    numOfTry++;
                 }
+                sent = true;
+            } catch (Exception e) {
+                System.out.println("err while sending " + message.getClass() + "  " + numOfTry);
+                numOfTry++;
             }
         }
     }
@@ -861,7 +852,7 @@ class Client{
 
     public void receiveMessages(){
         MessageToClient incomingMessage;
-        while (true){
+        while (!Thread.currentThread().isInterrupted()){
             try{
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
                 //System.out.println(name + " / " + ot +  " -> " + incomingMessage);
@@ -883,7 +874,7 @@ class Client{
     }
 
     private synchronized void heartBeat() {
-        if (this.sendHeartBeat) {
+        if (this.sendHeartBeat && !Thread.currentThread().isInterrupted()) {
             //if(this.name.equals("client1")) System.err.println("invato da client1");
             this.sendMessage(new HeartBeatMessage(this.name));
         }

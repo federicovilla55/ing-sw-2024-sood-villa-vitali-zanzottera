@@ -15,6 +15,7 @@ public class TCPConnectionAcceptor extends Thread{
 
     public TCPConnectionAcceptor(MainServerTCP mainServerTCP){
         super();
+
         this.mainServerTCP = mainServerTCP;
 
         try {
@@ -28,7 +29,7 @@ public class TCPConnectionAcceptor extends Thread{
     public void run(){
         Socket clientSocket;
         MessageToServerDispatcher messageToServerDispatcher;
-        while(true){
+        while(!this.isInterrupted()){
             clientSocket = null;
             try{
                 clientSocket = serverSocket.accept();
@@ -45,18 +46,14 @@ public class TCPConnectionAcceptor extends Thread{
         }
     }
 
-    @Override
-    public void interrupt() {
+    public void interruptTCPConnectionAcceptor() {
         try {
             serverSocket.close();
         }
         catch (IOException ioException){
             System.out.println(ioException.getMessage());
         }
-
-        mainServerTCP.resetMainServer();
-
-        super.interrupt();
+        this.interrupt();
     }
 
     /* public void stopServer(){

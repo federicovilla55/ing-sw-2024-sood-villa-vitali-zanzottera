@@ -86,6 +86,7 @@ public class MainController {
                     }
                 }
             }
+
         }, Settings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION, TimeUnit.SECONDS);
     }
 

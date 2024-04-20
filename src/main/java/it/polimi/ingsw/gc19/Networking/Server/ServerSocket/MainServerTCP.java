@@ -153,6 +153,15 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         this.mainController.resetMainController();
     }
 
+    public void killClientHandlers(){
+        synchronized (this.connectedClients) {
+            for (var c : this.connectedClients.values()) {
+                c.x().interruptClientHandler();
+                c.y().interruptMessageDispatcher();
+            }
+        }
+    }
+
     private class MessageToMainServerVisitor implements GameHandlingMessageVisitor, MessageToServerVisitor{
 
         private Socket clientSocket;
@@ -180,6 +189,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
         @Override
         public void visit(NewUserMessage message) {
+            System.out.println("ARRIVATO MESSAGGIO");
             ClientHandlerSocket clientHandlerSocket;
 
             synchronized (connectedClients){
@@ -296,9 +306,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                     }
                     System.out.println("disconnected player -> " + clientToDisconnect.x());
                     //Killing thread responsible for sending messages
-                    clientToDisconnect.x().interrupt();
+                    clientToDisconnect.x().interruptClientHandler();
                     //Killing thread in message dispatcher
-                    clientToDisconnect.y().interrupt();
+                    clientToDisconnect.y().interruptMessageDispatcher();
                     closeSocket(clientSocket);
                 }
             }

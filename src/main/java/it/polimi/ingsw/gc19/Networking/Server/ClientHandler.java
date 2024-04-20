@@ -34,7 +34,7 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
 
     @Override
     public void run(){
-        while(!Thread.currentThread().isInterrupted()){
+        while(!Thread.interrupted()){
             ClientHandler.this.sendMessage();
         }
     }
@@ -125,6 +125,10 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
      */
     public void setGameController(GameController gameController){
         this.gameController = gameController;
+    }
+
+    public void interruptClientHandler(){
+        this.interrupt();
     }
 
 }

@@ -49,7 +49,7 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
     @Override
     public void run() {
         MessageToServer incomingMessage;
-        while(true) {
+        while(!Thread.interrupted()) {
             incomingMessage = null;
             try{
                 incomingMessage = (MessageToServer) MessageToServerDispatcher.this.objectInputStream.readObject();
@@ -67,6 +67,11 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
                 }
             }
         }
+        System.err.println("Interrupted " + this);
+    }
+
+    public void interruptMessageDispatcher(){
+        this.interrupt();
     }
 
     //@TODO: implement logic for destruction of thread and object. at the end of game? alla fine del gioco non devo fare nulla si occupa di tutto il main controller

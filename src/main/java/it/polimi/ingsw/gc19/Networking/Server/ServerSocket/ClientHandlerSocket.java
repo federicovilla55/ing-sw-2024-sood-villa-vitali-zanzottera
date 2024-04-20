@@ -112,9 +112,9 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
             }
             synchronized (this.outputStream){
                 try {
-                    this.outputStream.reset();
                     this.outputStream.writeObject(message);
                     this.outputStream.flush();
+                    this.outputStream.reset();
                 }
                 catch(IOException ioException){
                     System.out.println(username + " -> " + ioException.getMessage() + "   " +  ioException.getClass() + "   " + ioException.getCause() + " " + message.getClass());

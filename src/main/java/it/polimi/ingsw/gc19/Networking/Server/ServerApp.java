@@ -31,6 +31,7 @@ public class ServerApp {
 
     private static VirtualMainServer stub;
     private static TCPConnectionAcceptor MainTcp;
+    private static MainServerTCP mainServerTCP;
 
     public static void main(String[] args) throws IOException {
         //List<ClientHandler> ListClient = new ArrayList<ClientHandler>();;
@@ -47,7 +48,8 @@ public class ServerApp {
     }
 
     public static void startTCP(){
-        MainTcp = new TCPConnectionAcceptor(new MainServerTCP());
+        mainServerTCP = new MainServerTCP();
+        MainTcp = new TCPConnectionAcceptor(mainServerTCP);
         MainTcp.start();
     }
 
@@ -61,6 +63,8 @@ public class ServerApp {
     }
 
     public static void stopTCP(){
-        MainTcp.interrupt();
+        mainServerTCP.resetMainServer();
+        mainServerTCP.killClientHandlers();
+        MainTcp.interruptTCPConnectionAcceptor();
     }
 }
