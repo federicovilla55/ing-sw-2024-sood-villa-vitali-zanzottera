@@ -129,7 +129,6 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
                 throw new RuntimeException(e);
             }
         }, 0, 100, TimeUnit.MILLISECONDS);
-
     }
 
     public void stopSendingHeartbeat() {
