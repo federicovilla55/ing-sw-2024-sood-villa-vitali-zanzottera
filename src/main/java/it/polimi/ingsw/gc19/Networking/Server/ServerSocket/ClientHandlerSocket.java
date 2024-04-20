@@ -27,7 +27,7 @@ import java.util.concurrent.*;
 
 public class ClientHandlerSocket extends ClientHandler implements ObserverMessageToServer<MessageToServer> {
 
-    private final Socket socket;
+    private Socket socket;
     private final ObjectOutputStream outputStream;
     private boolean readIncomingMessages, writeOutputMessages;
     private final Object lockOnRead, lockOnWrite;
@@ -153,6 +153,18 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
     @Override
     public boolean accept(MessageToServer message) {
         return message instanceof ActionMessage || message instanceof PlayerChatMessage;
+    }
+
+    @Override
+    public void interruptClientHandler() {
+        try {
+            socket.close();
+        }
+        catch (IOException ioException){
+
+        }
+        socket = null;
+        super.interruptClientHandler();
     }
 
     public boolean canRead(){

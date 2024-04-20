@@ -63,8 +63,8 @@ public class ServerApp {
     }
 
     public static void stopTCP(){
-        mainServerTCP.resetMainServer();
         mainServerTCP.killClientHandlers();
+        mainServerTCP.resetMainServer();
         MainTcp.interruptTCPConnectionAcceptor();
     }
 }

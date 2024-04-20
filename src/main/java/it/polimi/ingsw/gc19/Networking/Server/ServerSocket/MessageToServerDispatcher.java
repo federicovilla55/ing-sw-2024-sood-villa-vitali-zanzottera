@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MessageToServerDispatcher extends Thread implements ObservableMessageToServer<MessageToServer>{
-    private final Socket socket;
+    private Socket socket;
     private final ObjectInputStream objectInputStream;
     private final Set<ObserverMessageToServer<MessageToServer>> attachedObserver;
 
@@ -71,6 +71,7 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
     }
 
     public void interruptMessageDispatcher(){
+        socket = null;
         this.interrupt();
     }
 

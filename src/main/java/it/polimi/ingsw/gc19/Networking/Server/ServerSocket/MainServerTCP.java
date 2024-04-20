@@ -115,31 +115,29 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         String playerName;
         ArrayList<Socket> socketToRemove = new ArrayList<>();
         System.out.println("ENTRATO");
-        synchronized (this.lastHeartBeatOfClients){
-            for (Socket socket : this.lastHeartBeatOfClients.keySet()) {
-                if (new Date().getTime() - this.lastHeartBeatOfClients.get(socket) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
-                    System.out.println("disconnecting -> " + socket + " because " + new Date().getTime() + "   " + this.lastHeartBeatOfClients.get(socket));
-                    //this.lastHeartBeatOfClients.remove(socket);
-                    socketToRemove.add(socket);
-                }
+        for (Socket socket : this.lastHeartBeatOfClients.keySet()) {
+            if (new Date().getTime() - this.lastHeartBeatOfClients.get(socket) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
+                System.out.println("disconnecting -> " + socket + " because " + new Date().getTime() + "   " + this.lastHeartBeatOfClients.get(socket));
+                //this.lastHeartBeatOfClients.remove(socket);
+                socketToRemove.add(socket);
             }
-            /*if(!lastHeartBeatOfClients.isEmpty())*/ System.out.println(lastHeartBeatOfClients.size());
-            lastHeartBeatOfClients.keySet().removeAll(socketToRemove);
-            System.out.println(lastHeartBeatOfClients.size());
-
-            synchronized (this.connectedClients) {
-                for (Socket socket : socketToRemove) {
-                    //if(!this.connectedClients.containsKey(socket)) continue;
-                    playerName = this.connectedClients.get(socket).x().getUsername();
-                    System.out.println(playerName);
-                    if (playerName != null) {
-                        System.out.println("Il player " + playerName + " è ora inattivo.");
-                        this.mainController.setPlayerInactive(playerName);
-                    }
-                }
-            }
-
         }
+        /*if(!lastHeartBeatOfClients.isEmpty())*/ System.out.println(lastHeartBeatOfClients.size());
+        lastHeartBeatOfClients.keySet().removeAll(socketToRemove);
+        System.out.println(lastHeartBeatOfClients.size());
+
+        synchronized (this.connectedClients) {
+            for (Socket socket : socketToRemove) {
+                //if(!this.connectedClients.containsKey(socket)) continue;
+                playerName = this.connectedClients.get(socket).x().getUsername();
+                System.out.println(playerName);
+                if (playerName != null) {
+                    System.out.println("Il player " + playerName + " è ora inattivo.");
+                    this.mainController.setPlayerInactive(playerName);
+                }
+            }
+        }
+
         System.out.println("USCITO");
     }
 
@@ -266,10 +264,8 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                     }
                 }
 
-                synchronized (lastHeartBeatOfClients) {
-                    if(nickname.equals("client1")) System.out.println("recoonection of client1");
-                    lastHeartBeatOfClients.put(clientSocket, new Date().getTime());
-                }
+                if(nickname.equals("client1")) System.out.println("recoonection of client1");
+                lastHeartBeatOfClients.put(clientSocket, new Date().getTime());
 
                 synchronized (connectedClients){
                     if(connectedClients.get(clientSocket).x().getUsername() != null){
@@ -312,9 +308,8 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                     closeSocket(clientSocket);
                 }
             }
-            synchronized (lastHeartBeatOfClients) {
-                lastHeartBeatOfClients.remove(clientSocket);
-            }
+
+            lastHeartBeatOfClients.remove(clientSocket);
         }
 
         @Override
@@ -359,13 +354,11 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
         @Override
         public void visit(HeartBeatMessage message) {
-            synchronized (lastHeartBeatOfClients) {
-                if (lastHeartBeatOfClients.containsKey(clientSocket)) {
-                    Long last = lastHeartBeatOfClients.get(clientSocket);
-                    Long curr = new Date().getTime();
-                    System.err.println("heartbeat from " + message.getNickname() + "   " + clientSocket + " -> last " + last + " now " + curr);
-                    lastHeartBeatOfClients.put(clientSocket, curr);
-                }
+            if (lastHeartBeatOfClients.containsKey(clientSocket)) {
+                Long last = lastHeartBeatOfClients.get(clientSocket);
+                Long curr = new Date().getTime();
+                System.err.println("heartbeat from " + message.getNickname() + "   " + clientSocket + " -> last " + last + " now " + curr);
+                lastHeartBeatOfClients.put(clientSocket, curr);
             }
         }
     }

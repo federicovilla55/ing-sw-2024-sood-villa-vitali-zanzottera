@@ -386,7 +386,6 @@ public class ServerSocketTest {
         assertMessageEquals(client8, new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
     }
 
-    @Disabled
     @Test
     public void testFirePlayersAndGames() throws RemoteException {
 
