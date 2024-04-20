@@ -7,7 +7,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
 public class DirectionOfInitialCardMessage extends ActionMessage{
     private final CardOrientation cardOrientation;
 
-    protected DirectionOfInitialCardMessage(String nickname, CardOrientation orientation) {
+    public DirectionOfInitialCardMessage(String nickname, CardOrientation orientation) {
         super(nickname);
         this.cardOrientation = orientation;
     }

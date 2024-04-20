@@ -2,7 +2,7 @@ package it.polimi.ingsw.gc19.Controller;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
-import it.polimi.ingsw.gc19.ObserverPattern.Observer;
+import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,24 +16,24 @@ class MessageFactoryTest {
 
     private MessageFactory testMessageFactory;
 
-    private NamedObserverStub observer1;
-    private NamedObserverStub observer2;
-    private NamedObserverStub observer3;
-    private NamedObserverStub observer4;
-    private NamedObserverStub observer5;
+    private NamedObserverStubMessageToClient observer1;
+    private NamedObserverStubMessageToClient observer2;
+    private NamedObserverStubMessageToClient observer3;
+    private NamedObserverStubMessageToClient observer4;
+    private NamedObserverStubMessageToClient observer5;
 
 
 
-    private AnonymousObserverStub logger;
+    private AnonymousObserverStubMessageToClient logger;
     @BeforeEach
     void setUp() {
         this.testMessageFactory = new MessageFactory();
-        this.observer1 = new NamedObserverStub("Player 1");
-        this.observer2 = new NamedObserverStub("Player 2");
-        this.observer3 = new NamedObserverStub("Player 3");
-        this.observer4 = new NamedObserverStub("Player 4");
-        this.observer5 = new NamedObserverStub("Player 5");
-        this.logger = new AnonymousObserverStub();
+        this.observer1 = new NamedObserverStubMessageToClient("Player 1");
+        this.observer2 = new NamedObserverStubMessageToClient("Player 2");
+        this.observer3 = new NamedObserverStubMessageToClient("Player 3");
+        this.observer4 = new NamedObserverStubMessageToClient("Player 4");
+        this.observer5 = new NamedObserverStubMessageToClient("Player 5");
+        this.logger = new AnonymousObserverStubMessageToClient();
 
         testMessageFactory.attachObserver("Player 1", observer1);
         testMessageFactory.removeObserver("Player 1");
@@ -136,11 +136,11 @@ class MessageFactoryTest {
     }
 }
 
-class NamedObserverStub implements Observer<MessageToClient> {
+class NamedObserverStubMessageToClient implements ObserverMessageToClient<MessageToClient> {
     final Queue<MessageToClient> messageQueue;
 
     final String observerName;
-    public NamedObserverStub(String observerName) {
+    public NamedObserverStubMessageToClient(String observerName) {
         this.messageQueue = new ArrayDeque<>();
         this.observerName = observerName;
     }
@@ -151,10 +151,10 @@ class NamedObserverStub implements Observer<MessageToClient> {
     }
 }
 
-class AnonymousObserverStub implements Observer<MessageToClient> {
+class AnonymousObserverStubMessageToClient implements ObserverMessageToClient<MessageToClient> {
     final Queue<MessageToClient> messageQueue;
 
-    public AnonymousObserverStub() {
+    public AnonymousObserverStubMessageToClient() {
         this.messageQueue = new ArrayDeque<>();
     }
 

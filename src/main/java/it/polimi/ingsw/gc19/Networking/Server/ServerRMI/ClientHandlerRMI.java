@@ -1,27 +1,18 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
-import com.fasterxml.jackson.databind.introspect.AnnotationCollector;
-import it.polimi.ingsw.gc19.Controller.GameController;
-import it.polimi.ingsw.gc19.Controller.MainController;
-import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 
 import java.rmi.RemoteException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class is used server-side to represents a client that
@@ -40,7 +31,7 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
     }
 
     public ClientHandlerRMI(VirtualClient virtualClientAssociated, ClientHandler clientHandler) {
-        super(clientHandler.getName(), clientHandler.getGameController());
+        super(clientHandler.getUsername(), clientHandler.getGameController());
         this.messageQueue.addAll(clientHandler.getQueueOfMessages());
         this.virtualClientAssociated = virtualClientAssociated;
     }
@@ -71,7 +62,14 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
      */
     @Override
     public void placeCard(String cardToInsert, String anchorCard, Direction directionToInsert, CardOrientation orientation) throws RemoteException {
-        this.gameController.placeCard(username, cardToInsert, anchorCard, directionToInsert, orientation);
+        if(gameController != null) {
+            this.gameController.placeCard(username, cardToInsert, anchorCard, directionToInsert, orientation);
+        }
+        else{
+            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+                                        .setHeader(this.username));
+        }
     }
 
     /**
@@ -82,7 +80,14 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
      */
     @Override
     public void sendChatMessage(ArrayList<String> usersToSend, String messageToSend) throws RemoteException {
-        this.gameController.sendChatMessage(usersToSend, username, messageToSend);
+        if(gameController != null) {
+            this.gameController.sendChatMessage(usersToSend, username, messageToSend);
+        }
+        else{
+            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                      "You aren't connected to any game! Maybe it's finished or you have to reconnect!")
+                                        .setHeader(this.username));
+        }
     }
 
     /**
@@ -92,7 +97,14 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
      */
     @Override
     public void placeInitialCard(CardOrientation cardOrientation) throws RemoteException {
-        this.gameController.placeInitialCard(username, cardOrientation);
+        if(gameController != null) {
+            this.gameController.placeInitialCard(username, cardOrientation);
+        }
+        else{
+            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+                                        .setHeader(this.username));
+        }
     }
 
     /**
@@ -103,7 +115,14 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
      */
     @Override
     public void pickCardFromTable(PlayableCardType type, int position) throws RemoteException {
-        this.gameController.drawCardFromTable(username, type, position);
+        if(gameController != null) {
+            this.gameController.drawCardFromTable(username, type, position);
+        }
+        else{
+            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+                                        .setHeader(this.username));
+        }
     }
 
     /**
@@ -113,7 +132,14 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
      */
     @Override
     public void pickCardFromDeck(PlayableCardType type) throws RemoteException {
-        this.gameController.drawCardFromDeck(username, type);
+        if(gameController != null) {
+            this.gameController.drawCardFromDeck(username, type);
+        }
+        else{
+            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+                                        .setHeader(this.username));
+        }
     }
 
     /**
@@ -123,7 +149,14 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
      */
     @Override
     public void chooseColor(Color color) throws RemoteException {
-        this.gameController.chooseColor(username, color);
+        if(gameController != null) {
+            this.gameController.chooseColor(username, color);
+        }
+        else{
+            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+                                        .setHeader(this.username));
+        }
     }
 
     /**
@@ -133,7 +166,14 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
      */
     @Override
     public void choosePrivateGoalCard(int cardIdx) throws RemoteException {
-        this.gameController.choosePrivateGoal(username, cardIdx);
+        if(gameController != null) {
+            this.gameController.choosePrivateGoal(username, cardIdx);
+        }
+        else{
+            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+                                        .setHeader(this.username));
+        }
     }
 
 }

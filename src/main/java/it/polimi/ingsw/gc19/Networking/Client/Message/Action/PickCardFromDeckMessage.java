@@ -6,7 +6,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
 public class PickCardFromDeckMessage extends ActionMessage{
 
     private final PlayableCardType type;
-    protected PickCardFromDeckMessage(String nickname, PlayableCardType type) {
+    public PickCardFromDeckMessage(String nickname, PlayableCardType type) {
         super(nickname);
         this.type = type;
     }

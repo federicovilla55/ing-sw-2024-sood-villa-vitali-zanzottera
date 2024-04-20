@@ -19,4 +19,15 @@ public abstract class Server{
         this.mainController = MainController.getMainController();
     }
 
+    protected String computeHashOfClientHandler(ClientHandler clientHandler, String username){
+        String hashedMessage = "";
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            hashedMessage = Arrays.toString(digest.digest((username + clientHandler.toString()).getBytes()));
+        } catch (NoSuchAlgorithmException ignored) { };
+
+        return hashedMessage;
+    }
+
 }

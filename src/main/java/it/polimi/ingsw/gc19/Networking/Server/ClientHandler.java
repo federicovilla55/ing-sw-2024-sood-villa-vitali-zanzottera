@@ -1,16 +1,11 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
 import it.polimi.ingsw.gc19.Controller.GameController;
-import it.polimi.ingsw.gc19.Controller.MainController;
-import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
-import it.polimi.ingsw.gc19.ObserverPattern.Observer;
+import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
 
-import java.rmi.RemoteException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -19,7 +14,7 @@ import java.util.*;
  * It implements <code>Observer<MessageToClient></code> so that <code>Observable<MessageToClient></code>
  * can push in its queue their messages.
  */
-public abstract class ClientHandler implements Observer<MessageToClient>{
+public abstract class ClientHandler extends Thread implements ObserverMessageToClient<MessageToClient> {
 
     protected GameController gameController;
     protected String username;
@@ -35,12 +30,13 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
 
         this.username = username;
         this.messageQueue = new ArrayDeque<>();
+    }
 
-        new Thread(() -> {
-            while(true){
-                ClientHandler.this.sendMessage();
-            }
-        }).start();
+    @Override
+    public void run(){
+        while(!Thread.interrupted()){
+            ClientHandler.this.sendMessage();
+        }
     }
 
     public ClientHandler(String username){
@@ -55,7 +51,7 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
      * Getter method for player name
      * @return player name bound to this {@link ClientHandler}
      */
-    public String getName() {
+    public String getUsername() {
         return this.username;
     }
 
@@ -89,6 +85,7 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
      */
     @Override
     public void update(MessageToClient message) {
+        System.out.println("arrivato presso client handler " + username + " message " + message.getClass() + "  " + this.hashCode() + "\n" + this.toString());
         synchronized(messageQueue){
             if(message.getMessagePriorityLevel() == MessagePriorityLevel.HIGH) {
                 messageQueue.addFirst(message);
@@ -114,8 +111,8 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
                 catch(InterruptedException ignored){ };
             }
             messageToSend = this.messageQueue.remove();
-            //System.out.println(messageToSend.getClass() +  " " + messageToSend.getHeader());
-            if(messageToSend.getHeader().contains(username)) {
+            System.out.println(messageToSend.getClass() +  " " + messageToSend.getHeader());
+            if(messageToSend.getHeader() == null || messageToSend.getHeader().contains(username)) {
                 this.sendMessageToClient(messageToSend);
             }
             this.messageQueue.notifyAll();
@@ -130,15 +127,8 @@ public abstract class ClientHandler implements Observer<MessageToClient>{
         this.gameController = gameController;
     }
 
-    public String computeHashOfClientHandler(){
-        String hashedMessage = "";
-
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            hashedMessage = Arrays.toString(digest.digest((this.username + this.toString()).getBytes()));
-        } catch (NoSuchAlgorithmException ignored) { };
-
-        return hashedMessage;
+    public void interruptClientHandler(){
+        this.interrupt();
     }
 
 }

@@ -11,12 +11,8 @@ import it.polimi.ingsw.gc19.Controller.MainController;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -56,12 +52,8 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
         }
 
         clientHandlerRMI = new ClientHandlerRMI(clientRMI, nickName);
-        String hashedMessage = clientHandlerRMI.computeHashOfClientHandler();
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5"); // 128 bits
-            // @TODO: figure out if it's preferable to use Base64 for bytes to String conversion
-            hashedMessage = Arrays.toString(digest.digest((nickName + clientHandlerRMI.toString()).getBytes()));
-        } catch (NoSuchAlgorithmException ignored){ };
+        clientHandlerRMI.start();
+        String hashedMessage = super.computeHashOfClientHandler(clientHandlerRMI, nickName);
 
         if(this.mainController.createClient(clientHandlerRMI)) {
             synchronized (this.connectedClients) {
@@ -69,7 +61,7 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
             }
             this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
 
-            clientHandlerRMI.update(new CreatedPlayerMessage(clientHandlerRMI.getName(), hashedMessage).setHeader(clientHandlerRMI.getName()));
+            clientHandlerRMI.update(new CreatedPlayerMessage(clientHandlerRMI.getUsername(), hashedMessage).setHeader(clientHandlerRMI.getUsername()));
         }
     }
 
@@ -211,7 +203,10 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
             for (var v : this.connectedClients.entrySet()) {
                 if (v.getValue().y().equals(token)) {
                     clientRMIBefore = v.getKey();
+                    v.getValue().x().interrupt();
                     clientHandlerRMI = new ClientHandlerRMI(clientRMI, v.getValue().x());
+                    clientHandlerRMI.start();
+                    clientHandlerRMI.setGameController(v.getValue().x().getGameController()); //Setting new game controller inside Client RMI Handler
                     this.connectedClients.put(clientRMI, new Tuple<>(clientHandlerRMI, v.getValue().y()));
                     found = true;
                     break;
@@ -232,6 +227,11 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
                 if(!this.connectedClients.containsKey(clientRMI)) {
                     clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER,
                                                                "You are not registered to server! Please register")
+                                                 .setHeader(nickName));
+                }
+                else{
+                    clientRMI.pushUpdate(new GameHandlingError(Error.COULD_NOT_RECONNECT,
+                                                               "Could not reconnect to server!")
                                                  .setHeader(nickName));
                 }
             }
@@ -255,8 +255,10 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
                                                            "Your virtual client is not registered to server! Please register...")
                                              .setHeader((nickName == null) ? "" : nickName));
                 return;
+                //@TODO: check if it is possible to have errors here? If client has already disconnected what happens?
             }
             else{
+                connectedClients.get(clientRMI).x().interrupt();
                 this.mainController.disconnect(this.connectedClients.remove(clientRMI).x());
             }
         }
@@ -268,10 +270,10 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
         String playerName;
         //synchronized(this.lastHeartBeatOfClients) {
             for (VirtualClient virtualClient : this.lastHeartBeatOfClients.keySet()) {
-                if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 4) {
+                if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
                     this.lastHeartBeatOfClients.remove(virtualClient);
                     synchronized (this.connectedClients) {
-                        playerName = this.connectedClients.get(virtualClient).x().getName();
+                        playerName = this.connectedClients.get(virtualClient).x().getUsername();
                     }
                     this.mainController.setPlayerInactive(playerName);
                 }
