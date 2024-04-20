@@ -54,6 +54,7 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         try{
             this.virtualMainServer.newConnection(this, nickname);
             startSendingHeartbeat();
+            setNickname(nickname);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
