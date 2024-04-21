@@ -13,25 +13,28 @@ import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToServer;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ClientHandlerSocket extends ClientHandler implements ObserverMessageToServer<MessageToServer> {
 
-    private Socket socket;
+    private final Socket socket;
+    private final Object socketLock;
     private final ObjectOutputStream outputStream;
     private final ClientToServerGameMessageVisitor messageVisitor;
 
-    public ClientHandlerSocket(ObjectOutputStream objectOutputStream, String nick){
+    public ClientHandlerSocket(ObjectOutputStream objectOutputStream, String nick, Socket socket){
         super(nick, null);
         this.outputStream = objectOutputStream;
         this.messageVisitor = new ClientToServerGameMessageVisitor();
+        this.socket = socket;
+        this.socketLock = new Object();
     }
 
     public ClientHandlerSocket(ObjectOutputStream objectOutputStream, Socket socket){
-        this(objectOutputStream, (String) null);
-        this.socket = socket;
+        this(objectOutputStream, null, socket);
     }
 
     public void pullClientHandlerSocketConfigIntoThis(ClientHandlerSocket clientHandler){
@@ -46,13 +49,19 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
     @Override
     public void sendMessageToClient(MessageToClient message) {
-        synchronized (this.outputStream) {
-            try {
+        try {
+            synchronized (this.socketLock) {
                 this.outputStream.writeObject(message);
                 finalizeSending();
-            } catch (IOException ioException) {
-                System.err.println("[EXCEPTION] IOException occurred while trying to send message " + message.getClass() + " to client named " + this.username + ". Skipping...");
             }
+        }
+        catch (SocketException socketException){
+            if(!socket.isClosed()) {
+                System.err.println("[EXCEPTION] SocketException occurred while trying to shut down input from socket " + socket + " due to: " + socketException.getMessage());
+            }
+        }
+        catch (IOException ioException) {
+            System.err.println("[EXCEPTION] IOException occurred while trying to send message " + message.getClass() + " to client named " + this.username + " because of " + ioException.getMessage() + ". Skipping...");
         }
     }
 
@@ -79,13 +88,18 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
     @Override
     public void interruptClientHandler() {
         try{
-            this.socket.shutdownOutput();
+            synchronized (this.socketLock) {
+                this.socket.shutdownOutput();
+            }
+        }
+        catch (SocketException socketException){
+            if(!this.socket.isClosed()){
+                System.err.println("[EXCEPTION] IOException occurred while trying to shut down output from socket " + socket + " due to: " + socketException.getMessage() + ". Skipping...");
+            }
         }
         catch (IOException ioException){
             System.err.println("[EXCEPTION] IOException occurred while trying to shut down output from socket " + socket + " due to: " + ioException.getMessage() + ". Skipping...");
         }
-
-        this.socket = null; //Maybe errors here?
 
         super.interruptClientHandler();
     }

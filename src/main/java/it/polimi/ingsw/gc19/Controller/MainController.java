@@ -185,6 +185,11 @@ public class MainController {
         if(!checkPlayer(player)){
             return false;
         }
+        if(numPlayer < 2 || numPlayer > 4){
+            player.update(new GameHandlingError(Error.INCORRECT_NUMBER_OF_PLAYERS,
+                                                "Desired number of players is incorrect!")
+                                  .setHeader(player.getName()));
+        }
         synchronized (this.gamesInfo) {
             if (!this.gamesInfo.containsKey(gameName)) {
                 try {

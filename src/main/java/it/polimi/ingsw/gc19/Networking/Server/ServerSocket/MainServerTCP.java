@@ -33,7 +33,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         this.lastHeartBeatOfClients = new ConcurrentHashMap<>();
         this.gameHandlingMessageHandler = new MessageToMainServerVisitor();
         this.heartBeatHandler = new HeartBeatMessageToServerVisitor();
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 5, TimeUnit.MILLISECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 }
                 catch (IOException ioException){
                     System.err.println("[EXCEPTION] IOException occurred while trying to build object output stream from socket " + socket + ". Closing socket...");
-                    closeSocket(socket);
+                    scheduleSocketClosing(socket);
                     return;
                 }
 
@@ -84,6 +84,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
                 messageToServerDispatcher.attachObserver(clientHandlerSocket);
                 this.connectedClients.put(socket, new Triplet<>(clientHandlerSocket, messageToServerDispatcher, null));
+                this.connectedClients.notifyAll();
 
                 lastHeartBeatOfClients.put(socket, new Date().getTime());
             }
@@ -102,13 +103,30 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         }
     }
 
-    public void closeSocket(Socket socket){
+    private void closeSocket(Socket socket){
         try{
             socket.close();
         }
         catch (IOException ioException){
             System.err.println("[IOException] IOException occurred while trying to close socket " + socket + ". Skipping...");
         }
+    }
+
+    public void scheduleSocketClosing(Socket socket){
+        ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
+        ExecutorService scheduledClose = Executors.newSingleThreadExecutor();
+
+        timer.schedule(() -> {
+            closeSocket(socket);
+            scheduledClose.shutdownNow();
+        }, 250, TimeUnit.MILLISECONDS);
+
+        scheduledClose.submit(() -> {
+            while (!socket.isInputShutdown() || !socket.isOutputShutdown()) { };
+            closeSocket(socket);
+            timer.shutdownNow();
+        });
+
     }
 
     private void runHeartBeatTesterForClient(){
@@ -190,30 +208,34 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         public void visit(NewUserMessage message) {
             ClientHandlerSocket clientHandlerSocket;
 
-            synchronized (connectedClients){
-                if(connectedClients.get(clientSocket).z() != null){
+            synchronized (connectedClients) {
+                while(!connectedClients.containsKey(clientSocket)){
+                    try{
+                        connectedClients.wait();
+                    }
+                    catch (InterruptedException interruptedException){
+                        Thread.currentThread().interrupt();
+                    }
+                }
+
+                if (connectedClients.get(clientSocket).z() != null) {
                     connectedClients.get(clientSocket).x().sendMessageToClient(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
                                                                                                      "Your socket client is already connected to server!")
                                                                                        .setHeader(this.nickname));
                     return;
                 }
-                else{
+                else {
                     clientHandlerSocket = connectedClients.get(clientSocket).x();
                 }
-            }
 
-            clientHandlerSocket.setUsername(nickname);
+                clientHandlerSocket.setUsername(nickname);
 
-            if(mainController.createClient(clientHandlerSocket)){
-                String hashedMessage = computeHashOfClientHandler(clientHandlerSocket, nickname);
-                synchronized (connectedClients){
+                if (mainController.createClient(clientHandlerSocket)) {
+                    String hashedMessage = computeHashOfClientHandler(clientHandlerSocket, nickname);
                     connectedClients.put(clientSocket, new Triplet<>(clientHandlerSocket, connectedClients.get(clientSocket).y(), hashedMessage));
-                }
 
-                clientHandlerSocket.sendMessageToClient(new CreatedPlayerMessage(nickname, hashedMessage).setHeader(nickname));
-            }
-            else{
-                clientHandlerSocket.setUsername(null);
+                    clientHandlerSocket.sendMessageToClient(new CreatedPlayerMessage(nickname, hashedMessage).setHeader(nickname));
+                }
             }
         }
 
@@ -222,12 +244,12 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
             Socket socketBefore = null;
             boolean found = false;
 
-            synchronized (connectedClients){
-                for(var v : connectedClients.entrySet()){
-                    if(v.getValue().z() != null && v.getValue().z().equals(message.getToken())) {
+            synchronized (connectedClients) {
+                for (var v : connectedClients.entrySet()) {
+                    if (v.getValue().z() != null && v.getValue().z().equals(message.getToken())) {
                         socketBefore = v.getKey();
 
-                        if(mainController.isPlayerActive(nickname)){
+                        if (mainController.isPlayerActive(nickname)) {
                             connectedClients.get(clientSocket).x().sendMessageToClient(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
                                                                                                              "You are trying to reconnect a client that is already connected to sever!")
                                                                                                .setHeader(nickname));
@@ -238,50 +260,48 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                         break;
                     }
                 }
-            }
 
-            if(found){
+                if (found) {
 
-                if(!socketBefore.equals(clientSocket)){
+                    if (!socketBefore.equals(clientSocket)) {
 
-                    closeSocket(socketBefore);
+                        scheduleSocketClosing(socketBefore);
 
-                    Triplet<ClientHandlerSocket, MessageToServerDispatcher, String> clientBeforeToRemove;
-                    synchronized (connectedClients){
+                        Triplet<ClientHandlerSocket, MessageToServerDispatcher, String> clientBeforeToRemove;
                         clientBeforeToRemove = connectedClients.remove(socketBefore);
+
+                        /*
+                            FIXME: IT MAY CAUSE BUG DURING TESTS: PAY ATTENTION!
+                        */
+                        //if (clientBeforeToRemove != null) {
+                            clientBeforeToRemove.y().removeObserver(MainServerTCP.this);
+                            clientBeforeToRemove.y().removeObserver(clientBeforeToRemove.x());
+                            clientBeforeToRemove.y().interruptMessageDispatcher();
+                            clientBeforeToRemove.y().interruptMessageDispatcher();
+
+                            //synchronized (connectedClients) {
+                                connectedClients.get(clientSocket).x().pullClientHandlerSocketConfigIntoThis(clientBeforeToRemove.x());
+                                connectedClients.put(clientSocket, new Triplet<>(connectedClients.get(clientSocket).x(), connectedClients.get(clientSocket).y(), clientBeforeToRemove.z()));
+
+                                connectedClients.remove(socketBefore);
+                            //}
+                        //}
                     }
 
-                    /*
-                        FIXME: IT MAY CAUSE BUG DURING TESTS: PAY ATTENTION!
-                    */
-                    if (clientBeforeToRemove != null) {
-                        clientBeforeToRemove.y().removeObserver(MainServerTCP.this);
-                        clientBeforeToRemove.y().removeObserver(clientBeforeToRemove.x());
-                        clientBeforeToRemove.y().interruptMessageDispatcher();
-                        clientBeforeToRemove.y().interruptMessageDispatcher();
+                    lastHeartBeatOfClients.put(clientSocket, new Date().getTime());
 
-                        synchronized (connectedClients) {
-                            connectedClients.get(clientSocket).x().pullClientHandlerSocketConfigIntoThis(clientBeforeToRemove.x());
-                            connectedClients.put(clientSocket, new Triplet<>(connectedClients.get(clientSocket).x(), connectedClients.get(clientSocket).y(), clientBeforeToRemove.z()));
-
-                            connectedClients.remove(socketBefore);
+                    //synchronized (connectedClients) {
+                        if (connectedClients.get(clientSocket).x().getUsername() != null) {
+                            mainController.reconnect(connectedClients.get(clientSocket).x());
                         }
-                    }
+                    //}
                 }
-
-                lastHeartBeatOfClients.put(clientSocket, new Date().getTime());
-
-                synchronized (connectedClients){
-                    if(connectedClients.get(clientSocket).x().getUsername() != null){
-                        mainController.reconnect(connectedClients.get(clientSocket).x());
-                    }
-                }
-            }
-            else{
-                synchronized (connectedClients){
-                    connectedClients.get(clientSocket).x().sendMessageToClient(new GameHandlingError(Error.COULD_NOT_RECONNECT,
-                                                                                                     "Can't perform reconnection!")
-                                                                                       .setHeader(nickname));
+                else {
+                    //synchronized (connectedClients) {
+                        connectedClients.get(clientSocket).x().sendMessageToClient(new GameHandlingError(Error.COULD_NOT_RECONNECT,
+                                                                                                         "Can't perform reconnection!")
+                                                                                           .setHeader(nickname));
+                    //}
                 }
             }
         }

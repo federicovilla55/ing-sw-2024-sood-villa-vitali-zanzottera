@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.*;
 
 public class TCPConnectionAcceptor extends Thread {
 
@@ -32,7 +31,9 @@ public class TCPConnectionAcceptor extends Thread {
             clientSocket = null;
             try {
                 clientSocket = serverSocket.accept();
-            } catch (IOException ioException) {
+            }
+            catch (SocketException ignored){ }
+            catch (IOException ioException) {
                 System.err.println("[EXCEPTION] IOException occurred while trying to accept connection from socket: " + ioException + " " + "Description: " + ioException.getMessage());
             }
             if (clientSocket != null) {

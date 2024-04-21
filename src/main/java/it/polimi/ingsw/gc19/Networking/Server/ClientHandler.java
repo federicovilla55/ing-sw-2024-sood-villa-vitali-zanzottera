@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
 import it.polimi.ingsw.gc19.Controller.GameController;
+import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
@@ -30,8 +31,14 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
     }
 
     public void run(){
-        while(!Thread.interrupted()){
-            ClientHandler.this.sendMessage();
+        while(!Thread.currentThread().isInterrupted()){
+            try {
+                ClientHandler.this.sendMessage();
+            }
+            catch (InterruptedException interruptedException){
+                Thread.currentThread().interrupt();
+                return;
+            }
         }
     }
 
@@ -96,14 +103,16 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
      * method for sending it through the network (RMI or TCP for this project)
      * with {@link ClientHandlerRMI#sendMessageToClient(MessageToClient)}
      */
-    protected void sendMessage(){
+    protected void sendMessage() throws InterruptedException {
         MessageToClient messageToSend;
         synchronized(messageQueue){
             while(messageQueue.isEmpty()){
                 try{
                     messageQueue.wait();
                 }
-                catch(InterruptedException ignored){ };
+                catch(InterruptedException interruptedException){
+                    throw new InterruptedException();
+                };
             }
             messageToSend = this.messageQueue.remove();
             if(messageToSend.getHeader() == null || messageToSend.getHeader().contains(username)) {

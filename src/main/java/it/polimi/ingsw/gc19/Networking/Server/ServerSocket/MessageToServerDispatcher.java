@@ -11,11 +11,13 @@ import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToServer;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class MessageToServerDispatcher extends Thread implements ObservableMessageToServer<MessageToServer>{
-    private Socket socket;
+    private final Socket socket;
+    private final Object socketLock;
     private final ObjectInputStream objectInputStream;
     private final Set<ObserverMessageToServer<MessageToServer>> attachedObserver;
 
@@ -23,6 +25,7 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
         super();
 
         this.socket = socket;
+        this.socketLock = new Object();
         ObjectInputStream objectInputStream = null;
         try{
             objectInputStream = new ObjectInputStream(this.socket.getInputStream());
@@ -47,9 +50,7 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
 
     @Override
     public void removeObserver(ObserverMessageToServer<MessageToServer> observer) {
-        System.out.println("entrato");
         synchronized (this.attachedObserver) {
-            System.out.println("entrato in sync");
             this.attachedObserver.remove(observer);
         }
     }
@@ -63,7 +64,7 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
             try {
                 incomingMessage = (MessageToServer) MessageToServerDispatcher.this.objectInputStream.readObject();
             }
-            catch (EOFException eofException){
+            catch (EOFException | SocketException exception){
                 break;
             }
             catch (IOException ioException) {
@@ -74,21 +75,30 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
             }
 
             if(incomingMessage != null) {
+                Set<ObserverMessageToServer<MessageToServer>> observersToNotify;
                 synchronized (this.attachedObserver) {
-                    for (ObserverMessageToServer<MessageToServer> o : new HashSet<>(this.attachedObserver)) {
-                        if (o.accept(incomingMessage)) o.update(socket, incomingMessage);
-                    }
+                    observersToNotify = new HashSet<>(this.attachedObserver);
+                }
+                for (ObserverMessageToServer<MessageToServer> o : observersToNotify) {
+                    if (o.accept(incomingMessage)) o.update(socket, incomingMessage);
                 }
             }
         }
     }
 
     public void interruptMessageDispatcher(){
-        try{
-            socket.shutdownInput();
-        }
-        catch (IOException ioException){
-            System.err.println("[EXCEPTION] IOException occurred while trying to shut down input from socket " + socket + " due to: " + ioException.getMessage() + ". Skipping...");
+        synchronized (this.socketLock) {
+            try {
+                socket.shutdownInput();
+            }
+            catch (SocketException socketException){
+                if(!this.socket.isClosed()){
+                    System.err.println("[EXCEPTION] SocketException occurred while trying to shut down input from socket " + socket + " due to: " + socketException.getMessage());
+                }
+            }
+            catch (IOException ioException) {
+                System.err.println("[EXCEPTION] IOException occurred while trying to shut down input from socket " + socket + " due to: " + ioException.getMessage() + ". Skipping...");
+            }
         }
 
         this.interrupt();
