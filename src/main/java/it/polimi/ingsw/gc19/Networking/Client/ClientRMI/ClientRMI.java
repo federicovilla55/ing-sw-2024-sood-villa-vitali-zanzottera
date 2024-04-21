@@ -50,6 +50,7 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
 
     }
 
+    @Override
     public void connect(){
         try{
             this.virtualMainServer.newConnection(this, nickname);
@@ -60,10 +61,6 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         }
     }
 
-    @Override
-    public void connect(String nickname) {
-
-    }
 
     public void createGame(String gameName, int numPlayers){
         try {
@@ -135,7 +132,6 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
                 throw new RuntimeException(e);
             }
         }, 0, 100, TimeUnit.MILLISECONDS);
-
     }
 
     public void stopSendingHeartbeat() {
@@ -200,6 +196,7 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         }
     }
 
+    @Override
     public void waitForMessage(Class<? extends MessageToClient> messageToClientClass) {
         synchronized (this.incomingMessages) {
             while (this.incomingMessages.stream().noneMatch(messageToClientClass::isInstance)) {
@@ -212,10 +209,12 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         }
     }
 
+    @Override
     public MessageToClient getMessage() {
         return getMessage(MessageToClient.class);
     }
 
+    @Override
     public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass) {
         synchronized (this.incomingMessages) {
             while (!this.incomingMessages.isEmpty()) {
