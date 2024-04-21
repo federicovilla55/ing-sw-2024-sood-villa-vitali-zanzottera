@@ -50,6 +50,7 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
 
     }
 
+    @Override
     public void connect(){
         try{
             this.virtualMainServer.newConnection(this, nickname);
@@ -60,10 +61,6 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         }
     }
 
-    @Override
-    public void connect(String nickname) {
-
-    }
 
     public void createGame(String gameName, int numPlayers){
         try {

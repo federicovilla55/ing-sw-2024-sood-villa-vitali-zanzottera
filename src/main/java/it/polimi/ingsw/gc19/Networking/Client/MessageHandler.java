@@ -32,22 +32,22 @@ public class MessageHandler implements AllMessageVisitor {
 
     public MessageHandler(ClientInterface client){
         this.client = client;
-        this.localModel = null;
+        this.localModel = new LocalModel();
     }
 
     @Override
     public void visit(AcceptedChooseGoalCard message) {
-        this.localModel.setPrivateGoal(message.getGoalCard());
+        //this.localModel.setPrivateGoal(message.getGoalCard());
     }
 
     @Override
     public void visit(AcceptedColorMessage message) {
-        this.localModel.setColor(message.getChosenColor());
+        //this.localModel.setColor(message.getChosenColor());
     }
 
     @Override
     public void visit(OwnAcceptedPickCardFromDeckMessage message) {
-        this.localModel.updateCardsInHand(message.getPickedCard());
+        //this.localModel.updateCardsInHand(message.getPickedCard());
     }
 
     @Override
@@ -56,24 +56,24 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(AcceptedPickCardFromTable message) {
-        if(message.getNick().equals(localModel.getNickname())){
+        /*if(message.getNick().equals(localModel.getNickname())){
             this.localModel.updateCardsInHand(message.getPickedCard());
         }
 
-        this.localModel.updateCardsInTable(message.getPickedCard(), message.getDeckType(), message.getCoords());
+        this.localModel.updateCardsInTable(message.getPickedCard(), message.getDeckType(), message.getCoords());*/
     }
 
     @Override
     public void visit(AcceptedPlaceCardMessage message) {
-        if(this.localModel.getNickname().equals(message.getNick())){
-            this.localModel.placeCardPersonalStation(null /*@todo: message.getAnchorCode()*/, message.getCardToPlace(),
+        /*if(this.localModel.getNickname().equals(message.getNick())){
+            this.localModel.placeCardPersonalStation(null, message.getCardToPlace(),
                                                     message.getDirection(), message.getCardToPlace().getCardOrientation());
-        }
+        }*/
     }
 
     @Override
     public void visit(AcceptedPlaceInitialCard message) {
-        this.localModel.placeInitialCardOtherStation(message.getNick(), message.getInitialCard().getCardOrientation());
+        //this.localModel.placeInitialCardOtherStation(message.getNick(), message.getInitialCard().getCardOrientation());
     }
 
     @Override
@@ -93,8 +93,8 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(GameConfigurationMessage message) {
-        this.localModel.setNumPlayers(message.getNumPlayers());
-        this.localModel.setFirstPlayer(message.getFirstPlayer());
+        /*this.localModel.setNumPlayers(message.getNumPlayers());
+        this.localModel.setFirstPlayer(message.getFirstPlayer());*/
         // @todo: handle final round and game state
     }
 
@@ -112,10 +112,10 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(TableConfigurationMessage message) {
-        this.localModel.setTable(new LocalTable(message.getSxResource(), message.getDxResource(),
+        /*this.localModel.setTable(new LocalTable(message.getSxResource(), message.getDxResource(),
                         message.getSxGold(), message.getDxGold(), message.getSxPublicGoal(),
                         message.getDxPublicGoal(), message.getNextSeedOfResourceDeck(),
-                        message.getNextSeedOfGoldDeck()));
+                        message.getNextSeedOfGoldDeck()));*/
     }
 
     @Override
@@ -155,7 +155,7 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(AvailableGamesMessage message) {
-        this.localModel.setAvailableGames(message.getAvailableGames());
+        //this.localModel.setAvailableGames(message.getAvailableGames());
     }
 
     @Override
@@ -172,7 +172,7 @@ public class MessageHandler implements AllMessageVisitor {
     @Override
     public void visit(DisconnectedPlayerMessage message) {
         // @ todo: your own disconnection?
-        this.localModel.setPlayerInactive(message.getRemovedNick());
+        //this.localModel.setPlayerInactive(message.getRemovedNick());
     }
 
     @Override
@@ -182,7 +182,7 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(PlayerReconnectedToGameMessage message) {
-        this.localModel.setPlayerActive(message.getPlayerName());
+        //this.localModel.setPlayerActive(message.getPlayerName());
     }
 
     @Override

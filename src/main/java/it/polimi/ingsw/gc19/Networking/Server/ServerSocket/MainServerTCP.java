@@ -114,7 +114,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
     private void runHeartBeatTesterForClient(){
         String playerName;
         ArrayList<Socket> socketToRemove = new ArrayList<>();
-        System.out.println("ENTRATO");
         synchronized (this.lastHeartBeatOfClients){
             for (Socket socket : this.lastHeartBeatOfClients.keySet()) {
                 if (new Date().getTime() - this.lastHeartBeatOfClients.get(socket) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
@@ -123,9 +122,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                     socketToRemove.add(socket);
                 }
             }
-            /*if(!lastHeartBeatOfClients.isEmpty())*/ System.out.println(lastHeartBeatOfClients.size());
             lastHeartBeatOfClients.keySet().removeAll(socketToRemove);
-            System.out.println(lastHeartBeatOfClients.size());
 
             synchronized (this.connectedClients) {
                 for (Socket socket : socketToRemove) {
@@ -140,7 +137,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
             }
 
         }
-        System.out.println("USCITO");
     }
 
     public void resetMainServer() {

@@ -6,7 +6,7 @@ import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 import java.util.*;
 
 public interface ClientInterface {
-    void connect(String nickname);
+    void connect();
 
     void createGame(String gameName, int numPlayers);
 

@@ -154,7 +154,7 @@ public class ClientRMITest {
         VirtualGameServer gameServer3 = this.client3.getVirtualGameServer();
 
         assertMessageEquals(this.client3, new JoinedGameMessage("game3"));
-        assertMessageEquals(new NewPlayerConnectedToGameMessage("Client3"), this.client1, this.client2);
+        assertMessageEquals(new NewPlayerConnectedToGameMessage("client3"), this.client1, this.client2);
 
 
         gameServer3.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Message in chat");
@@ -395,7 +395,7 @@ public class ClientRMITest {
         client1.waitForMessage(GameConfigurationMessage.class);
         client1.clearMessages();
 
-        this.client2.connect("Client2");
+        this.client2.connect();
 
         this.client2.joinGame("game4");
         VirtualGameServer gameServer2 = this.client2.getVirtualGameServer();

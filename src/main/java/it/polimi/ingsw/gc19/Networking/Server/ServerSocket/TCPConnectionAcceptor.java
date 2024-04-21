@@ -37,7 +37,6 @@ public class TCPConnectionAcceptor extends Thread{
             catch(IOException ioException){
                 //@TODO: handle this exception
             }
-            assert clientSocket != null;
 
             messageToServerDispatcher = new MessageToServerDispatcher(clientSocket);
             messageToServerDispatcher.start();

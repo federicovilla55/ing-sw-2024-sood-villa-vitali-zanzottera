@@ -23,7 +23,7 @@ public class LocalModel {
     private String firstPlayer;
     private int numPlayers;
 
-    LocalModel(){
+    public LocalModel(){
         personalStation = null;
         otherStations = null;
     }
