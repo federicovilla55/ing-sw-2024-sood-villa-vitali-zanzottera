@@ -405,6 +405,8 @@ public class ClientTCPTest {
         allPlayersChoosePrivateGoal(client1, client2, client3, client4);
         allPlayersPlacedInitialCard(client1, client2, client3, client4);
 
+        System.out.println("Per ora...");
+
         assertMessageWithHeaderEquals(this.client1,  new StartPlayingGameMessage(this.client1.getNickname()), "client1", "client2", "client3", "client4");
 
         assertMessageWithHeaderEquals(this.client1, new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2", "client3", "client4");

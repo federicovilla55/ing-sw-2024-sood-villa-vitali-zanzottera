@@ -196,6 +196,7 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         }
     }
 
+    @Override
     public void waitForMessage(Class<? extends MessageToClient> messageToClientClass) {
         synchronized (this.incomingMessages) {
             while (this.incomingMessages.stream().noneMatch(messageToClientClass::isInstance)) {
@@ -208,10 +209,12 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         }
     }
 
+    @Override
     public MessageToClient getMessage() {
         return getMessage(MessageToClient.class);
     }
 
+    @Override
     public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass) {
         synchronized (this.incomingMessages) {
             while (!this.incomingMessages.isEmpty()) {

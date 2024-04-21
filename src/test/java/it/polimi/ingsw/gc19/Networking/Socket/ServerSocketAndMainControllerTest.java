@@ -47,6 +47,7 @@ public class ServerSocketAndMainControllerTest {
         this.client2 = new Client("client2");
         this.client3 = new Client("client3");
         this.client4 = new Client("client4");
+        overloadTest(100);
     }
 
     @AfterEach
@@ -783,6 +784,14 @@ public class ServerSocketAndMainControllerTest {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void overloadTest(int numberOfClients) {
+        for(int i = 0; i < numberOfClients; i++){
+            Client client = new Client("client overload " + Integer.toString(i));
+            client.createPlayer();
+            client.startSendingHeartBeat();
         }
     }
 

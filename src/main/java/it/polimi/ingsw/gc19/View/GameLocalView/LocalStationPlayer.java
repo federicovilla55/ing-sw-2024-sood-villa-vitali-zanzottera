@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class LocalStationPlayer {
-    private final String ownerPlayer;
+    /*private final String ownerPlayer;
     // cards in hand
     // private goal card
     private int numPoints;
@@ -81,7 +81,7 @@ public abstract class LocalStationPlayer {
             // Increment currentCount
             currentCount++;
         }
-    }
+    }*/
 
 
 

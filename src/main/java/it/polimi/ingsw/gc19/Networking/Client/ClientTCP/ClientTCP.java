@@ -13,6 +13,8 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
 
@@ -138,8 +140,20 @@ public class ClientTCP implements VirtualClient, ClientInterface {
         this.sendMessage(new JoinGameMessage(gameName, this.nickname));
     }
 
-    public void joinGame(String gameName, boolean use){
-        joinGame(gameName);
+    public void joinGame(String gameName, boolean wait){
+        if(wait){
+            boolean found = false;
+            while (!found) {
+                this.sendMessage(new JoinGameMessage(gameName, this.nickname));
+                if (waitAndNotifyTypeOfMessage(GameHandlingError.class, JoinedGameMessage.class) == 1) {
+                    found = true;
+                } else {
+                    getMessage(GameHandlingError.class);
+                }
+            }
+        }else {
+            joinGame(gameName);
+        }
     }
 
     @Override
@@ -239,6 +253,7 @@ public class ClientTCP implements VirtualClient, ClientInterface {
         }
     }
 
+    @Override
     public void waitForMessage(Class<? extends MessageToClient> messageToClientClass) {
         synchronized (this.incomingMessages) {
             while (this.incomingMessages.stream().noneMatch(messageToClientClass::isInstance)) {
@@ -251,10 +266,28 @@ public class ClientTCP implements VirtualClient, ClientInterface {
         }
     }
 
+    public int waitAndNotifyTypeOfMessage(Class<? extends MessageToClient> messageToClientClass1, Class<? extends MessageToClient> messageToClientClass2) {
+        synchronized (this.incomingMessages) {
+            while (this.incomingMessages.stream().noneMatch(messageToClientClass1::isInstance) && this.incomingMessages.stream().noneMatch(messageToClientClass2::isInstance)) {
+                try {
+                    this.incomingMessages.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if(this.incomingMessages.stream().noneMatch(messageToClientClass1::isInstance)){
+                return 1;
+            }
+            return 0;
+        }
+    }
+
+    @Override
     public MessageToClient getMessage() {
         return getMessage(MessageToClient.class);
     }
 
+    @Override
     public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass) {
         synchronized (this.incomingMessages) {
             while (!this.incomingMessages.isEmpty()) {
