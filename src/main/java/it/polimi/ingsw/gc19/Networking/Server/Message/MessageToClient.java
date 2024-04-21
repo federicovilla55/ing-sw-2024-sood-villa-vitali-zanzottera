@@ -37,7 +37,7 @@ public abstract class MessageToClient implements Remote, Serializable{
      * This method sets the header to the message. Header is the list
      * of players to which the message will be sent
      * @param header is the player to whom message wil be sent
-     * @return
+     * @return {@link MessageToClient} updated
      */
     public MessageToClient setHeader(String header){
         this.setHeader((header==null) ? null : new ArrayList<>(List.of(header)));

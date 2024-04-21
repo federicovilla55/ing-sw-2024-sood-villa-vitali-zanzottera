@@ -7,4 +7,5 @@ public interface GameHandlingMessageVisitor{
     void visit(DisconnectMessage message);
     void visit(JoinGameMessage message);
     void visit(JoinFirstAvailableGameMessage message);
+    void visit(RequestAvailableGamesMessage message);
 }

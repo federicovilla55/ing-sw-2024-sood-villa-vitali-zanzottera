@@ -4,7 +4,6 @@ import it.polimi.ingsw.gc19.Enums.CornerPosition;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.Corner;
-import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Tuple;
 
@@ -79,18 +78,68 @@ public class TUIView {
         return res;
     }
 
-    public String[][] cardTUIView(GoalCard card) {
-        String[][] res = new String[3][5];
-
-        return res;
-    }
-
-    public void printTUICardView(String[][] cardTUIView) {
+    public void printTUIView(String[][] cardTUIView) {
         for (String[] strings : cardTUIView) {
             for (String string : strings) {
                 System.out.print(string);
             }
             System.out.println();
         }
+    }
+
+    public String[][] playerAreaTUIView(List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence) {
+        //determine dimension of the matrix
+        int h;
+        int w;
+
+        //find first and last row with a card placed
+        int firstRow = placedCardSequence.stream().mapToInt(x -> x.y().x()).min().orElse(0);
+        int lastRow = placedCardSequence.stream().mapToInt(x -> x.y().x()).max().orElse(0);
+        //find first and last column with a card placed
+        int firstCol = placedCardSequence.stream().mapToInt(x -> x.y().y()).min().orElse(0);
+        int lastCol = placedCardSequence.stream().mapToInt(x -> x.y().y()).max().orElse(0);
+
+        //compute matrix dimension (real dimension of the smallest rectangle containing all cards)
+        h = lastRow - firstRow + 1;
+        w = lastCol - firstCol + 1;
+
+        //change width and height to a value relative to terminal cells:
+        // width: for every card 5 cells, minus a cell for every card minus 1, simplifying
+        //  w*5-(w-1)=5w-w+1=4w+1
+        // height: for every card 3 cells, minus a cell for every card minus 1, simplifying
+        //  h*3-(h-1)=3h-h+1=2h+1
+        h = 2*h+1;
+        w = 4*w+1;
+
+        // create matrix of "  " strings, each representing two characters to display in console
+        String[][] res = new String[h][w];
+        for (String[] strings : res) {
+            Arrays.fill(strings, "  ");
+        }
+
+        //iterate over all cards and add them to the matrix. Card order is important:
+        //new cards overwrite angles of older cards, so they have to be passed in place order
+        for(Tuple<PlayableCard,Tuple<Integer,Integer>> cardAndPosition
+                : placedCardSequence) {
+            //use firstRow and firstCol to determine position relative to the matrix
+            int relX = cardAndPosition.y().x() - firstRow;
+            int relY = cardAndPosition.y().y() - firstCol;
+
+            //change relX and relY to coordinates to the characters coords
+            relX=2*relX;
+            relY=4*relY;
+
+            String[][] cardTUIView = this.cardTUIView(cardAndPosition.x());
+
+            //iterate on the matrix and place the card
+            for(int i=0; i < cardTUIView.length; i++) {
+                for(int j=0; j < cardTUIView[0].length; j++) {
+                    res[relX+i][relY+j] = cardTUIView[i][j];
+                }
+            }
+
+        }
+
+        return res;
     }
 }
