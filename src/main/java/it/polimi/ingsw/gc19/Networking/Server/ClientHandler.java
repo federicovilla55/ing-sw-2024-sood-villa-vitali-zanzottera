@@ -7,6 +7,8 @@ import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * This class represents the "network interface" with which server can communicate with
@@ -18,11 +20,6 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
 
     protected GameController gameController;
     protected String username;
-
-    // @TODO: maybe use a priority queue.
-    // An example can be done with three ArrayDequeue (one for each priority level)
-    // the methods that use the messageQueue will become more complex (to remove the top
-    // element there's the need to watch all three queues).
     protected final ArrayDeque<MessageToClient> messageQueue;
 
     public ClientHandler(String username, GameController gameController){
@@ -32,7 +29,6 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
         this.messageQueue = new ArrayDeque<>();
     }
 
-    @Override
     public void run(){
         while(!Thread.interrupted()){
             ClientHandler.this.sendMessage();
@@ -85,7 +81,6 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
      */
     @Override
     public void update(MessageToClient message) {
-        System.out.println("arrivato presso client handler " + username + " message " + message.getClass() + "  " + this.hashCode() + "\n" + this.toString());
         synchronized(messageQueue){
             if(message.getMessagePriorityLevel() == MessagePriorityLevel.HIGH) {
                 messageQueue.addFirst(message);
@@ -111,7 +106,6 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
                 catch(InterruptedException ignored){ };
             }
             messageToSend = this.messageQueue.remove();
-            System.out.println(messageToSend.getClass() +  " " + messageToSend.getHeader());
             if(messageToSend.getHeader() == null || messageToSend.getHeader().contains(username)) {
                 this.sendMessageToClient(messageToSend);
             }

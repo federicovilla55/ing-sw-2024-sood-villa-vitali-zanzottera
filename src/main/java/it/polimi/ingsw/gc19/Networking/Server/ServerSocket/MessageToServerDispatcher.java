@@ -21,13 +21,19 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
 
     public MessageToServerDispatcher(Socket socket){
         super();
-        this.socket = socket;
 
+        this.socket = socket;
+        ObjectInputStream objectInputStream = null;
         try{
-            this.objectInputStream = new ObjectInputStream(this.socket.getInputStream());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            objectInputStream = new ObjectInputStream(this.socket.getInputStream());
+        } catch (IOException e) {
+            System.err.println("[Exception] IOException occurred while trying to open Object Input Stream of socket " + socket + ". Closing socket...");
+            try{
+                socket.close();
+            }
+            catch (IOException ignored){ };
         }
+        this.objectInputStream = objectInputStream;
 
         this.attachedObserver = new HashSet<>();
     }
@@ -41,7 +47,9 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
 
     @Override
     public void removeObserver(ObserverMessageToServer<MessageToServer> observer) {
+        System.out.println("entrato");
         synchronized (this.attachedObserver) {
+            System.out.println("entrato in sync");
             this.attachedObserver.remove(observer);
         }
     }
@@ -49,32 +57,41 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
     @Override
     public void run() {
         MessageToServer incomingMessage;
+
         while(!Thread.interrupted()) {
             incomingMessage = null;
-            try{
+            try {
                 incomingMessage = (MessageToServer) MessageToServerDispatcher.this.objectInputStream.readObject();
             }
-            catch (IOException | ClassNotFoundException ioException){
-                //System.out.println(ioException.getMessage());
+            catch (EOFException eofException){
+                break;
+            }
+            catch (IOException ioException) {
+                System.err.println("[EXCEPTION] IOException occurred while trying to read message from socket " + socket + ". " + "Description: " + ioException.getClass());
+            }
+            catch (ClassNotFoundException classNotFoundException) {
+                System.err.println("[EXCEPTION] ClassNotFoundException occurred while trying to deserialize object received from " + socket);
             }
 
             if(incomingMessage != null) {
                 synchronized (this.attachedObserver) {
-                    System.out.println("processing " + incomingMessage.getClass());
-                    for (ObserverMessageToServer<MessageToServer> o : this.attachedObserver) {
+                    for (ObserverMessageToServer<MessageToServer> o : new HashSet<>(this.attachedObserver)) {
                         if (o.accept(incomingMessage)) o.update(socket, incomingMessage);
                     }
                 }
             }
         }
-        System.err.println("Interrupted " + this);
     }
 
     public void interruptMessageDispatcher(){
-        socket = null;
+        try{
+            socket.shutdownInput();
+        }
+        catch (IOException ioException){
+            System.err.println("[EXCEPTION] IOException occurred while trying to shut down input from socket " + socket + " due to: " + ioException.getMessage() + ". Skipping...");
+        }
+
         this.interrupt();
     }
-
-    //@TODO: implement logic for destruction of thread and object. at the end of game? alla fine del gioco non devo fare nulla si occupa di tutto il main controller
 
 }

@@ -66,6 +66,7 @@ public class MessageFactory implements ObservableMessageToClient<MessageToClient
      * This method is used to attach an anonymous observer to {@link MessageFactory}
      * @param observerMessageToClient observer to attach
      */
+    @Override
     public void attachObserver(ObserverMessageToClient<MessageToClient> observerMessageToClient){
         synchronized (this.mockedView) {
             this.mockedView.add(observerMessageToClient);

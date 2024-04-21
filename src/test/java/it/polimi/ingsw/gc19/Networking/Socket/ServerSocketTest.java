@@ -408,9 +408,8 @@ public class ServerSocketTest {
         assertMessageWithHeaderEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2", "client3", "client4");
 
         this.client3.disconnect();
-        this.client4.disconnect();
-
         assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client3"), "client1", "client2", "client4");
+        this.client4.disconnect();
         assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client4"), "client1", "client2");
 
 

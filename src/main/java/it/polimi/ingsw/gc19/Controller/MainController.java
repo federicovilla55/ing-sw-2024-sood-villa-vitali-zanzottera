@@ -314,7 +314,7 @@ public class MainController {
      * available for more than <code>B</code>, first element of the array list can be <code>B</code>.
      * @return an <code>ArrayList<String></code> containing all available games names.
      */
-    private ArrayList<String> findAvailableGames() {
+    public ArrayList<String> findAvailableGames() {
         synchronized (this.gamesInfo) {
             return this.gamesInfo.entrySet()
                                  .stream()
