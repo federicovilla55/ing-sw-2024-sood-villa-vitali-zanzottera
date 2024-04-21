@@ -43,17 +43,17 @@ public class ClientTCP implements VirtualClient, ClientInterface {
 
     public ClientTCP(String nickname){
         try {
-            this.nickname = nickname;
             this.socket = new Socket(Settings.DEFAULT_SERVER_IP, Settings.DEFAULT_SERVER_PORT);
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
-            this.incomingMessages = new ArrayDeque<>();
-            this.messageHandler = new MessageHandler(this);
-            this.incomingMessageHandler.submit(this::receiveMessages);
             this.startSendingHeartbeat();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        this.nickname = nickname;
+        this.incomingMessages = new ArrayDeque<>();
+        this.messageHandler = new MessageHandler(this);
+        this.incomingMessageHandler.submit(this::receiveMessages);
     }
 
     public void sendMessage(MessageToServer message){
@@ -88,8 +88,8 @@ public class ClientTCP implements VirtualClient, ClientInterface {
 
     public void stopClient(){
         try {
-            if (inputStream != null) inputStream.close();
-            if (outputStream != null) outputStream.close();
+            //if (inputStream != null) inputStream.close();
+            //if (outputStream != null) outputStream.close();
             if (socket != null) this.socket.close();
 
             this.incomingMessageHandler.shutdownNow();

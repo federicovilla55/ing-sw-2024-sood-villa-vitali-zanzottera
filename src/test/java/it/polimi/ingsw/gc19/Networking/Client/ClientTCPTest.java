@@ -19,9 +19,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHa
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -36,9 +34,18 @@ public class ClientTCPTest {
     private ClientTCP client1, client2, client3, client4;
     private HashMap<ClientTCP, PlayableCard> clientsAnchors;
 
+    @BeforeAll
+    public static void setUpBeforeClass() {
+        ServerApp.startTCP();
+    }
+
+    @AfterAll
+    public static void tearDownAfterClass() {
+        ServerApp.stopTCP();
+    }
+
     @BeforeEach
     public void setUp() {
-        ServerApp.startTCP();
         client1 = new ClientTCP("client1");
         client2 = new ClientTCP("client2");
         client3 = new ClientTCP("client3");
@@ -56,7 +63,6 @@ public class ClientTCPTest {
         this.client3.stopClient();
         this.client4.disconnect();
         this.client4.stopClient();
-        ServerApp.stopTCP();
     }
 
     @Test
