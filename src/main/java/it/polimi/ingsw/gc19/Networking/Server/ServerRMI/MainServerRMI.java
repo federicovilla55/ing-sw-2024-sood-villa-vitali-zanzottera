@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class MainServerRMI extends Server implements VirtualMainServer, Remote{
+public class MainServerRMI extends Server implements VirtualMainServer, VirtualMainServerForTests, Remote{
 
     private final HashMap<VirtualClient, Tuple<ClientHandlerRMI, String>> connectedClients;
     private final ConcurrentHashMap<VirtualClient, Long> lastHeartBeatOfClients;
@@ -268,17 +268,15 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
 
     private void runHeartBeatTesterForClient(){
         String playerName;
-        //synchronized(this.lastHeartBeatOfClients) {
-            for (VirtualClient virtualClient : this.lastHeartBeatOfClients.keySet()) {
-                if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
-                    this.lastHeartBeatOfClients.remove(virtualClient);
-                    synchronized (this.connectedClients) {
-                        playerName = this.connectedClients.get(virtualClient).x().getUsername();
-                    }
-                    this.mainController.setPlayerInactive(playerName);
+        for (VirtualClient virtualClient : this.lastHeartBeatOfClients.keySet()) {
+            if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
+                this.lastHeartBeatOfClients.remove(virtualClient);
+                synchronized (this.connectedClients) {
+                    playerName = this.connectedClients.get(virtualClient).x().getUsername();
                 }
+                this.mainController.setPlayerInactive(playerName);
             }
-        //}
+        }
     }
 
     /**
@@ -288,11 +286,9 @@ public class MainServerRMI extends Server implements VirtualMainServer, Remote{
      */
     @Override
     public void heartBeat(VirtualClient virtualClient) throws RemoteException{
-        //synchronized(this.lastHeartBeatOfClients){
-            if(this.lastHeartBeatOfClients.containsKey(virtualClient)) {
-                this.lastHeartBeatOfClients.put(virtualClient, new Date().getTime());
-            }
-        //}
+        if(this.lastHeartBeatOfClients.containsKey(virtualClient)) {
+            this.lastHeartBeatOfClients.put(virtualClient, new Date().getTime());
+        }
     }
 
     /**

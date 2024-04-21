@@ -51,7 +51,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
                 this.outputStream.writeObject(message);
                 finalizeSending();
             } catch (IOException ioException) {
-                System.err.println("[EXCEPTION] IOException occurred while trying to send message " + message.getClass() + " to client named " + this.username);
+                System.err.println("[EXCEPTION] IOException occurred while trying to send message " + message.getClass() + " to client named " + this.username + ". Skipping...");
             }
         }
     }
@@ -83,9 +83,9 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         }
         catch (IOException ioException){
             System.err.println("[EXCEPTION] IOException occurred while trying to shut down output from socket " + socket + " due to: " + ioException.getMessage() + ". Skipping...");
-        };
+        }
 
-        //this.socket = null;
+        this.socket = null; //Maybe errors here?
 
         super.interruptClientHandler();
     }

@@ -21,6 +21,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServerForTests;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ClientRMITest {
-    private static VirtualMainServer virtualMainServer;
+    private static VirtualMainServerForTests virtualMainServer;
     private static Registry registry;
 
     // Hashmap to save the get the anchor for the placeCard.
@@ -49,7 +50,7 @@ public class ClientRMITest {
     public static void setUpServer() throws IOException, NotBoundException {
         ServerApp.startRMI();
         registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+        virtualMainServer = (VirtualMainServerForTests) registry.lookup(Settings.mainRMIServerName);
     }
 
     @BeforeEach

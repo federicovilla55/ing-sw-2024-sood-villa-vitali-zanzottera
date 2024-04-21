@@ -39,16 +39,15 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
     /**
      * This method sends a message to the client using RMI. It overrides
      * method {@link ClientHandler#sendMessageToClient(MessageToClient)} for <code>ClientHandler</code>
-     *
      * @param message the message to be sent to client
      */
     @Override
     public void sendMessageToClient(MessageToClient message) {
         try {
             virtualClientAssociated.pushUpdate(message);
-        } catch (RemoteException remoteException) {
-            //System.out.println("Remote Exception: " + remoteException.getMessage() + "  -> " + message.getClass());
-            //@TODO: handle this exception
+        }
+        catch (RemoteException remoteException) {
+            System.err.println("[EXCEPTION] Remote Exception occurred while trying to send message to client RMI " + virtualClientAssociated + " with RMI. Skipping...");
         }
     }
 
