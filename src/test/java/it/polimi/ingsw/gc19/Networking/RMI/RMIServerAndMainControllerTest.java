@@ -19,6 +19,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServerForTests;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
@@ -39,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RMIServerAndMainControllerTest {
-    private static VirtualMainServer virtualMainServer;
+    private static VirtualMainServerForTests virtualMainServer;
     private static Registry registry;
     private Client client1, client2, client3, client4, client5;
 
@@ -47,7 +48,7 @@ public class RMIServerAndMainControllerTest {
     public static void setUpServer() throws IOException, NotBoundException {
         ServerApp.startRMI();
         registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+        virtualMainServer = (VirtualMainServerForTests) registry.lookup(Settings.mainRMIServerName);
         overloadTest(100);
     }
 

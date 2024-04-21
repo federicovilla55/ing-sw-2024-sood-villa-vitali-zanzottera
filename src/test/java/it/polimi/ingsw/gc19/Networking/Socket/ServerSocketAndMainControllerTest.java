@@ -8,7 +8,6 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
@@ -24,7 +23,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -38,7 +36,7 @@ import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ServerSocketTest {
+public class ServerSocketAndMainControllerTest {
 
     private Client client1, client2, client3, client4;
 

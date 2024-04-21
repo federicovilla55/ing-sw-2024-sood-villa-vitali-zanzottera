@@ -62,8 +62,11 @@ public class ServerApp {
         }
     }
 
+    public static void stopRMI(){
+
+    }
+
     public static void stopTCP(){
-        System.out.println("pass");
         mainServerTCP.killClientHandlers();
         mainServerTCP.resetMainServer();
         MainTcp.interruptTCPConnectionAcceptor();

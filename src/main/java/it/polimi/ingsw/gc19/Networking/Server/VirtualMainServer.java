@@ -14,6 +14,7 @@ public interface VirtualMainServer extends Remote {
     VirtualGameServer reconnect(VirtualClient clientRMI, String nickName, String token) throws RemoteException;
     void disconnect(VirtualClient clientRMI, String nickName) throws RemoteException;
     void heartBeat(VirtualClient clientRMI) throws RemoteException;
-    void resetMainServer() throws RemoteException;
 
 }
+
+
