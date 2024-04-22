@@ -163,7 +163,6 @@ public class MainController {
             if(gameController.getGameAssociated().getGameState() == GameState.SETUP && gameController.getConnectedClients().isEmpty()){
                 this.gamesInfo.remove(gameName);
             }
-            player.update(new DisconnectGameMessage(gameName).setHeader(player.getUsername()));
         }
     }
 
