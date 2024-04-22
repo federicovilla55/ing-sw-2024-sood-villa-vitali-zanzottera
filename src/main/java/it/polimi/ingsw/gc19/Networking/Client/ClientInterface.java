@@ -1,12 +1,13 @@
 package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Enums.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 
 import java.util.*;
 
 public interface ClientInterface {
-    void connect(String nickname);
+    void connect();
 
     void createGame(String gameName, int numPlayers);
 
@@ -45,4 +46,11 @@ public interface ClientInterface {
     void setGameName(String gameName);
 
     String getGameName();
+
+    public void waitForMessage(Class<? extends MessageToClient> messageToClientClass);
+
+    public MessageToClient getMessage();
+
+    public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass);
+
 }

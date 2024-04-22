@@ -97,6 +97,12 @@ public class Station extends Publisher{
         this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(), new AcceptedChooseGoalCard(this.getPrivateGoalCard()));
     }
 
+    public void setPrivateGoalCard(GoalCard goalCard) {
+        int cardIdx = goalCard.equals(privateGoalCardsInStation[0]) ? 0 : 1;
+        setPrivateGoalCard(cardIdx);
+    }
+
+
     /**
      * This method updates station's points after card utilization
      * @param card the card to use to update points
@@ -298,5 +304,9 @@ public class Station extends Publisher{
 
     public List<Tuple<PlayableCard, Tuple<Integer, Integer>>> getPlacedCardSequence() {
         return this.cardSchema.getPlacedCardSequence();
+    }
+
+    public Player getOwnerPlayer(){
+        return this.ownerPlayer;
     }
 }

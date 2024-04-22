@@ -14,7 +14,6 @@ import java.util.Map;
  * a certain game and needs to be updated about game and player state
  */
 public class OtherStationConfigurationMessage extends ConfigurationMessage {
-
     private final String nick;
     private final Color color;
     private final Map<Symbol, Integer> visibleSymbols;
