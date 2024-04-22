@@ -112,7 +112,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
         /**
          * This method is used to visit a {@link ChosenGoalCardMessage}.
-         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
          * @param message
          */
@@ -130,7 +130,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
         /**
          * This method is used to visit a {@link DirectionOfInitialCardMessage}.
-         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
          * @param message
          */
@@ -148,7 +148,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
         /**
          * This method is used to visit a {@link PlaceCardMessage}.
-         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
          * @param message
          */
@@ -166,7 +166,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
         /**
          * This method is used to visit a {@link ChosenColorMessage}.
-         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
          * @param message
          */
@@ -184,7 +184,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
         /**
          * This method is used to visit a {@link PickCardFromDeckMessage}.
-         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
          * @param message
          */
@@ -202,7 +202,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
         /**
          * This method is used to visit a {@link PickCardFromTableMessage}.
-         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
          * @param message
          */
@@ -220,7 +220,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
         /**
          * This method is used to visit a {@link PlayerChatMessage}.
-         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
          * @param message
          */
