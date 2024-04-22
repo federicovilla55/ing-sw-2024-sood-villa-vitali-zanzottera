@@ -11,6 +11,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGame
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Server;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToServer;
@@ -111,9 +113,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
             }
 
             if(this.connectedClients.get(socket).z() == null){
-                this.connectedClients.get(socket).x().sendMessageToClient(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER,
-                                                                                              "Your player is not registered to server! Please register...")
-                                                                                .setHeader(nick));
+                this.connectedClients.get(socket).x().sendMessageToClient(new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER,
+                                                                                                          "Your player is not registered to server! Please register...")
+                                                                                  .setHeader(nick));
                 return null;
             }
             return this.connectedClients.get(socket).x();
@@ -230,8 +232,8 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
             synchronized (connectedClients) {
                 if (connectedClients.get(clientSocket).z() != null) {
-                    connectedClients.get(clientSocket).x().sendMessageToClient(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
-                                                                                                     "Your socket client is already connected to server!")
+                    connectedClients.get(clientSocket).x().sendMessageToClient(new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,
+                                                                                                               "Your socket client is already connected to server!")
                                                                                        .setHeader(this.nickname));
                     return;
                 }
@@ -261,8 +263,8 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                         socketBefore = v.getKey();
 
                         if (mainController.isPlayerActive(nickname)) {
-                            connectedClients.get(clientSocket).x().sendMessageToClient(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
-                                                                                                             "You are trying to reconnect a client that is already connected to sever!")
+                            connectedClients.get(clientSocket).x().sendMessageToClient(new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,
+                                                                                                                       "You are trying to reconnect a client that is already connected to sever!")
                                                                                                .setHeader(nickname));
                             return;
                         }
@@ -309,7 +311,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 }
                 else {
                     //synchronized (connectedClients) {
-                        connectedClients.get(clientSocket).x().sendMessageToClient(new GameHandlingError(Error.COULD_NOT_RECONNECT,
+                        connectedClients.get(clientSocket).x().sendMessageToClient(new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT,
                                                                                                          "Can't perform reconnection!")
                                                                                            .setHeader(nickname));
                     //}

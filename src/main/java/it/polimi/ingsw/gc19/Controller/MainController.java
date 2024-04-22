@@ -256,20 +256,14 @@ public class MainController {
      * @param player is the {@link ClientHandler} of the player to be registered
      * @return name of joined game if it exists, otherwise null.
      */
-    public String registerToFirstAvailableGame(ClientHandler player) {
+    public boolean registerToFirstAvailableGame(ClientHandler player) {
         ArrayList<String> availableGames = findAvailableGames();
         if(!findAvailableGames().isEmpty()) {
-            String gameName = findAvailableGames().getFirst();
-            if(registerToGame(player, this.findAvailableGames().getFirst())){
-                return gameName;
-            }
-            else{
-                return null;
-            }
+            return !availableGames.isEmpty() && registerToGame(player, availableGames.getFirst());
         }
         else{
             player.update(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, "Attention, there aren't games to join! Try later...").setHeader(player.getUsername()));
-            return null;
+            return false;
         }
     }
 

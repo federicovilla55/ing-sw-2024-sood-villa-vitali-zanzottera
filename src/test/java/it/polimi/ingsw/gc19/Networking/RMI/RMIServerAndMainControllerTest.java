@@ -18,6 +18,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
@@ -126,7 +128,7 @@ public class RMIServerAndMainControllerTest {
 
         this.client1.connect();
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
         assertNull(this.client2.getMessage());
         assertNull(this.client3.getMessage());
         assertNull(this.client4.getMessage());
@@ -282,7 +284,11 @@ public class RMIServerAndMainControllerTest {
     public void testJoinFirstAvailableGames() throws RemoteException {
         this.client1.connect();
 
-        VirtualGameServer gameServer1 = this.client1.newGame("game4", 2);
+        VirtualGameServer gameServer1 = this.client1.joinFirstAvailableGame();
+        assertMessageEquals(this.client1, new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
+        assertNull(gameServer1);
+
+        gameServer1 = this.client1.newGame("game4", 2);
         assertNotNull(gameServer1);
 
         assertMessageEquals(this.client1, new CreatedGameMessage("game4"));
@@ -371,13 +377,13 @@ public class RMIServerAndMainControllerTest {
 
         this.client1.reconnect();
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
 
         this.client1.stopSendingHeartBeat();
         waitingThread(5000);
         Client client7 = new Client(virtualMainServer, this.client1.getName());
         client7.reconnect();
-        assertMessageEquals(client7, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client7, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         Client client8 = new Client(virtualMainServer, this.client1.getName());
         client8.connect();
@@ -418,7 +424,7 @@ public class RMIServerAndMainControllerTest {
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
         client6.reconnect();
-        assertMessageEquals(client6, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         gameServer2.sendChatMessage(new ArrayList<>(List.of(this.client1.getName(), this.client2.getName())), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client2.getName(), "Chat message after disconnection!"));

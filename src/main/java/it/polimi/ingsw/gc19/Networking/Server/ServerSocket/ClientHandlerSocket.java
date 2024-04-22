@@ -43,10 +43,6 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         this.messageQueue.addAll(clientHandler.getQueueOfMessages());
     }
 
-    public void setUsername(String name){
-        this.username = name;
-    }
-
     @Override
     public void sendMessageToClient(MessageToClient message) {
         try {

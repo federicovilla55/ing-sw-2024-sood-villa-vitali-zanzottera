@@ -1,14 +1,14 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
+import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Model.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
-import it.polimi.ingsw.gc19.Controller.MainController;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.*;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Date;
@@ -52,7 +52,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
         ClientHandlerRMI clientHandlerRMI;
         synchronized(this.connectedClients){
             if(this.connectedClients.containsKey(clientRMI)){
-                clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
+                clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,
                                                            "Your virtual client is already registered in server!")
                                              .setHeader(nickName));
                 return;
@@ -133,8 +133,8 @@ public class MainServerRMI extends Server implements VirtualMainServer{
         ClientHandlerRMI clientHandlerRMI;
         synchronized(this.connectedClients){
             if(!this.connectedClients.containsKey(clientRMI)){
-                clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER,
-                                                           "Your virtual client is not registered to server! Please register...")
+                clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER,
+                                                                     "Your virtual client is not registered to server! Please register...")
                                              .setHeader(nickName));
                 return null;
             }
@@ -174,8 +174,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     @Override
     public VirtualGameServer joinFirstAvailableGame(VirtualClient clientRMI, String nickName) throws RemoteException {
         ClientHandlerRMI clientHandlerRMI = getClientHandlerForVirtualClient(clientRMI, nickName);
-        String gameName = this.mainController.registerToFirstAvailableGame(clientHandlerRMI);
-        if(gameName != null){
+        if(this.mainController.registerToFirstAvailableGame(clientHandlerRMI)){
             return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
         }
         return null;
@@ -200,7 +199,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
         ClientHandlerRMI clientHandlerRMI = null;
         boolean found = false;
         if(this.lastHeartBeatOfClients.containsKey(clientRMI)){
-            clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
+            clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,
                                                        "You cannot reconnect to server because you are already connected!")
                                          .setHeader(nickName));
             return null;
@@ -233,12 +232,12 @@ public class MainServerRMI extends Server implements VirtualMainServer{
         else {
             synchronized (this.connectedClients){
                 if(!this.connectedClients.containsKey(clientRMI)) {
-                    clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER,
-                                                               "You are not registered to server! Please register")
+                    clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER,
+                                                                         "You are not registered to server! Please register")
                                                  .setHeader(nickName));
                 }
                 else{
-                    clientRMI.pushUpdate(new GameHandlingError(Error.COULD_NOT_RECONNECT,
+                    clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT,
                                                                "Could not reconnect to server!")
                                                  .setHeader(nickName));
                 }
@@ -259,8 +258,8 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     public void disconnect(VirtualClient clientRMI, String nickName) throws RemoteException {
         synchronized (this.connectedClients){
             if(!this.connectedClients.containsKey(clientRMI)){
-                clientRMI.pushUpdate(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER,
-                                                           "Your virtual client is not registered to server! Please register...")
+                clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER,
+                                                                     "Your virtual client is not registered to server! Please register...")
                                              .setHeader((nickName == null) ? "" : nickName));
                 return;
                 //@TODO: check if it is possible to have errors here? If client has already disconnected what happens?

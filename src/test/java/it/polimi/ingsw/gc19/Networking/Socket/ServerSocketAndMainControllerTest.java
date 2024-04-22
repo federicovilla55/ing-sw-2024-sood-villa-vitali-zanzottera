@@ -21,6 +21,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
@@ -93,7 +95,7 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(this.client4, new CreatedPlayerMessage((this.client4.getName())));
 
         this.client1.createPlayer();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
     }
 
     @Test
@@ -211,16 +213,16 @@ public class ServerSocketAndMainControllerTest {
         this.client1.setToken(token1);
 
         this.client1.reconnect();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.reconnect();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.createPlayer();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.reconnect();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.clearQueue();
         this.client1.stopSendingHeartBeat();
@@ -297,7 +299,7 @@ public class ServerSocketAndMainControllerTest {
         waitingThread(5000);
         Client client7 = new Client(this.client1.getName());
         client7.reconnect();
-        assertMessageEquals(client7, new GameHandlingError(Error.COULD_NOT_RECONNECT, null));
+        assertMessageEquals(client7, new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT, null));
 
         client7.disconnect();
 
@@ -589,7 +591,7 @@ public class ServerSocketAndMainControllerTest {
 
         Client client6 = new Client(this.client2.getName());
         client6.reconnect();
-        assertMessageEquals(client6, new GameHandlingError(Error.COULD_NOT_RECONNECT, null));
+        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT, null));
 
         this.client2.sendChatMessage(new ArrayList<>(List.of(this.client1.getName(), this.client2.getName())), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client2.getName(), "Chat message after disconnection!"));
@@ -601,7 +603,7 @@ public class ServerSocketAndMainControllerTest {
     public void testCreateGame(){
         //Client1 tries to create a game without having registered his player
         this.client1.createGame("game1", 3, 1);
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         this.client1.createPlayer();
         assertMessageEquals(this.client1, new CreatedPlayerMessage(this.client1.getName()));
@@ -619,7 +621,7 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getName()));
 
         this.client3.joinGame("game1", false);
-        assertMessageEquals(this.client3, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(this.client3, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         this.client3.createPlayer();
         this.client3.joinGame("game1", false);
