@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessageVisi
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.ConfigurationMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GameEventsMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessageVisitor;
 
 public interface AllMessageVisitor extends AnswerToActionMessageVisitor,
@@ -13,6 +14,7 @@ public interface AllMessageVisitor extends AnswerToActionMessageVisitor,
                                            GameEventsMessageVisitor,
                                            GameHandlingMessageVisitor,
                                            TurnStateMessageVisitor,
-                                           MessageToClientVisitor{
+                                           MessageToClientVisitor,
+                                           NetworkHandlingErrorMessageVisitor {
 
 }

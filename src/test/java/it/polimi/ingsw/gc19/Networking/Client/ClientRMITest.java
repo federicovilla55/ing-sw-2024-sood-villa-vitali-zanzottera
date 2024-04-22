@@ -48,7 +48,7 @@ public class ClientRMITest {
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException {
-        ServerApp.startRMI();
+        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
         mainServerRMI = ServerApp.getMainServerRMI();
         registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);

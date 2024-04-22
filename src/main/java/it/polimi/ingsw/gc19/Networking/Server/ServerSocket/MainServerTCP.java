@@ -231,6 +231,15 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
             ClientHandlerSocket clientHandlerSocket;
 
             synchronized (connectedClients) {
+                while(!connectedClients.containsKey(clientSocket)){
+                    try{
+                        connectedClients.wait();
+                    }
+                    catch (InterruptedException interruptedException){
+                        Thread.currentThread().interrupt();
+                    }
+                }
+
                 if (connectedClients.get(clientSocket).z() != null) {
                     connectedClients.get(clientSocket).x().sendMessageToClient(new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,
                                                                                                                "Your socket client is already connected to server!")
@@ -283,21 +292,17 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                         Triplet<ClientHandlerSocket, MessageToServerDispatcher, String> clientBeforeToRemove;
                         clientBeforeToRemove = connectedClients.remove(socketBefore);
 
-                        /*
-                            FIXME: IT MAY CAUSE BUG DURING TESTS: PAY ATTENTION!
-                        */
                         //if (clientBeforeToRemove != null) {
-                            clientBeforeToRemove.y().removeObserver(MainServerTCP.this);
-                            clientBeforeToRemove.y().removeObserver(clientBeforeToRemove.x());
-                            clientBeforeToRemove.y().interruptMessageDispatcher();
-                            clientBeforeToRemove.y().interruptMessageDispatcher();
+                        clientBeforeToRemove.y().removeObserver(MainServerTCP.this);
+                        clientBeforeToRemove.y().removeObserver(clientBeforeToRemove.x());
+                        clientBeforeToRemove.y().interruptMessageDispatcher();
+                        clientBeforeToRemove.y().interruptMessageDispatcher();
 
-                            //synchronized (connectedClients) {
-                                connectedClients.get(clientSocket).x().pullClientHandlerSocketConfigIntoThis(clientBeforeToRemove.x());
-                                connectedClients.put(clientSocket, new Triplet<>(connectedClients.get(clientSocket).x(), connectedClients.get(clientSocket).y(), clientBeforeToRemove.z()));
+                        //synchronized (connectedClients) {
+                            connectedClients.get(clientSocket).x().pullClientHandlerSocketConfigIntoThis(clientBeforeToRemove.x());
+                            connectedClients.put(clientSocket, new Triplet<>(connectedClients.get(clientSocket).x(), connectedClients.get(clientSocket).y(), clientBeforeToRemove.z()));
 
-                                connectedClients.remove(socketBefore);
-                            //}
+                            connectedClients.remove(socketBefore);
                         //}
                     }
 

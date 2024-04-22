@@ -12,13 +12,13 @@ public class TCPConnectionAcceptor extends Thread {
     private ServerSocket serverSocket;
     private final MainServerTCP mainServerTCP;
 
-    public TCPConnectionAcceptor(MainServerTCP mainServerTCP) {
+    public TCPConnectionAcceptor(MainServerTCP mainServerTCP, int port) {
         super();
 
         this.mainServerTCP = mainServerTCP;
 
         try {
-            this.serverSocket = new ServerSocket(Settings.DEFAULT_SERVER_PORT);
+            this.serverSocket = new ServerSocket(port);
         } catch (IOException ioException) {
             System.err.println("[EXCEPTION] IOException occurred when trying to build a server socket.");
         }

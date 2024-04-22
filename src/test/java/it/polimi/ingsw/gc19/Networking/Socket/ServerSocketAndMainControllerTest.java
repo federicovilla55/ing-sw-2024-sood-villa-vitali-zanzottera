@@ -7,7 +7,6 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
-import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
@@ -46,7 +45,7 @@ public class ServerSocketAndMainControllerTest {
 
     @BeforeEach
     public void setUp(){
-        ServerApp.startTCP();
+        ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
         this.client1 = new Client("client1");
         this.client2 = new Client("client2");
         this.client3 = new Client("client3");
@@ -806,7 +805,7 @@ class Client{
 
     public Client(String name){
         try{
-            this.socket = new Socket(Settings.DEFAULT_SERVER_IP, Settings.DEFAULT_SERVER_PORT);
+            this.socket = new Socket(Settings.DEFAULT_SERVER_IP, Settings.DEFAULT_TCP_SERVER_PORT);
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         } catch (IOException e) {

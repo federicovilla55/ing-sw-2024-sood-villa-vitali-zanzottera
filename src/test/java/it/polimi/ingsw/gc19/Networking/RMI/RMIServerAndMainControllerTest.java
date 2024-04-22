@@ -49,7 +49,7 @@ public class RMIServerAndMainControllerTest {
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException {
-        ServerApp.startRMI();
+        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
         mainServerRMI = ServerApp.getMainServerRMI();
         Registry registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);

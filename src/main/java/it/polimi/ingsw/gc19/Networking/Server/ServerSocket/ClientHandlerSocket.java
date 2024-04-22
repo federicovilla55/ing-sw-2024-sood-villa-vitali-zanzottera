@@ -10,6 +10,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToServer;
+import it.polimi.ingsw.gc19.ObserverPattern.ObservableMessageToServer;
+import it.polimi.ingsw.gc19.Controller.GameController;
 
 import java.io.*;
 import java.net.Socket;
@@ -63,6 +65,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
 
     /**
      * This is method is used to be sure that message has been sent
+     * @throws IOException if an IO error has occurred
      */
     private void finalizeSending() throws IOException{
         this.outputStream.flush();
@@ -81,6 +84,11 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         return message instanceof ActionMessage || message instanceof PlayerChatMessage;
     }
 
+    /**
+     * This method is used to interrupt thread bounded to the object.
+     * Consequently, it also tries to shut down output stream associated
+     * to own socket.
+     */
     @Override
     public void interruptClientHandler() {
         try{
@@ -101,6 +109,13 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
     }
 
     private class ClientToServerGameMessageVisitor implements MessageToServerVisitor, ActionMessageVisitor, PlayerChatMessageVisitor{
+
+        /**
+         * This method is used to visit a {@link ChosenGoalCardMessage}.
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * is null, it sends {@link GameHandlingError} to the player.
+         * @param message
+         */
         @Override
         public void visit(ChosenGoalCardMessage message){
             if(gameController != null){
@@ -113,6 +128,12 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
             }
         }
 
+        /**
+         * This method is used to visit a {@link DirectionOfInitialCardMessage}.
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * is null, it sends {@link GameHandlingError} to the player.
+         * @param message
+         */
         @Override
         public void visit(DirectionOfInitialCardMessage message){
             if(gameController != null){
@@ -125,6 +146,12 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
             }
         }
 
+        /**
+         * This method is used to visit a {@link PlaceCardMessage}.
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * is null, it sends {@link GameHandlingError} to the player.
+         * @param message
+         */
         @Override
         public void visit(PlaceCardMessage message) {
             if(gameController != null){
@@ -137,6 +164,12 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
             }
         }
 
+        /**
+         * This method is used to visit a {@link ChosenColorMessage}.
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * is null, it sends {@link GameHandlingError} to the player.
+         * @param message
+         */
         @Override
         public void visit(ChosenColorMessage message) {
             if(gameController != null){
@@ -149,6 +182,12 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
             }
         }
 
+        /**
+         * This method is used to visit a {@link PickCardFromDeckMessage}.
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * is null, it sends {@link GameHandlingError} to the player.
+         * @param message
+         */
         @Override
         public void visit(PickCardFromDeckMessage message) {
             if(gameController != null){
@@ -161,6 +200,12 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
             }
         }
 
+        /**
+         * This method is used to visit a {@link PickCardFromTableMessage}.
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * is null, it sends {@link GameHandlingError} to the player.
+         * @param message
+         */
         @Override
         public void visit(PickCardFromTableMessage message) {
             if(gameController != null) {
@@ -173,6 +218,12 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
             }
         }
 
+        /**
+         * This method is used to visit a {@link PlayerChatMessage}.
+         * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController}
+         * is null, it sends {@link GameHandlingError} to the player.
+         * @param message
+         */
         @Override
         public void visit(PlayerChatMessage message) {
             if(gameController != null) {

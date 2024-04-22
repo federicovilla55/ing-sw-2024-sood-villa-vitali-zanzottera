@@ -24,7 +24,7 @@ public class NetworkHandlingErrorMessage extends MessageToClient {
 
     @Override
     public void accept(MessageToClientVisitor visitor) {
-
+        if(visitor instanceof NetworkHandlingErrorMessageVisitor) ((NetworkHandlingErrorMessageVisitor) visitor).visit(this);
     }
 
     @Override

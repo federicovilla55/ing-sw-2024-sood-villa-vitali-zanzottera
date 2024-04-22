@@ -14,6 +14,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 
 import java.util.List;
@@ -183,6 +184,11 @@ public class MessageHandler implements AllMessageVisitor {
         // @todo: how to handle the new turn, should we
         // just change the interface and permit more operation to the
         // client or should we just block them with a method in the client?
+    }
+
+    @Override
+    public void visit(NetworkHandlingErrorMessage message) {
+
     }
 }
 

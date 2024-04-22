@@ -46,5 +46,6 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors;
     opens it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
     exports it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
+    exports it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
 }

@@ -30,6 +30,18 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
         this.messageQueue = new ArrayDeque<>();
     }
 
+    public ClientHandler(String username){
+        this(username, null);
+    }
+
+    public ClientHandler(){
+        this(null, null);
+    }
+
+    /**
+     * This method overrides {@link Thread#run()}. It is used to send message
+     * to client accordingly to his dynamic type
+     */
     public void run(){
         while(!Thread.currentThread().isInterrupted()){
             try {
@@ -40,14 +52,6 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
                 return;
             }
         }
-    }
-
-    public ClientHandler(String username){
-        this(username, null);
-    }
-
-    public ClientHandler(){
-        this(null, null);
     }
 
     /**
@@ -134,6 +138,9 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
         this.gameController = gameController;
     }
 
+    /**
+     * This method is used to interrupt the instance of client handler
+     */
     public void interruptClientHandler(){
         this.interrupt();
     }
