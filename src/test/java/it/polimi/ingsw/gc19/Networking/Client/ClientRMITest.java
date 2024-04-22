@@ -9,7 +9,6 @@ import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
@@ -20,7 +19,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServerForTests;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +36,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ClientRMITest {
-    private static VirtualMainServerForTests virtualMainServer;
+    private static MainServerRMI mainServerRMI;
+    private static VirtualMainServer virtualMainServer;
     private static Registry registry;
 
     // Hashmap to save the get the anchor for the placeCard.
@@ -48,8 +47,9 @@ public class ClientRMITest {
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException {
         ServerApp.startRMI();
+        mainServerRMI = ServerApp.getMainServerRMI();
         registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServerForTests) registry.lookup(Settings.mainRMIServerName);
+        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
     }
 
     @BeforeEach
@@ -608,7 +608,7 @@ public class ClientRMITest {
         this.client1.disconnect();
         this.client2.disconnect();
 
-        virtualMainServer.resetMainServer();
+        mainServerRMI.resetServer();
     }
 
     @AfterAll

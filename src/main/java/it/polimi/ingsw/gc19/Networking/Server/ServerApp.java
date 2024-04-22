@@ -1,7 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
 
-import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.MainServerTCP;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.TCPConnectionAcceptor;
@@ -12,26 +11,13 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.*;
 
 public class ServerApp {
 
-    public static List<ClientHandler> ActiveClient;
-    public static MainController masterMainController;
-
-    public static VirtualMainServer instance;
-
-    private static VirtualMainServer getVirtualMainServer() {
-        if (instance==null)
-            instance = new MainServerRMI();
-        return instance;
-    }
-
     private static Registry registry;
-
-    private static VirtualMainServer stub;
     private static TCPConnectionAcceptor MainTcp;
     private static MainServerTCP mainServerTCP;
+    private static MainServerRMI mainServerRMI;
 
     public static void main(String[] args) throws IOException {
         //List<ClientHandler> ListClient = new ArrayList<ClientHandler>();;
@@ -42,20 +28,21 @@ public class ServerApp {
     }
 
     public static void startRMI() throws RemoteException {
+        mainServerRMI = MainServerRMI.getInstance();
         registry = LocateRegistry.createRegistry(1099);
-        stub = (VirtualMainServer) UnicastRemoteObject.exportObject(ServerApp.getVirtualMainServer(),0);
+        VirtualMainServer stub = (VirtualMainServer) UnicastRemoteObject.exportObject(mainServerRMI, 0);
         registry.rebind(Settings.mainRMIServerName, stub);
     }
 
     public static void startTCP(){
-        mainServerTCP = new MainServerTCP();
+        mainServerTCP = MainServerTCP.getInstance();
         MainTcp = new TCPConnectionAcceptor(mainServerTCP);
         MainTcp.start();
     }
 
     public static void unexportRegistry() {
         try {
-            UnicastRemoteObject.unexportObject(ServerApp.getVirtualMainServer(), true);
+            UnicastRemoteObject.unexportObject(mainServerRMI, true);
             UnicastRemoteObject.unexportObject(registry, true);
         } catch (NoSuchObjectException e) {
             throw new RuntimeException(e);
@@ -63,12 +50,17 @@ public class ServerApp {
     }
 
     public static void stopRMI(){
-
+        mainServerRMI.killClientHandlers();
+        mainServerRMI.resetServer();
     }
 
     public static void stopTCP(){
         mainServerTCP.killClientHandlers();
-        mainServerTCP.resetMainServer();
+        mainServerTCP.resetServer();
         MainTcp.interruptTCPConnectionAcceptor();
+    }
+
+    public static MainServerRMI getMainServerRMI(){
+        return mainServerRMI;
     }
 }

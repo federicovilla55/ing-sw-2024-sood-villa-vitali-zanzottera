@@ -21,19 +21,27 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class MainServerTCP extends Server implements ObserverMessageToServer<MessageToServer> {
+public class MainServerTCP extends Server implements ObserverMessageToServer<MessageToServer>{
 
+    private static MainServerTCP instance = null;
     private final HashMap<Socket, Triplet<ClientHandlerSocket, MessageToServerDispatcher, String>> connectedClients;
     private final ConcurrentHashMap<Socket, Long> lastHeartBeatOfClients;
     private final MessageToMainServerVisitor gameHandlingMessageHandler;
     private final HeartBeatMessageToServerVisitor heartBeatHandler;
 
-    public MainServerTCP(){
+    private MainServerTCP(){
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new ConcurrentHashMap<>();
         this.gameHandlingMessageHandler = new MessageToMainServerVisitor();
         this.heartBeatHandler = new HeartBeatMessageToServerVisitor();
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
+    }
+
+    public static MainServerTCP getInstance(){
+        if(instance == null){
+            instance = new MainServerTCP();
+        }
+        return instance;
     }
 
     @Override
@@ -93,6 +101,15 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
     public ClientHandlerSocket getClientHandlerFromSocket(Socket socket, String nick){
         synchronized (this.connectedClients){
+            while(!connectedClients.containsKey(socket)){
+                try{
+                    connectedClients.wait();
+                }
+                catch (InterruptedException interruptedException){
+                    Thread.currentThread().interrupt();
+                }
+            }
+
             if(this.connectedClients.get(socket).z() == null){
                 this.connectedClients.get(socket).x().sendMessageToClient(new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER,
                                                                                               "Your player is not registered to server! Please register...")
@@ -129,7 +146,8 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
     }
 
-    private void runHeartBeatTesterForClient(){
+    @Override
+    protected void runHeartBeatTesterForClient(){
         String playerName;
         ArrayList<Socket> socketToRemove = new ArrayList<>();
 
@@ -152,7 +170,8 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
     }
 
-    public void resetMainServer() {
+    @Override
+    public void resetServer() {
         synchronized (connectedClients) {
             this.connectedClients.clear();
         }
@@ -162,6 +181,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         this.mainController.resetMainController();
     }
 
+    @Override
     public void killClientHandlers(){
         Set<Tuple<ClientHandlerSocket, MessageToServerDispatcher>> removingObservers = new HashSet<>();
         synchronized (this.connectedClients) {
@@ -209,15 +229,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
             ClientHandlerSocket clientHandlerSocket;
 
             synchronized (connectedClients) {
-                while(!connectedClients.containsKey(clientSocket)){
-                    try{
-                        connectedClients.wait();
-                    }
-                    catch (InterruptedException interruptedException){
-                        Thread.currentThread().interrupt();
-                    }
-                }
-
                 if (connectedClients.get(clientSocket).z() != null) {
                     connectedClients.get(clientSocket).x().sendMessageToClient(new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,
                                                                                                      "Your socket client is already connected to server!")

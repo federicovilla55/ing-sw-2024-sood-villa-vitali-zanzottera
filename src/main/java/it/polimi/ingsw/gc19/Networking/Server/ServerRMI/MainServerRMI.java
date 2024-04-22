@@ -17,16 +17,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class MainServerRMI extends Server implements VirtualMainServer, VirtualMainServerForTests, Remote{
+public class MainServerRMI extends Server implements VirtualMainServer{
 
+    private static MainServerRMI instance;
     private final HashMap<VirtualClient, Tuple<ClientHandlerRMI, String>> connectedClients;
     private final ConcurrentHashMap<VirtualClient, Long> lastHeartBeatOfClients;
 
-    public MainServerRMI(){
+    private MainServerRMI(){
         super();
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new ConcurrentHashMap<>();
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
+    }
+
+    public static MainServerRMI getInstance(){
+        if(instance == null){
+            instance = new MainServerRMI();
+        }
+        return instance;
     }
 
     /**
@@ -265,8 +273,8 @@ public class MainServerRMI extends Server implements VirtualMainServer, VirtualM
         this.lastHeartBeatOfClients.remove(clientRMI);
     }
 
-
-    private void runHeartBeatTesterForClient(){
+    @Override
+    protected void runHeartBeatTesterForClient(){
         String playerName;
         for (VirtualClient virtualClient : this.lastHeartBeatOfClients.keySet()) {
             if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
@@ -296,7 +304,7 @@ public class MainServerRMI extends Server implements VirtualMainServer, VirtualM
      * Used only for testing purposes.
      */
     @Override
-    public void resetMainServer() {
+    public void resetServer() {
         synchronized (connectedClients) {
             this.connectedClients.clear();
         }
@@ -304,6 +312,15 @@ public class MainServerRMI extends Server implements VirtualMainServer, VirtualM
             this.lastHeartBeatOfClients.clear();
         }
         this.mainController.resetMainController();
+    }
+
+    @Override
+    public void killClientHandlers(){
+        synchronized (this.connectedClients){
+            for(var c : this.connectedClients.entrySet()){
+                c.getValue().x().interruptClientHandler();
+            }
+        }
     }
 
 }

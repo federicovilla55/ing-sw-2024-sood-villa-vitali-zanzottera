@@ -30,4 +30,8 @@ public abstract class Server{
         return hashedMessage;
     }
 
+    protected abstract void killClientHandlers();
+    protected abstract void runHeartBeatTesterForClient();
+    protected abstract void resetServer();
+
 }

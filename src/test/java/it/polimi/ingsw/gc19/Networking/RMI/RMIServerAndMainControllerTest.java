@@ -19,7 +19,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServerForTests;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
@@ -40,15 +40,17 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RMIServerAndMainControllerTest {
-    private static VirtualMainServerForTests virtualMainServer;
-    private static Registry registry;
+    private static MainServerRMI mainServerRMI;
+    private static VirtualMainServer virtualMainServer;
     private Client client1, client2, client3, client4, client5;
+    private ArrayList<Client> stressTestClients;
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException {
         ServerApp.startRMI();
-        registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServerForTests) registry.lookup(Settings.mainRMIServerName);
+        mainServerRMI = ServerApp.getMainServerRMI();
+        Registry registry = LocateRegistry.getRegistry("localhost");
+        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
         overloadTest(100);
     }
 
@@ -64,6 +66,7 @@ public class RMIServerAndMainControllerTest {
         this.client3 = new Client(virtualMainServer, "client3");
         this.client4 = new Client(virtualMainServer, "client4");
         this.client5 = new Client(virtualMainServer, "client5");
+        this.stressTestClients = overloadTest(100);
     }
 
     @AfterEach
@@ -78,13 +81,25 @@ public class RMIServerAndMainControllerTest {
         this.client4.destroyHeartBeatThread();
         this.client5.disconnect();
         this.client5.destroyHeartBeatThread();
-        virtualMainServer.resetMainServer();
+        this.killStressTestClients();
+        mainServerRMI.killClientHandlers();
+        mainServerRMI.resetServer();
     }
 
-    private static void overloadTest(int numberOfClients) throws RemoteException {
+    private static ArrayList<Client> overloadTest(int numberOfClients) throws RemoteException {
+        ArrayList<Client> stressTestClients = new ArrayList<>();
         for(int i = 0; i < numberOfClients; i++){
             Client client = new Client(virtualMainServer, "client overload " + Integer.toString(i));
             client.connect();
+            stressTestClients.add(client);
+        }
+        return stressTestClients;
+    }
+
+    private void killStressTestClients() throws RemoteException {
+        for(Client c : this.stressTestClients){
+            c.disconnect();
+            c.stopSendingHeartBeat();
         }
     }
 
