@@ -45,7 +45,7 @@ public class ClientTCP implements VirtualClient, ClientInterface {
 
     public ClientTCP(String nickname){
         try {
-            this.socket = new Socket(Settings.DEFAULT_SERVER_IP, Settings.DEFAULT_SERVER_PORT);
+            this.socket = new Socket(Settings.DEFAULT_SERVER_IP, Settings.DEFAULT_TCP_SERVER_PORT);
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
             this.startSendingHeartbeat();

@@ -18,11 +18,14 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServerForTests;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
+import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -38,8 +41,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClientTCPRMITest {
-    private static VirtualMainServerForTests virtualMainServer;
+    private static VirtualMainServer virtualMainServer;
     private static Registry registry;
+    private static MainServerRMI mainServerRMI;
 
     // Hashmap to save the get the anchor for the placeCard.
     private HashMap<VirtualGameServer, PlayableCard> clientsAnchorsRMI;
@@ -50,10 +54,11 @@ public class ClientTCPRMITest {
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException {
-        ServerApp.startRMI();
-        ServerApp.startTCP();
+        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
+        ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
+        mainServerRMI = ServerApp.getMainServerRMI();
         registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServerForTests) registry.lookup(Settings.mainRMIServerName);
+        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
     }
 
     @BeforeEach
@@ -95,7 +100,7 @@ public class ClientTCPRMITest {
 
         this.client1.connect();
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
         assertNull(this.client2.getMessage());
         assertNull(this.client3.getMessage());
         assertNull(this.client4.getMessage());
@@ -520,7 +525,7 @@ public class ClientTCPRMITest {
 
         this.client1.reconnect();
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
 
         this.client1.startSendingHeartbeat();
 
@@ -533,12 +538,12 @@ public class ClientTCPRMITest {
         ClientRMI client7 = new ClientRMI(virtualMainServer, "client7");
         // @todo: how is the reconnect running without any values in names and token (null values only)???
         client7.reconnect();
-        assertMessageEquals(client7, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client7, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         ClientRMI client8 = new ClientRMI(virtualMainServer, "client8");
         client8.connect();
         client8.reconnect();
-        assertMessageEquals(client8, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(client8, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
     }
 
     @Test
@@ -579,7 +584,7 @@ public class ClientTCPRMITest {
         //Situation: client 2 has disconnected from game
         ClientRMI client6 = new ClientRMI(virtualMainServer, "client6");
         client6.reconnect();
-        assertMessageEquals(client6, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         client2.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage("client2", "Chat message after disconnection!"));
@@ -641,8 +646,7 @@ public class ClientTCPRMITest {
         this.client3.disconnect();
         this.client4.disconnect();
         this.client4.stopClient();
-
-        virtualMainServer.resetMainServer();
+        mainServerRMI.resetServer();
     }
 
 

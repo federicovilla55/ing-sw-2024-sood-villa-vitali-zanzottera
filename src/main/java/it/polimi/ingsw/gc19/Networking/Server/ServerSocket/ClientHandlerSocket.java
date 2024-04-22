@@ -27,16 +27,27 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
     private final ObjectOutputStream outputStream;
     private final ClientToServerGameMessageVisitor messageVisitor;
 
-    public ClientHandlerSocket(ObjectOutputStream objectOutputStream, String nick, Socket socket){
+    public ClientHandlerSocket(String nick, Socket socket) throws IOException{
         super(nick, null);
+
+        ObjectOutputStream objectOutputStream = null;
+
+        try{
+            objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+        }
+        catch (IOException ioException){
+            System.err.println("[EXCEPTION] IOException occurred while trying to build object output stream from socket " + socket + ". Closing socket...");
+            throw new IOException();
+        }
+
         this.outputStream = objectOutputStream;
         this.messageVisitor = new ClientToServerGameMessageVisitor();
         this.socket = socket;
         this.socketLock = new Object();
     }
 
-    public ClientHandlerSocket(ObjectOutputStream objectOutputStream, Socket socket){
-        this(objectOutputStream, null, socket);
+    public ClientHandlerSocket(Socket socket) throws IOException{
+        this(null, socket);
     }
 
     public void pullClientHandlerSocketConfigIntoThis(ClientHandlerSocket clientHandler){

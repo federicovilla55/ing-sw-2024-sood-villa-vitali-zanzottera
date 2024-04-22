@@ -17,8 +17,11 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
+import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import org.junit.jupiter.api.*;
 
 import java.rmi.RemoteException;
@@ -34,18 +37,9 @@ public class ClientTCPTest {
     private ClientTCP client1, client2, client3, client4;
     private HashMap<ClientTCP, PlayableCard> clientsAnchors;
 
-    @BeforeAll
-    public static void setUpBeforeClass() {
-        ServerApp.startTCP();
-    }
-
-    @AfterAll
-    public static void tearDownAfterClass() {
-        ServerApp.stopTCP();
-    }
-
     @BeforeEach
     public void setUp() {
+        ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
         client1 = new ClientTCP("client1");
         client2 = new ClientTCP("client2");
         client3 = new ClientTCP("client3");
@@ -63,6 +57,7 @@ public class ClientTCPTest {
         this.client3.stopClient();
         this.client4.disconnect();
         this.client4.stopClient();
+        ServerApp.stopTCP();
     }
 
     @Test
@@ -77,7 +72,7 @@ public class ClientTCPTest {
         assertMessageEquals(this.client4, new CreatedPlayerMessage((this.client4.getNickname())));
 
         this.client1.connect();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
     }
 
     @Test
@@ -195,16 +190,16 @@ public class ClientTCPTest {
         this.client1.setToken(token1);
 
         this.client1.reconnect();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.reconnect();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.connect();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.reconnect();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.clearQueue();
         this.client1.stopSendingHeartbeat();
@@ -292,7 +287,7 @@ public class ClientTCPTest {
         System.out.println("creato");
         client7.reconnect();
         System.out.println("perche??");
-        assertMessageEquals(client7, new GameHandlingError(Error.COULD_NOT_RECONNECT, null));
+        assertMessageEquals(client7, new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT, null));
 
         client7.disconnect();
 
@@ -593,7 +588,7 @@ public class ClientTCPTest {
 
         ClientTCP client6 = new ClientTCP(this.client2.getNickname());
         client6.reconnect();
-        assertMessageEquals(client6, new GameHandlingError(Error.COULD_NOT_RECONNECT, null));
+        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT, null));
 
         this.client2.sendChatMessage(new ArrayList<>(List.of(this.client1.getNickname(), this.client2.getNickname())), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client2.getNickname(), "Chat message after disconnection!"));
@@ -605,7 +600,7 @@ public class ClientTCPTest {
     public void testCreateGame(){
         //Client1 tries to create a game without having registered his player
         this.client1.createGame("game1", 3, 1);
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         this.client1.connect();
         assertMessageEquals(this.client1, new CreatedPlayerMessage(this.client1.getNickname()));
@@ -623,7 +618,7 @@ public class ClientTCPTest {
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getNickname()));
 
         this.client3.joinGame("game1", false);
-        assertMessageEquals(this.client3, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(this.client3, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         this.client3.connect();
         this.client3.joinGame("game1", false);

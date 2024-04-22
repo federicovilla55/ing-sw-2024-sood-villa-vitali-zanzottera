@@ -289,7 +289,8 @@ public class MainController {
                                       .setHeader(player.getUsername()));
                 return false;
             }
-            if (this.gamesInfo.get(gameName).getGameAssociated().getNumPlayers() == this.gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer()) {
+            if (this.gamesInfo.get(gameName).getGameAssociated().getNumPlayers() == this.gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer() ||
+                    this.gamesInfo.get(gameName).getGameAssociated().getGameState() != GameState.SETUP) {
                 player.update(new GameHandlingError(Error.GAME_NOT_ACCESSIBLE,
                                                     "Game " + gameName + " is not accessible!")
                                       .setHeader(player.getUsername()));

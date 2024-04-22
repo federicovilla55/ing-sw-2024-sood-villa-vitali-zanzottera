@@ -809,7 +809,7 @@ class Client{
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         } catch (IOException e) {
-            throw new RuntimeException("s" + e);
+            throw new RuntimeException(e);
         }
 
         this.name = name;
