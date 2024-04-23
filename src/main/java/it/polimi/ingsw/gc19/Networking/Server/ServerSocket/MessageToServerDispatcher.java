@@ -15,6 +15,14 @@ import java.net.SocketException;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This class acts as a router for TCP messages from client to server.
+ * It extends {@link Thread} and implements {@link ObservableMessageToServer}.
+ * Every TCP client has his own {@link MessageToServerDispatcher}. It reads incoming
+ * messages and dispatches it to {@link MainServerTCP} or {@link ClientHandlerSocket}
+ * based on message dynamic type.
+ * It is built by {@link TCPConnectionAcceptor} when a new connection is accepted.
+ */
 public class MessageToServerDispatcher extends Thread implements ObservableMessageToServer<MessageToServer>{
     private final Socket socket;
     private final Object socketLock;
@@ -41,6 +49,11 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
         this.attachedObserver = new HashSet<>();
     }
 
+    /**
+     * This method is used to insert an {@link ObserverMessageToServer}
+     * to <code>Set<ObserverMessageToServer></code> of the class.
+     * @param observer the {@link ObserverMessageToServer} to insert.
+     */
     @Override
     public void attachObserver(ObserverMessageToServer<MessageToServer> observer) {
         synchronized (this.attachedObserver) {
@@ -48,6 +61,11 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
         }
     }
 
+    /**
+     * This method is used to remove an {@link ObserverMessageToServer}
+     * from <code>Set<ObserverMessageToServer></code> of the class.
+     * @param observer the {@link ObserverMessageToServer} to remove.
+     */
     @Override
     public void removeObserver(ObserverMessageToServer<MessageToServer> observer) {
         synchronized (this.attachedObserver) {
@@ -55,6 +73,12 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
         }
     }
 
+    /**
+     * This method is inherited from {@link Thread} class. It waits
+     * for new incoming messages, and it delivers them to the correct {@link ObserverMessageToServer}:
+     * for every {@link ObserverMessageToServer} in <code>Set<ObserverMessageToClient></code> it
+     * asks if they can accept it and, if yes, calls their {@link ObserverMessageToServer#update(Socket, MessageToServer)}
+     */
     @Override
     public void run() {
         MessageToServer incomingMessage;
@@ -86,6 +110,10 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
         }
     }
 
+    /**
+     * This method is used to interrupt a {@link MessageToServerDispatcher}.
+     * It tries to shut down input of socket and interrupts thread.
+     */
     public void interruptMessageDispatcher(){
         synchronized (this.socketLock) {
             try {

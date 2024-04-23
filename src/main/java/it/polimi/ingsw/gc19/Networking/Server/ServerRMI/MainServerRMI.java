@@ -30,6 +30,10 @@ public class MainServerRMI extends Server implements VirtualMainServer{
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * This method is used for Singleton pattern of {@link MainServerRMI}.
+     * @return the instance of {@link MainServerRMI}.
+     */
     public static MainServerRMI getInstance(){
         if(instance == null){
             instance = new MainServerRMI();

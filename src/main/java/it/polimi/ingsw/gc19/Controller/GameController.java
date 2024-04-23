@@ -365,6 +365,12 @@ public class GameController{
         );
     }
 
+    /**
+     * This method checks if the player with a given nickname can draw a card. This is possible if it is the player's turn and
+     * the player is in the DRAW turn state. Moreover, the game should be in the status of PLAYING.
+     * @param nickname the nickname of the player to check if he can draw
+     * @return If all these conditions are met, this method returns false. If a condition is not met, this method returns true
+     */
     private boolean checkDrawConditions(String nickname) {
         if(!this.gameAssociated.getGameState().equals(GameState.PLAYING)) {
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_GAME_STATE,
@@ -439,7 +445,10 @@ public class GameController{
         );
     }
 
-    // this method is called when there is a timeout and at most only a client is connected
+    /**
+     * This method is called when there is a timeout and at most only a client is connected
+     */
+
     private synchronized void stopGame() {
         if(this.gameAssociated.getGameState().equals(GameState.PAUSE)) {
             if (this.connectedClients.size() == 1) {

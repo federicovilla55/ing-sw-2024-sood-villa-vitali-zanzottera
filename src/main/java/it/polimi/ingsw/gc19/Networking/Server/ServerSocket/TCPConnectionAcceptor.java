@@ -7,6 +7,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+/**
+ * This class is used to accept new TCP connection from client.
+ * It uses {@link ServerSocket} and extends {@link Thread}.
+ */
 public class TCPConnectionAcceptor extends Thread {
 
     private ServerSocket serverSocket;
@@ -24,6 +28,14 @@ public class TCPConnectionAcceptor extends Thread {
         }
     }
 
+    /**
+     * This method is executed by thread responsible for {@link TCPConnectionAcceptor}.
+     * While it isn't interrupted, thread waits for new connection. When a new
+     * connection is established it builds a new {@link MessageToServerDispatcher}, starts it, and
+     * attaches to it {@link MainServerTCP}. Lastly, it calls
+     * {@link MainServerTCP#registerSocket(Socket, MessageToServerDispatcher)} for registering
+     * the new socket.
+     */
     public void run() {
         Socket clientSocket;
         MessageToServerDispatcher messageToServerDispatcher;
@@ -45,6 +57,10 @@ public class TCPConnectionAcceptor extends Thread {
         }
     }
 
+    /**
+     * This method is used to interrupt {@link TCPConnectionAcceptor}.
+     * First, it closes {@link ServerSocket} and then interrupts thread.
+     */
     public void interruptTCPConnectionAcceptor() {
         try {
             serverSocket.close();
@@ -53,4 +69,5 @@ public class TCPConnectionAcceptor extends Thread {
         }
         this.interrupt();
     }
+
 }

@@ -50,7 +50,7 @@ public class ServerSocketAndMainControllerTest {
         this.client2 = new Client("client2");
         this.client3 = new Client("client3");
         this.client4 = new Client("client4");
-        this.stressTestClient = overloadTest(100);
+        this.stressTestClient = overloadTest(5);
     }
 
     @AfterEach

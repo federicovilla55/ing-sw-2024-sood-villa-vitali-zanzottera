@@ -122,11 +122,8 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
                     throw new InterruptedException();
                 };
             }
-            //System.out.println("send.....");
             messageToSend = this.messageQueue.remove();
-            //System.out.println(username + "   " + messageToSend);
             if(messageToSend.getHeader() == null || messageToSend.getHeader().contains(username)) {
-                //System.out.println("send...");
                 this.sendMessageToClient(messageToSend);
             }
             this.messageQueue.notifyAll();

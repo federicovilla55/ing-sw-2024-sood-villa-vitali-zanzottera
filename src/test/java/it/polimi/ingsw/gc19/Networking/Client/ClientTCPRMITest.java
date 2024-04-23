@@ -177,6 +177,18 @@ public class ClientTCPRMITest {
     }
 
     @Test
+    public void testDisconnectionAndReconnection() throws RemoteException {
+        ClientRMI client6 = new ClientRMI(virtualMainServer,"client6");
+        client6.connect();
+        client6.startSendingHeartbeat();
+        waitingThread(2500);
+        client6.disconnect();
+        ClientTCP client7 = new ClientTCP(client6.getNickname());
+        client7.connect();
+        assertMessageEquals(client7, new CreatedPlayerMessage(client7.getNickname()));
+    }
+
+    @Test
     public void testFirePlayersAndGames() throws RemoteException {
 
         this.client1.connect();
