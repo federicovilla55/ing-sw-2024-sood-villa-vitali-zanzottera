@@ -23,6 +23,12 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.*;
 
+/**
+ * This class is the TCP main server. It extends {@link Server} and implements {@link ObserverMessageToServer<MessageToServer>}.
+ * It can be instanced only once (singleton pattern). It receives {@link MessageToServer}
+ * from {@link MessageToServerDispatcher} concerning game handling (e.g. create new game, register to game...)
+ * and heart beat message.
+ */
 public class MainServerTCP extends Server implements ObserverMessageToServer<MessageToServer>{
 
     private static MainServerTCP instance = null;
@@ -46,10 +52,17 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         return instance;
     }
 
+    /**
+     * This method is used by {@link MessageToServerDispatcher} to notify TCP server that
+     * a new message has arrived and hence has to be opened. Thread executing this method
+     * will wait until {@link Socket} from which it's receiving messages is put inside
+     * connected clients hashmap.
+     * @param senderSocket {@link Socket} from which message has arrived
+     * @param message {@link MessageToServer} arrived
+     */
+
     @Override
     public void update(Socket senderSocket, MessageToServer message) {
-        ClientHandlerSocket clientHandlerSocket;
-
         if(this.heartBeatHandler.canAccept(message)) {
             synchronized (this.heartBeatHandler) {
                 this.heartBeatHandler.handleMessageToMainServer(senderSocket, message);
@@ -60,11 +73,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 synchronized (this.connectedClients){
                     while(!this.connectedClients.containsKey(senderSocket)){
                         try{
-                            System.out.println(senderSocket);
                             this.connectedClients.wait();
                         }
                         catch (InterruptedException interruptedException){
-                            System.out.println("interrupt ...");
                             Thread.currentThread().interrupt();
                             return;
                         }
@@ -94,7 +105,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         synchronized (this.connectedClients){
             if(!this.connectedClients.containsKey(socket)) {
                 try {
-                    System.out.println("created...");
                     clientHandlerSocket = new ClientHandlerSocket(socket);
 
                     clientHandlerSocket.start();
@@ -107,7 +117,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 }
                 catch (IOException ioException){
                     System.err.println("[EXCEPTION] IOException occurred while trying to build object output stream from socket " + socket + ". Closing socket...");
-                    closeSocket(socket); //schedule
+                    scheduleSocketClosing(socket);
                 }
             }
         }
@@ -116,7 +126,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
     public ClientHandlerSocket getClientHandlerFromSocket(Socket socket, String nick){
         synchronized (this.connectedClients) {
             if (this.connectedClients.get(socket).z() == null) {
-                //System.out.println("ok");
                 this.connectedClients.get(socket).x().update(new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER,
                                                                                              "Your player is not registered to server! Please register...")
                                                                      .setHeader(this.connectedClients.get(socket).x().getUsername()));
@@ -128,7 +137,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
     private void closeSocket(Socket socket){
         try{
-            socket.close();
+            if(socket != null && !socket.isClosed()) {
+                socket.close();
+            }
         }
         catch (IOException ioException){
             System.err.println("[IOException] IOException occurred while trying to close socket " + socket + ". Skipping...");
@@ -226,7 +237,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         @Override
         public void visit(CreateNewGameMessage message) {
             ClientHandlerSocket clientHandlerSocket = getClientHandlerFromSocket(clientSocket, this.nickname);
-            //System.out.println("handler -> " + clientHandlerSocket);
             if(clientHandlerSocket != null){
                 mainController.createGame(message.getGameName(), message.getNumPlayer(), clientHandlerSocket, message.getRandomSeed());
             }
@@ -234,27 +244,32 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
         @Override
         public void visit(NewUserMessage message) {
-            ClientHandlerSocket clientHandlerSocket = getClientHandlerFromSocket(clientSocket,  this.nickname);
+            ClientHandlerSocket clientHandlerSocket;
 
             synchronized (connectedClients) {
-                if (connectedClients.get(clientSocket).z() != null) {
-                    connectedClients.get(clientSocket).x().update(new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,
-                                                                                                               "Your socket client is already connected to server!")
-                                                                                       .setHeader(connectedClients.get(clientSocket).x().getUsername()));
-                    return;
+                if(connectedClients.containsKey(clientSocket)){
+                    if (connectedClients.get(clientSocket).z() != null) {
+                        connectedClients.get(clientSocket).x().update(new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,
+                                                                                                                   "Your socket client is already connected to server!")
+                                                                                           .setHeader(connectedClients.get(clientSocket).x().getUsername()));
+                        return;
+                    }
+                    else {
+                        clientHandlerSocket = connectedClients.get(clientSocket).x();
+                    }
+
+                    clientHandlerSocket.setUsername(nickname);
+
+                    if (mainController.createClient(clientHandlerSocket)) {
+                        String hashedMessage = computeHashOfClientHandler(clientHandlerSocket, nickname);
+                        connectedClients.put(clientSocket, new Triplet<>(clientHandlerSocket, connectedClients.get(clientSocket).y(), hashedMessage));
+                        connectedClients.notifyAll();
+
+                        clientHandlerSocket.update(new CreatedPlayerMessage(nickname, hashedMessage).setHeader(connectedClients.get(clientSocket).x().getUsername()));
+                    }
                 }
-                else {
-                    clientHandlerSocket = connectedClients.get(clientSocket).x();
-                }
-
-                clientHandlerSocket.setUsername(nickname);
-
-                if (mainController.createClient(clientHandlerSocket)) {
-                    String hashedMessage = computeHashOfClientHandler(clientHandlerSocket, nickname);
-                    connectedClients.put(clientSocket, new Triplet<>(clientHandlerSocket, connectedClients.get(clientSocket).y(), hashedMessage));
-                    connectedClients.notifyAll();
-
-                    clientHandlerSocket.update(new CreatedPlayerMessage(nickname, hashedMessage).setHeader(connectedClients.get(clientSocket).x().getUsername()));
+                else{
+                    closeSocket(clientSocket);
                 }
             }
         }
@@ -312,7 +327,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                     }
                 }
                 else {
-                    //System.out.println("sent... " + this.nickname);
                     connectedClients.get(clientSocket).x().update(new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT,
                                                                                                   "Can't perform reconnection!")
                                                                           .setHeader(connectedClients.get(clientSocket).x().getUsername()));

@@ -56,6 +56,11 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         this.messageQueue.addAll(clientHandler.getQueueOfMessages());
     }
 
+    /**
+     * This method is used to send a message to client using
+     * TCP socket.
+     * @param message message to be sent
+     */
     @Override
     public void sendMessageToClient(MessageToClient message) {
         try {
@@ -90,6 +95,12 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         }
     }
 
+    /**
+     * This method is used to notify caller that {@link MessageToServer} can be accepted
+     * by the class.
+     * @param message {@link MessageToServer} that could be accepted
+     * @return true if and only if message could be accepted
+     */
     @Override
     public boolean accept(MessageToServer message) {
         return message instanceof ActionMessage || message instanceof PlayerChatMessage;
@@ -125,7 +136,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
          * This method is used to visit a {@link ChosenGoalCardMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
-         * @param message
+         * @param message {@link ChosenColorMessage} to read.
          */
         @Override
         public void visit(ChosenGoalCardMessage message){
@@ -143,7 +154,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
          * This method is used to visit a {@link DirectionOfInitialCardMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
-         * @param message
+         * @param message {@link DirectionOfInitialCardMessage} message to read.
          */
         @Override
         public void visit(DirectionOfInitialCardMessage message){
@@ -161,7 +172,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
          * This method is used to visit a {@link PlaceCardMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
-         * @param message
+         * @param message {@link PlaceCardMessage} to read.
          */
         @Override
         public void visit(PlaceCardMessage message) {
@@ -179,7 +190,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
          * This method is used to visit a {@link ChosenColorMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
-         * @param message
+         * @param message {@link ChosenColorMessage} to read.
          */
         @Override
         public void visit(ChosenColorMessage message) {
@@ -197,7 +208,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
          * This method is used to visit a {@link PickCardFromDeckMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
-         * @param message
+         * @param message {@link PickCardFromDeckMessage} to read.
          */
         @Override
         public void visit(PickCardFromDeckMessage message) {
@@ -215,7 +226,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
          * This method is used to visit a {@link PickCardFromTableMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
-         * @param message
+         * @param message {@link PickCardFromTableMessage} to read.
          */
         @Override
         public void visit(PickCardFromTableMessage message) {
@@ -233,7 +244,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
          * This method is used to visit a {@link PlayerChatMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
          * is null, it sends {@link GameHandlingError} to the player.
-         * @param message
+         * @param message {@link PlayerChatMessage} to read.
          */
         @Override
         public void visit(PlayerChatMessage message) {

@@ -344,7 +344,7 @@ public class ClientTCPRMITest {
 
         waitingThread(4000);
 
-        assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game13"));
+        assertMessageEquals(List.of(this.client1, this.client2), new DisconnectGameMessage("game13"));
     }
 
     @Test

@@ -210,7 +210,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
             for (var v : this.connectedClients.entrySet()) {
                 if (v.getValue().y().equals(token)) {
                     clientRMIBefore = v.getKey();
-                    v.getValue().x().interrupt();
+                    v.getValue().x().interruptClientHandler();
                     clientHandlerRMI = new ClientHandlerRMI(clientRMI, v.getValue().x());
                     clientHandlerRMI.start();
                     clientHandlerRMI.setGameController(v.getValue().x().getGameController()); //Setting new game controller inside Client RMI Handler
