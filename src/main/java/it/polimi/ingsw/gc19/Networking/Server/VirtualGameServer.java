@@ -4,7 +4,6 @@ import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

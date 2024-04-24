@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
-import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
+import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

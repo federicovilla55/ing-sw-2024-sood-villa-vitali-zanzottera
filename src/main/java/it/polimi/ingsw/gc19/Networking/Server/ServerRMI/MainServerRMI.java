@@ -2,7 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
 import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Utils.Tuple;
-import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
+import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.*;

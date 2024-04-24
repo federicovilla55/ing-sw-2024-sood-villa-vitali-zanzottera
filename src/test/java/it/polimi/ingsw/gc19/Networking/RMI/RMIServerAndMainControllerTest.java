@@ -5,7 +5,7 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
+import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;

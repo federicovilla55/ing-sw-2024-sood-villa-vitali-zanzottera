@@ -49,5 +49,6 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
     exports it.polimi.ingsw.gc19.Utils;
     opens it.polimi.ingsw.gc19.Utils;
+    exports it.polimi.ingsw.gc19.Networking.Client.ClientRMI;
 
 }

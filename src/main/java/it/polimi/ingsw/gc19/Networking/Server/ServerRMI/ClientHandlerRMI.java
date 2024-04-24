@@ -4,7 +4,7 @@ import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
+import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
