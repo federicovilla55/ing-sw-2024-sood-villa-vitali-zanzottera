@@ -3,13 +3,10 @@ package it.polimi.ingsw.gc19.View.GameLocalView;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
 import it.polimi.ingsw.gc19.Model.Station.Station;
-import it.polimi.ingsw.gc19.Model.Tuple;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 

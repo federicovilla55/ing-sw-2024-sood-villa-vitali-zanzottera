@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.Controller;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
-import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
@@ -70,7 +70,7 @@ public class MainController {
      */
     public void fireGameAndPlayer(String gameName){
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.schedule(() ->{
+        scheduler.schedule(() -> {
             GameController gameController;
             ArrayList<String> playersToRemove;
             synchronized(gamesInfo){
@@ -369,17 +369,21 @@ public class MainController {
         }
     }
 
+    /**
+     * This method checks if player with nick{@param nick} is active.
+     * @param nick is the nickname of the player to search for
+     * @return <code>true</code> if and only if {@param nick} is in <code>playerInfo</code>
+     * and state of player is <code>State.ACTIVE</code>
+     */
     public boolean isPlayerActive(String nick){
         synchronized (this.playerInfo){
-            System.out.println(playerInfo.keySet());
             if(!this.playerInfo.containsKey(nick)) return false;
-            System.out.println("passed");
             return this.playerInfo.get(nick).x() == State.ACTIVE;
         }
     }
 
     /**
-     * This static method destroy an instance of {@link MainController}
+     * This static method resets an instance of {@link MainController}
      */
     public void resetMainController() {
         synchronized (this.playerInfo) {

@@ -1,7 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
-import it.polimi.ingsw.gc19.Model.Triplet;
-import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Utils.Triplet;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessageVisitor;

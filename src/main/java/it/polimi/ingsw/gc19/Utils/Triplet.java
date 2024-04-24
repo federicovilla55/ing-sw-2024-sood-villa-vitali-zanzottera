@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Model;
+package it.polimi.ingsw.gc19.Utils;
 
 import java.io.Serializable;
 

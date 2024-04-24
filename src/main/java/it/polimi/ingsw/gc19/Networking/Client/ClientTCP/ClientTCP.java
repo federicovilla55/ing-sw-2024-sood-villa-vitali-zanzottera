@@ -127,12 +127,12 @@ public class ClientTCP implements VirtualClient, ClientInterface {
 
     @Override
     public void createGame(String gameName, int numPlayers) {
-        this.sendMessage(new CreateNewGameMessage(this.nickname, gameName, numPlayers, 0));
+        this.sendMessage(new CreateNewGameMessage(this.nickname, gameName, numPlayers, Integer.toUnsignedLong(0)));
     }
 
     @Override
     public void createGame(String gameName, int numPlayers, int seed) {
-        this.sendMessage(new CreateNewGameMessage(this.nickname, gameName, numPlayers, seed));
+        this.sendMessage(new CreateNewGameMessage(this.nickname, gameName, numPlayers, Integer.toUnsignedLong(seed)));
     }
 
     @Override

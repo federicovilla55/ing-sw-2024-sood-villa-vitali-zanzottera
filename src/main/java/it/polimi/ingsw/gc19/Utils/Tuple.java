@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Model;
+package it.polimi.ingsw.gc19.Utils;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

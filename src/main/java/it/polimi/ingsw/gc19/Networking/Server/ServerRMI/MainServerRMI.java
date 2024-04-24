@@ -1,12 +1,10 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
 import it.polimi.ingsw.gc19.Controller.MainController;
-import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.*;
 
 import java.rmi.RemoteException;

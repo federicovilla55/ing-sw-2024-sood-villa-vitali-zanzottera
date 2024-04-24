@@ -1,12 +1,10 @@
 package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Enums.Color;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Tuple;
-import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.AllMessageVisitor;
@@ -18,7 +16,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHa
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
-import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 
 import java.util.List;
 import java.util.Map;

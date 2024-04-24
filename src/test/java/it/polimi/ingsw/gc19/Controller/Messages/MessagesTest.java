@@ -6,7 +6,7 @@ import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OtherStationConfigurationMessage;
