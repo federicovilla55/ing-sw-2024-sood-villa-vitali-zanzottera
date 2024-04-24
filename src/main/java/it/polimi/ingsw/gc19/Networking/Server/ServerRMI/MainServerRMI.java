@@ -315,6 +315,10 @@ public class MainServerRMI extends Server implements VirtualMainServer{
         this.mainController.resetMainController();
     }
 
+    /**
+     * This method is used to kill {@link ClientHandlerRMI} connected
+     * to server.
+     */
     @Override
     public void killClientHandlers(){
         synchronized (this.connectedClients){

@@ -107,7 +107,7 @@ public class MainController {
      *     </li>
      * </ul>
      * When a lobby player is signaled to be inactive his state is set to <code>State.INACTIVE</code> and
-     * it's deleted from <code>playersInfo</code>.
+     * it's not deleted from <code>playersInfo</code>.
      * When a game player is signaled to be inactive his state becomes <code>State.INACTIVE</code> and
      * this method calls {@link GameController#removeClient(String)} to remove player's observer.
      * @param nickname nickname of the player became inactive

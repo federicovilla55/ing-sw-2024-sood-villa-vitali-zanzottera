@@ -11,8 +11,18 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+/**
+ * This interface represents the remote client seen by server.
+ * It extends {@link Remote} so that methods can be called remotely.
+ */
 public interface VirtualClient extends Remote{
 
+    /**
+     * This remote method is used by server to remotely push
+     * an update to the client.
+     * @param message the {@link MessageToClient} to send to RMI client
+     * @throws RemoteException if some errors occurs while calling this method
+     */
     void pushUpdate(MessageToClient message) throws RemoteException;
 
 }
