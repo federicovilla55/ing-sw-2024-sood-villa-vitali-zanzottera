@@ -1,7 +1,5 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Action;
 
-import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.CreateNewGameMessage;
-import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.GameHandlingMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 
@@ -48,10 +46,10 @@ public interface AnswerToActionMessageVisitor {
 
     /**
      * This method is used by {@link AnswerToActionMessageVisitor} to visit
-     * a message {@link AcceptedPlaceCardMessage}
-     * @param message the {@link AcceptedPlaceCardMessage} to visit
+     * a message {@link AcceptedPlacePlayableCardMessage}
+     * @param message the {@link AcceptedPlacePlayableCardMessage} to visit
      */
-    void visit(AcceptedPlaceCardMessage message);
+    void visit(AcceptedPlacePlayableCardMessage message);
 
     /**
      * This method is used by {@link AnswerToActionMessageVisitor} to visit

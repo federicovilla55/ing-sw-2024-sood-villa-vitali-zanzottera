@@ -62,7 +62,7 @@ public class MessageHandler implements AllMessageVisitor {
     }
 
     @Override
-    public void visit(AcceptedPlaceCardMessage message) {
+    public void visit(AcceptedPlacePlayableCardMessage message) {
         /*if(this.localModel.getNickname().equals(message.getNick())){
             this.localModel.placeCardPersonalStation(null, message.getCardToPlace(),
                                                     message.getDirection(), message.getCardToPlace().getCardOrientation());

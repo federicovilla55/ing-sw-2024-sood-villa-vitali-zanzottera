@@ -456,10 +456,10 @@ public class MessagesTest{
 
         this.player1.placeCard("resource_01", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
         assertMessageEquals(List.of(player1,player2,player3,player4),
-                new AcceptedPlaceCardMessage("player1",
-                        "initial_05", playableCards.get("resource_01").setCardState(CardOrientation.UP),
-                        Direction.UP_RIGHT,
-                        Map.of(
+                new AcceptedPlacePlayableCardMessage("player1",
+                                                     "initial_05", playableCards.get("resource_01").setCardState(CardOrientation.UP),
+                                                     Direction.UP_RIGHT,
+                                                     Map.of(
                                 Symbol.ANIMAL, 1,
                                 Symbol.MUSHROOM, 2,
                                 Symbol.VEGETABLE, 1,
@@ -468,7 +468,7 @@ public class MessagesTest{
                                 Symbol.FEATHER, 0,
                                 Symbol.SCROLL, 0
                         ),
-                        0));
+                                                     0));
     }
 
     @Test
