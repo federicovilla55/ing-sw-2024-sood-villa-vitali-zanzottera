@@ -2,8 +2,7 @@ package it.polimi.ingsw.gc19.Model.Card;
 
 import com.fasterxml.jackson.annotation.*;
 import it.polimi.ingsw.gc19.Model.Station.Station;
-
-import java.io.Serializable;
+import it.polimi.ingsw.gc19.View.TUI.TUIView;
 
 /**
  * This class represents a single card
@@ -34,11 +33,16 @@ public class GoalCard extends Card {
     }
 
     @Override
-    public String getCardDescription(){return "Type: goal card \n" + this.goalEffect.getEffectDescription(); }
+    public String getCardDescription(){return "Goal card " + this.getCardCode() + ":\n" + this.goalEffect.getEffectDescription(); }
+
+
 
     @Override
     public int countPoints(Station station){
         return this.goalEffect.countPoints(station);
     }
 
+    public String[][] getEffectView(TUIView tuiView) {
+        return this.goalEffect.getEffectView(tuiView);
+    }
 }

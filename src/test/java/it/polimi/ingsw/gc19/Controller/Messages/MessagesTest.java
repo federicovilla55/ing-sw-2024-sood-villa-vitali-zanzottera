@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MessagesTest{
+public class MessagesTest {
 
     private MainController mainController;
     private Map<String, PlayableCard> playableCards;
@@ -40,14 +40,13 @@ public class MessagesTest{
     private ClientStub player1, player2, player3, player4;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         this.mainController = MainController.getMainController();
 
         try {
             this.playableCards = JSONParser.readPlayableCardFromFile().collect(Collectors.toMap(Card::getCardCode, p -> p));
             this.goalCards = JSONParser.readGoalCardFromFile().collect(Collectors.toMap(Card::getCardCode, p -> p));
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -67,7 +66,7 @@ public class MessagesTest{
     }
 
     @Test
-    void testGameCreationAndConfiguration(){
+    void testGameCreationAndConfiguration() {
         this.mainController.createClient(player1);
         this.mainController.createClient(player2);
         this.mainController.createClient(player3);
@@ -141,6 +140,11 @@ public class MessagesTest{
                 new OtherStationConfigurationMessage(
                         "player2",
                         null,
+                        List.of(
+                                Symbol.VEGETABLE,
+                                Symbol.INSECT,
+                                Symbol.ANIMAL
+                        ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
                                 Symbol.MUSHROOM, 0,
@@ -202,20 +206,25 @@ public class MessagesTest{
 
         assertMessageEquals(player2,
                 new OtherStationConfigurationMessage(
-                "player1",
-                null,
-                Map.of(
-                        Symbol.ANIMAL, 0,
-                        Symbol.MUSHROOM, 0,
-                        Symbol.VEGETABLE, 0,
-                        Symbol.INSECT, 0,
-                        Symbol.INK, 0,
-                        Symbol.FEATHER, 0,
-                        Symbol.SCROLL, 0
-                ),
-                0,
-                List.of()
-        ));
+                        "player1",
+                        null,
+                        List.of(
+                                Symbol.ANIMAL,
+                                Symbol.MUSHROOM,
+                                Symbol.ANIMAL
+                        ),
+                        Map.of(
+                                Symbol.ANIMAL, 0,
+                                Symbol.MUSHROOM, 0,
+                                Symbol.VEGETABLE, 0,
+                                Symbol.INSECT, 0,
+                                Symbol.INK, 0,
+                                Symbol.FEATHER, 0,
+                                Symbol.SCROLL, 0
+                        ),
+                        0,
+                        List.of()
+                ));
 
         assertMessageEquals(player2,
                 new AvailableColorsMessage(List.of(Color.values())));
@@ -232,34 +241,39 @@ public class MessagesTest{
 
         this.mainController.registerToGame(player3, "game1");
         tableConfigurationMessage = new TableConfigurationMessage(
-            playableCards.get("resource_05").setCardState(CardOrientation.UP),
-            playableCards.get("resource_21").setCardState(CardOrientation.UP),
-            playableCards.get("gold_19").setCardState(CardOrientation.UP),
-            playableCards.get("gold_23").setCardState(CardOrientation.UP),
-            goalCards.get("goal_11"),
-            goalCards.get("goal_15"),
-            Symbol.VEGETABLE,
-            Symbol.MUSHROOM
+                playableCards.get("resource_05").setCardState(CardOrientation.UP),
+                playableCards.get("resource_21").setCardState(CardOrientation.UP),
+                playableCards.get("gold_19").setCardState(CardOrientation.UP),
+                playableCards.get("gold_23").setCardState(CardOrientation.UP),
+                goalCards.get("goal_11"),
+                goalCards.get("goal_15"),
+                Symbol.VEGETABLE,
+                Symbol.MUSHROOM
         );
 
-        assertMessageEquals(List.of(player1,player2), new NewPlayerConnectedToGameMessage("player3"));
-        assertMessageEquals(List.of(player1,player2),
+        assertMessageEquals(List.of(player1, player2), new NewPlayerConnectedToGameMessage("player3"));
+        assertMessageEquals(List.of(player1, player2),
                 new OtherStationConfigurationMessage(
-                "player3",
-                null,
-                Map.of(
-                        Symbol.ANIMAL, 0,
-                        Symbol.MUSHROOM, 0,
-                        Symbol.VEGETABLE, 0,
-                        Symbol.INSECT, 0,
-                        Symbol.INK, 0,
-                        Symbol.FEATHER, 0,
-                        Symbol.SCROLL, 0
-                ),
-                0,
-                List.of()
-        ));
-        assertMessageEquals(List.of(player1,player2),tableConfigurationMessage);
+                        "player3",
+                        null,
+                        List.of(
+                                Symbol.ANIMAL,
+                                Symbol.MUSHROOM,
+                                Symbol.VEGETABLE
+                        ),
+                        Map.of(
+                                Symbol.ANIMAL, 0,
+                                Symbol.MUSHROOM, 0,
+                                Symbol.VEGETABLE, 0,
+                                Symbol.INSECT, 0,
+                                Symbol.INK, 0,
+                                Symbol.FEATHER, 0,
+                                Symbol.SCROLL, 0
+                        ),
+                        0,
+                        List.of()
+                ));
+        assertMessageEquals(List.of(player1, player2), tableConfigurationMessage);
 
         assertEquals(new JoinedGameMessage("game1").setHeader(player3.getUsername()), player3.getMessage());
 
@@ -290,24 +304,48 @@ public class MessagesTest{
                         goalCards.get("goal_06"),
                         List.of()
                 ));
-        for(String nickname : List.of("player1","player2")) {
-            assertMessageEquals(player3,
-                    new OtherStationConfigurationMessage(
-                            nickname,
-                            null,
-                            Map.of(
-                                    Symbol.ANIMAL, 0,
-                                    Symbol.MUSHROOM, 0,
-                                    Symbol.VEGETABLE, 0,
-                                    Symbol.INSECT, 0,
-                                    Symbol.INK, 0,
-                                    Symbol.FEATHER, 0,
-                                    Symbol.SCROLL, 0
-                            ),
-                            0,
-                            List.of()
-                    ));
-        }
+        assertMessageEquals(player3,
+                new OtherStationConfigurationMessage(
+                        "player1",
+                        null,
+                        List.of(
+                                Symbol.ANIMAL,
+                                Symbol.MUSHROOM,
+                                Symbol.ANIMAL
+                        ),
+                        Map.of(
+                                Symbol.ANIMAL, 0,
+                                Symbol.MUSHROOM, 0,
+                                Symbol.VEGETABLE, 0,
+                                Symbol.INSECT, 0,
+                                Symbol.INK, 0,
+                                Symbol.FEATHER, 0,
+                                Symbol.SCROLL, 0
+                        ),
+                        0,
+                        List.of()
+                ));
+        assertMessageEquals(player3,
+                new OtherStationConfigurationMessage(
+                        "player2",
+                        null,
+                        List.of(
+                                Symbol.VEGETABLE,
+                                Symbol.INSECT,
+                                Symbol.ANIMAL
+                        ),
+                        Map.of(
+                                Symbol.ANIMAL, 0,
+                                Symbol.MUSHROOM, 0,
+                                Symbol.VEGETABLE, 0,
+                                Symbol.INSECT, 0,
+                                Symbol.INK, 0,
+                                Symbol.FEATHER, 0,
+                                Symbol.SCROLL, 0
+                        ),
+                        0,
+                        List.of()
+                ));
         assertMessageEquals(player3,
                 new AvailableColorsMessage(List.of(Color.values())));
         assertMessageEquals(player3,
@@ -321,7 +359,7 @@ public class MessagesTest{
                 ));
 
         this.mainController.registerToGame(player4, "game1");
-        this.clearQueue(List.of(player1,player2,player3,player4));
+        this.clearQueue(List.of(player1, player2, player3, player4));
     }
 
     @Test
@@ -335,23 +373,23 @@ public class MessagesTest{
         this.mainController.registerToGame(player2, "game1");
         this.mainController.registerToGame(player3, "game1");
         this.mainController.registerToGame(player4, "game1");
-        this.clearQueue(List.of(player1,player2,player3,player4));
+        this.clearQueue(List.of(player1, player2, player3, player4));
 
         this.player1.chooseColor(Color.GREEN);
         //All players should receive AcceptedColorMessage
-        assertMessageEquals(List.of(player1,player2,player3,player4), new AcceptedColorMessage(player1.getUsername(), Color.GREEN));
+        assertMessageEquals(List.of(player1, player2, player3, player4), new AcceptedColorMessage(player1.getUsername(), Color.GREEN));
         //All player except player1 should receive AvailableColorsMessage
-        assertMessageEquals(List.of(player2,player3,player4), new AvailableColorsMessage(List.of(Color.BLUE,Color.YELLOW,Color.RED)));
+        assertMessageEquals(List.of(player2, player3, player4), new AvailableColorsMessage(List.of(Color.BLUE, Color.YELLOW, Color.RED)));
 
         this.player3.chooseColor(Color.YELLOW);
         //All players should receive AcceptedColorMessage
-        assertMessageEquals(List.of(player1,player2,player3,player4), new AcceptedColorMessage(player3.getUsername(), Color.YELLOW));
+        assertMessageEquals(List.of(player1, player2, player3, player4), new AcceptedColorMessage(player3.getUsername(), Color.YELLOW));
         //All player except player3 should receive AvailableColorsMessage
-        assertMessageEquals(List.of(player1,player2,player4), new AvailableColorsMessage(List.of(Color.BLUE,Color.RED)));
+        assertMessageEquals(List.of(player1, player2, player4), new AvailableColorsMessage(List.of(Color.BLUE, Color.RED)));
 
         this.player2.chooseColor(Color.BLUE);
 
-        this.clearQueue(List.of(player1,player2,player3,player4));
+        this.clearQueue(List.of(player1, player2, player3, player4));
 
         //Invalid action on color already taken
         this.player4.chooseColor(Color.BLUE);
@@ -364,11 +402,11 @@ public class MessagesTest{
 
         this.player4.chooseColor(Color.RED);
 
-        this.clearQueue(List.of(player1,player2,player3,player4));
+        this.clearQueue(List.of(player1, player2, player3, player4));
 
         this.player1.placeInitialCard(CardOrientation.DOWN);
 
-        assertMessageEquals(List.of(player1,player2,player3,player4),
+        assertMessageEquals(List.of(player1, player2, player3, player4),
                 new AcceptedPlaceInitialCard("player1",
                         playableCards.get("initial_05").setCardState(CardOrientation.DOWN),
                         Map.of(
@@ -392,7 +430,7 @@ public class MessagesTest{
 
         this.player4.placeInitialCard(CardOrientation.DOWN);
 
-        this.clearQueue(List.of(player1,player2,player3,player4));
+        this.clearQueue(List.of(player1, player2, player3, player4));
 
         this.player1.choosePrivateGoalCard(0);
         //player1 only should receive the chosen private goal card
@@ -406,17 +444,17 @@ public class MessagesTest{
 
         this.player3.choosePrivateGoalCard(0);
 
-        this.clearQueue(List.of(player1,player2,player3,player4));
+        this.clearQueue(List.of(player1, player2, player3, player4));
 
         this.player4.choosePrivateGoalCard(1);
 
         assertMessageEquals(player4,
                 new AcceptedChooseGoalCardMessage(goalCards.get("goal_04")));
 
-        assertMessageEquals(List.of(player1,player2,player3,player4),
+        assertMessageEquals(List.of(player1, player2, player3, player4),
                 new StartPlayingGameMessage("player1"));
 
-        assertMessageEquals(List.of(player1,player2,player3,player4),
+        assertMessageEquals(List.of(player1, player2, player3, player4),
                 new TurnStateMessage("player1", TurnState.PLACE));
 
 
@@ -450,7 +488,7 @@ public class MessagesTest{
         this.player3.choosePrivateGoalCard(0);
         this.player4.choosePrivateGoalCard(1);
 
-        this.clearQueue(List.of(player1,player2,player3,player4));
+        this.clearQueue(List.of(player1, player2, player3, player4));
 
         //player1 turn
         //player2 action should not work and no message should be sent
@@ -461,11 +499,11 @@ public class MessagesTest{
         assertNull(player4.getMessage());
 
         this.player1.placeCard("resource_01", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
-        assertMessageEquals(List.of(player1,player2,player3,player4),
+        assertMessageEquals(List.of(player1, player2, player3, player4),
                 new AcceptedPlacePlayableCardMessage("player1",
-                                                     "initial_05", playableCards.get("resource_01").setCardState(CardOrientation.UP),
-                                                     Direction.UP_RIGHT,
-                                                     Map.of(
+                        "initial_05", playableCards.get("resource_01").setCardState(CardOrientation.UP),
+                        Direction.UP_RIGHT,
+                        Map.of(
                                 Symbol.ANIMAL, 1,
                                 Symbol.MUSHROOM, 2,
                                 Symbol.VEGETABLE, 1,
@@ -474,7 +512,7 @@ public class MessagesTest{
                                 Symbol.FEATHER, 0,
                                 Symbol.SCROLL, 0
                         ),
-                                                     0));
+                        0));
     }
 
     @Test
@@ -507,7 +545,7 @@ public class MessagesTest{
 
         this.player1.placeCard("resource_01", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
 
-        this.clearQueue(List.of(player1,player2,player3,player4));
+        this.clearQueue(List.of(player1, player2, player3, player4));
 
         //player2 action should not work and no message should be sent
         this.player2.pickCardFromDeck(PlayableCardType.GOLD);
@@ -519,7 +557,7 @@ public class MessagesTest{
         this.player1.pickCardFromDeck(PlayableCardType.RESOURCE);
         assertMessageEquals(player1,
                 new OwnAcceptedPickCardFromDeckMessage("player1", playableCards.get("resource_18"), PlayableCardType.RESOURCE, Symbol.INSECT));
-        assertMessageEquals(List.of(player2,player3,player4),
+        assertMessageEquals(List.of(player2, player3, player4),
                 new OtherAcceptedPickCardFromDeckMessage("player1", PlayableCardType.RESOURCE, Symbol.INSECT));
     }
 
@@ -553,7 +591,7 @@ public class MessagesTest{
 
         this.player1.placeCard("resource_01", "initial_05", Direction.UP_RIGHT, CardOrientation.UP);
 
-        this.clearQueue(List.of(player1,player2,player3,player4));
+        this.clearQueue(List.of(player1, player2, player3, player4));
 
         //player2 action should not work and no message should be sent
         this.player2.pickCardFromTable(PlayableCardType.GOLD, 0);
@@ -563,7 +601,7 @@ public class MessagesTest{
         assertNull(player4.getMessage());
 
         this.player1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
-        assertMessageEquals(List.of(player1,player2,player3,player4),
+        assertMessageEquals(List.of(player1, player2, player3, player4),
                 new AcceptedPickCardFromTable(
                         "player1",
                         playableCards.get("resource_05"),
@@ -599,7 +637,7 @@ public class MessagesTest{
         this.player1.choosePrivateGoalCard(0);
         this.player2.choosePrivateGoalCard(1);
         this.player3.choosePrivateGoalCard(0);
-        this.clearQueue(List.of(player1,player2,player3,player4));
+        this.clearQueue(List.of(player1, player2, player3, player4));
 
 
         this.player4.choosePrivateGoalCard(1);
@@ -607,22 +645,22 @@ public class MessagesTest{
         assertMessageEquals(player4,
                 new AcceptedChooseGoalCardMessage(goalCards.get("goal_04")));
 
-        assertMessageEquals(List.of(player1,player2,player3,player4),
+        assertMessageEquals(List.of(player1, player2, player3, player4),
                 new StartPlayingGameMessage("player1"));
 
-        assertMessageEquals(List.of(player1,player2,player3,player4),
+        assertMessageEquals(List.of(player1, player2, player3, player4),
                 new TurnStateMessage("player1", TurnState.PLACE));
 
-        this.clearQueue(List.of(player1,player2,player3,player4));
+        this.clearQueue(List.of(player1, player2, player3, player4));
 
         mainController.setPlayerInactive(player2.getUsername());
 
-        assertMessageEquals(List.of(player1,player3,player4),
+        assertMessageEquals(List.of(player1, player3, player4),
                 new DisconnectedPlayerMessage("player2"));
 
         mainController.setPlayerInactive(player3.getUsername());
 
-        assertMessageEquals(List.of(player1,player4),
+        assertMessageEquals(List.of(player1, player4),
                 new DisconnectedPlayerMessage("player3"));
         assertNull(player2.getMessage());
 
@@ -680,7 +718,7 @@ public class MessagesTest{
                         goalCards.get("goal_16"),
                         goalCards.get("goal_01"),
                         List.of(
-                                new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25,25))
+                                new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25, 25))
                         )
                 ));
 
@@ -688,6 +726,9 @@ public class MessagesTest{
                 new OtherStationConfigurationMessage(
                         "player1",
                         Color.GREEN,
+                        List.of(Symbol.ANIMAL,
+                                Symbol.MUSHROOM,
+                                Symbol.ANIMAL),
                         Map.of(
                                 Symbol.ANIMAL, 1,
                                 Symbol.MUSHROOM, 0,
@@ -699,13 +740,18 @@ public class MessagesTest{
                         ),
                         0,
                         List.of(
-                                new Tuple<>(playableCards.get("initial_05").setCardState(CardOrientation.DOWN), new Tuple<>(25,25))
+                                new Tuple<>(playableCards.get("initial_05").setCardState(CardOrientation.DOWN), new Tuple<>(25, 25))
                         )
                 ));
         assertMessageEquals(player2,
                 new OtherStationConfigurationMessage(
                         "player3",
                         Color.YELLOW,
+                        List.of(
+                                Symbol.ANIMAL,
+                                Symbol.MUSHROOM,
+                                Symbol.VEGETABLE
+                        ),
                         Map.of(
                                 Symbol.ANIMAL, 1,
                                 Symbol.MUSHROOM, 1,
@@ -717,7 +763,7 @@ public class MessagesTest{
                         ),
                         0,
                         List.of(
-                                new Tuple<>(playableCards.get("initial_06").setCardState(CardOrientation.UP), new Tuple<>(25,25))
+                                new Tuple<>(playableCards.get("initial_06").setCardState(CardOrientation.UP), new Tuple<>(25, 25))
                         )
                 ));
 
@@ -725,6 +771,11 @@ public class MessagesTest{
                 new OtherStationConfigurationMessage(
                         "player4",
                         Color.RED,
+                        List.of(
+                                Symbol.VEGETABLE,
+                                Symbol.INSECT,
+                                Symbol.MUSHROOM
+                        ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
                                 Symbol.MUSHROOM, 1,
@@ -736,7 +787,7 @@ public class MessagesTest{
                         ),
                         0,
                         List.of(
-                                new Tuple<>(playableCards.get("initial_03").setCardState(CardOrientation.DOWN), new Tuple<>(25,25))
+                                new Tuple<>(playableCards.get("initial_03").setCardState(CardOrientation.DOWN), new Tuple<>(25, 25))
                         )
                 ));
 
@@ -750,7 +801,7 @@ public class MessagesTest{
                         4
                 ));
 
-        assertMessageEquals(List.of(player1,player2),
+        assertMessageEquals(List.of(player1, player2),
                 new GameResumedMessage());
     }
 
@@ -758,17 +809,18 @@ public class MessagesTest{
     private void assertMessageEquals(ClientStub receiver, MessageToClient message) {
         assertMessageEquals(List.of(receiver), message);
     }
+
     private void assertMessageEquals(List<ClientStub> receivers, MessageToClient message) {
         List<String> receiversName;
         receiversName = receivers.stream().map(ClientStub::getUsername).toList();
         message.setHeader(receiversName);
-        for(ClientStub receiver : receivers) {
+        for (ClientStub receiver : receivers) {
             assertEquals(message, receiver.getMessage());
         }
     }
 
-    private  void clearQueue(List<ClientStub> clients) {
-        for(ClientStub player : clients) {
+    private void clearQueue(List<ClientStub> clients) {
+        for (ClientStub player : clients) {
             player.clearQueue();
         }
     }
