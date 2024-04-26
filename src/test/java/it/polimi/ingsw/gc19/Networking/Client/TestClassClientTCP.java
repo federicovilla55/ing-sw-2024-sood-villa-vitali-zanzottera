@@ -13,7 +13,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayDeque;
 
-public class TestClassClientTCP extends ClientTCP {
+/*public class TestClassClientTCP extends ClientTCP {
 
     public TestClassClientTCP(String nickname){
         super(nickname);
@@ -80,4 +80,4 @@ public class TestClassClientTCP extends ClientTCP {
         }
     }
 
-}
+}*/

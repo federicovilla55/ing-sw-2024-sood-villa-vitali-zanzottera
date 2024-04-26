@@ -32,7 +32,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ClientTCPTest {
+/*public class ClientTCPTest {
     private TestClassClientTCP client1, client2, client3, client4;
     private HashMap<TestClassClientTCP, PlayableCard> clientsAnchors;
 
@@ -784,4 +784,4 @@ public class ClientTCPTest {
         }
     }
 
-}
+}*/

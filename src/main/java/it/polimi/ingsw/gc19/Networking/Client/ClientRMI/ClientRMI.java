@@ -38,7 +38,6 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     private ScheduledExecutorService heartbeatScheduler;
 
     private String nickname;
-    private String token;
 
     private final MessageHandler messageHandler;
 
@@ -52,7 +51,6 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
         this.messageHandler = messageHandler;
     }
-
 
 
     @Override
@@ -117,7 +115,9 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                 try {
                     tokenScanner = new Scanner(tokenFile);
                 }
-                catch (IOException ignored){ };
+                catch (IOException ignored){
+                    System.err.println(ignored.getMessage());
+                };
 
                 assert tokenScanner != null;
                 this.virtualGameServer = this.virtualMainServer.reconnect(this, this.nickname, tokenScanner.nextLine());
@@ -128,6 +128,12 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
     }
 
+    @Override
+    public void logout(){
+        this.stopSendingHeartbeat();
+    }
+
+    @Override
     public void disconnect(){
         stopSendingHeartbeat();
         try {
@@ -166,7 +172,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                     this.virtualGameServer.placeCard(cardToInsert, anchorCard, directionToInsert, orientation);
                 }
                 else{
-
+                    //@TODO: handle this else
                 }
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
@@ -270,11 +276,15 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
             bufferedWriter.write(token);
-            tokenFile.setWritable(false);
+            //tokenFile.setWritable(false);
         }
-        catch (IOException ignored){ };
+        catch (IOException ignored){
+            System.err.println(ignored.getMessage());
+        };
+    }
 
-        this.token = token;
+    public MessageHandler getMessageHandler(){
+        return this.messageHandler;
     }
 
     public void setNickname(String nickname) {

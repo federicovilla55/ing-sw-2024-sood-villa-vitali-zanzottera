@@ -41,4 +41,6 @@ public interface ClientInterface {
 
     String getNickname();
 
+    void logout();
+
 }

@@ -30,17 +30,20 @@ import java.util.Map;
  */
 public class MessageHandler extends Thread implements AllMessageVisitor{
     private final ArrayDeque<MessageToClient> messagesToHandle;
+
     private ClientInterface client;
 
     private LocalModel localModel;
-
     private ActionParser actionParser;
 
-    public MessageHandler(ClientInterface client, ActionParser actionParser){
+    public MessageHandler(ActionParser actionParser){
         this.messagesToHandle = new ArrayDeque<>();
-        this.client = client;
         this.localModel = new LocalModel();
         this.actionParser = actionParser;
+    }
+
+    public void setClient(ClientInterface client){
+        this.client = client;
     }
 
     public void update(MessageToClient message) {
@@ -48,6 +51,10 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
             this.messagesToHandle.add(message);
             this.messagesToHandle.notifyAll();
         }
+    }
+
+    public ArrayDeque<MessageToClient> getMessagesToHandle(){
+        return this.messagesToHandle;
     }
 
     @Override

@@ -6,18 +6,17 @@ import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
 
 import java.rmi.RemoteException;
 
-public class TestClassClientRMI extends ClientRMI {
+public class TestClassClientRMI extends ClientRMI implements CommonClientMethodsForTests{
 
-    public TestClassClientRMI(VirtualMainServer virtualMainServer, String nickname) throws RemoteException {
-        super(virtualMainServer, nickname);
+    public TestClassClientRMI(VirtualMainServer virtualMainServer, MessageHandler messageHandler, String nickname) throws RemoteException {
+        super(virtualMainServer, messageHandler, nickname);
     }
 
-    @Override
     public void waitForMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (this.incomingMessages.stream().noneMatch(messageToClientClass::isInstance)) {
+        synchronized (this.getMessageHandler().getMessagesToHandle()) {
+            while (this.getMessageHandler().getMessagesToHandle().stream().noneMatch(messageToClientClass::isInstance)) {
                 try {
-                    this.incomingMessages.wait();
+                    this.getMessageHandler().getMessagesToHandle().wait();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -29,11 +28,10 @@ public class TestClassClientRMI extends ClientRMI {
         return getMessage(MessageToClient.class);
     }
 
-    @Override
     public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (!this.incomingMessages.isEmpty()) {
-                MessageToClient res = this.incomingMessages.remove();
+        synchronized (this.getMessageHandler().getMessagesToHandle()) {
+            while (!this.getMessageHandler().getMessagesToHandle().isEmpty()) {
+                MessageToClient res = this.getMessageHandler().getMessagesToHandle().remove();
                 if (messageToClientClass.isInstance(res)) return res;
             }
         }

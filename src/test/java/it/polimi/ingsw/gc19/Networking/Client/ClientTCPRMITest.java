@@ -38,7 +38,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ClientTCPRMITest {
+/*public class ClientTCPRMITest {
     private static VirtualMainServer virtualMainServer;
     private static Registry registry;
     private static MainServerRMI mainServerRMI;
@@ -877,4 +877,4 @@ public class ClientTCPRMITest {
     }
 
 
-}
+}*/

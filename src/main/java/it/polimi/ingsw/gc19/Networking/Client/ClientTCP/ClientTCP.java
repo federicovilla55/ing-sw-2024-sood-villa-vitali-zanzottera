@@ -5,45 +5,46 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
+import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Settings;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ClientTCP extends Thread implements ClientInterface {
+public class ClientTCP implements ClientInterface {
     private final Socket socket;
     private final ObjectInputStream inputStream;
     private final ObjectOutputStream outputStream;
+
     private String nickname;
-    private String token;
     private final MessageHandler messageHandler;
+
     private final ScheduledExecutorService heartbeatScheduler;
+    private final Thread senderThread;
+    private final Thread receiverThread;
 
+    private final Deque<MessageToServer> messagesToSend;
 
-    public ClientTCP(MessageHandler messageHandler, String serverIP, int serverPort){
-
+    public ClientTCP(String nickname, MessageHandler messageHandler){
+        this.nickname = nickname;
         this.messageHandler = messageHandler;
 
         Socket socket = null;
         ObjectOutputStream objectOutputStream = null;
         ObjectInputStream objectInputStream = null;
         try {
-            socket = new Socket(serverIP, serverPort);
+            socket = new Socket(ClientSettings.serverIP, ClientSettings.serverTCPPort);
             objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             objectInputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
@@ -55,24 +56,64 @@ public class ClientTCP extends Thread implements ClientInterface {
         this.inputStream = objectInputStream;
         this.outputStream = objectOutputStream;
 
+        this.messagesToSend = new ArrayDeque<>();
+
         this.heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
+        this.receiverThread = new Thread(this::receiveMessages);
+        this.senderThread = new Thread(this::sendMessageToServer);
     }
 
-    @Override
-    public void run(){
-        while(!Thread.interrupted()){
-            this.receiveMessages();
+    private void sendMessageToServer(){
+        MessageToServer message = null;
+
+        while(!Thread.interrupted()) {
+            synchronized (this.messagesToSend) {
+                while (this.messagesToSend.isEmpty()) {
+                    try {
+                        this.messagesToSend.wait();
+                    } catch (InterruptedException interruptedException) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                    message = this.messagesToSend.getFirst();
+                    this.messagesToSend.notifyAll();
+                }
+            }
+
+            if(message != null) {
+                boolean sent = false;
+                int numOfTry = 0;
+
+                while(!Thread.interrupted() && !sent && numOfTry < 25){
+                    try{
+                        this.outputStream.writeObject(message);
+                        finalizeSending();
+                        sent = true;
+                    }
+                    catch (IOException ioException){
+                        numOfTry++;
+                    }
+
+                    try{
+                        Thread.sleep(1000);
+                    }
+                    catch (InterruptedException interruptedException){
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+
+                if(!sent){
+                    //@TODO: notify Message Handler
+                }
+            }
         }
     }
 
     public void sendMessage(MessageToServer message){
-        synchronized (this.outputStream){
-            try {
-                this.outputStream.writeObject(message);
-                finalizeSending();
-            } catch (IOException e) {
-                //@TODO: invoke correct method of message handler
-            }
+        synchronized (this.messagesToSend){
+            this.messagesToSend.addLast(message);
+            this.messagesToSend.notifyAll();
         }
     }
 
@@ -83,18 +124,30 @@ public class ClientTCP extends Thread implements ClientInterface {
 
     public void receiveMessages(){
         MessageToClient incomingMessage;
-        try{
-            incomingMessage = (MessageToClient) this.inputStream.readObject();
-        } catch (IOException  | ClassNotFoundException e) {
-            //@TODO: handle this exception
-            throw new RuntimeException(e);
+        while(!Thread.interrupted()) {
+            try {
+                incomingMessage = (MessageToClient) this.inputStream.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                //@TODO: handle this exception
+                throw new RuntimeException(e);
+            }
+            this.messageHandler.update(incomingMessage);
         }
-        this.messageHandler.update(incomingMessage);
+    }
+
+    public void logout(){
+        this.stopClient();
+
+        synchronized (this.messagesToSend){
+            this.messagesToSend.clear();
+        }
+
+        this.senderThread.interrupt();
+        this.receiverThread.interrupt();
     }
 
     public void stopClient(){
         stopSendingHeartbeat();
-
         try {
             if (socket != null) {
                 this.socket.shutdownOutput();
@@ -159,8 +212,20 @@ public class ClientTCP extends Thread implements ClientInterface {
     @Override
     public void disconnect() {
         this.sendMessage(new DisconnectMessage(this.nickname));
-        this.interrupt();
-        this.stopSendingHeartbeat();
+
+        synchronized (this.messagesToSend){
+            while (!this.messagesToSend.isEmpty()){
+                try{
+                    this.messagesToSend.wait();
+                }
+                catch (InterruptedException ignored){ }
+            }
+        }
+
+        this.senderThread.interrupt();
+        this.receiverThread.interrupt();
+
+        this.stopClient();
 
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
         if(tokenFile.delete()){
@@ -212,8 +277,6 @@ public class ClientTCP extends Thread implements ClientInterface {
             tokenFile.setWritable(false);
         }
         catch (IOException ignored){ };
-
-        this.token = token;
     }
 
     @Override
