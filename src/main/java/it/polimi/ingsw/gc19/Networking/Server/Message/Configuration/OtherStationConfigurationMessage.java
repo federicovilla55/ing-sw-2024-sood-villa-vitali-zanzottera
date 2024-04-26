@@ -6,6 +6,7 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,13 +17,15 @@ import java.util.Map;
 public class OtherStationConfigurationMessage extends ConfigurationMessage {
     private final String nick;
     private final Color color;
+    private final List<Symbol> cardsInHand;
     private final Map<Symbol, Integer> visibleSymbols;
     private final int numPoints;
     private final List<Tuple<PlayableCard, Tuple<Integer,Integer>>> placedCardSequence;
 
-    public OtherStationConfigurationMessage(String nick, Color color, Map<Symbol, Integer> visibleSymbols, int numPoints, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
+    public OtherStationConfigurationMessage(String nick, Color color, List<Symbol> cardsInHand, Map<Symbol, Integer> visibleSymbols, int numPoints, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
         this.nick = nick;
         this.color = color;
+        this.cardsInHand = cardsInHand;
         this.visibleSymbols = visibleSymbols;
         this.numPoints = numPoints;
         this.placedCardSequence = placedCardSequence;
@@ -69,6 +72,15 @@ public class OtherStationConfigurationMessage extends ConfigurationMessage {
     }
 
     /**
+     * Getter for the cards in hand of another player. Only shows their seed, not the card!
+     * @return a list of seeds corresponding to the cards in the hand of a specific player
+     */
+    public List<Symbol> getCardsInHand() {
+        return cardsInHand;
+    }
+
+
+    /**
      * Implementation of the visitor pattern
      * @param visitor {@link MessageToClientVisitor} visitor of the message
      */
@@ -76,5 +88,4 @@ public class OtherStationConfigurationMessage extends ConfigurationMessage {
     public void accept(MessageToClientVisitor visitor) {
         if(visitor instanceof ConfigurationMessageVisitor) ((ConfigurationMessageVisitor) visitor).visit(this);
     }
-
 }
