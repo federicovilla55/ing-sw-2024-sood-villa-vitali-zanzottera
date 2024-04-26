@@ -47,10 +47,7 @@ public interface ClientInterface {
 
     String getGameName();
 
-    public void waitForMessage(Class<? extends MessageToClient> messageToClientClass);
+    void waitForMessage(Class<? extends MessageToClient> aClass);
 
-    public MessageToClient getMessage();
-
-    public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass);
-
+    MessageToClient getMessage(Class<? extends MessageToClient> aClass);
 }

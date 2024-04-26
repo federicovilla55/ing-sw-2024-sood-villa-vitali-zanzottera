@@ -30,7 +30,7 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
     private VirtualGameServer virtualGameServer;
     private ScheduledExecutorService heartbeatScheduler;
 
-    private final Deque<MessageToClient> incomingMessages;
+    protected final Deque<MessageToClient> incomingMessages;
 
     private String nickname;
     private String token;
@@ -196,34 +196,6 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         }
     }
 
-    @Override
-    public void waitForMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (this.incomingMessages.stream().noneMatch(messageToClientClass::isInstance)) {
-                try {
-                    this.incomingMessages.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-    @Override
-    public MessageToClient getMessage() {
-        return getMessage(MessageToClient.class);
-    }
-
-    @Override
-    public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (!this.incomingMessages.isEmpty()) {
-                MessageToClient res = this.incomingMessages.remove();
-                if (messageToClientClass.isInstance(res)) return res;
-            }
-        }
-        return null;
-    }
 
     @Override
     public void pushUpdate(MessageToClient message) throws RemoteException {
@@ -257,6 +229,16 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
 
     public String getGameName() {
         return gameName;
+    }
+
+    @Override
+    public void waitForMessage(Class<? extends MessageToClient> aClass) {
+
+    }
+
+    @Override
+    public MessageToClient getMessage(Class<? extends MessageToClient> aClass) {
+        return null;
     }
 
     public VirtualGameServer getVirtualGameServer(){

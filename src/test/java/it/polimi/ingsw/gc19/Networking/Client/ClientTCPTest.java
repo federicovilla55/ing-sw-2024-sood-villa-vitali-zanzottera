@@ -2,7 +2,6 @@ package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
@@ -31,8 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClientTCPTest {
-    private ClientTCP client1, client2, client3, client4;
-    private HashMap<ClientTCP, PlayableCard> clientsAnchors;
+    private TestClassClientTCP client1, client2, client3, client4;
+    private HashMap<TestClassClientTCP, PlayableCard> clientsAnchors;
 
     @BeforeAll
     public static void setUpBeforeClass() {
@@ -46,10 +45,10 @@ public class ClientTCPTest {
 
     @BeforeEach
     public void setUp() {
-        client1 = new ClientTCP("client1");
-        client2 = new ClientTCP("client2");
-        client3 = new ClientTCP("client3");
-        client4 = new ClientTCP("client4");
+        client1 = new TestClassClientTCP("client1");
+        client2 = new TestClassClientTCP("client2");
+        client3 = new TestClassClientTCP("client3");
+        client4 = new TestClassClientTCP("client4");
         clientsAnchors = new HashMap<>();
     }
 
@@ -175,7 +174,7 @@ public class ClientTCPTest {
         assertNull(this.client1.getMessage());
         assertNull(this.client2.getMessage());
 
-        ClientTCP client5 = new ClientTCP("client5");
+        TestClassClientTCP client5 = new TestClassClientTCP("client5");
         client5.connect();
 
         client5.joinFirstAvailableGame();
@@ -288,7 +287,7 @@ public class ClientTCPTest {
 
         this.client1.stopSendingHeartbeat();
         waitingThread(5000);
-        ClientTCP client7 = new ClientTCP(this.client1.getNickname());
+        TestClassClientTCP client7 = new TestClassClientTCP(this.client1.getNickname());
         System.out.println("creato");
         client7.reconnect();
         System.out.println("perche??");
@@ -298,7 +297,7 @@ public class ClientTCPTest {
 
         System.out.println("quasi...");
 
-        ClientTCP client8 = new ClientTCP(this.client1.getNickname());
+        TestClassClientTCP client8 = new TestClassClientTCP(this.client1.getNickname());
         client8.setToken(token1);
         client8.reconnect();
         assertMessageEquals(this.client1, new AvailableGamesMessage(List.of("game11")));
@@ -365,7 +364,7 @@ public class ClientTCPTest {
 
     @Test
     public void testCreateClientAfterDisconnection(){
-        ClientTCP client7 = new ClientTCP("client7");
+        TestClassClientTCP client7 = new TestClassClientTCP("client7");
         client7.connect();
 
         client7.waitForMessage(CreatedPlayerMessage.class);
@@ -377,7 +376,7 @@ public class ClientTCPTest {
 
         client7.disconnect();
 
-        ClientTCP client8 = new ClientTCP(client7.getNickname());
+        TestClassClientTCP client8 = new TestClassClientTCP(client7.getNickname());
         client8.connect();
         client8.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message8 = client8.getMessage();
@@ -591,7 +590,7 @@ public class ClientTCPTest {
         //Situation: client 2 has disconnected from game
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
-        ClientTCP client6 = new ClientTCP(this.client2.getNickname());
+        TestClassClientTCP client6 = new TestClassClientTCP(this.client2.getNickname());
         client6.reconnect();
         assertMessageEquals(client6, new GameHandlingError(Error.COULD_NOT_RECONNECT, null));
 
@@ -656,7 +655,7 @@ public class ClientTCPTest {
 
         waitingThread(5000);
 
-        ClientTCP client7 = new ClientTCP(this.client1.getNickname());
+        TestClassClientTCP client7 = new TestClassClientTCP(this.client1.getNickname());
         client7.setToken(token1);
         client7.reconnect();
 
@@ -678,19 +677,19 @@ public class ClientTCPTest {
         client7.disconnect();
     }
 
-    private void dummyTurn(ClientTCP client, PlayableCardType cardType) throws RemoteException {
+    private void dummyTurn(TestClassClientTCP client, PlayableCardType cardType) throws RemoteException {
         dummyPlace(client);
         assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getNickname(), TurnState.DRAW));
         client.pickCardFromDeck(cardType);
     }
 
-    private void dummyFirstTurn(ClientTCP client, PlayableCardType cardType){
+    private void dummyFirstTurn(TestClassClientTCP client, PlayableCardType cardType){
         dummyFirstPlace(client);
         assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getNickname(), TurnState.DRAW));
         client.pickCardFromDeck(cardType);
     }
 
-    private void dummyFirstPlace(ClientTCP client){
+    private void dummyFirstPlace(TestClassClientTCP client){
         client.waitForMessage(OwnStationConfigurationMessage.class);
         OwnStationConfigurationMessage latestMessage = (OwnStationConfigurationMessage) client.getMessage(OwnStationConfigurationMessage.class);
 
@@ -705,7 +704,7 @@ public class ClientTCPTest {
         clientsAnchors.put(client, latestMessage.getCardsInHand().getFirst());
     }
 
-    private void dummyPlace(ClientTCP client){
+    private void dummyPlace(TestClassClientTCP client){
         AcceptedPickCardMessage latestMessage;
         do {
             System.out.println(client.getNickname());
@@ -724,60 +723,60 @@ public class ClientTCPTest {
         clientsAnchors.put(client, latestMessage.getPickedCard());
     }
 
-    private void allPlayersPlacedInitialCard(ClientTCP client1, ClientTCP client2, ClientTCP client3, ClientTCP client4){
+    private void allPlayersPlacedInitialCard(TestClassClientTCP client1, TestClassClientTCP client2, TestClassClientTCP client3, TestClassClientTCP client4){
         client1.placeInitialCard(CardOrientation.DOWN);
         client2.placeInitialCard(CardOrientation.DOWN);
         client3.placeInitialCard(CardOrientation.UP);
         client4.placeInitialCard(CardOrientation.DOWN);
     }
 
-    private void allPlayersChoosePrivateGoal(ClientTCP client1, ClientTCP client2, ClientTCP client3, ClientTCP client4) {
+    private void allPlayersChoosePrivateGoal(TestClassClientTCP client1, TestClassClientTCP client2, TestClassClientTCP client3, TestClassClientTCP client4) {
         client1.choosePrivateGoalCard(0);
         client2.choosePrivateGoalCard(1);
         client3.choosePrivateGoalCard(0);
         client4.choosePrivateGoalCard(1);
     }
 
-    private void allPlayersChooseColor(ClientTCP client1, ClientTCP client2, ClientTCP client3, ClientTCP client4){
+    private void allPlayersChooseColor(TestClassClientTCP client1, TestClassClientTCP client2, TestClassClientTCP client3, TestClassClientTCP client4){
         client1.chooseColor(Color.RED);
         client2.chooseColor(Color.GREEN);
         client3.chooseColor(Color.BLUE);
         client4.chooseColor(Color.YELLOW);
     }
 
-    private void assertMessageEquals(ClientTCP receiver, MessageToClient message) {
+    private void assertMessageEquals(TestClassClientTCP receiver, MessageToClient message) {
         assertMessageEquals(List.of(receiver), message);
     }
 
-    private void assertMessageEquals(MessageToClient message, ClientTCP... receivers) {
-        ArrayList<ClientTCP> receiversName = Arrays.stream(receivers).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+    private void assertMessageEquals(MessageToClient message, TestClassClientTCP... receivers) {
+        ArrayList<TestClassClientTCP> receiversName = Arrays.stream(receivers).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         assertMessageEquals(receiversName, message);
     }
 
-    private void assertMessageEquals(List<ClientTCP> receivers, MessageToClient message) {
+    private void assertMessageEquals(List<TestClassClientTCP> receivers, MessageToClient message) {
         List<String> receiversName;
-        receiversName = receivers.stream().map(ClientTCP::getNickname).toList();
+        receiversName = receivers.stream().map(TestClassClientTCP::getNickname).toList();
         message.setHeader(receiversName);
-        for (ClientTCP receiver : receivers) {
+        for (TestClassClientTCP receiver : receivers) {
             receiver.waitForMessage(message.getClass());
             assertEquals(message, receiver.getMessage(message.getClass()));
         }
     }
 
-    private void assertMessageWithHeaderEquals(ClientTCP receiver, MessageToClient message, String ... header) {
+    private void assertMessageWithHeaderEquals(TestClassClientTCP receiver, MessageToClient message, String ... header) {
         assertMessageWithHeaderEquals(List.of(receiver), message, header);
     }
 
-    private void assertMessageWithHeaderEquals(List<ClientTCP> receivers, MessageToClient message, String ... header) {
+    private void assertMessageWithHeaderEquals(List<TestClassClientTCP> receivers, MessageToClient message, String ... header) {
         message.setHeader(Arrays.stream(header).toList());
-        for (ClientTCP receiver : receivers) {
+        for (TestClassClientTCP receiver : receivers) {
             receiver.waitForMessage(message.getClass());
             assertEquals(message, receiver.getMessage(message.getClass()));
         }
     }
 
-    private void clearQueue(List<ClientTCP> clients) {
-        for (ClientTCP player : clients) {
+    private void clearQueue(List<TestClassClientTCP> clients) {
+        for (TestClassClientTCP player : clients) {
             player.clearQueue();
         }
     }

@@ -35,8 +35,8 @@ public class ClientTCP implements VirtualClient, ClientInterface {
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
-    private final Deque<MessageToClient> incomingMessages;
-    private String nickname;
+    protected final Deque<MessageToClient> incomingMessages;
+    protected String nickname;
     private String token;
     private String gameName;
     private final MessageHandler messageHandler;
@@ -140,22 +140,6 @@ public class ClientTCP implements VirtualClient, ClientInterface {
         this.sendMessage(new JoinGameMessage(gameName, this.nickname));
     }
 
-    public void joinGame(String gameName, boolean wait){
-        if(wait){
-            boolean found = false;
-            while (!found) {
-                this.sendMessage(new JoinGameMessage(gameName, this.nickname));
-                if (waitAndNotifyTypeOfMessage(GameHandlingError.class, JoinedGameMessage.class) == 1) {
-                    found = true;
-                } else {
-                    getMessage(GameHandlingError.class);
-                }
-            }
-        }else {
-            joinGame(gameName);
-        }
-    }
-
     @Override
     public void joinFirstAvailableGame() {
         this.sendMessage(new JoinFirstAvailableGameMessage(this.nickname));
@@ -238,6 +222,16 @@ public class ClientTCP implements VirtualClient, ClientInterface {
     }
 
     @Override
+    public void waitForMessage(Class<? extends MessageToClient> aClass) {
+
+    }
+
+    @Override
+    public MessageToClient getMessage(Class<? extends MessageToClient> aClass) {
+        return null;
+    }
+
+    @Override
     public void pushUpdate(MessageToClient message) {
         synchronized (this.incomingMessages){
             this.incomingMessages.add(message);
@@ -253,49 +247,5 @@ public class ClientTCP implements VirtualClient, ClientInterface {
         }
     }
 
-    @Override
-    public void waitForMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (this.incomingMessages.stream().noneMatch(messageToClientClass::isInstance)) {
-                try {
-                    this.incomingMessages.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-    public int waitAndNotifyTypeOfMessage(Class<? extends MessageToClient> messageToClientClass1, Class<? extends MessageToClient> messageToClientClass2) {
-        synchronized (this.incomingMessages) {
-            while (this.incomingMessages.stream().noneMatch(messageToClientClass1::isInstance) && this.incomingMessages.stream().noneMatch(messageToClientClass2::isInstance)) {
-                try {
-                    this.incomingMessages.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            if(this.incomingMessages.stream().noneMatch(messageToClientClass1::isInstance)){
-                return 1;
-            }
-            return 0;
-        }
-    }
-
-    @Override
-    public MessageToClient getMessage() {
-        return getMessage(MessageToClient.class);
-    }
-
-    @Override
-    public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (!this.incomingMessages.isEmpty()) {
-                MessageToClient res = this.incomingMessages.remove();
-                if (messageToClientClass.isInstance(res)) return res;
-            }
-        }
-        return null;
-    }
 
 }

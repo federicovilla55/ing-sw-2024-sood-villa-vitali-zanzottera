@@ -2,8 +2,6 @@ package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
-import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
@@ -43,10 +41,10 @@ public class ClientTCPRMITest {
 
     // Hashmap to save the get the anchor for the placeCard.
     private HashMap<VirtualGameServer, PlayableCard> clientsAnchorsRMI;
-    private HashMap<ClientTCP, PlayableCard> clientsAnchorsTCP;
+    private HashMap<TestClassClientTCP, PlayableCard> clientsAnchorsTCP;
 
-    private ClientRMI client1, client3, client5;
-    private ClientTCP client2, client4;
+    private TestClassClientRMI client1, client3, client5;
+    private TestClassClientTCP client2, client4;
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException {
@@ -58,11 +56,11 @@ public class ClientTCPRMITest {
 
     @BeforeEach
     public void setUpTest() throws RemoteException {
-        this.client1 = new ClientRMI(virtualMainServer, "client1");
-        this.client2 = new ClientTCP("client2");
-        this.client3 = new ClientRMI(virtualMainServer, "client3");
-        this.client4 = new ClientTCP("client4");
-        this.client5 = new ClientRMI(virtualMainServer, "client5");
+        this.client1 = new TestClassClientRMI(virtualMainServer, "client1");
+        this.client2 = new TestClassClientTCP("client2");
+        this.client3 = new TestClassClientRMI(virtualMainServer, "client3");
+        this.client4 = new TestClassClientTCP("client4");
+        this.client5 = new TestClassClientRMI(virtualMainServer, "client5");
         clientsAnchorsRMI = new HashMap<>();
         clientsAnchorsTCP = new HashMap<>();
     }
@@ -469,7 +467,7 @@ public class ClientTCPRMITest {
         assertNull(this.client1.getMessage());
         assertNull(this.client2.getMessage());
 
-        this.client5 = new ClientRMI(virtualMainServer, "client5");
+        this.client5 = new TestClassClientRMI(virtualMainServer, "client5");
         this.client5.connect();
 
         this.client5.joinFirstAvailableGame();
@@ -495,7 +493,7 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        ClientRMI client6 = new ClientRMI(virtualMainServer, "client2");
+        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, "client2");
         client6.connect();
         assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
@@ -530,12 +528,12 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        ClientRMI client7 = new ClientRMI(virtualMainServer, "client7");
+        TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, "client7");
         // @todo: how is the reconnect running without any values in names and token (null values only)???
         client7.reconnect();
         assertMessageEquals(client7, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
-        ClientRMI client8 = new ClientRMI(virtualMainServer, "client8");
+        TestClassClientRMI client8 = new TestClassClientRMI(virtualMainServer, "client8");
         client8.connect();
         client8.reconnect();
         assertMessageEquals(client8, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
@@ -577,7 +575,7 @@ public class ClientTCPRMITest {
         this.client2.stopSendingHeartbeat();
 
         //Situation: client 2 has disconnected from game
-        ClientRMI client6 = new ClientRMI(virtualMainServer, "client6");
+        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, "client6");
         client6.reconnect();
         assertMessageEquals(client6, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
@@ -616,7 +614,7 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        ClientRMI client7 = new ClientRMI(virtualMainServer, "client7");
+        TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, "client7");
         client7.setToken(token1);
         client7.setNickname("client1");
         client7.reconnect();
@@ -653,18 +651,17 @@ public class ClientTCPRMITest {
     }
 
 
-    private void assertMessageEquals(ClientRMI receiver, MessageToClient message) {
+    private void assertMessageEquals(TestClassClientRMI receiver, MessageToClient message) {
         assertMessageEquals(List.of(receiver), message);
     }
 
-    private void assertMessageEquals(MessageToClient message, ClientRMI... receivers) {
+    private void assertMessageEquals(MessageToClient message, TestClassClientRMI... receivers) {
         ArrayList<ClientInterface> receiversName = Arrays.stream(receivers).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         assertMessageEquals(receiversName, message);
     }
 
-    private void assertMessageEquals(List<ClientInterface> receivers, MessageToClient message) {
-        List<String> receiversName;
-        receiversName = receivers.stream().map(ClientInterface::getNickname).toList();
+    private <T extends ClientInterface> void assertMessageEquals(List<T> receivers, MessageToClient message) {
+        List<String> receiversName = receivers.stream().map(ClientInterface::getNickname).toList();
         message.setHeader(receiversName);
         for (ClientInterface receiver : receivers) {
             receiver.waitForMessage(message.getClass());
@@ -672,17 +669,19 @@ public class ClientTCPRMITest {
         }
     }
 
-    private void dummyTurn(VirtualGameServer virtualGameServer, ClientRMI client, PlayableCardType cardType) throws RemoteException {
+
+
+    private void dummyTurn(VirtualGameServer virtualGameServer, TestClassClientRMI client, PlayableCardType cardType) throws RemoteException {
         dummyPlace(virtualGameServer, client);
         virtualGameServer.pickCardFromDeck(cardType);
     }
 
-    private void dummyFirstTurn(VirtualGameServer virtualGameServer, ClientRMI client, PlayableCardType cardType) throws RemoteException {
+    private void dummyFirstTurn(VirtualGameServer virtualGameServer, TestClassClientRMI client, PlayableCardType cardType) throws RemoteException {
         dummyFirstPlace(virtualGameServer, client);
         virtualGameServer.pickCardFromDeck(cardType);
     }
 
-    private void dummyFirstPlace(VirtualGameServer virtualGameServer, ClientRMI client) throws RemoteException {
+    private void dummyFirstPlace(VirtualGameServer virtualGameServer, TestClassClientRMI client) throws RemoteException {
         client.waitForMessage(OwnStationConfigurationMessage.class);
         OwnStationConfigurationMessage latestMessage = (OwnStationConfigurationMessage) client.getMessage(OwnStationConfigurationMessage.class);
 
@@ -690,7 +689,7 @@ public class ClientTCPRMITest {
         clientsAnchorsRMI.put(virtualGameServer, latestMessage.getCardsInHand().getFirst());
     }
 
-    private void dummyPlace(VirtualGameServer virtualGameServer, ClientRMI client) throws RemoteException {
+    private void dummyPlace(VirtualGameServer virtualGameServer, TestClassClientRMI client) throws RemoteException {
         AcceptedPickCardMessage latestMessage;
         do {
             client.waitForMessage(AcceptedPickCardMessage.class);
@@ -737,19 +736,19 @@ public class ClientTCPRMITest {
         virtualGameServer2.chooseColor(Color.GREEN);
     }
 
-    private void dummyTurn(ClientTCP client, PlayableCardType cardType) throws RemoteException {
+    private void dummyTurn(TestClassClientTCP client, PlayableCardType cardType) throws RemoteException {
         dummyPlace(client);
         assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getNickname(), TurnState.DRAW));
         client.pickCardFromDeck(cardType);
     }
 
-    private void dummyFirstTurn(ClientTCP client, PlayableCardType cardType){
+    private void dummyFirstTurn(TestClassClientTCP client, PlayableCardType cardType){
         dummyFirstPlace(client);
         assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getNickname(), TurnState.DRAW));
         client.pickCardFromDeck(cardType);
     }
 
-    private void dummyFirstPlace(ClientTCP client){
+    private void dummyFirstPlace(TestClassClientTCP client){
         client.waitForMessage(OwnStationConfigurationMessage.class);
         OwnStationConfigurationMessage latestMessage = (OwnStationConfigurationMessage) client.getMessage(OwnStationConfigurationMessage.class);
 
@@ -764,7 +763,7 @@ public class ClientTCPRMITest {
         clientsAnchorsTCP.put(client, latestMessage.getCardsInHand().getFirst());
     }
 
-    private void dummyPlace(ClientTCP client){
+    private void dummyPlace(TestClassClientTCP client){
         AcceptedPickCardMessage latestMessage;
         do {
             System.out.println(client.getNickname());
@@ -783,41 +782,41 @@ public class ClientTCPRMITest {
         clientsAnchorsTCP.put(client, latestMessage.getPickedCard());
     }
 
-    private void allPlayersPlacedInitialCard(ClientTCP client1, ClientTCP client2, ClientTCP client3, ClientTCP client4){
+    private void allPlayersPlacedInitialCard(TestClassClientTCP client1, TestClassClientTCP client2, TestClassClientTCP client3, TestClassClientTCP client4){
         client1.placeInitialCard(CardOrientation.DOWN);
         client2.placeInitialCard(CardOrientation.DOWN);
         client3.placeInitialCard(CardOrientation.UP);
         client4.placeInitialCard(CardOrientation.DOWN);
     }
 
-    private void allPlayersChoosePrivateGoal(ClientTCP client1, ClientTCP client2, ClientTCP client3, ClientTCP client4) {
+    private void allPlayersChoosePrivateGoal(TestClassClientTCP client1, TestClassClientTCP client2, TestClassClientTCP client3, TestClassClientTCP client4) {
         client1.choosePrivateGoalCard(0);
         client2.choosePrivateGoalCard(1);
         client3.choosePrivateGoalCard(0);
         client4.choosePrivateGoalCard(1);
     }
 
-    private void allPlayersChooseColor(ClientTCP client1, ClientTCP client2, ClientTCP client3, ClientTCP client4){
+    private void allPlayersChooseColor(TestClassClientTCP client1, TestClassClientTCP client2, TestClassClientTCP client3, TestClassClientTCP client4){
         client1.chooseColor(Color.RED);
         client2.chooseColor(Color.GREEN);
         client3.chooseColor(Color.BLUE);
         client4.chooseColor(Color.YELLOW);
     }
 
-    private void allPlayersChooseColor(VirtualGameServer gameServer1, ClientTCP client2, VirtualGameServer gameServer3, ClientTCP client4) throws RemoteException {
+    private void allPlayersChooseColor(VirtualGameServer gameServer1, TestClassClientTCP client2, VirtualGameServer gameServer3, TestClassClientTCP client4) throws RemoteException {
         gameServer1.chooseColor(Color.RED);
         client2.chooseColor(Color.GREEN);
         gameServer3.chooseColor(Color.BLUE);
         client4.chooseColor(Color.YELLOW);
     }
-    private void allPlayersChoosePrivateGoal(VirtualGameServer gameServer1, ClientTCP client2, VirtualGameServer gameServer3, ClientTCP client4) throws RemoteException {
+    private void allPlayersChoosePrivateGoal(VirtualGameServer gameServer1, TestClassClientTCP client2, VirtualGameServer gameServer3, TestClassClientTCP client4) throws RemoteException {
         gameServer1.choosePrivateGoalCard(0);
         client2.choosePrivateGoalCard(1);
         gameServer3.choosePrivateGoalCard(0);
         client4.choosePrivateGoalCard(1);
     }
 
-    private void allPlayersPlacedInitialCard(VirtualGameServer gameServer1, ClientTCP client2, VirtualGameServer gameServer3, ClientTCP client4) throws RemoteException{
+    private void allPlayersPlacedInitialCard(VirtualGameServer gameServer1, TestClassClientTCP client2, VirtualGameServer gameServer3, TestClassClientTCP client4) throws RemoteException{
         gameServer1.placeInitialCard(CardOrientation.DOWN);
         client2.placeInitialCard(CardOrientation.DOWN);
         gameServer3.placeInitialCard(CardOrientation.UP);
@@ -825,11 +824,11 @@ public class ClientTCPRMITest {
     }
 
 
-    private void assertMessageEquals(ClientTCP receiver, MessageToClient message) {
+    private void assertMessageEquals(TestClassClientTCP receiver, MessageToClient message) {
         assertMessageEquals(List.of(receiver), message);
     }
 
-    private void assertMessageEquals(MessageToClient message, ClientTCP... receivers) {
+    private void assertMessageEquals(MessageToClient message, TestClassClientTCP... receivers) {
         ArrayList<ClientInterface> receiversName = Arrays.stream(receivers).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         assertMessageEquals(receiversName, message);
     }
@@ -847,8 +846,8 @@ public class ClientTCPRMITest {
         }
     }
 
-    private void clearQueue(List<ClientTCP> clients) {
-        for (ClientTCP player : clients) {
+    private void clearQueue(List<TestClassClientTCP> clients) {
+        for (TestClassClientTCP player : clients) {
             player.clearQueue();
         }
     }

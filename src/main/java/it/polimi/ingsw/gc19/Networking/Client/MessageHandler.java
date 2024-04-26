@@ -16,8 +16,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
-import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
-import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
+import it.polimi.ingsw.gc19.View.GameLocalView.*;
 
 import java.util.List;
 import java.util.Map;
@@ -30,24 +29,24 @@ public class MessageHandler implements AllMessageVisitor {
 
     private LocalModel localModel;
 
-    public MessageHandler(ClientInterface client){
+    public MessageHandler(ClientInterface client /*, ClientState */){
         this.client = client;
-        this.localModel = new LocalModel();
+        this.localModel = new LocalModel(); // just after a game is created/joined
     }
 
     @Override
     public void visit(AcceptedChooseGoalCard message) {
-        //this.localModel.setPrivateGoal(message.getGoalCard());
+        this.localModel.setPrivateGoal(message.getGoalCard());
     }
 
     @Override
     public void visit(AcceptedColorMessage message) {
-        //this.localModel.setColor(message.getChosenColor());
+        this.localModel.setColor(message.getChosenColor());
     }
 
     @Override
     public void visit(OwnAcceptedPickCardFromDeckMessage message) {
-        //this.localModel.updateCardsInHand(message.getPickedCard());
+        this.localModel.updateCardsInHand(message.getPickedCard());
     }
 
     @Override
@@ -56,24 +55,30 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(AcceptedPickCardFromTable message) {
-        /*if(message.getNick().equals(localModel.getNickname())){
+        if(message.getNick().equals(localModel.getNickname())){
             this.localModel.updateCardsInHand(message.getPickedCard());
         }
 
-        this.localModel.updateCardsInTable(message.getPickedCard(), message.getDeckType(), message.getCoords());*/
+        this.localModel.updateCardsInTable(message.getPickedCard(), message.getDeckType(), message.getCoords());
     }
 
     @Override
     public void visit(AcceptedPlaceCardMessage message) {
-        /*if(this.localModel.getNickname().equals(message.getNick())){
-            this.localModel.placeCardPersonalStation(null, message.getCardToPlace(),
+        if(this.localModel.getNickname().equals(message.getNick())){
+            this.localModel.placeCardPersonalStation(message.getAnchorCode(), message.getCardToPlace(),
                                                     message.getDirection(), message.getCardToPlace().getCardOrientation());
-        }*/
+        }
     }
 
     @Override
     public void visit(AcceptedPlaceInitialCard message) {
-        //this.localModel.placeInitialCardOtherStation(message.getNick(), message.getInitialCard().getCardOrientation());
+        if(message.getNick().equals(this.localModel.getNickname())){
+            System.out.println("Personal nickname: " + this.localModel.getNickname());
+            this.localModel.placeInitialCardPersonalStation(message.getInitialCard());
+        }else {
+            System.out.println("Personal nickname: " + this.localModel.getNickname());
+            this.localModel.placeInitialCardOtherStation(message.getNick(), message.getInitialCard());
+        }
     }
 
     @Override
@@ -93,34 +98,37 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(GameConfigurationMessage message) {
-        /*this.localModel.setNumPlayers(message.getNumPlayers());
-        this.localModel.setFirstPlayer(message.getFirstPlayer());*/
+        this.localModel.setNumPlayers(message.getNumPlayers());
+        this.localModel.setFirstPlayer(message.getFirstPlayer());
         // @todo: handle final round and game state
     }
 
     @Override
     public void visit(OtherStationConfigurationMessage message) {
+        this.localModel.setOtherStations(message.getNick(),
+                new OtherStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
+                        message.getNumPoints(), message.getPlacedCardSequence()));
         // @todo: add "setVisibleSimbols", "setNumPoints", "PlacedCardSequence" in Station
    }
 
     @Override
     public void visit(OwnStationConfigurationMessage message) {
-        /*this.clientRMI.personalStation = new ViewStation(message.getNick(), message.getColor(), message.getCardsInHand(), message.getVisibleSymbols(),
-                                                     message.getPrivateGoalCard(), message.getNumPoints(), message.getInitialCard(),
-                                                     message.getGoalCard1(), message.getGoalCard2(), message.getPlacedCardSequence());*/
+        this.localModel.setPersonalStation(new PersonalStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
+                message.getNumPoints(), message.getPlacedCardSequence(), message.getPrivateGoalCard(),
+                message.getGoalCard1(), message.getGoalCard2()));
     }
 
     @Override
     public void visit(TableConfigurationMessage message) {
-        /*this.localModel.setTable(new LocalTable(message.getSxResource(), message.getDxResource(),
+        this.localModel.setTable(new LocalTable(message.getSxResource(), message.getDxResource(),
                         message.getSxGold(), message.getDxGold(), message.getSxPublicGoal(),
                         message.getDxPublicGoal(), message.getNextSeedOfResourceDeck(),
-                        message.getNextSeedOfGoldDeck()));*/
+                        message.getNextSeedOfGoldDeck()));
     }
 
     @Override
     public void visit(AvailableColorsMessage message) {
-        // @todo: where to set colors?
+        this.localModel.setAvailableColors(message.getAvailableColors());
     }
 
     @Override
@@ -140,12 +148,12 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(NewPlayerConnectedToGameMessage message) {
-        // this.clientRMI.players.add(message.getPlayerName());
+        this.localModel.setPlayerActive(message.getPlayerName());
     }
 
     @Override
     public void visit(StartPlayingGameMessage message) {
-        // this.clientRMI.nicknameFirstPlayer = message.getNickFirstPlayer();
+        this.localModel.setFirstPlayer(message.getNickFirstPlayer());
     }
 
     @Override
@@ -155,7 +163,7 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(AvailableGamesMessage message) {
-        //this.localModel.setAvailableGames(message.getAvailableGames());
+        this.localModel.setAvailableGames(message.getAvailableGames());
     }
 
     @Override
@@ -167,12 +175,13 @@ public class MessageHandler implements AllMessageVisitor {
     public void visit(CreatedPlayerMessage message) {
         this.client.setNickname(message.getNick());
         this.client.setToken(message.getToken());
+        this.localModel.setNickname(message.getNick());
     }
 
     @Override
     public void visit(DisconnectedPlayerMessage message) {
         // @ todo: your own disconnection?
-        //this.localModel.setPlayerInactive(message.getRemovedNick());
+        this.localModel.setPlayerInactive(message.getRemovedNick());
     }
 
     @Override
@@ -182,7 +191,7 @@ public class MessageHandler implements AllMessageVisitor {
 
     @Override
     public void visit(PlayerReconnectedToGameMessage message) {
-        //this.localModel.setPlayerActive(message.getPlayerName());
+        this.localModel.setPlayerActive(message.getPlayerName());
     }
 
     @Override
