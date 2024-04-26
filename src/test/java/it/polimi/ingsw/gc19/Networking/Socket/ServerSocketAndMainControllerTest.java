@@ -20,6 +20,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
@@ -39,15 +41,16 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class ServerSocketAndMainControllerTest {
 
     private Client client1, client2, client3, client4;
+    private ArrayList<Client> stressTestClient;
 
     @BeforeEach
     public void setUp(){
-        ServerApp.startTCP();
+        ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
         this.client1 = new Client("client1");
         this.client2 = new Client("client2");
         this.client3 = new Client("client3");
         this.client4 = new Client("client4");
-        overloadTest(100);
+        this.stressTestClient = overloadTest(5);
     }
 
     @AfterEach
@@ -60,7 +63,23 @@ public class ServerSocketAndMainControllerTest {
         this.client3.stopClient();
         this.client4.disconnect();
         this.client4.stopClient();
+
+        for(Client c : this.stressTestClient){
+            c.disconnect();
+            c.stopClient();
+        }
+
         ServerApp.stopTCP();
+    }
+
+    private static ArrayList<Client> overloadTest(int numberOfClients){
+        ArrayList<Client> stressTestClient = new ArrayList<>();
+        for(int i = 0; i < numberOfClients; i++){
+            Client client = new Client("client overload " + Integer.toString(i));
+            client.createPlayer();
+            stressTestClient.add(client);
+        }
+        return stressTestClient;
     }
 
     @Test
@@ -75,7 +94,7 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(this.client4, new CreatedPlayerMessage((this.client4.getName())));
 
         this.client1.createPlayer();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
     }
 
     @Test
@@ -193,16 +212,16 @@ public class ServerSocketAndMainControllerTest {
         this.client1.setToken(token1);
 
         this.client1.reconnect();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.reconnect();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.createPlayer();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.reconnect();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.clearQueue();
         this.client1.stopSendingHeartBeat();
@@ -213,7 +232,6 @@ public class ServerSocketAndMainControllerTest {
 
         this.client1.createGame("game25", 3, 1);
         assertMessageEquals(this.client1, new CreatedGameMessage("game25"));
-        System.out.println("lllllllll");
         this.client2.createPlayer();
         this.client2.startSendingHeartBeat();
         this.client3.createPlayer();
@@ -246,7 +264,6 @@ public class ServerSocketAndMainControllerTest {
         client2.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message2 = this.client2.getMessage();
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        System.out.println(token2);
         this.client2.setToken(token2);
 
         this.client2.createGame("game11", 2, 1);
@@ -255,24 +272,19 @@ public class ServerSocketAndMainControllerTest {
 
         waitingThread(5000);
 
-        //Client client6 = new Client(this.client2.getName());
-        //client6.createPlayer();
-        //assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
-
+        Client client6 = new Client(this.client2.getName());
+        client6.createPlayer();
+        assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
         this.client2.reconnect();
 
         assertMessageEquals(this.client2, new JoinedGameMessage("game11"));
-
-        System.out.println("pass");
 
         this.client1.stopSendingHeartBeat();
 
         waitingThread(5000);
 
         this.client1.reconnect();
-
-        System.out.println("arrivato qui");
 
         this.client1.startSendingHeartBeat();
 
@@ -280,21 +292,15 @@ public class ServerSocketAndMainControllerTest {
 
         assertMessageEquals(this.client1, new AvailableGamesMessage(List.of("game11")));
 
-        System.out.println("tests ava passato");
-
         this.client1.reconnect();
 
         this.client1.stopSendingHeartBeat();
         waitingThread(5000);
         Client client7 = new Client(this.client1.getName());
-        System.out.println("creato");
         client7.reconnect();
-        System.out.println("perche??");
-        assertMessageEquals(client7, new GameHandlingError(Error.COULD_NOT_RECONNECT, null));
+        assertMessageEquals(client7, new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT, null));
 
         client7.disconnect();
-
-        System.out.println("quasi...");
 
         Client client8 = new Client(this.client1.getName());
         client8.setToken(token1);
@@ -385,7 +391,6 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(client8, new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
     }
 
-    //@Disabled
     @Test
     public void testFirePlayersAndGames() throws RemoteException {
 
@@ -408,9 +413,7 @@ public class ServerSocketAndMainControllerTest {
         assertMessageWithHeaderEquals(this.client1, new TurnStateMessage(this.client1.getName(), TurnState.PLACE), "client1", "client2", "client3", "client4");
 
         this.client3.disconnect();
-
         assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client3"), "client1", "client2", "client4");
-
         this.client4.disconnect();
         assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client4"), "client1", "client2");
 
@@ -578,8 +581,6 @@ public class ServerSocketAndMainControllerTest {
 
         waitingThread(5000);
 
-        System.out.println("----------------------");
-
         client2.reconnect();
 
         this.client2.startSendingHeartBeat();
@@ -589,7 +590,7 @@ public class ServerSocketAndMainControllerTest {
 
         Client client6 = new Client(this.client2.getName());
         client6.reconnect();
-        assertMessageEquals(client6, new GameHandlingError(Error.COULD_NOT_RECONNECT, null));
+        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT, null));
 
         this.client2.sendChatMessage(new ArrayList<>(List.of(this.client1.getName(), this.client2.getName())), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client2.getName(), "Chat message after disconnection!"));
@@ -601,7 +602,7 @@ public class ServerSocketAndMainControllerTest {
     public void testCreateGame(){
         //Client1 tries to create a game without having registered his player
         this.client1.createGame("game1", 3, 1);
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         this.client1.createPlayer();
         assertMessageEquals(this.client1, new CreatedPlayerMessage(this.client1.getName()));
@@ -619,7 +620,7 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getName()));
 
         this.client3.joinGame("game1", false);
-        assertMessageEquals(this.client3, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(this.client3, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         this.client3.createPlayer();
         this.client3.joinGame("game1", false);
@@ -705,7 +706,6 @@ public class ServerSocketAndMainControllerTest {
     private void dummyPlace(Client client){
         AcceptedPickCardMessage latestMessage;
         do {
-            System.out.println(client.getName());
             client.waitForMessage(AcceptedPickCardMessage.class);
             latestMessage = (AcceptedPickCardMessage) client.getMessage(AcceptedPickCardMessage.class);
         } while (!latestMessage.getNick().equals(client.getName()));
@@ -787,14 +787,6 @@ public class ServerSocketAndMainControllerTest {
         }
     }
 
-    private static void overloadTest(int numberOfClients) {
-        for(int i = 0; i < numberOfClients; i++){
-            Client client = new Client("client overload " + Integer.toString(i));
-            client.createPlayer();
-            client.startSendingHeartBeat();
-        }
-    }
-
 }
 
 class Client{
@@ -813,12 +805,11 @@ class Client{
 
     public Client(String name){
         try{
-            this.socket = new Socket(Settings.DEFAULT_SERVER_IP, Settings.DEFAULT_SERVER_PORT);
-            System.out.println("client " + name + " " + socket);
+            this.socket = new Socket(Settings.DEFAULT_SERVER_IP, Settings.DEFAULT_TCP_SERVER_PORT);
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         } catch (IOException e) {
-            throw new RuntimeException("s" + e);
+            throw new RuntimeException(e);
         }
 
         this.name = name;
@@ -833,16 +824,14 @@ class Client{
     public void sendMessage(MessageToServer message){
         boolean sent = false;
         int numOfTry = 0;
-        while(!Thread.currentThread().isInterrupted() && !sent && !socket.isClosed() && numOfTry < 25) {
+        while(!Thread.interrupted() && !sent && !socket.isClosed() && numOfTry < 25) {
             try {
-                //if(message instanceof HeartBeatMessage) System.out.println("heartbeat from " + name);
                 synchronized (this.outputStream) {
                     this.outputStream.writeObject(message);
                     finalizeSending();
                 }
                 sent = true;
             } catch (Exception e) {
-                System.out.println("err while sending " + message.getClass() + "  " + numOfTry);
                 numOfTry++;
             }
         }
@@ -860,10 +849,9 @@ class Client{
 
     public void receiveMessages(){
         MessageToClient incomingMessage;
-        while (!Thread.currentThread().isInterrupted()){
+        while (!Thread.interrupted()){
             try{
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
-                //System.out.println(name + " / " + ot +  " -> " + incomingMessage);
             } catch (IOException  | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -882,8 +870,7 @@ class Client{
     }
 
     private synchronized void heartBeat() {
-        if (this.sendHeartBeat && !Thread.currentThread().isInterrupted()) {
-            //if(this.name.equals("client1")) System.err.println("invato da client1");
+        if (this.sendHeartBeat && !Thread.interrupted()) {
             this.sendMessage(new HeartBeatMessage(this.name));
         }
     }
@@ -1009,7 +996,6 @@ class Client{
         if(wait) {
             while (!found) {
                 this.sendMessage(new JoinGameMessage(gameName, this.name));
-                //System.out.println(name + " -> " + gameName);
                 if (waitAndNotifyTypeOfMessage(GameHandlingError.class, JoinedGameMessage.class) == 1) {
                     found = true;
                 }

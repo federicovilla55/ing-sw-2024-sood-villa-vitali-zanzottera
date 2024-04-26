@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.Model.Station;
 import it.polimi.ingsw.gc19.Controller.MessageFactory;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
-import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 
 import java.io.IOException;
 import java.util.HashMap;

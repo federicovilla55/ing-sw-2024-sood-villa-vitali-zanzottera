@@ -5,12 +5,9 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
@@ -21,7 +18,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServerForTests;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -29,7 +28,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,27 +37,29 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ClientRMITest {
-    private static VirtualMainServerForTests virtualMainServer;
+    private static MainServerRMI mainServerRMI;
+    private static VirtualMainServer virtualMainServer;
     private static Registry registry;
 
     // Hashmap to save the get the anchor for the placeCard.
     private HashMap<VirtualGameServer, PlayableCard> clientsAnchors;
-    private ClientRMI client1, client2, client3, client4, client5;
+    private TestClassClientRMI client1, client2, client3, client4, client5;
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException {
-        ServerApp.startRMI();
+        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
+        mainServerRMI = ServerApp.getMainServerRMI();
         registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServerForTests) registry.lookup(Settings.mainRMIServerName);
+        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
     }
 
     @BeforeEach
     public void setUpTest() throws RemoteException {
-        this.client1 = new ClientRMI(virtualMainServer, "client1");
-        this.client2 = new ClientRMI(virtualMainServer, "client2");
-        this.client3 = new ClientRMI(virtualMainServer, "client3");
-        this.client4 = new ClientRMI(virtualMainServer, "client4");
-        this.client5 = new ClientRMI(virtualMainServer, "client5");
+        this.client1 = new TestClassClientRMI(virtualMainServer, "client1");
+        this.client2 = new TestClassClientRMI(virtualMainServer, "client2");
+        this.client3 = new TestClassClientRMI(virtualMainServer, "client3");
+        this.client4 = new TestClassClientRMI(virtualMainServer, "client4");
+        this.client5 = new TestClassClientRMI(virtualMainServer, "client5");
         clientsAnchors = new HashMap<>();
     }
 
@@ -91,7 +91,7 @@ public class ClientRMITest {
 
         this.client1.connect();
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
         assertNull(this.client2.getMessage());
         assertNull(this.client3.getMessage());
         assertNull(this.client4.getMessage());
@@ -437,7 +437,7 @@ public class ClientRMITest {
         assertNull(this.client1.getMessage());
         assertNull(this.client2.getMessage());
 
-        this.client5 = new ClientRMI(virtualMainServer, "client5");
+        this.client5 = new TestClassClientRMI(virtualMainServer, "client5");
         this.client5.connect();
 
         this.client5.joinFirstAvailableGame();
@@ -464,7 +464,7 @@ public class ClientRMITest {
             throw new RuntimeException(e);
         }
 
-        ClientRMI client6 = new ClientRMI(virtualMainServer, "client2");
+        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, "client2");
         client6.connect();
         assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
@@ -489,7 +489,7 @@ public class ClientRMITest {
 
         this.client1.reconnect();
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
 
         this.client1.startSendingHeartbeat();
 
@@ -499,15 +499,15 @@ public class ClientRMITest {
             throw new RuntimeException(e);
         }
 
-        ClientRMI client7 = new ClientRMI(virtualMainServer, "client7");
+        TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, "client7");
         // @todo: how is the reconnect running without any values in names and token (null values only)???
         client7.reconnect();
-        assertMessageEquals(client7, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client7, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
-        ClientRMI client8 = new ClientRMI(virtualMainServer, "client8");
+        TestClassClientRMI client8 = new TestClassClientRMI(virtualMainServer, "client8");
         client8.connect();
         client8.reconnect();
-        assertMessageEquals(client8, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(client8, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
     }
 
     @Test
@@ -547,11 +547,11 @@ public class ClientRMITest {
         this.client2.stopSendingHeartbeat();
 
         //Situation: client 2 has disconnected from game
-        ClientRMI client6 = new ClientRMI(virtualMainServer, "client6");
+        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, "client6");
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
         client6.reconnect();
-        assertMessageEquals(client6, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         gameServer2.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage("client2", "Chat message after disconnection!"));
@@ -587,7 +587,7 @@ public class ClientRMITest {
             throw new RuntimeException(e);
         }
 
-        ClientRMI client7 = new ClientRMI(virtualMainServer, "client7");
+        TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, "client7");
         client7.setToken(token1);
         client7.setNickname("client1");
         client7.reconnect();
@@ -609,7 +609,7 @@ public class ClientRMITest {
         this.client1.disconnect();
         this.client2.disconnect();
 
-        virtualMainServer.resetMainServer();
+        mainServerRMI.resetServer();
     }
 
     @AfterAll
@@ -618,36 +618,36 @@ public class ClientRMITest {
     }
 
 
-    private void assertMessageEquals(ClientRMI receiver, MessageToClient message) {
+    private void assertMessageEquals(TestClassClientRMI receiver, MessageToClient message) {
         assertMessageEquals(List.of(receiver), message);
     }
 
-    private void assertMessageEquals(MessageToClient message, ClientRMI... receivers) {
-        ArrayList<ClientRMI> receiversName = Arrays.stream(receivers).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+    private void assertMessageEquals(MessageToClient message, TestClassClientRMI... receivers) {
+        ArrayList<TestClassClientRMI> receiversName = Arrays.stream(receivers).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         assertMessageEquals(receiversName, message);
     }
 
-    private void assertMessageEquals(List<ClientRMI> receivers, MessageToClient message) {
+    private void assertMessageEquals(List<TestClassClientRMI> receivers, MessageToClient message) {
         List<String> receiversName;
-        receiversName = receivers.stream().map(ClientRMI::getNickname).toList();
+        receiversName = receivers.stream().map(TestClassClientRMI::getNickname).toList();
         message.setHeader(receiversName);
-        for (ClientRMI receiver : receivers) {
+        for (TestClassClientRMI receiver : receivers) {
             receiver.waitForMessage(message.getClass());
             assertEquals(message, receiver.getMessage(message.getClass()));
         }
     }
 
-    private void dummyTurn(VirtualGameServer virtualGameServer, ClientRMI client, PlayableCardType cardType) throws RemoteException {
+    private void dummyTurn(VirtualGameServer virtualGameServer, TestClassClientRMI client, PlayableCardType cardType) throws RemoteException {
         dummyPlace(virtualGameServer, client);
         virtualGameServer.pickCardFromDeck(cardType);
     }
 
-    private void dummyFirstTurn(VirtualGameServer virtualGameServer, ClientRMI client, PlayableCardType cardType) throws RemoteException {
+    private void dummyFirstTurn(VirtualGameServer virtualGameServer, TestClassClientRMI client, PlayableCardType cardType) throws RemoteException {
         dummyFirstPlace(virtualGameServer, client);
         virtualGameServer.pickCardFromDeck(cardType);
     }
 
-    private void dummyFirstPlace(VirtualGameServer virtualGameServer, ClientRMI client) throws RemoteException {
+    private void dummyFirstPlace(VirtualGameServer virtualGameServer, TestClassClientRMI client) throws RemoteException {
         client.waitForMessage(OwnStationConfigurationMessage.class);
         OwnStationConfigurationMessage latestMessage = (OwnStationConfigurationMessage) client.getMessage(OwnStationConfigurationMessage.class);
 
@@ -655,7 +655,7 @@ public class ClientRMITest {
         clientsAnchors.put(virtualGameServer, latestMessage.getCardsInHand().getFirst());
     }
 
-    private void dummyPlace(VirtualGameServer virtualGameServer, ClientRMI client) throws RemoteException {
+    private void dummyPlace(VirtualGameServer virtualGameServer, TestClassClientRMI client) throws RemoteException {
         AcceptedPickCardMessage latestMessage;
         do {
             client.waitForMessage(AcceptedPickCardMessage.class);

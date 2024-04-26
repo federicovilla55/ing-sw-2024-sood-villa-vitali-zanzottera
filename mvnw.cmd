@@ -65,7 +65,7 @@ echo Error: JAVA_HOME not found in your environment. >&2
 echo Please set the JAVA_HOME variable in your environment to match the >&2
 echo location of your Java installation. >&2
 echo.
-goto error
+goto networkError
 
 :OkJHome
 if exist "%JAVA_HOME%\bin\java.exe" goto init
@@ -76,7 +76,7 @@ echo JAVA_HOME = "%JAVA_HOME%" >&2
 echo Please set the JAVA_HOME variable in your environment to match the >&2
 echo location of your Java installation. >&2
 echo.
-goto error
+goto networkError
 
 @REM ==== END VALIDATION ====
 
@@ -165,10 +165,10 @@ set MAVEN_CMD_LINE_ARGS=%*
   -classpath %WRAPPER_JAR% ^
   "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" ^
   %WRAPPER_LAUNCHER% %MAVEN_CONFIG% %*
-if ERRORLEVEL 1 goto error
+if ERRORLEVEL 1 goto networkError
 goto end
 
-:error
+:networkError
 set ERROR_CODE=1
 
 :end

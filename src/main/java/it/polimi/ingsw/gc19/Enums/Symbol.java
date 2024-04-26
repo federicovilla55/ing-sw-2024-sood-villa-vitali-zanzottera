@@ -16,7 +16,7 @@ public enum Symbol implements Corner {
     INSECT ("\u001b[45;1m", "\uD83E\uDD8B"),
     MUSHROOM ("\u001b[41;1m", "\uD83C\uDF44"),
     INK ("", "✒ "),
-    FEATHER ("", "\uD83E\uDEB6"),
+    FEATHER ("", "\uD83E\uDD9C"),
     SCROLL ("", "\uD83D\uDCDC");
 
     private final String stringColor;

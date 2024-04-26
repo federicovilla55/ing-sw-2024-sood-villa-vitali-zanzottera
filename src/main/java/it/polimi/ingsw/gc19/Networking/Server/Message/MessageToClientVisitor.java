@@ -7,6 +7,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GameEventsMessa
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessageVisitor;
 
+/**
+ * This is an empty interface used to mark a class as a visitor for {@link MessageToClient}.
+ */
 public interface MessageToClientVisitor{
 
 }

@@ -9,9 +9,9 @@ import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Publisher;
-import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedChooseGoalCard;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPlaceCardMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPlacePlayableCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPlaceInitialCard;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -174,9 +174,9 @@ public class Station extends Publisher{
             setVisibleSymbols(toPlace);
             updatePoints(toPlace);
             //Message
-            this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlaceCardMessage(this.ownerPlayer.getName(),
-                                                                                              anchor.getCardCode(), toPlace, direction,
-                                                                                              Map.copyOf(this.visibleSymbolsInStation), this.numPoints));
+            this.getMessageFactory().sendMessageToAllGamePlayers(new AcceptedPlacePlayableCardMessage(this.ownerPlayer.getName(),
+                                                                                                      anchor.getCardCode(), toPlace, direction,
+                                                                                                      Map.copyOf(this.visibleSymbolsInStation), this.numPoints));
             //Message
             return true;
         }
