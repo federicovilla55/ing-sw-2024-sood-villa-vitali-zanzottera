@@ -19,6 +19,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -127,12 +128,12 @@ public class ClientTCP extends Thread implements ClientInterface {
 
     @Override
     public void createGame(String gameName, int numPlayers) {
-        this.sendMessage(new CreateNewGameMessage(this.nickname, gameName, numPlayers, 0));
+        this.sendMessage(new CreateNewGameMessage(this.nickname, gameName, numPlayers, null));
     }
 
     @Override
     public void createGame(String gameName, int numPlayers, int seed) {
-        this.sendMessage(new CreateNewGameMessage(this.nickname, gameName, numPlayers, seed));
+        this.sendMessage(new CreateNewGameMessage(this.nickname, gameName, numPlayers, Integer.toUnsignedLong(seed)));
     }
 
     @Override

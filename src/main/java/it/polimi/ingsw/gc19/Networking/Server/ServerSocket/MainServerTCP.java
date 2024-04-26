@@ -297,7 +297,12 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         public void visit(CreateNewGameMessage message) {
             ClientHandlerSocket clientHandlerSocket = getClientHandlerFromSocket(clientSocket);
             if(clientHandlerSocket != null){
-                mainController.createGame(message.getGameName(), message.getNumPlayer(), clientHandlerSocket, message.getRandomSeed());
+                if(message.getRandomSeed() != null) {
+                    mainController.createGame(message.getGameName(), message.getNumPlayer(), clientHandlerSocket, message.getRandomSeed());
+                }
+                else{
+                    mainController.createGame(message.getGameName(), message.getNumPlayer(), clientHandlerSocket, Math.abs(new Random().nextLong()));
+                }
             }
         }
 

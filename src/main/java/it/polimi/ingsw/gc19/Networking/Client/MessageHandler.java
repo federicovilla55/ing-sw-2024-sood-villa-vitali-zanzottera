@@ -37,7 +37,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     private ActionParser actionParser;
 
     public MessageHandler(ClientInterface client, ActionParser actionParser){
-    public MessageHandler(ClientInterface client){
         this.messagesToHandle = new ArrayDeque<>();
         this.client = client;
         this.localModel = new LocalModel();
@@ -209,7 +208,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(CreatedGameMessage message) {
-        this.client.setGameName(message.getGameName());
         this.localModel.setGameName(message.getGameName());
         actionParser.viewState.nextState(message);
     }
@@ -241,7 +239,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(JoinedGameMessage message) {
         this.localModel.setGameName(message.getGameName());
-        this.client.setGameName(message.getGameName());
         actionParser.viewState.nextState(message);
     }
 
