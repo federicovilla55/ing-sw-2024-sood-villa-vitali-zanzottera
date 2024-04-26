@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 public class OtherStation extends LocalStationPlayer{
-    // mano giocatore (solo retro carte)
     ArrayList<PlayableCardType> backCardHand;
     public OtherStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols, int numPoints, List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
         super(nicknameOwner, chosenColor, visibleSymbols, numPoints, placedCardSequence);

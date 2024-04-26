@@ -23,6 +23,14 @@ public class PersonalStation extends LocalStationPlayer {
 
     private final GoalCard[] privateGoalCardsInStation;
 
+    public PersonalStation(String nicknameOwner, GoalCard privateGoalCardInStation1, GoalCard privateGoalCardInStation2){
+        super(nicknameOwner);
+        cardsInHand = new ArrayList<>();
+
+        privateGoalCardsInStation = new GoalCard[]{privateGoalCardInStation1, privateGoalCardInStation2};
+        privateGoalCardInStation = null;
+    }
+
     public PersonalStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols, int numPoints,
                            List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence,
                            GoalCard privateGoalCard, GoalCard privateGoalCardInStation1, GoalCard privateGoalCardInStation2) {

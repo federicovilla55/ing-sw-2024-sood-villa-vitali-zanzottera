@@ -4,6 +4,7 @@ import it.polimi.ingsw.gc19.Enums.GameState;
 import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.PickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.PlaceCardMessage;
+import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
@@ -18,9 +19,14 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 public class ActionParser {
     private String nickname;
 
-    private ClientState viewState;
+    public ClientState viewState;
 
     private ClientState prevState;
+
+    public ActionParser(){
+        viewState = new NotPlayer();
+        prevState = new NotPlayer();
+    }
 
     public ActionParser(String nickname){
         this.nickname = nickname;
@@ -28,8 +34,16 @@ public class ActionParser {
         prevState = new NotPlayer();
     }
 
+    public void parseAction(String action) {
+        viewState.parseAction(action);
+    }
+
     public String getNickname() {
         return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     class NotPlayer extends ClientState{

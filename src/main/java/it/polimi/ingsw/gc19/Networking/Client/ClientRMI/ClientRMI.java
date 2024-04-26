@@ -6,6 +6,7 @@ import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
+import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -36,7 +37,7 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         this.nickname = nickname;
         this.virtualMainServer = virtualMainServer;
         this.virtualGameServer = null;
-        this.messageHandler = new MessageHandler(this);
+        this.messageHandler = new MessageHandler(this, new ActionParser());
         this.incomingMessages = new ArrayDeque<>();
     }
 

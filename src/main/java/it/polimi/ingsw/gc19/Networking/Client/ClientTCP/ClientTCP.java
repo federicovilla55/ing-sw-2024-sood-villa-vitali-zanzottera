@@ -16,6 +16,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHa
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
+import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -52,7 +53,7 @@ public class ClientTCP implements VirtualClient, ClientInterface {
         }
         this.nickname = nickname;
         this.incomingMessages = new ArrayDeque<>();
-        this.messageHandler = new MessageHandler(this);
+        this.messageHandler = new MessageHandler(this, new ActionParser());
         this.incomingMessageHandler.submit(this::receiveMessages);
     }
 

@@ -23,7 +23,17 @@ public abstract class LocalStationPlayer {
 
     protected Color chosenColor;
 
-    // differ cases whether a new station is created or it is reconnected
+    public LocalStationPlayer(String nicknameOwner){
+        this.ownerPlayer = nicknameOwner;
+        this.cardSchema = new PlayableCard[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
+        this.chosenColor = null;
+        this.visibleSymbols = new HashMap<>();
+        this.numPoints = 0;
+        this.placedCardSequence = null;
+
+        reconstructSchema();
+    }
+
     public LocalStationPlayer(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols,
                               int numPoints, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
         this.cardSchema = new PlayableCard[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
@@ -38,7 +48,7 @@ public abstract class LocalStationPlayer {
     }
 
     public void reconstructSchema() {
-        // Reset card schema and overlap
+        // Reset card schema
         for (int i = 0; i < ImportantConstants.gridDimension; i++) {
             for (int k = 0; k < ImportantConstants.gridDimension; k++) {
                 cardSchema[i][k] = null;

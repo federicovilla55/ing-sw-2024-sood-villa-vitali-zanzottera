@@ -235,9 +235,9 @@ public class LocalModel {
         return availableColors;
     }
 
-    public void updateMessages(Message message){
+    public void updateMessages(String messageContent, String sender, List<String> receivers){
         synchronized (this.messages){
-            messages.add(message);
+            messages.add(new Message(messageContent, sender, String.valueOf(receivers)));
         }
     }
 
