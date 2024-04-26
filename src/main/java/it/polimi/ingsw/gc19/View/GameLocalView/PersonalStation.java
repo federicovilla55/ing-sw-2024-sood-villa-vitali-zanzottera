@@ -21,7 +21,7 @@ public class PersonalStation extends LocalStationPlayer {
     private Integer privateGoalCardIdx;
     private GoalCard privateGoalCardInStation;
 
-    private GoalCard[] privateGoalCardsInStation;
+    private final GoalCard[] privateGoalCardsInStation;
 
     public PersonalStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols, int numPoints,
                            List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence,
@@ -43,11 +43,6 @@ public class PersonalStation extends LocalStationPlayer {
         placedCardSequence.add(new Tuple<>(placedCard, position));
 
         cardSchema[position.x()][position.y()] = placedCard;
-
-        cardPosition.put(placedCard, new Tuple<>(position.x(), position.y()));
-
-        cardOverlap[position.x()][position.y()] = currentCount;
-        currentCount++;
     }
 
     public void setColor(Color color){
@@ -59,32 +54,35 @@ public class PersonalStation extends LocalStationPlayer {
     }
 
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) {
+        // checks if the card to place is contained in the player's hand
         if(!this.getCardsInHand().contains(toPlace)){
             throw new RuntimeException();
         }
+
+
         if(!toPlace.enoughResourceToBePlaced(this.getVisibleSymbols())){
             return false;
         }
-        if(!this.isPlaceable(anchor, direction)){
-            return false;
-        }
-        return this.isPlaceable(anchor, direction) && toPlace.enoughResourceToBePlaced(this.getVisibleSymbols());
-    }
 
-    boolean isPlaceable(PlayableCard anchor, Direction direction) {
-        PlayableCard neighborCard;
-        int currentX, currentY;
-        if(!this.cardPosition.containsKey(anchor)){
-            throw new RuntimeException();
+        int currentX = -1;
+        int currentY = -1;
+
+        boolean containedAnchor = false;
+        for(Tuple<PlayableCard, Tuple<Integer,Integer>> t : placedCardSequence){
+            if(t.x().equals(anchor)){
+                Tuple<Integer, Integer> pos = t.y();
+                currentX = pos.x() + direction.getX();
+                currentY = pos.y() + direction.getY();
+                containedAnchor = true;
+                break;
+            }
         }
-        currentX = this.cardPosition.get(anchor).x() + direction.getX();
-        currentY = this.cardPosition.get(anchor).y() + direction.getY();
-        if(this.cardSchema[currentX][currentY] != null){
+        if(!containedAnchor || this.cardSchema[currentX][currentY] != null){
             return false;
         }
 
         for(Direction dir : Direction.values()){
-            neighborCard = this.cardSchema[currentX + dir.getX()][currentY + dir.getY()];
+            PlayableCard neighborCard = this.cardSchema[currentX + dir.getX()][currentY + dir.getY()];
             if(neighborCard != null && !neighborCard.canPlaceOver(dir.getOtherCornerPosition())){
                 return false;
             }

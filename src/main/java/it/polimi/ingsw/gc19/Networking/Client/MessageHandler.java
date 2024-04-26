@@ -161,6 +161,7 @@ public class MessageHandler implements AllMessageVisitor {
     @Override
     public void visit(CreatedGameMessage message) {
         this.client.setGameName(message.getGameName());
+        this.localModel.setGameName(message.getGameName());
     }
 
     @Override

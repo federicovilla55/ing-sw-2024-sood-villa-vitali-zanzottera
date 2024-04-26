@@ -20,22 +20,19 @@ public class ActionParser {
 
     private ClientState viewState;
 
+    private ClientState prevState;
+
     public ActionParser(String nickname){
         this.nickname = nickname;
         viewState = new NotPlayer();
+        prevState = new NotPlayer();
     }
 
     public String getNickname() {
         return nickname;
     }
 
-    // externalize class ClientState
     class NotPlayer extends ClientState{
-
-        @Override
-        public void nextState(CreatedPlayerMessage message) {
-            viewState = new NotGame();
-        }
 
         @Override
         public ViewState getState() {
@@ -49,16 +46,6 @@ public class ActionParser {
     }
 
     class NotGame extends ClientState{
-
-        @Override
-        public void nextState(JoinedGameMessage message) {
-            viewState = new Setup();
-        }
-
-        @Override
-        public void nextState(CreatedGameMessage message) {
-            viewState = new Setup();
-        }
 
         @Override
         public ViewState getState() {
@@ -93,7 +80,11 @@ public class ActionParser {
         }
     }
 
-    class DonePlace extends ClientState{
+    class Wait extends ClientState{
+        @Override
+        public void nextState(CreatedPlayerMessage message) {
+            viewState = new NotGame();
+        }
 
         @Override
         public void nextState(AcceptedPlaceCardMessage message) {
@@ -101,8 +92,23 @@ public class ActionParser {
         }
 
         @Override
+        public void nextState(JoinedGameMessage message) {
+            viewState = new Setup();
+        }
+
+        @Override
+        public void nextState(CreatedGameMessage message) {
+            viewState = new Setup();
+        }
+
+        @Override
+        public void nextState(AcceptedPickCardFromTable message) {
+            viewState = new OtherTurn();
+        }
+
+        @Override
         public ViewState getState() {
-            return ViewState.DONEPLACE;
+            return ViewState.WAIT;
         }
 
         @Override
@@ -111,28 +117,6 @@ public class ActionParser {
         }
     }
 
-    class DonePick extends ClientState{
-        @Override
-        public void nextState(AcceptedPickCardFromTable message) {
-            viewState = new OtherTurn();
-        }
-
-        @Override
-        public void nextState(OwnAcceptedPickCardFromDeckMessage message) {
-            viewState = new OtherTurn();
-        }
-
-
-        @Override
-        public ViewState getState() {
-            return ViewState.DONEPICK;
-        }
-
-        @Override
-        public void parseAction(String action) {
-            // send chat messages
-        }
-    }
 
     class Place extends ClientState{
         // no nextState because after a single place

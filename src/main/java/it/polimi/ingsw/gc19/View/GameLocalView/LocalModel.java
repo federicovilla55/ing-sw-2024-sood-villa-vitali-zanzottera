@@ -21,8 +21,7 @@ public class LocalModel {
     private ConcurrentHashMap<String, State> otherPlayerState; // use personal too
     private List<String> availableGames;
     private String nickname; // use nickname for methods in hashmap
-
-    // gameName
+    private String gameName;
 
     private LocalTable table;
     private String firstPlayer;
@@ -31,11 +30,11 @@ public class LocalModel {
     private final Object lockPersonal;
     private final Object lockOther;
 
-    private int numPlayers; // add getter
+    private int numPlayers;
 
     private List<Color> availableColors;
 
-    private final ArrayList<Message> messages; // chat
+    private final ArrayList<Message> messages;
 
     public LocalModel(){
         personalStation = null;
@@ -216,6 +215,10 @@ public class LocalModel {
         this.numPlayers = numPlayers;
     }
 
+    public int getNumPlayers() {
+        return numPlayers;
+    }
+
     public void setAvailableGames(List<String> availableGames) {
         this.availableGames = availableGames;
     }
@@ -242,5 +245,13 @@ public class LocalModel {
         synchronized (this.messages) {
             return messages;
         }
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 }
