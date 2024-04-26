@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
 import it.polimi.ingsw.gc19.Controller.GameController;
+import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
@@ -29,12 +30,6 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
         this.messageQueue = new ArrayDeque<>();
     }
 
-    public void run(){
-        while(!Thread.interrupted()){
-            ClientHandler.this.sendMessage();
-        }
-    }
-
     public ClientHandler(String username){
         this(username, null);
     }
@@ -44,11 +39,31 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
     }
 
     /**
+     * This method overrides {@link Thread#run()}. It is used to send message
+     * to client accordingly to his dynamic type
+     */
+    public void run(){
+        while(!Thread.currentThread().isInterrupted()){
+            try {
+                ClientHandler.this.sendMessage();
+            }
+            catch (InterruptedException interruptedException){
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+    }
+
+    /**
      * Getter method for player name
      * @return player name bound to this {@link ClientHandler}
      */
     public String getUsername() {
         return this.username;
+    }
+
+    public void setUsername(String username){
+        this.username = username;
     }
 
     /**
@@ -87,7 +102,7 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
             }else{
                 messageQueue.add(message);
             }
-            messageQueue.notify();
+            messageQueue.notifyAll();
         }
     }
 
@@ -96,14 +111,16 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
      * method for sending it through the network (RMI or TCP for this project)
      * with {@link ClientHandlerRMI#sendMessageToClient(MessageToClient)}
      */
-    protected void sendMessage(){
+    protected void sendMessage() throws InterruptedException {
         MessageToClient messageToSend;
         synchronized(messageQueue){
             while(messageQueue.isEmpty()){
                 try{
                     messageQueue.wait();
                 }
-                catch(InterruptedException ignored){ };
+                catch(InterruptedException interruptedException){
+                    throw new InterruptedException();
+                };
             }
             messageToSend = this.messageQueue.remove();
             if(messageToSend.getHeader() == null || messageToSend.getHeader().contains(username)) {
@@ -121,6 +138,9 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
         this.gameController = gameController;
     }
 
+    /**
+     * This method is used to interrupt the instance of client handler
+     */
     public void interruptClientHandler(){
         this.interrupt();
     }

@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.Controller;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
-import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
@@ -70,7 +70,7 @@ public class MainController {
      */
     public void fireGameAndPlayer(String gameName){
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.schedule(() ->{
+        scheduler.schedule(() -> {
             GameController gameController;
             ArrayList<String> playersToRemove;
             synchronized(gamesInfo){
@@ -107,7 +107,7 @@ public class MainController {
      *     </li>
      * </ul>
      * When a lobby player is signaled to be inactive his state is set to <code>State.INACTIVE</code> and
-     * it's deleted from <code>playersInfo</code>.
+     * it's not deleted from <code>playersInfo</code>.
      * When a game player is signaled to be inactive his state becomes <code>State.INACTIVE</code> and
      * this method calls {@link GameController#removeClient(String)} to remove player's observer.
      * @param nickname nickname of the player became inactive
@@ -163,7 +163,6 @@ public class MainController {
             if(gameController.getGameAssociated().getGameState() == GameState.SETUP && gameController.getConnectedClients().isEmpty()){
                 this.gamesInfo.remove(gameName);
             }
-            player.update(new DisconnectGameMessage(gameName).setHeader(player.getUsername()));
         }
     }
 
@@ -184,6 +183,11 @@ public class MainController {
         Game gameToBuild = null;
         if(!checkPlayer(player)){
             return false;
+        }
+        if(numPlayer < 2 || numPlayer > 4){
+            player.update(new GameHandlingError(Error.INCORRECT_NUMBER_OF_PLAYERS,
+                                                "Desired number of players is incorrect!")
+                                  .setHeader(player.getName()));
         }
         synchronized (this.gamesInfo) {
             if (!this.gamesInfo.containsKey(gameName)) {
@@ -251,20 +255,14 @@ public class MainController {
      * @param player is the {@link ClientHandler} of the player to be registered
      * @return name of joined game if it exists, otherwise null.
      */
-    public String registerToFirstAvailableGame(ClientHandler player) {
+    public boolean registerToFirstAvailableGame(ClientHandler player) {
         ArrayList<String> availableGames = findAvailableGames();
         if(!findAvailableGames().isEmpty()) {
-            String gameName = findAvailableGames().getFirst();
-            if(registerToGame(player, this.findAvailableGames().getFirst())){
-                return gameName;
-            }
-            else{
-                return null;
-            }
+            return !availableGames.isEmpty() && registerToGame(player, availableGames.getFirst());
         }
         else{
             player.update(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, "Attention, there aren't games to join! Try later...").setHeader(player.getUsername()));
-            return null;
+            return false;
         }
     }
 
@@ -291,7 +289,8 @@ public class MainController {
                                       .setHeader(player.getUsername()));
                 return false;
             }
-            if (this.gamesInfo.get(gameName).getGameAssociated().getNumPlayers() == this.gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer()) {
+            if (this.gamesInfo.get(gameName).getGameAssociated().getNumPlayers() == this.gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer() ||
+                    this.gamesInfo.get(gameName).getGameAssociated().getGameState() != GameState.SETUP) {
                 player.update(new GameHandlingError(Error.GAME_NOT_ACCESSIBLE,
                                                     "Game " + gameName + " is not accessible!")
                                       .setHeader(player.getUsername()));
@@ -370,17 +369,21 @@ public class MainController {
         }
     }
 
+    /**
+     * This method checks if player with nick{@param nick} is active.
+     * @param nick is the nickname of the player to search for
+     * @return <code>true</code> if and only if {@param nick} is in <code>playerInfo</code>
+     * and state of player is <code>State.ACTIVE</code>
+     */
     public boolean isPlayerActive(String nick){
         synchronized (this.playerInfo){
-            System.out.println(playerInfo.keySet());
             if(!this.playerInfo.containsKey(nick)) return false;
-            System.out.println("passed");
             return this.playerInfo.get(nick).x() == State.ACTIVE;
         }
     }
 
     /**
-     * This static method destroy an instance of {@link MainController}
+     * This static method resets an instance of {@link MainController}
      */
     public void resetMainController() {
         synchronized (this.playerInfo) {

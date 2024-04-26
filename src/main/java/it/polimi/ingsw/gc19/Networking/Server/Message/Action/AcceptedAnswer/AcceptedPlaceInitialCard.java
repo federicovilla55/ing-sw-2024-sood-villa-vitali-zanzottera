@@ -12,24 +12,13 @@ import java.util.Map;
  * This message is used by server to notify to all active
  * game players that an initial card has been placed
  */
-public class AcceptedPlaceInitialCard extends AcceptedActionMessage{
+public class AcceptedPlaceInitialCard extends AcceptedPlaceCardMessage{
 
-    private final String nick;
-    private final Map<Symbol, Integer> visibleSymbol;
     private final PlayableCard initialCard;
 
     public AcceptedPlaceInitialCard(String nick, PlayableCard initialCard, Map<Symbol, Integer> visibleSymbol){
-        this.nick = nick;
+        super(nick, visibleSymbol);
         this.initialCard = initialCard;
-        this.visibleSymbol = visibleSymbol;
-    }
-
-    /**
-     * Getter for updated hashmap of visible symbols after placing initial card
-     * @return hew hashmap of visible symbols after placing initial card
-     */
-    public Map<Symbol, Integer> getVisibleSymbol() {
-        return this.visibleSymbol;
     }
 
     /**
@@ -40,14 +29,11 @@ public class AcceptedPlaceInitialCard extends AcceptedActionMessage{
         return this.initialCard;
     }
 
-    /**
-     * Getter for nickname of player who placed the initial card
-     * @return nickname of player who placed initial card
-     */
-    public String getNick() {
-        return this.nick;
-    }
 
+    /**
+     * Getter for card to place orientation
+     * @return the {@link CardOrientation} of the card to place
+     */
     public CardOrientation getOrient(){
         return this.initialCard.getCardOrientation();
     }

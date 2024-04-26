@@ -8,8 +8,6 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
@@ -20,7 +18,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServerForTests;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -28,7 +28,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +37,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ClientRMITest {
-    private static VirtualMainServerForTests virtualMainServer;
+    private static MainServerRMI mainServerRMI;
+    private static VirtualMainServer virtualMainServer;
     private static Registry registry;
 
     // Hashmap to save the get the anchor for the placeCard.
@@ -47,9 +47,10 @@ public class ClientRMITest {
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException {
-        ServerApp.startRMI();
+        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
+        mainServerRMI = ServerApp.getMainServerRMI();
         registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServerForTests) registry.lookup(Settings.mainRMIServerName);
+        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
     }
 
     @BeforeEach
@@ -90,7 +91,7 @@ public class ClientRMITest {
 
         this.client1.connect();
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
         assertNull(this.client2.getMessage());
         assertNull(this.client3.getMessage());
         assertNull(this.client4.getMessage());
@@ -488,7 +489,7 @@ public class ClientRMITest {
 
         this.client1.reconnect();
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
 
         this.client1.startSendingHeartbeat();
 
@@ -501,12 +502,12 @@ public class ClientRMITest {
         TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, "client7");
         // @todo: how is the reconnect running without any values in names and token (null values only)???
         client7.reconnect();
-        assertMessageEquals(client7, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client7, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         TestClassClientRMI client8 = new TestClassClientRMI(virtualMainServer, "client8");
         client8.connect();
         client8.reconnect();
-        assertMessageEquals(client8, new GameHandlingError(Error.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        assertMessageEquals(client8, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
     }
 
     @Test
@@ -550,7 +551,7 @@ public class ClientRMITest {
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
         client6.reconnect();
-        assertMessageEquals(client6, new GameHandlingError(Error.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         gameServer2.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage("client2", "Chat message after disconnection!"));
@@ -608,7 +609,7 @@ public class ClientRMITest {
         this.client1.disconnect();
         this.client2.disconnect();
 
-        virtualMainServer.resetMainServer();
+        mainServerRMI.resetServer();
     }
 
     @AfterAll

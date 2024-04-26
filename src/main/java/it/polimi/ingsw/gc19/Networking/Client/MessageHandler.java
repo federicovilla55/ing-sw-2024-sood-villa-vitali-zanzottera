@@ -1,12 +1,10 @@
 package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Enums.Color;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Tuple;
-import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.AllMessageVisitor;
@@ -15,8 +13,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
-import it.polimi.ingsw.gc19.View.GameLocalView.*;
+import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 
 import java.util.List;
 import java.util.Map;
@@ -208,5 +207,64 @@ public class MessageHandler implements AllMessageVisitor {
         // @todo: how to handle the new turn, should we
         // just change the interface and permit more operation to the
         // client or should we just block them with a method in the client?
+    }
+
+    @Override
+    public void visit(NetworkHandlingErrorMessage message) {
+
+    }
+}
+
+// @todo: for now those class are here so that a MessageHandler can be used
+// without having to care about the network used (RMI or TCP). Maybe the
+// Table and Station class can be moved to the same package that contains
+// the logic for the client-side game handling.
+class ViewTable{
+    private PlayableCard resource1;
+    private PlayableCard resource2;
+    private PlayableCard gold1;
+    private PlayableCard gold2;
+    private GoalCard publicGoal1;
+    private  GoalCard publicGoal2;
+    private Symbol nextSeedOfResourceDeck;
+    private Symbol nextSeedOfGoldDeck;
+
+    ViewTable(PlayableCard resource1, PlayableCard resource2, PlayableCard gold1, PlayableCard gold2,
+          GoalCard publicGoal1, GoalCard publicGoal2, Symbol nextSeedOfResourceDeck, Symbol nextSeedOfGoldDeck){
+        this.resource1 = resource1;
+        this.resource2 = resource2;
+        this.gold1 = gold1;
+        this.gold2 = gold2;
+        this.publicGoal1 = publicGoal1;
+        this.publicGoal2 = publicGoal2;
+        this.nextSeedOfResourceDeck = nextSeedOfResourceDeck;
+        this.nextSeedOfGoldDeck = nextSeedOfGoldDeck;
+    }
+}
+
+class ViewStation{
+    private String nick;
+    private Color color;
+    private List<PlayableCard> cardsInHand;
+    private Map<Symbol, Integer> visibleSymbols;
+    private GoalCard privateGoalCard;
+    private int numPoints;
+    private PlayableCard initialCard;
+    private GoalCard goalCard1;
+    private GoalCard goalCard2;
+    private List<Tuple<PlayableCard, Tuple<Integer,Integer>>> placedCardSequence;
+
+    ViewStation(String nick, Color color, List<PlayableCard> cardsInHand, Map<Symbol, Integer> visibleSymbols, GoalCard privateGoalCard, int numPoints,
+            PlayableCard initialCard, GoalCard goalCard1, GoalCard goalCard2, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
+        this.nick = nick;
+        this.color = color;
+        this.cardsInHand = cardsInHand;
+        this.visibleSymbols = visibleSymbols;
+        this.privateGoalCard = privateGoalCard;
+        this.numPoints = numPoints;
+        this.initialCard = initialCard;
+        this.goalCard1 = goalCard1;
+        this.goalCard2 = goalCard2;
+        this.placedCardSequence = placedCardSequence;
     }
 }
