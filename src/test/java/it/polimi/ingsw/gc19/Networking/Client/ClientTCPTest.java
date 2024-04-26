@@ -39,10 +39,10 @@ public class ClientTCPTest {
     @BeforeEach
     public void setUp() {
         ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
-        client1 = new ClientTCP("client1");
-        client2 = new ClientTCP("client2");
-        client3 = new ClientTCP("client3");
-        client4 = new ClientTCP("client4");
+        client1 = new TestClassClientTCP("client1");
+        client2 = new TestClassClientTCP("client2");
+        client3 = new TestClassClientTCP("client3");
+        client4 = new TestClassClientTCP("client4");
         clientsAnchors = new HashMap<>();
     }
 

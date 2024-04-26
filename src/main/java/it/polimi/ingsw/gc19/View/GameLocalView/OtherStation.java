@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.View.GameLocalView;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 
 import java.util.List;
 import java.util.Map;

@@ -16,6 +16,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHa
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
+import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
+import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
+import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 
 import java.util.List;
 import java.util.Map;
@@ -62,10 +65,10 @@ public class MessageHandler implements AllMessageVisitor {
     }
 
     @Override
-    public void visit(AcceptedPlaceCardMessage message) {
+    public void visit(AcceptedPlacePlayableCardMessage message) {
         if(this.localModel.getNickname().equals(message.getNick())){
             this.localModel.placeCardPersonalStation(message.getAnchorCode(), message.getCardToPlace(),
-                                                    message.getDirection(), message.getCardToPlace().getCardOrientation());
+                    message.getDirection(), message.getCardToPlace().getCardOrientation());
         }
     }
 
@@ -212,59 +215,5 @@ public class MessageHandler implements AllMessageVisitor {
     @Override
     public void visit(NetworkHandlingErrorMessage message) {
 
-    }
-}
-
-// @todo: for now those class are here so that a MessageHandler can be used
-// without having to care about the network used (RMI or TCP). Maybe the
-// Table and Station class can be moved to the same package that contains
-// the logic for the client-side game handling.
-class ViewTable{
-    private PlayableCard resource1;
-    private PlayableCard resource2;
-    private PlayableCard gold1;
-    private PlayableCard gold2;
-    private GoalCard publicGoal1;
-    private  GoalCard publicGoal2;
-    private Symbol nextSeedOfResourceDeck;
-    private Symbol nextSeedOfGoldDeck;
-
-    ViewTable(PlayableCard resource1, PlayableCard resource2, PlayableCard gold1, PlayableCard gold2,
-          GoalCard publicGoal1, GoalCard publicGoal2, Symbol nextSeedOfResourceDeck, Symbol nextSeedOfGoldDeck){
-        this.resource1 = resource1;
-        this.resource2 = resource2;
-        this.gold1 = gold1;
-        this.gold2 = gold2;
-        this.publicGoal1 = publicGoal1;
-        this.publicGoal2 = publicGoal2;
-        this.nextSeedOfResourceDeck = nextSeedOfResourceDeck;
-        this.nextSeedOfGoldDeck = nextSeedOfGoldDeck;
-    }
-}
-
-class ViewStation{
-    private String nick;
-    private Color color;
-    private List<PlayableCard> cardsInHand;
-    private Map<Symbol, Integer> visibleSymbols;
-    private GoalCard privateGoalCard;
-    private int numPoints;
-    private PlayableCard initialCard;
-    private GoalCard goalCard1;
-    private GoalCard goalCard2;
-    private List<Tuple<PlayableCard, Tuple<Integer,Integer>>> placedCardSequence;
-
-    ViewStation(String nick, Color color, List<PlayableCard> cardsInHand, Map<Symbol, Integer> visibleSymbols, GoalCard privateGoalCard, int numPoints,
-            PlayableCard initialCard, GoalCard goalCard1, GoalCard goalCard2, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
-        this.nick = nick;
-        this.color = color;
-        this.cardsInHand = cardsInHand;
-        this.visibleSymbols = visibleSymbols;
-        this.privateGoalCard = privateGoalCard;
-        this.numPoints = numPoints;
-        this.initialCard = initialCard;
-        this.goalCard1 = goalCard1;
-        this.goalCard2 = goalCard2;
-        this.placedCardSequence = placedCardSequence;
     }
 }
