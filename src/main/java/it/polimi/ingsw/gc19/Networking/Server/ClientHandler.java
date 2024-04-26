@@ -62,6 +62,10 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
         return this.username;
     }
 
+    /**
+     * Setter method for player name
+     * @param username is the player's name
+     */
     public void setUsername(String username){
         this.username = username;
     }
