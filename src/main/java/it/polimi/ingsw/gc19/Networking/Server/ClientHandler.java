@@ -103,7 +103,7 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
                 try{
                     messageQueue.wait();
                 }
-                catch(InterruptedException ignored){ };
+                catch(InterruptedException ignored){ }; //@TODO: interrupted exception to handle
             }
             messageToSend = this.messageQueue.remove();
             if(messageToSend.getHeader() == null || messageToSend.getHeader().contains(username)) {

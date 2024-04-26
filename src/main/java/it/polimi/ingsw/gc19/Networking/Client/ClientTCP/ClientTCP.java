@@ -5,107 +5,109 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
-import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
-import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
-import java.rmi.RemoteException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.concurrent.ExecutorService;
+import java.util.Date;
+import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ClientTCP implements VirtualClient, ClientInterface {
-    private Socket socket;
-    private ObjectInputStream inputStream;
-    private ObjectOutputStream outputStream;
-    private final Deque<MessageToClient> incomingMessages;
+public class ClientTCP extends Thread implements ClientInterface {
+    private final Socket socket;
+    private final ObjectInputStream inputStream;
+    private final ObjectOutputStream outputStream;
     private String nickname;
     private String token;
-    private String gameName;
     private final MessageHandler messageHandler;
-    private final ExecutorService incomingMessageHandler = Executors.newSingleThreadExecutor();
-    private ScheduledExecutorService heartbeatScheduler;
+    private final ScheduledExecutorService heartbeatScheduler;
 
-    public ClientTCP(String nickname){
+
+    public ClientTCP(MessageHandler messageHandler, String serverIP, int serverPort){
+
+        this.messageHandler = messageHandler;
+
+        Socket socket = null;
+        ObjectOutputStream objectOutputStream = null;
+        ObjectInputStream objectInputStream = null;
         try {
-            this.socket = new Socket(Settings.DEFAULT_SERVER_IP, Settings.DEFAULT_SERVER_PORT);
-            this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
-            this.inputStream = new ObjectInputStream(this.socket.getInputStream());
-            this.startSendingHeartbeat();
+            socket = new Socket(serverIP, serverPort);
+            objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            objectInputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            //@TODO: handle this exception. How to notify view? Returning?
+            //At the beginning we can write on console I think, so print on err could be fine
+            System.exit(-1);
         }
-        this.nickname = nickname;
-        this.incomingMessages = new ArrayDeque<>();
-        this.messageHandler = new MessageHandler(this);
-        this.incomingMessageHandler.submit(this::receiveMessages);
+        this.socket = socket;
+        this.inputStream = objectInputStream;
+        this.outputStream = objectOutputStream;
+
+        this.heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
+    }
+
+    @Override
+    public void run(){
+        while(!Thread.interrupted()){
+            this.receiveMessages();
+        }
     }
 
     public void sendMessage(MessageToServer message){
-        boolean sent;
-        int numOfTry = 0;
         synchronized (this.outputStream){
-            sent = false;
-            while(!sent && !socket.isClosed() && numOfTry < 25) {
-                try {
-                    this.outputStream.writeObject(message);
-                    this.outputStream.flush();
-                    this.outputStream.reset();
-                    sent = true;
-                } catch (Exception e) {
-                    numOfTry++;
-                }
+            try {
+                this.outputStream.writeObject(message);
+                finalizeSending();
+            } catch (IOException e) {
+                //@TODO: invoke correct method of message handler
             }
         }
+    }
+
+    private void finalizeSending() throws IOException{
+        this.outputStream.flush();
+        this.outputStream.reset();
     }
 
     public void receiveMessages(){
         MessageToClient incomingMessage;
-        while (true){
-            try{
-                incomingMessage = (MessageToClient) this.inputStream.readObject();
-            } catch (IOException  | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            pushUpdate(incomingMessage);
+        try{
+            incomingMessage = (MessageToClient) this.inputStream.readObject();
+        } catch (IOException  | ClassNotFoundException e) {
+            //@TODO: handle this exception
+            throw new RuntimeException(e);
         }
+        this.messageHandler.update(incomingMessage);
     }
 
     public void stopClient(){
-        try {
-            //if (inputStream != null) inputStream.close();
-            //if (outputStream != null) outputStream.close();
-            if (socket != null) this.socket.close();
+        stopSendingHeartbeat();
 
-            this.incomingMessageHandler.shutdownNow();
-            this.heartbeatScheduler.shutdownNow();
+        try {
+            if (socket != null) {
+                this.socket.shutdownOutput();
+                this.socket.shutdownInput();
+                this.socket.close();
+            }
         }
         catch (IOException ioException){
+            //@TODO: handle this exception
             throw new RuntimeException(ioException);
         }
-
-
     }
 
     public void startSendingHeartbeat(){
-        this.heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
         this.heartbeatScheduler.scheduleAtFixedRate(() -> {
             sendMessage(new HeartBeatMessage(this.nickname));
         }, 0, 400, TimeUnit.MILLISECONDS);
@@ -120,8 +122,6 @@ public class ClientTCP implements VirtualClient, ClientInterface {
 
     @Override
     public void connect() {
-
-        //this.incomingMessageHandler.submit(this::receiveMessages);
         this.sendMessage(new NewUserMessage(this.nickname));
     }
 
@@ -140,22 +140,6 @@ public class ClientTCP implements VirtualClient, ClientInterface {
         this.sendMessage(new JoinGameMessage(gameName, this.nickname));
     }
 
-    public void joinGame(String gameName, boolean wait){
-        if(wait){
-            boolean found = false;
-            while (!found) {
-                this.sendMessage(new JoinGameMessage(gameName, this.nickname));
-                if (waitAndNotifyTypeOfMessage(GameHandlingError.class, JoinedGameMessage.class) == 1) {
-                    found = true;
-                } else {
-                    getMessage(GameHandlingError.class);
-                }
-            }
-        }else {
-            joinGame(gameName);
-        }
-    }
-
     @Override
     public void joinFirstAvailableGame() {
         this.sendMessage(new JoinFirstAvailableGameMessage(this.nickname));
@@ -163,13 +147,24 @@ public class ClientTCP implements VirtualClient, ClientInterface {
 
     @Override
     public void reconnect() {
-        this.sendMessage(new ReconnectToServerMessage(this.nickname, this.token));
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
+        try {
+            Scanner tokenScanner = new Scanner(tokenFile);
+            this.sendMessage(new ReconnectToServerMessage(this.nickname, tokenScanner.nextLine()));
+        }
+        catch (IOException ignored){ };
     }
 
     @Override
     public void disconnect() {
         this.sendMessage(new DisconnectMessage(this.nickname));
+        this.interrupt();
         this.stopSendingHeartbeat();
+
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
+        if(tokenFile.delete()){
+            System.err.println("Token file deleted...");
+        }
     }
 
     @Override
@@ -209,12 +204,15 @@ public class ClientTCP implements VirtualClient, ClientInterface {
 
     @Override
     public void setToken(String token) {
-        this.token = token;
-    }
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
+            bufferedWriter.write(token);
+            tokenFile.setWritable(false);
+        }
+        catch (IOException ignored){ };
 
-    @Override
-    public String getToken() {
-        return this.token;
+        this.token = token;
     }
 
     @Override
@@ -225,77 +223,6 @@ public class ClientTCP implements VirtualClient, ClientInterface {
     @Override
     public String getNickname() {
         return this.nickname;
-    }
-
-    @Override
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
-    }
-
-    @Override
-    public String getGameName() {
-        return this.gameName;
-    }
-
-    @Override
-    public void pushUpdate(MessageToClient message) {
-        synchronized (this.incomingMessages){
-            this.incomingMessages.add(message);
-            this.incomingMessages.notifyAll();
-        }
-
-        message.accept(this.messageHandler);
-    }
-
-    public void clearQueue(){
-        synchronized (this.incomingMessages) {
-            this.incomingMessages.clear();
-        }
-    }
-
-    @Override
-    public void waitForMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (this.incomingMessages.stream().noneMatch(messageToClientClass::isInstance)) {
-                try {
-                    this.incomingMessages.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-    public int waitAndNotifyTypeOfMessage(Class<? extends MessageToClient> messageToClientClass1, Class<? extends MessageToClient> messageToClientClass2) {
-        synchronized (this.incomingMessages) {
-            while (this.incomingMessages.stream().noneMatch(messageToClientClass1::isInstance) && this.incomingMessages.stream().noneMatch(messageToClientClass2::isInstance)) {
-                try {
-                    this.incomingMessages.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            if(this.incomingMessages.stream().noneMatch(messageToClientClass1::isInstance)){
-                return 1;
-            }
-            return 0;
-        }
-    }
-
-    @Override
-    public MessageToClient getMessage() {
-        return getMessage(MessageToClient.class);
-    }
-
-    @Override
-    public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (!this.incomingMessages.isEmpty()) {
-                MessageToClient res = this.incomingMessages.remove();
-                if (messageToClientClass.isInstance(res)) return res;
-            }
-        }
-        return null;
     }
 
 }

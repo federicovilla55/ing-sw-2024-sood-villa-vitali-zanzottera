@@ -15,24 +15,62 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
+import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Handles incoming messages from the server to the client by implementing the AllMessageVisitor interface (design patter visitor).
  */
-public class MessageHandler implements AllMessageVisitor {
+public class MessageHandler extends Thread implements AllMessageVisitor{
+    private final ArrayDeque<MessageToClient> messagesToHandle;
     private ClientInterface client;
-
     private LocalModel localModel;
 
     public MessageHandler(ClientInterface client){
+        this.messagesToHandle = new ArrayDeque<>();
         this.client = client;
         this.localModel = new LocalModel();
+    }
+
+    public void update(MessageToClient message) {
+        synchronized (this.messagesToHandle){
+            this.messagesToHandle.add(message);
+            this.messagesToHandle.notifyAll();
+        }
+    }
+
+    @Override
+    public void run() {
+        MessageToClient message;
+        while (!Thread.interrupted()){
+            synchronized (this.messagesToHandle){
+                while(this.messagesToHandle.isEmpty()){
+                    try{
+                        this.messagesToHandle.wait();
+                    }
+                    catch (InterruptedException interruptedException){
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+
+                message = this.messagesToHandle.remove();
+                this.messagesToHandle.notifyAll();
+            }
+
+            message.accept(this);
+        }
+    }
+
+    public void interruptMessageHandler(){
+        this.interrupt();
     }
 
     @Override
@@ -200,4 +238,5 @@ public class MessageHandler implements AllMessageVisitor {
         // just change the interface and permit more operation to the
         // client or should we just block them with a method in the client?
     }
+
 }

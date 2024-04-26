@@ -37,20 +37,8 @@ public interface ClientInterface {
 
     void setToken(String token);
 
-    String getToken();
-
     void setNickname(String nickname);
 
     String getNickname();
-
-    void setGameName(String gameName);
-
-    String getGameName();
-
-    public void waitForMessage(Class<? extends MessageToClient> messageToClientClass);
-
-    public MessageToClient getMessage();
-
-    public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass);
 
 }

@@ -4,15 +4,23 @@ import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Tuple;
+import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.ReconnectToServerMessage;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
+import it.polimi.ingsw.gc19.ObserverPattern.ObservableMessageToClient;
+import it.polimi.ingsw.gc19.ObserverPattern.ObservableMessageToServer;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -24,102 +32,115 @@ import java.util.concurrent.TimeUnit;
 /**
  * Represents a client using RMI for communication with the server.
  */
-public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualClient, ClientInterface {
+public class ClientRMI extends UnicastRemoteObject implements VirtualClient, ClientInterface{
 
     private final VirtualMainServer virtualMainServer;
     private VirtualGameServer virtualGameServer;
+    private final Object virtualGameServerLock;
     private ScheduledExecutorService heartbeatScheduler;
-
-    private final Deque<MessageToClient> incomingMessages;
 
     private String nickname;
     private String token;
-    private String gameName;
 
     private final MessageHandler messageHandler;
 
-    public ClientRMI(VirtualMainServer virtualMainServer, String nickname) throws RemoteException {
+    public ClientRMI(VirtualMainServer virtualMainServer, MessageHandler messageHandler, String nickname) throws RemoteException {
+        super();
         this.nickname = nickname;
+
         this.virtualMainServer = virtualMainServer;
         this.virtualGameServer = null;
-        this.messageHandler = new MessageHandler(this);
-        this.incomingMessages = new ArrayDeque<>();
+        this.virtualGameServerLock = new Object();
+
+        this.messageHandler = messageHandler;
     }
 
-    public void start(){
 
-    }
 
     @Override
     public void connect(){
         try{
             this.virtualMainServer.newConnection(this, nickname);
             startSendingHeartbeat();
-            setNickname(nickname);
         } catch (RemoteException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); //@TODO: handle every single of these exception
         }
     }
 
-
+    @Override
     public void createGame(String gameName, int numPlayers){
-        try {
-            this.virtualGameServer =
-                    this.virtualMainServer.createGame(
-                            this, gameName, this.nickname, numPlayers);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            try {
+                this.virtualGameServer = this.virtualMainServer.createGame(this, gameName, this.nickname, numPlayers);
+            } catch (RemoteException e) {
+                //@TODO: invoke correct method of message handler
+                throw new RuntimeException(e);
+            }
         }
     }
 
+    @Override
     public void createGame(String gameName, int numPlayers, int seed){
-        try {
-            this.virtualGameServer =
-                    this.virtualMainServer.createGame(
-                            this, gameName, this.nickname, numPlayers, seed);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            try {
+                this.virtualGameServer = this.virtualMainServer.createGame(this, gameName, this.nickname, numPlayers, seed);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
+    @Override
     public void joinGame(String gameName){
-        try {
-            this.virtualGameServer =
-                    this.virtualMainServer.joinGame(
-                            this, gameName, this.nickname);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            try {
+                this.virtualGameServer = this.virtualMainServer.joinGame(this, gameName, this.nickname);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public void joinFirstAvailableGame(){
-        try {
-            this.virtualGameServer =
-                    this.virtualMainServer.joinFirstAvailableGame(
-                            this, this.nickname);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            try {
+                this.virtualGameServer = this.virtualMainServer.joinFirstAvailableGame(this, this.nickname);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public void reconnect(){
-        try {
-            this.virtualGameServer =
-                    this.virtualMainServer.reconnect(
-                            this, this.nickname, this.token
-                    );
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            Scanner tokenScanner = null;
+            try {
+                File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/TokenFile" + "_" + this.nickname);
+                try {
+                    tokenScanner = new Scanner(tokenFile);
+                }
+                catch (IOException ignored){ };
+
+                assert tokenScanner != null;
+                this.virtualGameServer = this.virtualMainServer.reconnect(this, this.nickname, tokenScanner.nextLine());
+
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public void disconnect(){
         stopSendingHeartbeat();
         try {
-            this.virtualMainServer.disconnect(
-                    this, this.nickname);
+            this.virtualMainServer.disconnect(this, this.nickname); //@TODO: what happens when client disconnects himself? We set virtual main server to null?
         } catch (RemoteException e) {
             throw new RuntimeException(e);
+        }
+
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/TokenFile" + "_" + this.nickname);
+        if(tokenFile.delete()){
+            System.err.println("Token file deleted...");
         }
     }
 
@@ -131,7 +152,7 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
-        }, 0, 100, TimeUnit.MILLISECONDS);
+        }, 0, 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 10, TimeUnit.MILLISECONDS);
     }
 
     public void stopSendingHeartbeat() {
@@ -141,106 +162,121 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
     }
 
     public void placeCard(String cardToInsert, String anchorCard, Direction directionToInsert, CardOrientation orientation){
-        try {
-            this.virtualGameServer.placeCard(cardToInsert, anchorCard, directionToInsert, orientation);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            try {
+                if(this.virtualGameServer != null) {
+                    this.virtualGameServer.placeCard(cardToInsert, anchorCard, directionToInsert, orientation);
+                }
+                else{
+
+                }
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public void sendChatMessage(ArrayList<String> UsersToSend, String messageToSend){
-        try {
-            this.virtualGameServer.sendChatMessage(UsersToSend, messageToSend);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            try {
+                if(this.virtualGameServer != null) {
+                    this.virtualGameServer.sendChatMessage(UsersToSend, messageToSend);
+                }
+                else {
+
+                }
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public void placeInitialCard(CardOrientation cardOrientation){
-        try {
-            this.virtualGameServer.placeInitialCard(cardOrientation);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            try {
+                if(this.virtualGameServer != null) {
+                    this.virtualGameServer.placeInitialCard(cardOrientation);
+                }
+                else{
+
+                }
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public void pickCardFromTable(PlayableCardType type, int position){
-        try {
-            this.virtualGameServer.pickCardFromTable(type, position);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            try {
+                if(this.virtualGameServer != null) {
+                    this.virtualGameServer.pickCardFromTable(type, position);
+                }
+                else{
+
+                }
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public void pickCardFromDeck(PlayableCardType type){
-        try {
-            this.virtualGameServer.pickCardFromDeck(type);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            try {
+                if(this.virtualGameServer != null) {
+                    this.virtualGameServer.pickCardFromDeck(type);
+                }
+                else{
+
+                }
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public void chooseColor(Color color){
-        try {
-            this.virtualGameServer.chooseColor(color);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            try {
+                if(this.virtualGameServer != null) {
+                    this.virtualGameServer.chooseColor(color);
+                }
+                else{
+
+                }
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public void choosePrivateGoalCard(int cardIdx){
-        try {
-            this.virtualGameServer.choosePrivateGoalCard(cardIdx);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void waitForMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (this.incomingMessages.stream().noneMatch(messageToClientClass::isInstance)) {
-                try {
-                    this.incomingMessages.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+        synchronized (this.virtualGameServerLock) {
+            try {
+                if(this.virtualGameServer != null) {
+                    this.virtualGameServer.choosePrivateGoalCard(cardIdx);
                 }
+                else{
+
+                }
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
     @Override
-    public MessageToClient getMessage() {
-        return getMessage(MessageToClient.class);
-    }
-
-    @Override
-    public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (!this.incomingMessages.isEmpty()) {
-                MessageToClient res = this.incomingMessages.remove();
-                if (messageToClientClass.isInstance(res)) return res;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void pushUpdate(MessageToClient message) throws RemoteException {
-        synchronized (this.incomingMessages){
-            this.incomingMessages.add(message);
-            this.incomingMessages.notifyAll();
-        }
-
-        message.accept(this.messageHandler);
-    }
-
     public void setToken(String token) {
-        this.token = token;
-    }
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/TokenFile" + "_" + this.nickname);
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
+            bufferedWriter.write(token);
+            tokenFile.setWritable(false);
+        }
+        catch (IOException ignored){ };
 
-    public String getToken(){
-        return this.token;
+        this.token = token;
     }
 
     public void setNickname(String nickname) {
@@ -251,27 +287,15 @@ public class ClientRMI extends UnicastRemoteObject implements Remote, VirtualCli
         return nickname;
     }
 
-    public void setGameName(String gameName){
-        this.gameName =gameName;
-    }
-
-    public String getGameName() {
-        return gameName;
-    }
-
-    public VirtualGameServer getVirtualGameServer(){
-        return this.virtualGameServer;
-    }
-
-    public void setVirtualGameServer(VirtualGameServer virtualGameServer){
-        this.virtualGameServer = virtualGameServer;
-    }
-
-    public void clearMessages(){
-        this.incomingMessages.clear();
-    }
-
     public void endGame(){
-
+        synchronized (this.virtualGameServerLock) {
+            this.virtualGameServer = null;
+        }
     }
+
+    @Override
+    public void pushUpdate(MessageToClient message) throws RemoteException {
+        this.messageHandler.update(message);
+    }
+
 }
