@@ -74,4 +74,13 @@ public class TUICardViewTest {
         tuiView.printTUIView(playerAreaTUIView);
     }
 
+    @Test
+    public void testTableTUIView() {
+        String[][] tableTUIView;
+
+        tableTUIView = tuiView.tableTUIView();
+
+        tuiView.printTUIView(tableTUIView);
+    }
+
 }

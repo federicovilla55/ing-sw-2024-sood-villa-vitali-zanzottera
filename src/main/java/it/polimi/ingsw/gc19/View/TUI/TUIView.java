@@ -13,6 +13,20 @@ import java.util.List;
 
 public class TUIView {
 
+    /**
+     * This method prints to terminal a matrix of strings, each string represents two UTF-8 wide character(s),
+     * Making all lines aligned. Make sure to use monospace supported fonts, line Noto Sans Mono + Noto Color Emoji
+     * @param cardTUIView the matrix of strings to print
+     */
+    public void printTUIView(String[][] cardTUIView) {
+        for (String[] strings : cardTUIView) {
+            for (String string : strings) {
+                System.out.print(string);
+            }
+            System.out.println();
+        }
+    }
+
     public String[][] cardTUIView(PlayableCard card) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[3][5];
@@ -78,15 +92,6 @@ public class TUIView {
         return res;
     }
 
-    public void printTUIView(String[][] cardTUIView) {
-        for (String[] strings : cardTUIView) {
-            for (String string : strings) {
-                System.out.print(string);
-            }
-            System.out.println();
-        }
-    }
-
     public String[][] playerAreaTUIView(List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence) {
         //determine dimension of the matrix
         int h;
@@ -138,6 +143,16 @@ public class TUIView {
                 }
             }
 
+        }
+
+        return res;
+    }
+
+    public String[][] tableTUIView() {
+        // create matrix of "  " strings, each representing a single unicode character to display in console
+        String[][] res = new String[12][25];
+        for (String[] strings : res) {
+            Arrays.fill(strings, "aa");
         }
 
         return res;
