@@ -2,6 +2,8 @@ name: Java JUnit Test
 on:
   pull_request:
   push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
