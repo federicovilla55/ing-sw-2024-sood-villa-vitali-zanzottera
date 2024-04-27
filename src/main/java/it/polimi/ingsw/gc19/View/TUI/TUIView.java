@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.View;
+package it.polimi.ingsw.gc19.View.TUI;
 
 import it.polimi.ingsw.gc19.Enums.CornerPosition;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;

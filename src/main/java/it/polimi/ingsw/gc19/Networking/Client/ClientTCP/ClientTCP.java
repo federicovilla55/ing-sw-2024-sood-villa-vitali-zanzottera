@@ -13,15 +13,13 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class ClientTCP implements ClientInterface {
@@ -38,25 +36,18 @@ public class ClientTCP implements ClientInterface {
 
     private final Deque<MessageToServer> messagesToSend;
 
-    public ClientTCP(String nickname, MessageHandler messageHandler){
+    public ClientTCP(String nickname, MessageHandler messageHandler) throws IOException{
         this.nickname = nickname;
         this.messageHandler = messageHandler;
 
-        Socket socket = null;
-        ObjectOutputStream objectOutputStream = null;
-        ObjectInputStream objectInputStream = null;
         try {
-            socket = new Socket(ClientSettings.serverIP, ClientSettings.serverTCPPort);
-            objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            objectInputStream = new ObjectInputStream(socket.getInputStream());
+            this.socket = new Socket(ClientSettings.serverIP, ClientSettings.serverTCPPort);
+            this.outputStream = new ObjectOutputStream(socket.getOutputStream());
+            this.inputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
             //@TODO: handle this exception. How to notify view? Returning?
-            //At the beginning we can write on console I think, so print on err could be fine
-            System.exit(-1);
+            throw new IOException();
         }
-        this.socket = socket;
-        this.inputStream = objectInputStream;
-        this.outputStream = objectOutputStream;
 
         this.messagesToSend = new ArrayDeque<>();
 
@@ -70,8 +61,48 @@ public class ClientTCP implements ClientInterface {
 
     }
 
+    private boolean networkDisconnectionRoutine(){
+        boolean sent = false;
+        int numOfTry = 0;
+
+        while(!Thread.interrupted() && !sent && numOfTry < 25){
+            try{
+                this.outputStream.writeObject(new HeartBeatMessage(this.nickname));
+                finalizeSending();
+                sent = true;
+            }
+            catch (IOException ioException){
+                numOfTry++;
+
+                try{
+                    Thread.sleep(400);
+                }
+                catch (InterruptedException interruptedException){
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+
+        return sent;
+    }
+
+    private boolean send(MessageToServer message){
+        synchronized (this.outputStream) {
+            try {
+                this.outputStream.writeObject(message);
+                this.finalizeSending();
+                //System.out.println("sentt  " + message.getClass());
+            } catch (IOException ioException) {
+                //System.out.println("ok");
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void sendMessageToServer(){
-        MessageToServer message = null;
+        MessageToServer message;
 
         while(!Thread.interrupted()) {
             synchronized (this.messagesToSend) {
@@ -83,43 +114,21 @@ public class ClientTCP implements ClientInterface {
                         return;
                     }
                 }
-                message = this.messagesToSend.pollFirst();
+                message = this.messagesToSend.removeFirst();
             }
 
-            if(message != null) {
-                boolean sent = false;
-                int numOfTry = 0;
-
-                while(!Thread.interrupted() && !sent && numOfTry < 25){
-                    try{
-                        this.outputStream.writeObject(message);
-                        finalizeSending();
-                        sent = true;
-                        if(message instanceof DisconnectMessage) System.out.println("ok");
+            if(message != null && !send(message)) {
+                if(!this.networkDisconnectionRoutine()) {
+                    //@TODO: notify Action Parser
+                    synchronized (this.messagesToSend){
+                        this.messagesToSend.clear();
                     }
-                    catch (SocketException socketException){
-                        if(message instanceof DisconnectMessage) System.out.println("problems");
-                        System.out.println(socketException.getMessage());
-                        //@TODO: What to do?
-                        break;
-                    }
-                    catch (IOException ioException){
-                        System.out.println(ioException.getClass());
-                        numOfTry++;
-
-                        try{
-                            Thread.sleep(1000);
-                        }
-                        catch (InterruptedException interruptedException){
-                            Thread.currentThread().interrupt();
-                            return;
-                        }
-
-                    }
+                    //Al posto di interrupt pulisco  la coda dei messaggi cosi il thread si addormenta
                 }
-
-                if(!sent){
-                    //@TODO: notify Message Handler
+                else{
+                    synchronized (this.messagesToSend){
+                        this.messagesToSend.addFirst(message);
+                    }
                 }
             }
         }
@@ -143,7 +152,6 @@ public class ClientTCP implements ClientInterface {
             try {
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
             }
-            catch (SocketException ignored) { }
             catch (ClassNotFoundException classNotFoundException){
                 //@TODO: handle Class exception
             }
@@ -168,10 +176,17 @@ public class ClientTCP implements ClientInterface {
     public void stopClient(){
         stopSendingHeartbeat();
 
-        //this.senderThread.interrupt();
-        //this.receiverThread.interrupt();
+        this.senderThread.interrupt();
+        this.receiverThread.interrupt();
+        this.heartbeatScheduler.shutdownNow();
 
-        /*try {
+        Thread disconnectionThread = getDisconnectionThread();
+        try {
+            disconnectionThread.join();
+        }
+        catch (InterruptedException ignored){ }
+
+        try {
             if (socket != null) {
                 this.socket.shutdownOutput();
                 this.socket.shutdownInput();
@@ -179,8 +194,27 @@ public class ClientTCP implements ClientInterface {
             }
         }
         catch (IOException ioException){
-            //@TDO: handle this exception
-        }*/
+            //@TODO: handle this exception
+        }
+    }
+
+    @NotNull
+    private Thread getDisconnectionThread() {
+        Thread disconnectionThread = new Thread(() -> {
+            long startingTime = new Date().getTime();
+            boolean sent = false;
+
+            while(!sent && new Date().getTime() - startingTime < 1000 * 2){
+                try{
+                    ClientTCP.this.outputStream.writeObject(new DisconnectMessage(nickname));
+                    ClientTCP.this.finalizeSending();
+                    sent = true;
+                }
+                catch (IOException ignored){ };
+            }
+        });
+        disconnectionThread.start();
+        return disconnectionThread;
     }
 
     public void startSendingHeartbeat(){
@@ -230,34 +264,30 @@ public class ClientTCP implements ClientInterface {
     }
 
     @Override
-    public void reconnect() {
+    public void reconnect() throws IllegalStateException{
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
-        try {
-            Scanner tokenScanner = new Scanner(tokenFile);
-            this.sendMessage(new ReconnectToServerMessage(this.nickname, tokenScanner.nextLine()));
-            tokenScanner.close();
+
+        if(tokenFile.isFile() && tokenFile.exists()) {
+            try {
+                Scanner tokenScanner = new Scanner(tokenFile);
+                this.sendMessage(new ReconnectToServerMessage(this.nickname, tokenScanner.nextLine()));
+                tokenScanner.close();
+            } catch (IOException ioException) {
+                throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
+            }
         }
-        catch (IOException ignored){
-            System.out.println("pro");
-            //@TODO: notify client App or view
-        };
+        else{
+            throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
+        }
     }
 
     @Override
     public void disconnect() {
-        this.sendMessage(new DisconnectMessage(this.nickname));
-
-        this.stopClient();
-
-        /*
-        FIXME: when client tries to disconnect what we have to do? If we close its socket there can be problems because it is not able to send
-                the message to disconnect. In this implementation, I do not close socket and not interrupt threads
-         */
-
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
-        if(tokenFile.delete()){
-            System.err.println("Token file deleted...");
+        if(tokenFile.exists() && tokenFile.exists()){
+            tokenFile.delete();
         }
+        this.stopClient();
     }
 
     @Override
