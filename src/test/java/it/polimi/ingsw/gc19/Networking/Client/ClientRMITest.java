@@ -73,6 +73,22 @@ public class ClientRMITest {
         clientsAnchors = new HashMap<>();
     }
 
+    @AfterEach
+    public void resetClients(){
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
+        this.client4.disconnect();
+        this.client5.disconnect();
+        mainServerRMI.killClientHandlers();
+        mainServerRMI.resetServer();
+    }
+
+    @AfterAll
+    public static void tearDownServer() {
+        ServerApp.unexportRegistry();
+    }
+
     @Test
     public void testClientCreation(){
         this.client1.connect();
@@ -594,20 +610,6 @@ public class ClientRMITest {
 
         assertMessageEquals(this.client2, new NotifyChatMessage("client1", "Send chat message after reconnection"));
     }
-
-    @AfterEach
-    public void resetClients(){
-        this.client1.disconnect();
-        this.client2.disconnect();
-
-        mainServerRMI.resetServer();
-    }
-
-    @AfterAll
-    public static void tearDownServer() {
-        ServerApp.unexportRegistry();
-    }
-
 
     private void assertMessageEquals(TestClassClientRMI receiver, MessageToClient message) {
         assertMessageEquals(List.of(receiver), message);

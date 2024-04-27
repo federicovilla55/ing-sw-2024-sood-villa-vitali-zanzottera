@@ -24,7 +24,7 @@ public class TCPConnectionAcceptor extends Thread {
         try {
             this.serverSocket = new ServerSocket(port);
         } catch (IOException ioException) {
-            System.err.println("[EXCEPTION] IOException occurred when trying to build a server socket.");
+            System.err.println("[EXCEPTION] IOException occurred when trying to build a server socket." + ioException.getMessage());
         }
     }
 

@@ -96,6 +96,15 @@ public interface VirtualMainServer extends Remote {
      */
     void heartBeat(VirtualClient clientRMI) throws RemoteException;
 
+    /**
+     * This method is used by client to ask {@link it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI}
+     * about games it can join.
+     * @param clientRMI is the {@link VirtualClient} of the sender client
+     * @param nickname is the nickname of the player
+     * @throws RemoteException if something goes wrong while performing the requested action.
+     */
+    void requestAvailableGames(VirtualClient clientRMI, String nickname) throws RemoteException;
+
 }
 
 

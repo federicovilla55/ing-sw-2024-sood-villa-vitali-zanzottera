@@ -1,12 +1,14 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
 import it.polimi.ingsw.gc19.Controller.MainController;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.*;
 
+import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Date;
@@ -20,12 +22,15 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     private static MainServerRMI instance;
     private final HashMap<VirtualClient, Tuple<ClientHandlerRMI, String>> connectedClients;
     private final ConcurrentHashMap<VirtualClient, Long> lastHeartBeatOfClients;
+    private final HashMap<VirtualClient, Long> pendingVirtualClientToKill;
 
     private MainServerRMI(){
         super();
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new ConcurrentHashMap<>();
+        this.pendingVirtualClientToKill = new HashMap<>();
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -72,6 +77,29 @@ public class MainServerRMI extends Server implements VirtualMainServer{
             this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
 
             clientHandlerRMI.update(new CreatedPlayerMessage(clientHandlerRMI.getUsername(), hashedMessage).setHeader(clientHandlerRMI.getUsername()));
+        }
+    }
+
+    /**
+     * This method is used to close RMI connection (and consequently freeing name)
+     * with clients that are inactive for more than <code>Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL</code>
+     * seconds. It notifies {@link MainController} that the player has to be
+     * disconnected and removes its {@link VirtualClient} from all the hashmaps.
+     */
+    private void runInactiveClientKiller(){
+        synchronized (this.pendingVirtualClientToKill){
+            for(VirtualClient client : this.pendingVirtualClientToKill.keySet()){
+                if(new Date().getTime() - this.pendingVirtualClientToKill.get(client) > 1000 * Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL){
+                    if(this.connectedClients.containsKey(client)){
+                        connectedClients.get(client).x().interrupt();
+                        this.mainController.disconnect(this.connectedClients.remove(client).x());
+                    }
+                    this.lastHeartBeatOfClients.remove(client);
+                    synchronized (this.pendingVirtualClientToKill) {
+                        this.pendingVirtualClientToKill.remove(client);
+                    }
+                }
+            }
         }
     }
 
@@ -284,6 +312,10 @@ public class MainServerRMI extends Server implements VirtualMainServer{
                     playerName = this.connectedClients.get(virtualClient).x().getUsername();
                 }
                 this.mainController.setPlayerInactive(playerName);
+
+                synchronized (this.pendingVirtualClientToKill){
+                    this.pendingVirtualClientToKill.put(virtualClient, new Date().getTime());
+                }
             }
         }
     }
@@ -297,6 +329,32 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     public void heartBeat(VirtualClient virtualClient) throws RemoteException{
         if(this.lastHeartBeatOfClients.containsKey(virtualClient)) {
             this.lastHeartBeatOfClients.put(virtualClient, new Date().getTime());
+            synchronized (this.pendingVirtualClientToKill){
+                this.pendingVirtualClientToKill.remove(virtualClient);
+            }
+        }
+    }
+
+    /**
+     * This method is used by RMI clients to ask server about games
+     * they can freely join.
+     * @param clientRMI is the {@link VirtualClient} of the sender client
+     * @param nickName is the nickname of the player
+     * @throws RemoteException if something goes wrong while doing the requested action
+     */
+    @Override
+    public void requestAvailableGames(VirtualClient clientRMI, String nickName) throws RemoteException {
+        ClientHandlerRMI clientHandlerRMI;
+        synchronized(this.connectedClients){
+            if(!this.connectedClients.containsKey(clientRMI)){
+                clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER,
+                                                                     "Your virtual client is not registered to server! Please register...")
+                                             .setHeader(nickName));
+                return;
+            }
+            clientHandlerRMI = this.connectedClients.get(clientRMI).x();
+            clientHandlerRMI.sendMessageToClient(new AvailableGamesMessage(mainController.findAvailableGames())
+                                                         .setHeader(nickName));
         }
     }
 

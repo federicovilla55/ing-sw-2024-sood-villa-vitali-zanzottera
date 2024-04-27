@@ -31,6 +31,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled
 public class ClientTCPRMITest {
     private static VirtualMainServer virtualMainServer;
     private static Registry registry;

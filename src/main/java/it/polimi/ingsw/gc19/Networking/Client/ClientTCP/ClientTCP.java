@@ -67,6 +67,7 @@ public class ClientTCP implements ClientInterface {
 
         this.receiverThread.start();
         this.senderThread.start();
+
     }
 
     private void sendMessageToServer(){
