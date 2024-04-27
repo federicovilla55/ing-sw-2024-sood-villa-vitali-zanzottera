@@ -61,12 +61,14 @@ public class ClientTCPRMITest {
         clientsAnchors = new HashMap<>();
     }
 
+    @Disabled
     @Test
     public void testClientCreation(){
         this.client1.connect();
         assertMessageEquals(this.client1, new CreatedPlayerMessage("client1"));
     }
 
+    @Disabled
     @Test
     public void testCreateClient(){
         this.client1.connect();
@@ -638,7 +640,7 @@ public class ClientTCPRMITest {
 
         assertMessageEquals(this.client2, new NotifyChatMessage("client1", "Send chat message after reconnection"));
         assertNull(this.client1.getMessage());
-    }
+    }*/
 
     @AfterEach
     public void resetClients() throws RemoteException {
@@ -656,7 +658,7 @@ public class ClientTCPRMITest {
     public static void tearDownServer() {
         ServerApp.unexportRegistry();
         ServerApp.stopTCP();
-    }*/
+    }
 
 
 

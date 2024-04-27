@@ -20,6 +20,7 @@ import it.polimi.ingsw.gc19.View.GameLocalView.*;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
+import org.controlsfx.control.action.Action;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -44,6 +45,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     public void setClient(ClientInterface client){
         this.client = client;
+        this.getActionParser().setClient(client);
     }
 
     public void update(MessageToClient message) {
@@ -51,6 +53,10 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
             this.messagesToHandle.add(message);
             this.messagesToHandle.notifyAll();
         }
+    }
+
+    public ActionParser getActionParser(){
+        return this.actionParser;
     }
 
     public ArrayDeque<MessageToClient> getMessagesToHandle(){
