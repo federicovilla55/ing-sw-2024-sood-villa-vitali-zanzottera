@@ -68,5 +68,4 @@ public interface VirtualGameServer extends Remote {
      * @throws RemoteException if something goes wrong while performing the requested action.
      */
     void choosePrivateGoalCard(int cardIdx) throws RemoteException;
-
 }

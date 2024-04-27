@@ -272,6 +272,11 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     }
 
     @Override
+    public void availableGames() {
+        //this.virtualMainServer.getAvailableGames(this.nickname);
+    }
+
+    @Override
     public void setToken(String token) {
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/TokenFile" + "_" + this.nickname);
         try {

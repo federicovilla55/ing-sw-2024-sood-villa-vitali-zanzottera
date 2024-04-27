@@ -1,20 +1,31 @@
 package it.polimi.ingsw.gc19.View.GameLocalView;
 
-import it.polimi.ingsw.gc19.Enums.GameState;
-import it.polimi.ingsw.gc19.Enums.TurnState;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Action.PickCardFromDeckMessage;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Action.PlaceCardMessage;
-import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
+import it.polimi.ingsw.gc19.Enums.CardOrientation;
+import it.polimi.ingsw.gc19.Enums.Color;
+import it.polimi.ingsw.gc19.Enums.Direction;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
+import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
+import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Settings;
+import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
+
+import java.io.StringReader;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ActionParser {
     private String nickname;
@@ -22,6 +33,8 @@ public class ActionParser {
     public ClientState viewState;
 
     private ClientState prevState;
+
+    private ClientInterface clientNetwork;
 
     public ActionParser(){
         viewState = new NotPlayer();
@@ -35,7 +48,7 @@ public class ActionParser {
     }
 
     public void parseAction(String action) {
-        viewState.parseAction(action);
+        viewState.parseAction(commandParser(action));
     }
 
     public String getNickname() {
@@ -46,6 +59,160 @@ public class ActionParser {
         this.nickname = nickname;
     }
 
+    public void setClient(ClientInterface client){
+        this.clientNetwork = client;
+    }
+
+    public void sendMessage(ArrayList<String> command){
+        if(command.size()-1 == Command.SENDCHATMESSAGE.getNumArgs() &&
+            command.getFirst().equals(Command.SENDCHATMESSAGE.getCommandName())) {
+            // first element is command name, second element is the message content
+            // and the following elements are the receivers.
+            ArrayList<String> usersToSend = new ArrayList<>();
+            for(int i = 2; i < command.size(); i++) usersToSend.add(command.get(i));
+
+            this.clientNetwork.sendChatMessage(usersToSend, command.get(1));
+        }
+        // The action doesn't modify the state of the ViewClient.
+    }
+
+    public void createPlayer(ArrayList<String> command){
+        if(command.size()-1 == Command.CREATEPLAYER.getNumArgs()
+                && command.getFirst().equals(Command.CREATEPLAYER.getCommandName())){
+            viewState = new Wait();
+            prevState = new NotPlayer();
+
+            clientNetwork.setNickname(command.get(1));
+
+            clientNetwork.connect();
+        }
+    }
+
+    public void pickCardFromDeck(ArrayList<String> command){
+        if(command.size()-1 == Command.PICKCARDDECK.getNumArgs()
+                && command.getFirst().equals(Command.PICKCARDDECK.getCommandName())){
+            viewState = new Wait();
+            prevState = new Pick();
+
+            // how is the player created...
+            clientNetwork.pickCardFromDeck(PlayableCardType.valueOf(command.get(1)));
+        }
+    }
+
+    public void pickCardFromTable(ArrayList<String> command){
+        if(command.size()-1 == Command.PICKCARDTABLE.getNumArgs() ||
+                command.getFirst().equals(Command.PICKCARDTABLE.getCommandName())){
+
+            clientNetwork.pickCardFromTable(PlayableCardType.valueOf(command.get(1)),
+                    Integer.parseInt(command.get(2)));
+
+            viewState = new Wait();
+            prevState = new Pick();
+        }
+    }
+
+    public void placeCard(ArrayList<String> command){
+        if(command.size()-1 == Command.PLACECARD.getNumArgs() ||
+                command.getFirst().equals(Command.PLACECARD.getCommandName())){
+            clientNetwork.placeCard(command.get(1), command.get(2),
+                    Direction.valueOf(command.get(3)),
+                    CardOrientation.valueOf(command.get(4)));
+            viewState = new Wait();
+            prevState = new Place();
+        }
+    }
+
+    public void chooseColor(ArrayList<String> command) {
+        if(command.size()-1 == Command.CHOOSECOLOR.getNumArgs() ||
+                command.getFirst().equals(Command.CHOOSECOLOR.getCommandName())){
+            clientNetwork.chooseColor(Color.valueOf(command.get(1)));
+        }
+
+    }
+
+    public void chooseGoal(ArrayList<String> command) {
+        if(command.size()-1 == Command.CHOOSEPRIVATEGOAL.getNumArgs() ||
+                command.getFirst().equals(Command.CHOOSEPRIVATEGOAL.getCommandName())){
+            clientNetwork.choosePrivateGoalCard(Integer.parseInt(command.get(1)));
+        }
+    }
+
+    public void placeInitialCard(ArrayList<String> command) {
+        if(command.size()-1 == Command.PLACEINITIALCARD.getNumArgs() ||
+                command.getFirst().equals(Command.PLACEINITIALCARD.getCommandName())){
+            clientNetwork.placeInitialCard(CardOrientation.valueOf(command.get(1)));
+        }
+    }
+
+    public void availableGames(ArrayList<String> command) {
+        if(command.size()-1 == Command.AVAILABLEGAMES.getNumArgs() ||
+                command.getFirst().equals(Command.AVAILABLEGAMES.getCommandName())){
+            clientNetwork.availableGames();
+        }
+    }
+
+    public void joinFirstGame(ArrayList<String> command) {
+        if(command.size()-1 == Command.JOINFIRSTGAME.getNumArgs() ||
+                command.getFirst().equals(Command.JOINFIRSTGAME.getCommandName())){
+            clientNetwork.joinFirstAvailableGame();
+            prevState = new NotGame();
+            viewState = new Wait();
+        }
+    }
+
+    public void joinGame(ArrayList<String> command) {
+        if(command.size()-1 == Command.JOINGAME.getNumArgs() ||
+                command.getFirst().equals(Command.JOINGAME.getCommandName())){
+            clientNetwork.joinGame(command.get(1));
+            prevState = new NotGame();
+            viewState = new Wait();
+        }
+    }
+
+    public void createGameSeed(ArrayList<String> command) {
+        if(command.size()-1 == Command.CREATEGAMESEED.getNumArgs() ||
+                command.getFirst().equals(Command.CREATEGAMESEED.getCommandName())){
+            clientNetwork.createGame(command.get(1), Integer.parseInt(command.get(2)), Integer.parseInt(command.get(3)));
+            prevState = new NotGame();
+            viewState = new Wait();
+        }
+    }
+
+    public void createGame(ArrayList<String> command) {
+        if(command.size()-1 == Command.CREATEGAME.getNumArgs() ||
+                command.getFirst().equals(Command.CREATEGAME.getCommandName())){
+            clientNetwork.createGame(command.get(1), Integer.parseInt(command.get(2)));
+            prevState = new NotGame();
+            viewState = new Wait();
+        }
+    }
+
+
+
+    public static ArrayList<String> commandParser(String command){
+        ArrayList<String> commandParsed = new ArrayList<>();
+
+        command = command.replaceAll("\\s", "");
+        Pattern pattern = Pattern.compile("(\\w+)\\((.*?)\\)");
+        Matcher matcher = pattern.matcher(command);
+
+        if (matcher.matches()) {
+            commandParsed.add(matcher.group(1));
+
+            String[] arguments = matcher.group(2).split(",\\s*");
+            for (String arg : arguments) {
+                if(!arg.isEmpty()) {
+                    commandParsed.add(arg);
+                }
+            }
+        } else {
+            System.out.println("Invalid command format...");
+        }
+
+        return commandParsed;
+    }
+
+
     class NotPlayer extends ClientState{
 
         @Override
@@ -54,8 +221,9 @@ public class ActionParser {
         }
 
         @Override
-        public void parseAction(String action) {
-            // permit only create player
+        public void parseAction(ArrayList<String> command) {
+            // create_player(nickname_player)
+            createPlayer(command);
         }
     }
 
@@ -67,8 +235,21 @@ public class ActionParser {
         }
 
         @Override
-        public void parseAction(String action) {
-            // permit only joingame or creategame, availablegames
+        public void parseAction(ArrayList<String> command) {
+            // create_game(game_name, num_players)
+            createGame(command);
+
+            // create_game_seed(game_name, num_players, game_seed)
+            createGameSeed(command);
+
+            // join_game(game_name)
+            joinGame(command);
+
+            // join_first_game()
+            joinFirstGame(command);
+
+            // available_games()
+            availableGames(command);
         }
     }
 
@@ -89,8 +270,18 @@ public class ActionParser {
         }
 
         @Override
-        public void parseAction(String action) {
-            // permit only chat, select color, select goalcard and place initial
+        public void parseAction(ArrayList<String> command) {
+            // send_mesage(...)
+            sendMessage(command);
+
+            // choose_color(color)
+            chooseColor(command);
+
+            // choose_goal(card_index)
+            chooseGoal(command);
+
+            // place_initial_card(orientation)
+            placeInitialCard(command);
         }
     }
 
@@ -121,21 +312,24 @@ public class ActionParser {
         }
 
         @Override
+        public void nextState(RefusedActionMessage message){
+            viewState = prevState;
+        }
+
+        @Override
         public ViewState getState() {
             return ViewState.WAIT;
         }
 
         @Override
-        public void parseAction(String action) {
-            // permit only send chat messages
+        public void parseAction(ArrayList<String> command) {
+            // send_message(...)
+            sendMessage(command);
         }
     }
 
 
     class Place extends ClientState{
-        // no nextState because after a single place
-        // is done in "parseAction" the attribute
-        // viewState should be updated
 
         @Override
         public ViewState getState() {
@@ -143,8 +337,12 @@ public class ActionParser {
         }
 
         @Override
-        public void parseAction(String action) {
-            // permit only to place and send chat messages
+        public void parseAction(ArrayList<String> command) {
+            // place_card(cardToInsert, anchorCard, directionToInsert, cardOrientation)
+            placeCard(command);
+
+            // send_message(...)
+            placeCard(command);
         }
     }
 
@@ -159,12 +357,20 @@ public class ActionParser {
         }
 
         @Override
-        public void parseAction(String action) {
-            // permit only to pick card and to send chat messages
+        public void parseAction(ArrayList<String> command) {
+            // pick_card_table(cardType, position)
+            pickCardFromTable(command);
+
+            // pick_card_deck(cardType)
+            pickCardFromDeck(command);
+
+            // send_message(...)
+            sendMessage(command);
         }
     }
 
     class OtherTurn extends ClientState {
+        // @todo: maybe otherTurn can be included into a WAIT?
 
         public void nextState(TurnStateMessage message) {
             if(message.getNick().equals(nickname)){
@@ -178,8 +384,9 @@ public class ActionParser {
         }
 
         @Override
-        public void parseAction(String action) {
-            // permit only chat messages
+        public void parseAction(ArrayList<String> command) {
+            // send_message(...)
+            sendMessage(command);
         }
     }
 
@@ -196,9 +403,10 @@ public class ActionParser {
         }
 
         @Override
-        public void parseAction(String action) {
-            // before every action there must be a reconnect
+        void parseAction(ArrayList<String> command) {
+            // Nothing can be done during this state...
         }
+
     }
 
     class Pause extends ClientState{
@@ -214,8 +422,9 @@ public class ActionParser {
         }
 
         @Override
-        public void parseAction(String action) {
-            // permit only send_message_to_chat
+        public void parseAction(ArrayList<String> command) {
+            // send_message(...)
+            sendMessage(command);
         }
     }
 
@@ -232,8 +441,12 @@ public class ActionParser {
         }
 
         @Override
-        public void parseAction(String action) {
-            // just permit the create_player and send_message_to_chat.
+        public void parseAction(ArrayList<String> command) {
+            // create_player(nickname_player)
+            createPlayer(command);
+
+            // send_message(...)
+            sendMessage(command);
         }
     }
 

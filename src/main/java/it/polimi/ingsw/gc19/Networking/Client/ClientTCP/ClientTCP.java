@@ -295,6 +295,11 @@ public class ClientTCP implements ClientInterface {
     }
 
     @Override
+    public void availableGames() {
+        this.sendMessage(new RequestAvailableGamesMessage(this.nickname));
+    }
+
+    @Override
     public void setToken(String token) {
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
         try {

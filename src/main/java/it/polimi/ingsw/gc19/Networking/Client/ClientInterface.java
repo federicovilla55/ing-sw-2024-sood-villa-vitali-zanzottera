@@ -35,6 +35,8 @@ public interface ClientInterface {
 
     void choosePrivateGoalCard(int cardIdx);
 
+    void availableGames();
+
     void setToken(String token);
 
     void setNickname(String nickname);

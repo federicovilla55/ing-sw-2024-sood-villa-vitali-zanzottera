@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.View.GameLocalView;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
@@ -8,6 +9,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectGam
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
+
+import java.util.ArrayList;
 
 public abstract class ClientState {
     public void nextState(MessageToClient message) {}
@@ -28,11 +31,12 @@ public abstract class ClientState {
     public void nextState(PlayerReconnectedToGameMessage message) {}
     public void nextState(DisconnectGameMessage message) {}
     public void nextState(TurnStateMessage message) {}
+    public void nextState(RefusedActionMessage message) {}
 
     abstract ViewState getState();
 
 
     // use boolean/string to return information on action
-    abstract void parseAction(String action); // choose_color(RED)
+    abstract void parseAction(ArrayList<String> command); // choose_color(RED)
     // ...(
 }
