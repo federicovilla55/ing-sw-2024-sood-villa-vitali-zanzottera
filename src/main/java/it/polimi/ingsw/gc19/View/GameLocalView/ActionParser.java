@@ -12,6 +12,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.Refus
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
@@ -61,6 +62,10 @@ public class ActionParser {
 
     public void setClient(ClientInterface client){
         this.clientNetwork = client;
+    }
+
+    public synchronized ViewState getState(){
+        return viewState.getState();
     }
 
     public void sendMessage(ArrayList<String> command){
@@ -313,6 +318,11 @@ public class ActionParser {
 
         @Override
         public void nextState(RefusedActionMessage message){
+            viewState = prevState;
+        }
+
+        @Override
+        public void nextState(GameHandlingError message){
             viewState = prevState;
         }
 

@@ -6,6 +6,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
@@ -32,6 +33,7 @@ public abstract class ClientState {
     public void nextState(DisconnectGameMessage message) {}
     public void nextState(TurnStateMessage message) {}
     public void nextState(RefusedActionMessage message) {}
+    public void nextState(GameHandlingError message){}
 
     abstract ViewState getState();
 
