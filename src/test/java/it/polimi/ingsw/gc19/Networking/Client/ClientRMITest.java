@@ -64,14 +64,30 @@ public class ClientRMITest {
         clientsAnchors = new HashMap<>();
     }
 
+    @AfterEach
+    public void resetClients(){
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
+        this.client4.disconnect();
+        this.client5.disconnect();
+        mainServerRMI.killClientHandlers();
+        mainServerRMI.resetServer();
+    }
+
+    @AfterAll
+    public static void tearDownServer() {
+        ServerApp.unexportRegistry();
+    }
+
     @Test
-    public void testClientCreation() throws InterruptedException {
+    public void testClientCreation(){
         this.client1.connect();
         assertMessageEquals(this.client1, new CreatedPlayerMessage("client1"));
     }
 
     @Test
-    public void testCreateClient() throws RemoteException, InterruptedException {
+    public void testCreateClient(){
         this.client1.connect();
         assertMessageEquals(this.client1, new CreatedPlayerMessage("client1"));
         this.client2.connect();
@@ -604,20 +620,6 @@ public class ClientRMITest {
         assertMessageEquals(this.client2, new NotifyChatMessage("client1", "Send chat message after reconnection"));
         assertNull(this.client1.getMessage());
     }
-
-    @AfterEach
-    public void resetClients() throws RemoteException {
-        this.client1.disconnect();
-        this.client2.disconnect();
-
-        mainServerRMI.resetServer();
-    }
-
-    @AfterAll
-    public static void tearDownServer() {
-        ServerApp.unexportRegistry();
-    }
-
 
     private void assertMessageEquals(ClientRMI receiver, MessageToClient message) {
         assertMessageEquals(List.of(receiver), message);
