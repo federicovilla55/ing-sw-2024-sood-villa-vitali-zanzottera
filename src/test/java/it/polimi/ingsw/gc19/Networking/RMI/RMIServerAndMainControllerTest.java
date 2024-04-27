@@ -571,6 +571,24 @@ public class RMIServerAndMainControllerTest {
     }
 
     @Test
+    public void testRequestAvailableGames() throws RemoteException {
+        client1.connect();
+        client2.connect();
+
+        client1.newGame("game25", 3);
+
+        client2.clearQueue();
+        client2.requestAvailableGames();
+        assertMessageEquals(client2, new AvailableGamesMessage(List.of("game25")).setHeader(this.client2.getName()));
+
+        client3.connect();
+        client3.newGame("game26", 2);
+        client2.clearQueue();
+        client2.requestAvailableGames();
+        assertMessageEquals(client2, new AvailableGamesMessage(List.of("game25", "game26")).setHeader(this.client2.getName()));
+    }
+
+    @Test
     public void testReconnection() throws RemoteException {
         this.client1.connect();
 
@@ -862,4 +880,9 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable 
     public VirtualGameServer reconnect() throws RemoteException {
         return this.virtualMainServer.reconnect(this, name, token);
     }
+
+    public void requestAvailableGames() throws RemoteException{
+        this.virtualMainServer.requestAvailableGames(this, this.name);
+    }
+
 }
