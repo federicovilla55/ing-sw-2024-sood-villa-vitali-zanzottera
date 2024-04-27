@@ -675,6 +675,25 @@ public class ServerSocketAndMainControllerTest {
         client7.disconnect();
     }
 
+    @Test
+    public void testRequestAvailableGames(){
+        client1.createPlayer();
+        client2.createPlayer();
+
+        client1.createGame("game25", 3);
+
+        client2.clearQueue();
+        client2.requestAvailableGames();
+        assertMessageEquals(client2, new AvailableGamesMessage(List.of("game25")).setHeader(this.client2.getName()));
+
+        client3.createPlayer();
+        client3.createGame("game26", 2);
+        waitingThread(500);
+        client2.clearQueue();
+        client2.requestAvailableGames();
+        assertMessageEquals(client2, new AvailableGamesMessage(List.of("game25", "game26")).setHeader(this.client2.getName()));
+    }
+
     private void dummyTurn(Client client, PlayableCardType cardType) throws RemoteException {
         dummyPlace(client);
         assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getName(), TurnState.DRAW));
@@ -989,6 +1008,14 @@ class Client{
 
     public void createGame(String gameName, int numOfPlayers, long randomSeed){
         this.sendMessage(new CreateNewGameMessage(this.name, gameName, numOfPlayers, randomSeed));
+    }
+
+    public void createGame(String gameName, int numOfPlayers){
+        this.sendMessage(new CreateNewGameMessage(this.name, gameName, numOfPlayers, null));
+    }
+
+    public void requestAvailableGames(){
+        this.sendMessage(new RequestAvailableGamesMessage(this.name));
     }
 
     public void joinGame(String gameName, boolean wait){

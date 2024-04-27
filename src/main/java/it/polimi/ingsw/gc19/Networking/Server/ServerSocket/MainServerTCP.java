@@ -31,16 +31,22 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
     private static MainServerTCP instance = null;
     private final HashMap<Socket, Triplet<ClientHandlerSocket, MessageToServerDispatcher, String>> connectedClients;
+
+    private final HashMap<Socket, Long> pendingSocketToKill;
     private final ConcurrentHashMap<Socket, Long> lastHeartBeatOfClients;
+
     private final MessageToMainServerVisitor gameHandlingMessageHandler;
     private final HeartBeatMessageToServerVisitor heartBeatHandler;
-
     private MainServerTCP(){
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new ConcurrentHashMap<>();
+        this.pendingSocketToKill = new HashMap<>();
+
         this.gameHandlingMessageHandler = new MessageToMainServerVisitor();
         this.heartBeatHandler = new HeartBeatMessageToServerVisitor();
+
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -192,11 +198,60 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
     }
 
     /**
+     * This method is used to close socket and (consequently freeing name)
+     * of clients that are inactive for more than <code>Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL</code>
+     * seconds.
+     */
+    private void runInactiveClientKiller(){
+        synchronized (this.pendingSocketToKill){
+            for(Socket socket : this.pendingSocketToKill.keySet()){
+                if(new Date().getTime() - this.pendingSocketToKill.get(socket) > 1000 * Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL){
+                    disconnectSocket(socket);
+                }
+            }
+        }
+    }
+
+    /**
+     * This method removes socket associated to the client who sent the message from both
+     * <code>connectedClients</code> and <code>lastHeartBeatOfClients</code>, notify {@link MainController}
+     * that a client has to be disconnected and, lastly, it interrupts {@link ClientHandlerSocket}
+     * and {@link MessageToServerDispatcher} thread. It also removes {@param socket} from
+     * <code>pendingSocketToKill</code>.
+     * @param socket {@link Socket} to kill
+     */
+    private void disconnectSocket(Socket socket){
+        Triplet<ClientHandlerSocket, MessageToServerDispatcher, String> clientToDisconnect;
+
+        synchronized (this.pendingSocketToKill){
+            this.pendingSocketToKill.remove(socket);
+        }
+
+        synchronized (connectedClients){
+            clientToDisconnect = connectedClients.remove(socket);
+        }
+
+        if (clientToDisconnect != null && clientToDisconnect.z() != null){
+            mainController.disconnect(clientToDisconnect.x());
+
+            clientToDisconnect.y().removeObserver(clientToDisconnect.x());
+            clientToDisconnect.y().removeObserver(MainServerTCP.this);
+
+            clientToDisconnect.x().interruptClientHandler();
+            clientToDisconnect.y().interruptMessageDispatcher();
+
+            closeSocket(socket);
+        }
+
+        lastHeartBeatOfClients.remove(socket);
+    }
+
+    /**
      * This method is used to check heart beat timing of connected clients.
      * If client do not send heart beat message for more than <code>Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS</code>
      * it deletes it from <code>lastHeartBeatOfClients</code> hashmap, it sets it to inactive
      * using {@link MainController#setPlayerInactive(String)}. It doesn't remove it from <code>connectedClients</code>
-     * hashmap because client can reconnect and thus it is necessary to keep its private token.
+     * hashmap because client can reconnect, and thus it is necessary to keep its private token.
      */
     @Override
     protected void runHeartBeatTesterForClient(){
@@ -206,6 +261,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         for (Socket socket : this.lastHeartBeatOfClients.keySet()) {
             if (new Date().getTime() - this.lastHeartBeatOfClients.get(socket) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
                 socketToRemove.add(socket);
+                synchronized (this.pendingSocketToKill){
+                    pendingSocketToKill.put(socket, new Date().getTime());
+                }
             }
         }
 
@@ -235,6 +293,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         synchronized (lastHeartBeatOfClients) {
             this.lastHeartBeatOfClients.clear();
         }
+
         this.mainController.resetMainController();
     }
 
@@ -297,7 +356,12 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         public void visit(CreateNewGameMessage message) {
             ClientHandlerSocket clientHandlerSocket = getClientHandlerFromSocket(clientSocket);
             if(clientHandlerSocket != null){
-                mainController.createGame(message.getGameName(), message.getNumPlayer(), clientHandlerSocket, message.getRandomSeed());
+                if(message.getRandomSeed() != null) {
+                    mainController.createGame(message.getGameName(), message.getNumPlayer(), clientHandlerSocket, message.getRandomSeed());
+                }
+                else{
+                    mainController.createGame(message.getGameName(), message.getNumPlayer(), clientHandlerSocket);
+                }
             }
         }
 
@@ -413,34 +477,12 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
         /**
          * This method is used to handle {@link DisconnectMessage} received from player.
-         * It removes socket associated to the client who sent the message from both
-         * <code>connectedClients</code> and <code>lastHeartBeatOfClients</code>, notify {@link MainController}
-         * that a client has to be disconnected and, lastly, it interrupts {@link ClientHandlerSocket}
-         * and {@link MessageToServerDispatcher} thread.
+         * It calls {@link MainServerTCP#disconnectSocket(Socket)}
          * @param message {@link DisconnectMessage} to handle
-         *
          */
         @Override
         public void visit(DisconnectMessage message) {
-            Triplet<ClientHandlerSocket, MessageToServerDispatcher, String> clientToDisconnect;
-
-            synchronized (connectedClients){
-                clientToDisconnect = connectedClients.remove(clientSocket);
-            }
-
-            if (clientToDisconnect != null && clientToDisconnect.z() != null){
-                mainController.disconnect(clientToDisconnect.x());
-
-                clientToDisconnect.y().removeObserver(clientToDisconnect.x());
-                clientToDisconnect.y().removeObserver(MainServerTCP.this);
-
-                clientToDisconnect.x().interruptClientHandler();
-                clientToDisconnect.y().interruptMessageDispatcher();
-
-                closeSocket(clientSocket);
-            }
-
-            lastHeartBeatOfClients.remove(clientSocket);
+            disconnectSocket(clientSocket);
         }
 
         /**
@@ -484,7 +526,8 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         public void visit(RequestAvailableGamesMessage message){
             ClientHandlerSocket clientHandlerSocket = getClientHandlerFromSocket(clientSocket);
             if(clientHandlerSocket != null){
-                clientHandlerSocket.update(new AvailableGamesMessage(new ArrayList<>(mainController.findAvailableGames())));
+                clientHandlerSocket.update(new AvailableGamesMessage(new ArrayList<>(mainController.findAvailableGames()))
+                                                   .setHeader(clientHandlerSocket.getUsername()));
             }
         }
 
@@ -517,13 +560,16 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         /**
          * This method is used handle a {@link HeartBeatMessage} received from client.
          * It checks if {@link Socket} is in <code>lastHeartBeatOfClients</code> and if yes,
-         * it updates the hashmap
+         * it updates the hashmap. It also removes {@param socket} from <code>pendingSocketToKill</code>
          * @param message {@link HeartBeatMessage} to handle.
          */
         @Override
         public void visit(HeartBeatMessage message) {
             if (lastHeartBeatOfClients.containsKey(clientSocket)) {
                 lastHeartBeatOfClients.put(clientSocket, new Date().getTime());
+                synchronized (pendingSocketToKill){
+                    pendingSocketToKill.remove(clientSocket);
+                }
             }
         }
     }
