@@ -57,11 +57,16 @@ public class ClientTCPTest {
     @AfterEach
     public void tearDown(){
         this.client1.disconnect();
+        this.client1.stopClient();
         this.client2.disconnect();
+        this.client2.stopClient();
         this.client3.disconnect();
+        this.client3.stopClient();
         this.client4.disconnect();
+        this.client4.stopClient();
         ServerApp.stopTCP();
     }
+
 
     @Test
     public void testCreatePlayer(){

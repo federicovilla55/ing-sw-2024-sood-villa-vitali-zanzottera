@@ -4,6 +4,7 @@ import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
@@ -102,7 +103,7 @@ public class ClientTCPRMITest {
         assertMessageEquals(this.client5, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
     }
 
-    /*
+
     @Test
     public void testCreateGame() throws RemoteException {
         this.client1.connect();
@@ -131,6 +132,7 @@ public class ClientTCPRMITest {
         assertMessageEquals(this.client2, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
     }
 
+    /*
     @Test
     public void testMultiplePlayerInGame() throws RemoteException {
         this.client1.connect();
@@ -152,7 +154,6 @@ public class ClientTCPRMITest {
         this.client3.connect();
 
         this.client3.joinGame("game3");
-        VirtualGameServer gameServer3 = this.client3.getVirtualGameServer();
 
         assertMessageEquals(this.client3, new JoinedGameMessage("game3"));
         assertMessageEquals(List.of(this.client2, this.client1), new NewPlayerConnectedToGameMessage("client3"));
@@ -167,6 +168,7 @@ public class ClientTCPRMITest {
         assertMessageEquals(new ArrayList<>(List.of(this.client2, this.client1)), new AvailableColorsMessage(new ArrayList<>(List.of(Color.GREEN, Color.YELLOW, Color.RED))));
     }
 
+    /*
     @Test
     public void testDisconnectionAndReconnection() throws RemoteException {
         TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer,"client6");

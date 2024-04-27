@@ -46,7 +46,6 @@ public class ClientRMITest {
     // Hashmap to save the get the anchor for the placeCard.
     private HashMap<ClientInterface, PlayableCard> clientsAnchors;
     private TestClassClientRMI client1, client2, client3, client4, client5;
-    private MessageHandler messageHandler1, messageHandler2, messageHandler3, messageHandler4, messageHandler5;
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException {
@@ -58,19 +57,35 @@ public class ClientRMITest {
 
     @BeforeEach
     public void setUpTest() throws RemoteException {
-        this.messageHandler1 = new MessageHandler(new ActionParser());
-        this.messageHandler2 = new MessageHandler(new ActionParser());
-        this.messageHandler3 = new MessageHandler(new ActionParser());
-        this.messageHandler4 = new MessageHandler(new ActionParser());
-        this.messageHandler5 = new MessageHandler(new ActionParser());
+        MessageHandler messageHandler1 = new MessageHandler(new ActionParser());
+        MessageHandler messageHandler2 = new MessageHandler(new ActionParser());
+        MessageHandler messageHandler3 = new MessageHandler(new ActionParser());
+        MessageHandler messageHandler4 = new MessageHandler(new ActionParser());
+        MessageHandler messageHandler5 = new MessageHandler(new ActionParser());
 
-        this.client1 = new TestClassClientRMI(virtualMainServer, messageHandler1,"client1");
-        this.client2 = new TestClassClientRMI(virtualMainServer, messageHandler2,"client2");
-        this.client3 = new TestClassClientRMI(virtualMainServer, messageHandler3,"client3");
-        this.client4 = new TestClassClientRMI(virtualMainServer, messageHandler4,"client4");
-        this.client5 = new TestClassClientRMI(virtualMainServer, messageHandler5,"client5");
+        this.client1 = new TestClassClientRMI(virtualMainServer, messageHandler1, "client1");
+        this.client2 = new TestClassClientRMI(virtualMainServer, messageHandler2, "client2");
+        this.client3 = new TestClassClientRMI(virtualMainServer, messageHandler3, "client3");
+        this.client4 = new TestClassClientRMI(virtualMainServer, messageHandler4, "client4");
+        this.client5 = new TestClassClientRMI(virtualMainServer, messageHandler5, "client5");
 
         clientsAnchors = new HashMap<>();
+    }
+
+    @AfterEach
+    public void resetClients(){
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
+        this.client4.disconnect();
+        this.client5.disconnect();
+        mainServerRMI.killClientHandlers();
+        mainServerRMI.resetServer();
+    }
+
+    @AfterAll
+    public static void tearDownServer() {
+        ServerApp.unexportRegistry();
     }
 
     @Test
@@ -594,20 +609,6 @@ public class ClientRMITest {
 
         assertMessageEquals(this.client2, new NotifyChatMessage("client1", "Send chat message after reconnection"));
     }
-
-    @AfterEach
-    public void resetClients(){
-        this.client1.disconnect();
-        this.client2.disconnect();
-
-        mainServerRMI.resetServer();
-    }
-
-    @AfterAll
-    public static void tearDownServer() {
-        ServerApp.unexportRegistry();
-    }
-
 
     private void assertMessageEquals(TestClassClientRMI receiver, MessageToClient message) {
         assertMessageEquals(List.of(receiver), message);

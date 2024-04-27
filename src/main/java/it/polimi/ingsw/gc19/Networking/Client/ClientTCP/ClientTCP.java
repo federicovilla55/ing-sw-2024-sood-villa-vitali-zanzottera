@@ -94,8 +94,10 @@ public class ClientTCP implements ClientInterface {
                         this.outputStream.writeObject(message);
                         finalizeSending();
                         sent = true;
+                        if(message instanceof DisconnectMessage) System.out.println("ok");
                     }
                     catch (SocketException socketException){
+                        if(message instanceof DisconnectMessage) System.out.println("problems");
                         //@TODO: What to do?
                         break;
                     }
@@ -164,8 +166,8 @@ public class ClientTCP implements ClientInterface {
     public void stopClient(){
         stopSendingHeartbeat();
 
-        this.senderThread.interrupt();
-        this.receiverThread.interrupt();
+        //this.senderThread.interrupt();
+        //this.receiverThread.interrupt();
 
         /*try {
             if (socket != null) {
