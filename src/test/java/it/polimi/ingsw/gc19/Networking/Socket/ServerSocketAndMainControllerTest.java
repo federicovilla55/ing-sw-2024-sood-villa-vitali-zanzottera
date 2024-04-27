@@ -682,6 +682,8 @@ public class ServerSocketAndMainControllerTest {
 
         client1.createGame("game25", 3);
 
+        waitingThread(500);
+
         client2.clearQueue();
         client2.requestAvailableGames();
         assertMessageEquals(client2, new AvailableGamesMessage(List.of("game25")).setHeader(this.client2.getName()));
