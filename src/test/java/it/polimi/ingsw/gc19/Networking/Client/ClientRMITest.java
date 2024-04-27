@@ -561,8 +561,7 @@ public class ClientRMITest {
         }
 
         client2.reconnect();
-
-        this.client2.stopSendingHeartbeat();
+        client2.stopSendingHeartbeat();
 
         //Situation: client 2 has disconnected from game
         TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client6");

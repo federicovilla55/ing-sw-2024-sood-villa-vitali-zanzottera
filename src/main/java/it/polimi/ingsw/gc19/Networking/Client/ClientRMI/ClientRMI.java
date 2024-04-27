@@ -116,7 +116,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                     tokenScanner = new Scanner(tokenFile);
                 }
                 catch (IOException ignored){
-                    System.err.println(ignored.getMessage());
+                    System.err.println(ignored.getClass());
                     //@TODO: notify view or Client App
                     return;
                 };
@@ -278,7 +278,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
             bufferedWriter.write(token);
             bufferedWriter.close();
-            tokenFile.setReadOnly();
+            //tokenFile.setReadOnly();
         }
         catch (IOException ignored){
             System.err.println(ignored.getMessage());

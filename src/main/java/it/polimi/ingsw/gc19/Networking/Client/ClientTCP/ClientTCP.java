@@ -98,6 +98,7 @@ public class ClientTCP implements ClientInterface {
                     }
                     catch (SocketException socketException){
                         if(message instanceof DisconnectMessage) System.out.println("problems");
+                        System.out.println(socketException.getMessage());
                         //@TODO: What to do?
                         break;
                     }
@@ -194,7 +195,7 @@ public class ClientTCP implements ClientInterface {
 
     public void stopSendingHeartbeat() {
         if (heartbeatScheduler != null && !heartbeatScheduler.isShutdown()) {
-            heartbeatScheduler.shutdown();
+            heartbeatScheduler.shutdownNow();
         }
     }
 
@@ -236,6 +237,7 @@ public class ClientTCP implements ClientInterface {
             tokenScanner.close();
         }
         catch (IOException ignored){
+            System.out.println("pro");
             //@TODO: notify client App or view
         };
     }
