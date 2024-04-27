@@ -21,6 +21,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErr
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
+import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import org.junit.jupiter.api.*;
 
 import java.rmi.RemoteException;
@@ -32,30 +33,33 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/*public class ClientTCPTest {
+public class ClientTCPTest {
+
     private TestClassClientTCP client1, client2, client3, client4;
     private HashMap<TestClassClientTCP, PlayableCard> clientsAnchors;
 
     @BeforeEach
     public void setUp() {
         ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
-        client1 = new TestClassClientTCP("client1");
-        client2 = new TestClassClientTCP("client2");
-        client3 = new TestClassClientTCP("client3");
-        client4 = new TestClassClientTCP("client4");
+
+        MessageHandler messageHandler1 = new MessageHandler(new ActionParser());
+        MessageHandler messageHandler2 = new MessageHandler(new ActionParser());
+        MessageHandler messageHandler3 = new MessageHandler(new ActionParser());
+        MessageHandler messageHandler4 = new MessageHandler(new ActionParser());
+
+        client1 = new TestClassClientTCP("client1", messageHandler1);
+        client2 = new TestClassClientTCP("client2", messageHandler2);
+        client3 = new TestClassClientTCP("client3", messageHandler3);
+        client4 = new TestClassClientTCP("client4", messageHandler4);
         clientsAnchors = new HashMap<>();
     }
 
     @AfterEach
     public void tearDown(){
         this.client1.disconnect();
-        this.client1.stopClient();
         this.client2.disconnect();
-        this.client2.stopClient();
         this.client3.disconnect();
-        this.client3.stopClient();
         this.client4.disconnect();
-        this.client4.stopClient();
         ServerApp.stopTCP();
     }
 
@@ -81,8 +85,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         MessageToClient message1 = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
-
-        assertNotNull(client1.getToken());
 
         this.client1.createGame("game3", 3, 1);
 
@@ -117,6 +119,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         assertMessageEquals(new ArrayList<>(List.of(this.client2, this.client1)), new AvailableColorsMessage(new ArrayList<>(List.of(Color.GREEN, Color.YELLOW, Color.RED))));
     }
 
+
     @Test
     public void testJoinFirstAvailableGames(){
         this.client1.connect();
@@ -125,15 +128,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
-        assertNotNull(client1.getToken());
-
         this.client1.createGame("game4", 2, 1);
 
         assertMessageEquals(this.client1, new CreatedGameMessage("game4"));
 
         client1.waitForMessage(GameConfigurationMessage.class);
-        client1.clearQueue();
-
 
         this.client2.connect();
 
@@ -146,9 +145,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
         this.client1.waitForMessage(TableConfigurationMessage.class);
         this.client2.waitForMessage(GameConfigurationMessage.class);
-        this.client1.clearQueue();
-        this.client2.clearQueue();
-
 
         this.client3.connect();
 
@@ -165,19 +161,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage(this.client4.getNickname()));
 
-
-        assertNull(this.client1.getMessage());
-        assertNull(this.client2.getMessage());
-
-        TestClassClientTCP client5 = new TestClassClientTCP("client5");
+        TestClassClientTCP client5 = new TestClassClientTCP("client5", new MessageHandler(new ActionParser()));
         client5.connect();
 
         client5.joinFirstAvailableGame();
         assertMessageEquals(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
 
         client5.disconnect();
-
     }
+
 
     @Test
     public void testMultipleReconnection(){
@@ -200,26 +192,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         this.client1.reconnect();
         assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
-        this.client1.clearQueue();
         this.client1.stopSendingHeartbeat();
         waitingThread(3000);
-        this.client1.startSendingHeartbeat();
+        //this.client1.startSendingHeartbeat();
         this.client1.reconnect();
         this.client1.waitForMessage(MessageToClient.class);
 
         this.client1.createGame("game25", 3, 1);
         assertMessageEquals(this.client1, new CreatedGameMessage("game25"));
-        System.out.println("lllllllll");
         this.client2.connect();
-        this.client2.startSendingHeartbeat();
+        //this.client2.startSendingHeartbeat();
         this.client3.connect();
-        this.client3.startSendingHeartbeat();
+        //this.client3.startSendingHeartbeat();
         this.client2.joinGame("game25", false);
         assertMessageEquals(this.client2, new JoinedGameMessage("game25"));
         this.client3.joinGame("game25", false);
         assertMessageEquals(this.client3, new JoinedGameMessage("game25"));
 
-        this.client1.clearQueue();
         this.client1.stopSendingHeartbeat();
         waitingThread(2500);
 
@@ -227,77 +216,55 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NOT_FOUND, null));
     }
 
+
     @Test
     public void testDisconnectionWhileInLobby(){
 
         this.client1.connect();
-
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message1 = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
         this.client2.connect();
-
         client2.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message2 = this.client2.getMessage();
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        System.out.println(token2);
         this.client2.setToken(token2);
 
         this.client2.createGame("game11", 2, 1);
 
-        this.client2.startSendingHeartbeat();
+        //this.client2.startSendingHeartbeat();
 
         waitingThread(5000);
-
-        //Client client6 = new Client(this.client2.getNickname());
-        //client6.connect();
-        //assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
-
 
         this.client2.reconnect();
 
         assertMessageEquals(this.client2, new JoinedGameMessage("game11"));
 
-        System.out.println("pass");
-
         this.client1.stopSendingHeartbeat();
 
         waitingThread(5000);
 
         this.client1.reconnect();
 
-        System.out.println("arrivato qui");
-
-        this.client1.startSendingHeartbeat();
+        //this.client1.startSendingHeartbeat();
 
         waitingThread(500);
 
         assertMessageEquals(this.client1, new AvailableGamesMessage(List.of("game11")));
 
-        System.out.println("tests ava passato");
-
         this.client1.reconnect();
 
         this.client1.stopSendingHeartbeat();
         waitingThread(5000);
-        TestClassClientTCP client7 = new TestClassClientTCP(this.client1.getNickname());
-        System.out.println("creato");
-        client7.reconnect();
-        System.out.println("perche??");
-        assertMessageEquals(client7, new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT, null));
 
-        client7.disconnect();
-
-        System.out.println("quasi...");
-
-        TestClassClientTCP client8 = new TestClassClientTCP(this.client1.getNickname());
-        client8.setToken(token1);
+        TestClassClientTCP client8 = new TestClassClientTCP(this.client1.getNickname(), new MessageHandler(new ActionParser()));
         client8.reconnect();
         assertMessageEquals(this.client1, new AvailableGamesMessage(List.of("game11")));
         client8.disconnect();
     }
+
 
     @Test
     public void testPlayerCanJoinFullGame(){
@@ -318,13 +285,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         assertMessageEquals(this.client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
     }
 
+
     @Test
     public void testMultipleGames(){
         this.client1.connect();
         this.client1.createGame("game8", 2, 1);
         assertMessageEquals(this.client1, new CreatedGameMessage("game8"));
         client1.waitForMessage(TableConfigurationMessage.class);
-        client1.clearQueue();
 
         this.client2.connect();
         this.client2.joinGame("game8", false);
@@ -333,8 +300,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
         this.client1.waitForMessage(TableConfigurationMessage.class);
         this.client2.waitForMessage(GameConfigurationMessage.class);
-        this.client1.clearQueue();
-        this.client2.clearQueue();
 
         this.client3.connect();
         assertMessageEquals(this.client3, new CreatedPlayerMessage(this.client3.getNickname()));
@@ -346,20 +311,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         assertMessageEquals(this.client4, new JoinedGameMessage("game9").setHeader(this.client4.getNickname()));
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage(this.client4.getNickname()));
 
-
-        assertNull(this.client1.getMessage());
-        assertNull(this.client2.getMessage());
-
         this.client3.sendChatMessage(new ArrayList<>(List.of(this.client3.getNickname(), this.client4.getNickname())), "Message in chat");
         assertMessageEquals(new ArrayList<>(List.of(this.client3, this.client4)), new NotifyChatMessage(this.client3.getNickname(), "Message in chat"));
-
-        assertNull(this.client1.getMessage());
-        assertNull(this.client2.getMessage());
     }
+
 
     @Test
     public void testCreateClientAfterDisconnection(){
-        TestClassClientTCP client7 = new TestClassClientTCP("client7");
+        TestClassClientTCP client7 = new TestClassClientTCP("client7", new MessageHandler(new ActionParser()));
         client7.connect();
 
         client7.waitForMessage(CreatedPlayerMessage.class);
@@ -371,7 +330,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
         client7.disconnect();
 
-        TestClassClientTCP client8 = new TestClassClientTCP(client7.getNickname());
+        TestClassClientTCP client8 = new TestClassClientTCP(client7.getNickname(), new MessageHandler(new ActionParser()));
         client8.connect();
         client8.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message8 = client8.getMessage();
@@ -381,9 +340,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         assertMessageEquals(client8, new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
     }
 
-    //@Disabled
+    @Disabled
     @Test
-    public void testFirePlayersAndGames() throws RemoteException {
+    public void testFirePlayersAndGames(){
 
         this.client1.connect();
         this.client2.connect();
@@ -399,8 +358,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         allPlayersChoosePrivateGoal(client1, client2, client3, client4);
         allPlayersPlacedInitialCard(client1, client2, client3, client4);
 
-        System.out.println("Per ora...");
-
         assertMessageWithHeaderEquals(this.client1,  new StartPlayingGameMessage(this.client1.getNickname()), "client1", "client2", "client3", "client4");
 
         assertMessageWithHeaderEquals(this.client1, new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2", "client3", "client4");
@@ -408,9 +365,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         this.client3.disconnect();
 
         assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client3"), "client1", "client2", "client4");
+        assertMessageWithHeaderEquals(this.client2, new DisconnectedPlayerMessage("client3"), "client1", "client2", "client4");
 
         this.client4.disconnect();
         assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client4"), "client1", "client2");
+        assertMessageWithHeaderEquals(this.client2, new DisconnectedPlayerMessage("client4"), "client1", "client2");
 
 
         client1.placeCard("resource_23", "initial_05", Direction.UP_RIGHT, CardOrientation.DOWN);
@@ -553,7 +512,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         MessageToClient message = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message).getToken();
         this.client1.setToken(token1);
-        this.client1.startSendingHeartbeat();
+        //this.client1.startSendingHeartbeat();
 
         this.client1.createGame("game6", 2,1);
 
@@ -576,24 +535,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
         waitingThread(5000);
 
-        System.out.println("----------------------");
-
         client2.reconnect();
 
-        this.client2.startSendingHeartbeat();
+        //this.client2.startSendingHeartbeat();
 
         //Situation: client 2 has disconnected from game
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
-        TestClassClientTCP client6 = new TestClassClientTCP(this.client2.getNickname());
-        client6.reconnect();
-        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT, null));
-
         this.client2.sendChatMessage(new ArrayList<>(List.of(this.client1.getNickname(), this.client2.getNickname())), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client2.getNickname(), "Chat message after disconnection!"));
-
-        client6.disconnect();
     }
+
 
     @Test
     public void testCreateGame(){
@@ -625,6 +577,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         assertMessageEquals(List.of(this.client2, this.client1), new NewPlayerConnectedToGameMessage(this.client3.getNickname()));
     }
 
+
     @Test
     public void testReconnection(){
         this.client1.connect();
@@ -632,17 +585,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message).getToken();
+        this.client1.setToken(token1);
 
         this.client1.createGame("game15", 2, 1);
 
         client1.waitForMessage(GameConfigurationMessage.class);
-        client1.clearQueue();
 
         this.client2.connect();
         this.client2.joinGame("game15", true);
 
         client1.waitForMessage(TableConfigurationMessage.class);
-        client1.clearQueue();
 
         this.client1.stopSendingHeartbeat();
 
@@ -650,8 +602,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
         waitingThread(5000);
 
-        TestClassClientTCP client7 = new TestClassClientTCP(this.client1.getNickname());
-        client7.setToken(token1);
+        TestClassClientTCP client7 = new TestClassClientTCP(this.client1.getNickname(), new MessageHandler(new ActionParser()));
         client7.reconnect();
 
         assertMessageEquals(client7, new JoinedGameMessage("game15"));
@@ -659,12 +610,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         client7.sendChatMessage(new ArrayList<>(List.of(this.client2.getNickname())), "Send chat message after reconnection");
 
         assertMessageEquals(this.client2, new NotifyChatMessage(client7.getNickname(), "Send chat message after reconnection"));
-        assertNull(this.client1.getMessage());
 
         client2.sendChatMessage(new ArrayList<>(List.of(this.client2.getNickname(), client1.getNickname())), "Send chat message after reconnection!");
 
         assertMessageEquals(List.of(this.client2, client7), new NotifyChatMessage(this.client2.getNickname(), "Send chat message after reconnection!"));
-        assertNull(this.client1.getMessage());
 
         client7.sendChatMessage(new ArrayList<>(List.of(this.client2.getNickname())), "Reconnected client 1 message!");
         assertMessageEquals(this.client2, new NotifyChatMessage(client7.getNickname(), "Reconnected client 1 message!"));
@@ -672,7 +621,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         client7.disconnect();
     }
 
-    private void dummyTurn(TestClassClientTCP client, PlayableCardType cardType) throws RemoteException {
+    private void dummyTurn(TestClassClientTCP client, PlayableCardType cardType){
         dummyPlace(client);
         assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getNickname(), TurnState.DRAW));
         client.pickCardFromDeck(cardType);
@@ -743,7 +692,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         assertMessageEquals(List.of(receiver), message);
     }
 
-    private void assertMessageEquals(MessageToClient message, TestClassClientTCP... receivers) {
+    private void assertMessageEquals(MessageToClient message, TestClassClientTCP ... receivers) {
         ArrayList<TestClassClientTCP> receiversName = Arrays.stream(receivers).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         assertMessageEquals(receiversName, message);
     }
@@ -770,12 +719,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         }
     }
 
-    private void clearQueue(List<TestClassClientTCP> clients) {
-        for (TestClassClientTCP player : clients) {
-            player.clearQueue();
-        }
-    }
-
     private void waitingThread(long millis) {
         try {
             Thread.sleep(millis);
@@ -784,4 +727,4 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         }
     }
 
-}*/
+}

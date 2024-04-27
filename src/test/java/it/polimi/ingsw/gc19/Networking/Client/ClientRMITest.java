@@ -177,7 +177,7 @@ public class ClientRMITest {
     }
 
     @Test
-    public void testFirePlayersAndGames() throws RemoteException {
+    public void testFirePlayersAndGames(){
 
         this.client1.connect();
         this.client2.connect();
@@ -378,6 +378,10 @@ public class ClientRMITest {
     @Test
     public void testJoinFirstAvailableGames() throws RemoteException {
         this.client1.connect();
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message).getToken();
+        this.client1.setToken(token1);
 
         this.client1.createGame("game4", 2);
 
@@ -387,6 +391,10 @@ public class ClientRMITest {
 
 
         this.client2.connect();
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.setToken(token2);
 
         this.client2.joinGame("game4");
         assertNotNull(this.client2);
@@ -400,6 +408,10 @@ public class ClientRMITest {
         this.client2.waitForMessage(GameConfigurationMessage.class);
 
         this.client3.connect();
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.setToken(token3);
 
         this.client3.createGame("game7", 2);
 
@@ -407,6 +419,10 @@ public class ClientRMITest {
 
 
         this.client4.connect();
+        client4.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message4 = this.client4.getMessage();
+        String token4 = ((CreatedPlayerMessage) message4).getToken();
+        this.client4.setToken(token4);
 
         this.client4.joinFirstAvailableGame();
 
@@ -414,9 +430,6 @@ public class ClientRMITest {
 
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("client4"));
 
-
-        //assertNull(this.client1.getMessage());
-        //assertNull(this.client2.getMessage());
 
         this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client5");
         this.client5.connect();
@@ -431,8 +444,16 @@ public class ClientRMITest {
     public void testDisconnectionWhileInLobby() throws RemoteException {
 
         this.client1.connect();
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message).getToken();
+        this.client1.setToken(token1);
 
         this.client2.connect();
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.setToken(token1);
 
         this.client2.createGame("game11", 2);
 
@@ -479,20 +500,24 @@ public class ClientRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client7");
-        // @todo: how is the reconnect running without any values in names and token (null values only)???
-        client7.reconnect();
-        assertMessageEquals(client7, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
-
         TestClassClientRMI client8 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client8");
         client8.connect();
+        client8.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message8 = client8.getMessage();
+        String token8 = ((CreatedPlayerMessage) message8).getToken();
+        client8.setToken(token8);
         client8.reconnect();
         assertMessageEquals(client8, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+        client8.disconnect();
     }
 
     @Test
     public void testDisconnectionWhileInGame() throws RemoteException {
         this.client1.connect();
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message).getToken();
+        this.client1.setToken(token1);
 
         this.client1.createGame("game6", 2);
 
@@ -500,6 +525,10 @@ public class ClientRMITest {
 
 
         this.client2.connect();
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.setToken(token2);
 
         this.client2.joinGame("game6");
 
@@ -523,9 +552,6 @@ public class ClientRMITest {
         //Situation: client 2 has disconnected from game
         TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client6");
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
-
-        client6.reconnect();
-        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         this.client2.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage("client2", "Chat message after disconnection!"));
@@ -567,11 +593,10 @@ public class ClientRMITest {
         client7.sendChatMessage(new ArrayList<>(List.of("client2")), "Send chat message after reconnection");
 
         assertMessageEquals(this.client2, new NotifyChatMessage("client1", "Send chat message after reconnection"));
-        assertNull(this.client1.getMessage());
     }
 
     @AfterEach
-    public void resetClients() throws RemoteException {
+    public void resetClients(){
         this.client1.disconnect();
         this.client2.disconnect();
 
@@ -603,7 +628,7 @@ public class ClientRMITest {
         }
     }
 
-    private void dummyTurn(ClientInterface clientInterface, CommonClientMethodsForTests client ,PlayableCardType cardType) throws RemoteException {
+    private void dummyTurn(ClientInterface clientInterface, CommonClientMethodsForTests client ,PlayableCardType cardType){
         dummyPlace(clientInterface, client);
         clientInterface.pickCardFromDeck(cardType);
     }

@@ -13,19 +13,19 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayDeque;
 
-/*public class TestClassClientTCP extends ClientTCP {
+public class TestClassClientTCP extends ClientTCP implements CommonClientMethodsForTests{
 
-    public TestClassClientTCP(String nickname){
-        super(nickname);
+    public TestClassClientTCP(String nickname, MessageHandler messageHandler){
+        super(nickname, messageHandler);
+
     }
-
 
     @Override
     public void waitForMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (this.incomingMessages.stream().noneMatch(messageToClientClass::isInstance)) {
+        synchronized (this.getMessageHandler().getMessagesToHandle()) {
+            while (this.getMessageHandler().getMessagesToHandle().stream().noneMatch(messageToClientClass::isInstance)) {
                 try {
-                    this.incomingMessages.wait();
+                    this.getMessageHandler().getMessagesToHandle().wait();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -34,30 +34,32 @@ import java.util.ArrayDeque;
     }
 
     public int waitAndNotifyTypeOfMessage(Class<? extends MessageToClient> messageToClientClass1, Class<? extends MessageToClient> messageToClientClass2) {
-        synchronized (this.incomingMessages) {
-            while (this.incomingMessages.stream().noneMatch(messageToClientClass1::isInstance) && this.incomingMessages.stream().noneMatch(messageToClientClass2::isInstance)) {
+        synchronized (this.getMessageHandler().getMessagesToHandle()) {
+            while (this.getMessageHandler().getMessagesToHandle().stream().noneMatch(messageToClientClass1::isInstance) &&
+                    this.getMessageHandler().getMessagesToHandle().stream().noneMatch(messageToClientClass2::isInstance)) {
                 try {
-                    this.incomingMessages.wait();
+                    this.getMessageHandler().getMessagesToHandle().wait();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
-            if(this.incomingMessages.stream().noneMatch(messageToClientClass1::isInstance)){
+            if(this.getMessageHandler().getMessagesToHandle().stream().noneMatch(messageToClientClass1::isInstance)){
                 return 1;
             }
             return 0;
         }
     }
 
+    @Override
     public MessageToClient getMessage() {
         return getMessage(MessageToClient.class);
     }
 
     @Override
     public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass) {
-        synchronized (this.incomingMessages) {
-            while (!this.incomingMessages.isEmpty()) {
-                MessageToClient res = this.incomingMessages.remove();
+        synchronized (this.getMessageHandler().getMessagesToHandle()) {
+            while (!this.getMessageHandler().getMessagesToHandle().isEmpty()) {
+                MessageToClient res = this.getMessageHandler().getMessagesToHandle().remove();
                 if (messageToClientClass.isInstance(res)) return res;
             }
         }
@@ -68,7 +70,7 @@ import java.util.ArrayDeque;
         if(wait){
             boolean found = false;
             while (!found) {
-                this.sendMessage(new JoinGameMessage(gameName, this.nickname));
+                this.sendMessage(new JoinGameMessage(gameName, this.getNickname()));
                 if (waitAndNotifyTypeOfMessage(GameHandlingError.class, JoinedGameMessage.class) == 1) {
                     found = true;
                 } else {
@@ -80,4 +82,9 @@ import java.util.ArrayDeque;
         }
     }
 
-}*/
+    @Override
+    public String getNickname(){
+        return super.getNickname();
+    }
+
+}

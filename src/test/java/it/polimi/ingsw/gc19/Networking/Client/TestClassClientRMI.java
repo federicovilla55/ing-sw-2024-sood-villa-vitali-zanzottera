@@ -12,6 +12,7 @@ public class TestClassClientRMI extends ClientRMI implements CommonClientMethods
         super(virtualMainServer, messageHandler, nickname);
     }
 
+    @Override
     public void waitForMessage(Class<? extends MessageToClient> messageToClientClass) {
         synchronized (this.getMessageHandler().getMessagesToHandle()) {
             while (this.getMessageHandler().getMessagesToHandle().stream().noneMatch(messageToClientClass::isInstance)) {
@@ -24,10 +25,12 @@ public class TestClassClientRMI extends ClientRMI implements CommonClientMethods
         }
     }
 
+    @Override
     public MessageToClient getMessage() {
         return getMessage(MessageToClient.class);
     }
 
+    @Override
     public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass) {
         synchronized (this.getMessageHandler().getMessagesToHandle()) {
             while (!this.getMessageHandler().getMessagesToHandle().isEmpty()) {
@@ -38,4 +41,8 @@ public class TestClassClientRMI extends ClientRMI implements CommonClientMethods
         return null;
     }
 
+    @Override
+    public String getNickname() {
+        return super.getNickname();
+    }
 }

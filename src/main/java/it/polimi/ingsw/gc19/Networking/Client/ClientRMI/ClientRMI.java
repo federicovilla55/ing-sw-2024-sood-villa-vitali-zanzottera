@@ -117,11 +117,12 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                 }
                 catch (IOException ignored){
                     System.err.println(ignored.getMessage());
+                    //@TODO: notify view or Client App
+                    return;
                 };
 
-                assert tokenScanner != null;
                 this.virtualGameServer = this.virtualMainServer.reconnect(this, this.nickname, tokenScanner.nextLine());
-
+                tokenScanner.close();
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
@@ -276,7 +277,8 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
             bufferedWriter.write(token);
-            //tokenFile.setWritable(false);
+            bufferedWriter.close();
+            tokenFile.setReadOnly();
         }
         catch (IOException ignored){
             System.err.println(ignored.getMessage());

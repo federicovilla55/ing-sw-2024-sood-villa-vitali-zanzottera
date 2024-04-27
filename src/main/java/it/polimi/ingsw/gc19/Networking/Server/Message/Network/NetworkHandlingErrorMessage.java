@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Network;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
@@ -16,6 +17,7 @@ public class NetworkHandlingErrorMessage extends MessageToClient {
     public NetworkHandlingErrorMessage(NetworkError networkError, String description){
         this.networkError = networkError;
         this.description = description;
+        this.setPriorityLevel(MessagePriorityLevel.HIGH);
     }
 
     /**

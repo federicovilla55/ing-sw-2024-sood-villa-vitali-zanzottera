@@ -7,5 +7,6 @@ public interface CommonClientMethodsForTests {
     public void waitForMessage(Class<? extends MessageToClient> messageToClientClass);
     public MessageToClient getMessage();
     public MessageToClient getMessage(Class<? extends MessageToClient> messageToClientClass);
+    String getNickname();
 
 }

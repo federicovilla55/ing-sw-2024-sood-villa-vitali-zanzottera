@@ -17,9 +17,11 @@ import it.polimi.ingsw.gc19.Networking.Server.Settings;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class ClientTCP implements ClientInterface {
@@ -30,7 +32,7 @@ public class ClientTCP implements ClientInterface {
     private String nickname;
     private final MessageHandler messageHandler;
 
-    private final ScheduledExecutorService heartbeatScheduler;
+    private ScheduledExecutorService heartbeatScheduler;
     private final Thread senderThread;
     private final Thread receiverThread;
 
@@ -59,8 +61,12 @@ public class ClientTCP implements ClientInterface {
         this.messagesToSend = new ArrayDeque<>();
 
         this.heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
+        this.startSendingHeartbeat();
         this.receiverThread = new Thread(this::receiveMessages);
         this.senderThread = new Thread(this::sendMessageToServer);
+
+        this.receiverThread.start();
+        this.senderThread.start();
     }
 
     private void sendMessageToServer(){
@@ -75,9 +81,8 @@ public class ClientTCP implements ClientInterface {
                         Thread.currentThread().interrupt();
                         return;
                     }
-                    message = this.messagesToSend.getFirst();
-                    this.messagesToSend.notifyAll();
                 }
+                message = this.messagesToSend.pollFirst();
             }
 
             if(message != null) {
@@ -90,16 +95,22 @@ public class ClientTCP implements ClientInterface {
                         finalizeSending();
                         sent = true;
                     }
+                    catch (SocketException socketException){
+                        //@TODO: What to do?
+                        break;
+                    }
                     catch (IOException ioException){
+                        System.out.println(ioException.getClass());
                         numOfTry++;
-                    }
 
-                    try{
-                        Thread.sleep(1000);
-                    }
-                    catch (InterruptedException interruptedException){
-                        Thread.currentThread().interrupt();
-                        return;
+                        try{
+                            Thread.sleep(1000);
+                        }
+                        catch (InterruptedException interruptedException){
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+
                     }
                 }
 
@@ -123,15 +134,22 @@ public class ClientTCP implements ClientInterface {
     }
 
     public void receiveMessages(){
-        MessageToClient incomingMessage;
+        MessageToClient incomingMessage = null;
         while(!Thread.interrupted()) {
             try {
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                //@TODO: handle this exception
-                throw new RuntimeException(e);
             }
-            this.messageHandler.update(incomingMessage);
+            catch (SocketException ignored) { }
+            catch (ClassNotFoundException classNotFoundException){
+                //@TODO: handle Class exception
+            }
+            catch (IOException ioException){
+                //@TODO: handle IO exception
+            }
+
+            if(incomingMessage != null) {
+                this.messageHandler.update(incomingMessage);
+            }
         }
     }
 
@@ -141,14 +159,15 @@ public class ClientTCP implements ClientInterface {
         synchronized (this.messagesToSend){
             this.messagesToSend.clear();
         }
-
-        this.senderThread.interrupt();
-        this.receiverThread.interrupt();
     }
 
     public void stopClient(){
         stopSendingHeartbeat();
-        try {
+
+        this.senderThread.interrupt();
+        this.receiverThread.interrupt();
+
+        /*try {
             if (socket != null) {
                 this.socket.shutdownOutput();
                 this.socket.shutdownInput();
@@ -156,12 +175,15 @@ public class ClientTCP implements ClientInterface {
             }
         }
         catch (IOException ioException){
-            //@TODO: handle this exception
-            throw new RuntimeException(ioException);
-        }
+            //@TDO: handle this exception
+        }*/
     }
 
     public void startSendingHeartbeat(){
+        if(this.heartbeatScheduler.isShutdown()) {
+            this.heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
+        }
+
         this.heartbeatScheduler.scheduleAtFixedRate(() -> {
             sendMessage(new HeartBeatMessage(this.nickname));
         }, 0, 400, TimeUnit.MILLISECONDS);
@@ -172,6 +194,10 @@ public class ClientTCP implements ClientInterface {
         if (heartbeatScheduler != null && !heartbeatScheduler.isShutdown()) {
             heartbeatScheduler.shutdown();
         }
+    }
+
+    public MessageHandler getMessageHandler() {
+        return this.messageHandler;
     }
 
     @Override
@@ -205,27 +231,23 @@ public class ClientTCP implements ClientInterface {
         try {
             Scanner tokenScanner = new Scanner(tokenFile);
             this.sendMessage(new ReconnectToServerMessage(this.nickname, tokenScanner.nextLine()));
+            tokenScanner.close();
         }
-        catch (IOException ignored){ };
+        catch (IOException ignored){
+            //@TODO: notify client App or view
+        };
     }
 
     @Override
     public void disconnect() {
         this.sendMessage(new DisconnectMessage(this.nickname));
 
-        synchronized (this.messagesToSend){
-            while (!this.messagesToSend.isEmpty()){
-                try{
-                    this.messagesToSend.wait();
-                }
-                catch (InterruptedException ignored){ }
-            }
-        }
-
-        this.senderThread.interrupt();
-        this.receiverThread.interrupt();
-
         this.stopClient();
+
+        /*
+        FIXME: when client tries to disconnect what we have to do? If we close its socket there can be problems because it is not able to send
+                the message to disconnect. In this implementation, I do not close socket and not interrupt threads
+         */
 
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
         if(tokenFile.delete()){
@@ -274,7 +296,8 @@ public class ClientTCP implements ClientInterface {
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
             bufferedWriter.write(token);
-            tokenFile.setWritable(false);
+            bufferedWriter.close();
+            tokenFile.setReadOnly();
         }
         catch (IOException ignored){ };
     }
