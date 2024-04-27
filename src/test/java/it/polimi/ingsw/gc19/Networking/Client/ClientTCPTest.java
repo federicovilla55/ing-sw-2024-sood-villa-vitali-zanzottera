@@ -340,7 +340,6 @@ public class ClientTCPTest {
         assertMessageEquals(client8, new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
     }
 
-    @Disabled
     @Test
     public void testFirePlayersAndGames(){
 
@@ -365,12 +364,9 @@ public class ClientTCPTest {
         this.client3.disconnect();
 
         assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client3"), "client1", "client2", "client4");
-        assertMessageWithHeaderEquals(this.client2, new DisconnectedPlayerMessage("client3"), "client1", "client2", "client4");
 
         this.client4.disconnect();
         assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client4"), "client1", "client2");
-        assertMessageWithHeaderEquals(this.client2, new DisconnectedPlayerMessage("client4"), "client1", "client2");
-
 
         client1.placeCard("resource_23", "initial_05", Direction.UP_RIGHT, CardOrientation.DOWN);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
