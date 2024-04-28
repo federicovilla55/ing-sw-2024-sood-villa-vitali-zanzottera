@@ -119,8 +119,6 @@ public class ClientTCP implements ClientInterface {
             if(message != null && !send(message)) {
                 if(!this.networkDisconnectionRoutine()) {
 
-                    this.getMessageHandler().getActionParser().disconnect();
-
                     //@TODO: clear queue or what?
                     synchronized (this.messagesToSend){
                         this.messagesToSend.clear();
