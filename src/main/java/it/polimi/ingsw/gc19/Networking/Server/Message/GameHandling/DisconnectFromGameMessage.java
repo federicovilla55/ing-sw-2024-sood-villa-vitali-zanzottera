@@ -6,10 +6,10 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  * This message is used to confirm to client that he has been
  * disconnected from the game
  */
-public class DisconnectGameMessage extends GameHandlingMessage {
+public class DisconnectFromGameMessage extends GameHandlingMessage {
     private final String gameName;
 
-    public DisconnectGameMessage(String gameName){
+    public DisconnectFromGameMessage(String gameName){
         this.gameName = gameName;
     }
 
