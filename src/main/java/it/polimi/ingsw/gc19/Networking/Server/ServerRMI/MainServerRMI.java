@@ -2,17 +2,19 @@ package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
 import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.PlayerCorrectlyDisconnectedFromServer;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.*;
 
-import java.net.Socket;
+import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -122,7 +124,17 @@ public class MainServerRMI extends Server implements VirtualMainServer{
             return null;
         }
         if(this.mainController.createGame(gameName, numPlayer, clientHandlerRMI)){
-            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            try {
+                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            }
+            catch (RemoteException remoteException){
+                try {
+                    UnicastRemoteObject.unexportObject(clientHandlerRMI, true);
+                }
+                catch (NoSuchElementException ignored) { };
+
+                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            }
         }
         return null;
     }
@@ -146,7 +158,17 @@ public class MainServerRMI extends Server implements VirtualMainServer{
             return null;
         }
         if(this.mainController.createGame(gameName, numPlayer, clientHandlerRMI, randomSeed)){
-            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            try {
+                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            }
+            catch (RemoteException remoteException){
+                try {
+                    UnicastRemoteObject.unexportObject(clientHandlerRMI, true);
+                }
+                catch (NoSuchElementException ignored) { };
+
+                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            }
         }
         return null;
     }
@@ -187,7 +209,17 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     public VirtualGameServer joinGame(VirtualClient clientRMI, String gameName, String nickName) throws RemoteException {
         ClientHandlerRMI clientHandlerRMI = getClientHandlerForVirtualClient(clientRMI, nickName);
         if(this.mainController.registerToGame(clientHandlerRMI, gameName)){
-            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            try {
+                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            }
+            catch (RemoteException remoteException){
+                try {
+                    UnicastRemoteObject.unexportObject(clientHandlerRMI, true);
+                }
+                catch (NoSuchElementException ignored) { };
+
+                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            }
         }
         return null;
     }
@@ -205,7 +237,17 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     public VirtualGameServer joinFirstAvailableGame(VirtualClient clientRMI, String nickName) throws RemoteException {
         ClientHandlerRMI clientHandlerRMI = getClientHandlerForVirtualClient(clientRMI, nickName);
         if(this.mainController.registerToFirstAvailableGame(clientHandlerRMI)){
-            return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            try {
+                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            }
+            catch (RemoteException remoteException){
+                try {
+                    UnicastRemoteObject.unexportObject(clientHandlerRMI, true);
+                }
+                catch (NoSuchElementException ignored) { };
+
+                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+            }
         }
         return null;
     }
@@ -256,7 +298,17 @@ public class MainServerRMI extends Server implements VirtualMainServer{
             this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
 
             if(this.mainController.reconnect(clientHandlerRMI)){
-                return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+                try {
+                    return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+                }
+                catch (RemoteException remoteException){
+                    try {
+                        UnicastRemoteObject.unexportObject(clientHandlerRMI, true);
+                    }
+                    catch (NoSuchElementException ignored) { };
+
+                    return (VirtualGameServer) UnicastRemoteObject.exportObject(clientHandlerRMI, 12122);
+                }
             }
         }
         else {
@@ -280,8 +332,8 @@ public class MainServerRMI extends Server implements VirtualMainServer{
      * This method disconnects one client from the RMI server. Client must explicitly tell to server that
      * he wants to be disconnected. It removes {@param clientRMI} from both <code>connectedClients</code>
      * and <code>lastHeartBeatOfClients</code>. Finally, it tells to {@link MainController} to disconnect
-     * the player.
-     * @param clientRMI virtual client of the plyer who wants to be disconnected
+     * the player and and send to player a {@link PlayerCorrectlyDisconnectedFromServer}.
+     * @param clientRMI virtual client of the player who wants to be disconnected
      * @throws RemoteException exception thrown if something goes wrong
      */
     @Override
@@ -295,8 +347,16 @@ public class MainServerRMI extends Server implements VirtualMainServer{
                 //@TODO: check if it is possible to have errors here? If client has already disconnected what happens?
             }
             else{
-                connectedClients.get(clientRMI).x().interrupt();
-                this.mainController.disconnect(this.connectedClients.remove(clientRMI).x());
+                var clientToDisconnect = this.connectedClients.remove(clientRMI);
+                clientToDisconnect.x().sendMessageToClient(new PlayerCorrectlyDisconnectedFromServer().setHeader(nickName));
+                clientToDisconnect.x().interrupt();
+
+                try{
+                    UnicastRemoteObject.unexportObject(clientToDisconnect.x(), true);
+                }
+                catch (NoSuchObjectException ignored){ };
+
+                this.mainController.disconnect(clientToDisconnect.x());
             }
         }
         this.lastHeartBeatOfClients.remove(clientRMI);
@@ -356,6 +416,34 @@ public class MainServerRMI extends Server implements VirtualMainServer{
             clientHandlerRMI.sendMessageToClient(new AvailableGamesMessage(mainController.findAvailableGames())
                                                          .setHeader(nickName));
         }
+    }
+
+    /**
+     * This method is used by RMI clients that want to exit the game where they are
+     * actually in. To do that, it uses {@link MainController#disconnectPlayerFromGame(ClientHandler)}.
+     * @param clientRMI is the {@link VirtualClient} of the sender client
+     * @param nickname is the nickname of the player
+     * @throws RemoteException if something goes wrong while doing the requested action
+     */
+    @Override
+    public void disconnectFromGame(VirtualClient clientRMI, String nickname) throws RemoteException {
+        ClientHandlerRMI clientHandlerRMI;
+        synchronized (this.connectedClients){
+            if(!this.connectedClients.containsKey(clientRMI)){
+                clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER,
+                                                                     "Your virtual client is not registered to server! Please register...")
+                                             .setHeader((nickname == null) ? "" : nickname));
+                return;
+            }
+            else{
+                clientHandlerRMI = this.connectedClients.get(clientRMI).x();
+                try{
+                    UnicastRemoteObject.unexportObject(clientHandlerRMI, true);
+                }
+                catch (NoSuchObjectException ignored){ };
+            }
+        }
+        this.mainController.disconnectPlayerFromGame(clientHandlerRMI);
     }
 
     /**

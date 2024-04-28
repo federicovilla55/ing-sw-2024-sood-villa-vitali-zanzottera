@@ -1,12 +1,9 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
 
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedChooseGoalCard;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.ConfigurationMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.BeginFinalRoundMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.PlayerReconnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
 
 /**
  * Classes that need to visit {@link GameHandlingMessage} must
@@ -76,4 +73,19 @@ public interface GameHandlingMessageVisitor{
      * @param message the {@link DisconnectGameMessage} to visit
      */
     void visit(DisconnectGameMessage message);
+
+    /**
+     * This method is used by {@link GameHandlingMessageVisitor} to visit
+     * a message {@link PlayerCorrectlyDisconnectedFromServer}
+     * @param message the {@link PlayerCorrectlyDisconnectedFromServer} to visit
+     */
+    void visit(PlayerCorrectlyDisconnectedFromServer message);
+
+    /**
+     * This method is used by {@link GameHandlingMessageVisitor} to visit
+     * a message {@link PlayerCorrectlyDisconnectedFromGame}
+     * @param message the {@link PlayerCorrectlyDisconnectedFromGame} to visit
+     */
+    void visit(PlayerCorrectlyDisconnectedFromGame message);
+
 }

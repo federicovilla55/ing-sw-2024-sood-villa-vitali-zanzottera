@@ -193,6 +193,16 @@ public class MessageHandler implements AllMessageVisitor {
     }
 
     @Override
+    public void visit(PlayerCorrectlyDisconnectedFromServer message) {
+
+    }
+
+    @Override
+    public void visit(PlayerCorrectlyDisconnectedFromGame message) {
+
+    }
+
+    @Override
     public void visit(TurnStateMessage message) {
         // @todo: how to handle the new turn, should we
         // just change the interface and permit more operation to the

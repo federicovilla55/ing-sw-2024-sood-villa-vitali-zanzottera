@@ -4,8 +4,8 @@ import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

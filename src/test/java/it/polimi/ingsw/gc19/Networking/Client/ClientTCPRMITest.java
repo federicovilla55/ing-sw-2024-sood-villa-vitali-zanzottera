@@ -24,8 +24,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
