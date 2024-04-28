@@ -603,11 +603,10 @@ public class ClientTCPTest {
 
         this.client1.stopSendingHeartbeat();
 
-        this.client1.stopClient();
-
         waitingThread(5000);
 
         TestClassClientTCP client7 = new TestClassClientTCP(this.client1.getNickname(), new MessageHandler(new ActionParser()));
+        client7.setToken(token1);
         client7.reconnect();
 
         assertMessageEquals(client7, new JoinedGameMessage("game15"));
