@@ -2,7 +2,6 @@ package it.polimi.ingsw.gc19.Networking.Socket;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
@@ -13,10 +12,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
@@ -551,7 +547,7 @@ public class ServerSocketAndMainControllerTest {
 
         waitingThread(4000);
 
-        assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game2"));
+        assertMessageEquals(List.of(this.client2, this.client1), new DisconnectFromGameMessage("game2"));
     }
 
     @Test
@@ -663,6 +659,8 @@ public class ServerSocketAndMainControllerTest {
 
         assertMessageEquals(client7, new JoinedGameMessage("game15"));
 
+        assertMessageEquals(client2, new PlayerReconnectedToGameMessage("client1"));
+
         client7.sendChatMessage(new ArrayList<>(List.of(this.client2.getName())), "Send chat message after reconnection");
 
         assertMessageEquals(this.client2, new NotifyChatMessage(client7.getName(), "Send chat message after reconnection"));
@@ -721,14 +719,14 @@ public class ServerSocketAndMainControllerTest {
         client2.joinGame("game30", true);
         waitingThread(500);
         client1.exitFromGame();
-        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client1, new DisconnectFromGameMessage("game30"));
         assertMessageEquals(client2, new DisconnectedPlayerMessage(this.client1.getName()));
         client1.createGame("game30", 4, 2);
         assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
         client1.createGame("game31", 3);
         assertMessageEquals(this.client1, new CreatedGameMessage("game31"));
         client2.exitFromGame();
-        assertMessageEquals(client2, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client2, new DisconnectFromGameMessage("game30"));
         waitingThread(500);
         client2.createGame("game35", 2, 3);
         assertMessageEquals(client2, new CreatedGameMessage("game35"));
@@ -736,16 +734,16 @@ public class ServerSocketAndMainControllerTest {
         client1.joinFirstAvailableGame();
         assertMessageEquals(client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
         client1.exitFromGame();
-        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client1, new DisconnectFromGameMessage("game31"));
         client1.joinGame("game35", true);
         client3.createPlayer();
         client3.joinGame("game35", false);
         assertMessageEquals(client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
         client1.exitFromGame();
-        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client1, new DisconnectFromGameMessage("game35"));
         client3.exitFromGame();
         client2.exitFromGame();
-        assertMessageEquals(client2, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client2, new DisconnectFromGameMessage("game35"));
         client2.createGame("game35", 2, 3);
         assertMessageEquals(client2, new CreatedGameMessage("game35"));
         client1.clearQueue();

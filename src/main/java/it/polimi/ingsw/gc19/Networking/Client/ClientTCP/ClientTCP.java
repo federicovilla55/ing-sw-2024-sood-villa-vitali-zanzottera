@@ -166,26 +166,12 @@ public class ClientTCP implements ClientInterface {
         }
     }
 
-    public void logout(){
-        this.stopClient();
-
-        synchronized (this.messagesToSend){
-            this.messagesToSend.clear();
-        }
-    }
-
     public void stopClient(){
         stopSendingHeartbeat();
 
         this.senderThread.interrupt();
         this.receiverThread.interrupt();
         this.heartbeatScheduler.shutdownNow();
-
-        Thread disconnectionThread = getDisconnectionThread();
-        try {
-            disconnectionThread.join();
-        }
-        catch (InterruptedException ignored){ }
 
         try {
             if (socket != null) {
@@ -195,26 +181,6 @@ public class ClientTCP implements ClientInterface {
             }
         }
         catch (IOException ignored){ }
-    }
-
-    @NotNull
-    private Thread getDisconnectionThread() {
-        Thread disconnectionThread = new Thread(() -> {
-            long startingTime = new Date().getTime();
-            boolean sent = false;
-
-            while(!sent && new Date().getTime() - startingTime < 1000 * ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION){
-                try{
-                    ClientTCP.this.outputStream.writeObject(new DisconnectMessage(nickname));
-                    ClientTCP.this.finalizeSending();
-                    sent = true;
-                }
-                catch (IOException ignored){ };
-            }
-        });
-        disconnectionThread.start();
-
-        return disconnectionThread;
     }
 
     public void startSendingHeartbeat(){
@@ -264,6 +230,16 @@ public class ClientTCP implements ClientInterface {
     }
 
     @Override
+    public void logoutFromGame() throws RuntimeException{
+        if(!this.send(new RequestGameExitMessage(this.nickname))){
+            throw new RuntimeException("Message could not be sent to server!");
+        }
+        synchronized (this.messagesToSend){
+            this.messagesToSend.clear();
+        }
+    }
+
+    @Override
     public void reconnect() throws RuntimeException{
         String token;
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
@@ -273,10 +249,11 @@ public class ClientTCP implements ClientInterface {
                 Scanner tokenScanner = new Scanner(tokenFile);
                 token = tokenScanner.nextLine();
                 tokenScanner.close();
-                if(this.send(new ReconnectToServerMessage(this.nickname, token))){
-                    throw new RuntimeException();
+                if(!this.send(new ReconnectToServerMessage(this.nickname, token))){
+                    throw new RuntimeException("Could not send message to server!");
                 }
-            } catch (IOException ioException) {
+            }
+            catch (IOException ioException) {
                 throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
             }
         }
@@ -286,11 +263,16 @@ public class ClientTCP implements ClientInterface {
     }
 
     @Override
-    public void disconnect() {
+    public void disconnect() throws RuntimeException{
+        if(!this.send(new DisconnectMessage(this.nickname))){
+            throw new RuntimeException("Message could not be sent to server!");
+        }
+
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
         if(tokenFile.exists() && tokenFile.exists() && tokenFile.delete()){
             System.err.println("[TOKEN]: token file deleted.");
         }
+
         this.stopClient();
     }
 

@@ -51,6 +51,9 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
     @Override
     public void connect(){
+        if(this.actionParser.isDisconnected()){
+            return;
+        }
         try{
             this.virtualMainServer.newConnection(this, nickname);
             startSendingHeartbeat();
@@ -61,6 +64,9 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
     @Override
     public void createGame(String gameName, int numPlayers){
+        if(this.actionParser.isDisconnected()){
+            return;
+        }
         synchronized (this.virtualGameServerLock) {
             try {
                 this.virtualGameServer = this.virtualMainServer.createGame(this, gameName, this.nickname, numPlayers);
@@ -101,6 +107,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
     }
 
+    @Override
     public void joinFirstAvailableGame(){
         if(this.actionParser.isDisconnected()){
             return;
@@ -115,6 +122,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
     }
 
+    @Override
     public void reconnect() throws RuntimeException{
         Scanner tokenScanner;
         String token;
@@ -146,17 +154,26 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     }
 
     @Override
-    public void logout(){
-        this.stopSendingHeartbeat();
+    public void logoutFromGame() throws RuntimeException{
+        try {
+            this.virtualMainServer.disconnectFromGame(this, this.nickname);
+        }
+        catch (RemoteException e) {
+            throw new RuntimeException("Cannot disconnect from server because of Remote Exception: " + e);
+        }
+        synchronized (this.virtualGameServerLock){
+            this.virtualGameServer = null;
+        }
     }
 
     @Override
-    public void disconnect(){
+    public void disconnect() throws RuntimeException{
         stopSendingHeartbeat();
         try {
-            this.virtualMainServer.disconnect(this, this.nickname); //@TODO: what happens when client disconnects himself? We set virtual main server to null?
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+            this.virtualMainServer.disconnect(this, this.nickname);
+        }
+        catch (RemoteException e) {
+            throw new RuntimeException("Cannot disconnect from server because of Remote Exception: " + e);
         }
 
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/TokenFile" + "_" + this.nickname);
@@ -184,6 +201,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
     }
 
+    @Override
     public void placeCard(String cardToInsert, String anchorCard, Direction directionToInsert, CardOrientation orientation){
         if(this.actionParser.isDisconnected()){
             return;
@@ -200,6 +218,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
     }
 
+    @Override
     public void sendChatMessage(ArrayList<String> UsersToSend, String messageToSend){
         if(this.actionParser.isDisconnected()){
             return;
@@ -215,6 +234,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
     }
 
+    @Override
     public void placeInitialCard(CardOrientation cardOrientation){
         if(this.actionParser.isDisconnected()){
             return;
@@ -230,6 +250,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
     }
 
+    @Override
     public void pickCardFromTable(PlayableCardType type, int position){
         if(this.actionParser.isDisconnected()){
             return;
@@ -246,6 +267,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
     }
 
+    @Override
     public void pickCardFromDeck(PlayableCardType type){
         if(this.actionParser.isDisconnected()){
             return;
@@ -262,6 +284,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
     }
 
+    @Override
     public void chooseColor(Color color){
         if(this.actionParser.isDisconnected()){
             return;
@@ -278,6 +301,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
     }
 
+    @Override
     public void choosePrivateGoalCard(int cardIdx){
         if(this.actionParser.isDisconnected()){
             return;
@@ -329,10 +353,12 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         return this.messageHandler;
     }
 
+    @Override
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
 
+    @Override
     public String getNickname() {
         return nickname;
     }

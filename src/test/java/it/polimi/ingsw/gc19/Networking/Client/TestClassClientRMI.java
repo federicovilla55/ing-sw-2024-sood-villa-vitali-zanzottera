@@ -3,13 +3,15 @@ package it.polimi.ingsw.gc19.Networking.Client;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
+import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 
 import java.rmi.RemoteException;
 
 public class TestClassClientRMI extends ClientRMI implements CommonClientMethodsForTests{
 
-    public TestClassClientRMI(VirtualMainServer virtualMainServer, MessageHandler messageHandler, String nickname) throws RemoteException {
-        super(virtualMainServer, messageHandler, nickname);
+    public TestClassClientRMI(VirtualMainServer virtualMainServer, MessageHandler messageHandler, String nickname, ActionParser actionParser) throws RemoteException {
+        super(nickname, messageHandler, actionParser);
+        super.setVirtualMainServer(virtualMainServer);
     }
 
     @Override

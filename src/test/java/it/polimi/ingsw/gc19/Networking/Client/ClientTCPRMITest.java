@@ -22,7 +22,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import org.junit.jupiter.api.*;
@@ -58,11 +57,11 @@ public class ClientTCPRMITest {
         registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
 
-        this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client1");
-        this.client2 = new TestClassClientTCP("client2", new MessageHandler(new ActionParser()));
-        this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client3");
-        this.client4 = new TestClassClientTCP("client4", new MessageHandler(new ActionParser()));
-        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client5");
+        this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client1", new ActionParser());
+        this.client2 = new TestClassClientTCP("client2", new MessageHandler(new ActionParser()), new ActionParser());
+        this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client3", new ActionParser());
+        this.client4 = new TestClassClientTCP("client4", new MessageHandler(new ActionParser()), new ActionParser());
+        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client5", new ActionParser());
         clientsAnchors = new HashMap<>();
     }
 
@@ -185,12 +184,12 @@ public class ClientTCPRMITest {
 
     @Test
     public void testDisconnectionAndReconnection() throws IOException {
-        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client6");
+        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client6", new ActionParser());
         client6.connect();
         client6.startSendingHeartbeat();
         waitingThread(2500);
         client6.disconnect();
-        TestClassClientTCP client7 = new TestClassClientTCP(client6.getNickname(), new MessageHandler(new ActionParser()));
+        TestClassClientTCP client7 = new TestClassClientTCP(client6.getNickname(), new MessageHandler(new ActionParser()), new ActionParser());
         client7.connect();
         assertMessageEquals(client7, new CreatedPlayerMessage(client7.getNickname()));
     }
@@ -357,7 +356,7 @@ public class ClientTCPRMITest {
 
         waitingThread(4000);
 
-        assertMessageEquals(List.of(this.client1, this.client2), new DisconnectGameMessage("game13"));
+        assertMessageEquals(List.of(this.client1, this.client2), new DisconnectFromGameMessage("game13"));
     }
 
 
@@ -463,7 +462,7 @@ public class ClientTCPRMITest {
 
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("client4"));
 
-        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client5");
+        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client5", new ActionParser());
         this.client5.connect();
 
         this.client5.joinFirstAvailableGame();
@@ -494,7 +493,7 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client2");
+        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client2", new ActionParser());
         client6.connect();
         assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
@@ -528,7 +527,7 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client8 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client8");
+        TestClassClientRMI client8 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client8", new ActionParser());
         client8.connect();
         client8.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message8 = client8.getMessage();
@@ -574,7 +573,7 @@ public class ClientTCPRMITest {
         this.client2.stopSendingHeartbeat();
 
         //Situation: client 2 has disconnected from game
-        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client6");
+        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client6", new ActionParser());
         //Client6 tries to reconnect with no token
         client6.setToken("fake token");
         client6.reconnect();
@@ -612,7 +611,7 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()), "client7");
+        TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()), "client7", new ActionParser());
         client7.setNickname("client1");
         client7.setToken(token1);
         client7.reconnect();
