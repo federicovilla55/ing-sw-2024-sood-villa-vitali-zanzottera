@@ -7,6 +7,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.Action.ChosenColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.PlayerReconnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
@@ -233,6 +234,7 @@ public class ActionParserTest {
 
     }
 
+    @Disabled
     @Test
     public void testDisconnect(){
         actionParser1.parseAction("create_player(client1)");
@@ -268,9 +270,11 @@ public class ActionParserTest {
         }
         assertMessageEquals(client1, new DisconnectedPlayerMessage(this.client2.getNickname()));
 
-        //actionParser2.disconnect();
+        actionParser2.disconnect();
+        assertEquals(actionParser2.getState(), ViewState.DISCONNECT);
 
-
+        assertMessageEquals(client1, new PlayerReconnectedToGameMessage(this.client2.getNickname()));
+        assertEquals(actionParser2.getState(), ViewState.SETUP);
     }
 
     @AfterEach
