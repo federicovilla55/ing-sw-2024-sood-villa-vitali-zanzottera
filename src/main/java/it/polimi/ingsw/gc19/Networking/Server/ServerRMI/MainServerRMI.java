@@ -15,35 +15,27 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class MainServerRMI extends Server implements VirtualMainServer{
 
-    private static MainServerRMI instance;
     private final HashMap<VirtualClient, Tuple<ClientHandlerRMI, String>> connectedClients;
     private final ConcurrentHashMap<VirtualClient, Long> lastHeartBeatOfClients;
     private final HashMap<VirtualClient, Long> pendingVirtualClientToKill;
 
-    private MainServerRMI(){
+    private final ScheduledExecutorService heartBeatTesterExecutor;
+    private final ScheduledExecutorService inactiveClientKillerExecutor;
+
+    public MainServerRMI(){
         super();
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new ConcurrentHashMap<>();
         this.pendingVirtualClientToKill = new HashMap<>();
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
-    }
 
-    /**
-     * This method is used for Singleton pattern of {@link MainServerRMI}.
-     * @return the instance of {@link MainServerRMI}.
-     */
-    public static MainServerRMI getInstance(){
-        if(instance == null){
-            instance = new MainServerRMI();
-        }
-        return instance;
+        this.heartBeatTesterExecutor = new ScheduledThreadPoolExecutor(1);
+        this.inactiveClientKillerExecutor = new ScheduledThreadPoolExecutor(1);
+        this.heartBeatTesterExecutor.scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
+        this.inactiveClientKillerExecutor.scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -452,12 +444,16 @@ public class MainServerRMI extends Server implements VirtualMainServer{
      */
     @Override
     public void resetServer() {
+        this.heartBeatTesterExecutor.shutdownNow();
+        this.inactiveClientKillerExecutor.shutdownNow();
+
         synchronized (connectedClients) {
             this.connectedClients.clear();
         }
         synchronized (lastHeartBeatOfClients) {
             this.lastHeartBeatOfClients.clear();
         }
+
         this.mainController.resetMainController();
     }
 

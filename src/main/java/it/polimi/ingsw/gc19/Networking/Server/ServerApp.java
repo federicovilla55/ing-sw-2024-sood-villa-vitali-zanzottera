@@ -99,7 +99,7 @@ public class ServerApp {
      * @param RMIPort the port on which start {@link MainServerRMI} (default is <code>1099</code>)
      */
     public static void startRMI(int RMIPort){
-        mainServerRMI = MainServerRMI.getInstance();
+        mainServerRMI = new MainServerRMI();
         try {
             registry = LocateRegistry.createRegistry(RMIPort);
             VirtualMainServer stub = (VirtualMainServer) UnicastRemoteObject.exportObject(mainServerRMI, 0);
@@ -126,7 +126,7 @@ public class ServerApp {
      * @param TCPPort the port on which start {@link MainServerTCP} (default is <code>25.0000</code>
      */
     public static void startTCP(int TCPPort){
-        mainServerTCP = MainServerTCP.getInstance();
+        mainServerTCP = new MainServerTCP();
         TCPConnectionAcceptor = new TCPConnectionAcceptor(mainServerTCP, TCPPort);
         TCPConnectionAcceptor.start();
     }

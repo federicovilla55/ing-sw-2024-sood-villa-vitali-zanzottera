@@ -43,38 +43,33 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RMIServerAndMainControllerTest {
-    private static MainServerRMI mainServerRMI;
     private static VirtualMainServer virtualMainServer;
     private Client client1, client2, client3, client4, client5;
     private ArrayList<Client> stressTestClients;
 
-    @BeforeAll
-    public static void setUpServer() throws IOException, NotBoundException {
+    @BeforeEach
+    public void setUpTest() throws RemoteException, NotBoundException {
         Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
+
         ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
-        mainServerRMI = ServerApp.getMainServerRMI();
+        MainServerRMI mainServerRMI = ServerApp.getMainServerRMI();
+
         Registry registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+
         overloadTest(100);
-    }
 
-    @AfterAll
-    public static void tearDownServer() {
-        ServerApp.unexportRegistry();
-    }
-
-    @BeforeEach
-    public void setUpTest() throws RemoteException {
         this.client1 = new Client(virtualMainServer, "client1");
         this.client2 = new Client(virtualMainServer, "client2");
         this.client3 = new Client(virtualMainServer, "client3");
         this.client4 = new Client(virtualMainServer, "client4");
         this.client5 = new Client(virtualMainServer, "client5");
+
         this.stressTestClients = overloadTest(100);
     }
 
     @AfterEach
-    public void resetClients() throws RemoteException {
+    public void tearDown() throws RemoteException {
         this.client1.disconnect();
         this.client1.destroyHeartBeatThread();
         this.client2.disconnect();
@@ -85,9 +80,11 @@ public class RMIServerAndMainControllerTest {
         this.client4.destroyHeartBeatThread();
         this.client5.disconnect();
         this.client5.destroyHeartBeatThread();
+
         this.killStressTestClients();
-        mainServerRMI.killClientHandlers();
-        mainServerRMI.resetServer();
+
+        ServerApp.stopRMI();
+
         Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 60 * 20;
     }
 

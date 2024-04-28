@@ -21,14 +21,12 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.MainServerTCP;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import org.junit.jupiter.api.*;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -222,7 +220,7 @@ public class ClientTCPTest {
 
         this.client1.clearQueue();
         this.client1.stopSendingHeartbeat();
-        waitingThread(2500);
+        waitingThread(5000);
 
         this.client1.sendChatMessage(new ArrayList<>(List.of(this.client2.getNickname(), this.client3.getNickname())), "Chat message after heartbeat dead!");
         assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NOT_FOUND, null));

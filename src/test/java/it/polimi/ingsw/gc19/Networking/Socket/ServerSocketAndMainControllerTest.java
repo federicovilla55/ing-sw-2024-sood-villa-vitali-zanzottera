@@ -700,6 +700,7 @@ public class ServerSocketAndMainControllerTest {
 
     @Test
     public void testInactiveClientKiller(){
+        System.out.println(Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL);
         client1.createPlayer();
         waitingThread(500);
         client1.stopSendingHeartBeat();

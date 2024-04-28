@@ -48,16 +48,16 @@ public class ClientRMITest {
     private HashMap<VirtualGameServer, PlayableCard> clientsAnchors;
     private ClientRMI client1, client2, client3, client4, client5;
 
-    @BeforeAll
-    public static void setUpServer() throws IOException, NotBoundException {
-        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
-        mainServerRMI = ServerApp.getMainServerRMI();
-        registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
-    }
-
     @BeforeEach
-    public void setUpTest() throws RemoteException {
+    public void setUpTest() throws RemoteException, NotBoundException {
+        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
+
+        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
+        MainServerRMI mainServerRMI = ServerApp.getMainServerRMI();
+
+        Registry registry = LocateRegistry.getRegistry("localhost");
+        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+
         this.client1 = new ClientRMI(virtualMainServer, "client1");
         this.client2 = new ClientRMI(virtualMainServer, "client2");
         this.client3 = new ClientRMI(virtualMainServer, "client3");
@@ -67,19 +67,14 @@ public class ClientRMITest {
     }
 
     @AfterEach
-    public void resetClients(){
+    public void tearDown(){
         this.client1.disconnect();
         this.client2.disconnect();
         this.client3.disconnect();
         this.client4.disconnect();
         this.client5.disconnect();
-        mainServerRMI.killClientHandlers();
-        mainServerRMI.resetServer();
-    }
 
-    @AfterAll
-    public static void tearDownServer() {
-        ServerApp.unexportRegistry();
+        ServerApp.stopRMI();
     }
 
     @Test

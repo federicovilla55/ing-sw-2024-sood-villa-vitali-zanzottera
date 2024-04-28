@@ -31,7 +31,6 @@ import java.util.concurrent.*;
  */
 public class MainServerTCP extends Server implements ObserverMessageToServer<MessageToServer>{
 
-    private static MainServerTCP instance = null;
     private final HashMap<Socket, Triplet<ClientHandlerSocket, MessageToServerDispatcher, String>> connectedClients;
 
     private final HashMap<Socket, Long> pendingSocketToKill;
@@ -39,7 +38,10 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
     private final MessageToMainServerVisitor gameHandlingMessageHandler;
     private final HeartBeatMessageToServerVisitor heartBeatHandler;
-    private MainServerTCP(){
+
+    private final ScheduledExecutorService heartBeatTesterExecutor;
+    private final ScheduledExecutorService inactiveClientKillerExecutor;
+    public MainServerTCP(){
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new ConcurrentHashMap<>();
         this.pendingSocketToKill = new HashMap<>();
@@ -47,19 +49,10 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         this.gameHandlingMessageHandler = new MessageToMainServerVisitor();
         this.heartBeatHandler = new HeartBeatMessageToServerVisitor();
 
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * This method is used to implement Singleton pattern for {@link MainServerTCP}.
-     * @return {@link MainServerTCP} instance.
-     */
-    public static MainServerTCP getInstance(){
-        if(instance == null){
-            instance = new MainServerTCP();
-        }
-        return instance;
+        this.heartBeatTesterExecutor = new ScheduledThreadPoolExecutor(1);
+        this.inactiveClientKillerExecutor = new ScheduledThreadPoolExecutor(1);
+        this.heartBeatTesterExecutor.scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
+        this.inactiveClientKillerExecutor.scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -266,6 +259,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
      */
     @Override
     public void resetServer() {
+        this.heartBeatTesterExecutor.shutdownNow();
+        this.inactiveClientKillerExecutor.shutdownNow();
+
         synchronized (connectedClients) {
             this.connectedClients.clear();
         }
