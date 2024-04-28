@@ -1,12 +1,10 @@
 package it.polimi.ingsw.gc19.View.GameLocalView;
 
-import it.polimi.ingsw.gc19.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Enums.Color;
-import it.polimi.ingsw.gc19.Enums.Direction;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
+import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
@@ -15,6 +13,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayer
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 
 import java.io.StringReader;
@@ -23,6 +23,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,10 +63,22 @@ public class ActionParser {
 
     public void setClient(ClientInterface client){
         this.clientNetwork = client;
+        this.setNickname(client.getNickname());
     }
 
     public synchronized ViewState getState(){
         return viewState.getState();
+    }
+
+    public synchronized void disconnect(){
+        this.prevState = viewState;
+        this.viewState = new Disconnect();
+        System.out.println("Disconnect..." + this.getState() + " " + prevState);
+        this.viewState.parseAction(null);
+    }
+
+    public synchronized boolean isDisconnected(){
+        return (this.viewState.getState() == ViewState.DISCONNECT);
     }
 
     public void sendMessage(ArrayList<String> command){
@@ -103,7 +118,7 @@ public class ActionParser {
     }
 
     public void pickCardFromTable(ArrayList<String> command){
-        if(command.size()-1 == Command.PICKCARDTABLE.getNumArgs() ||
+        if(command.size()-1 == Command.PICKCARDTABLE.getNumArgs() &&
                 command.getFirst().equals(Command.PICKCARDTABLE.getCommandName())){
 
             clientNetwork.pickCardFromTable(PlayableCardType.valueOf(command.get(1)),
@@ -115,7 +130,7 @@ public class ActionParser {
     }
 
     public void placeCard(ArrayList<String> command){
-        if(command.size()-1 == Command.PLACECARD.getNumArgs() ||
+        if(command.size()-1 == Command.PLACECARD.getNumArgs() &&
                 command.getFirst().equals(Command.PLACECARD.getCommandName())){
             clientNetwork.placeCard(command.get(1), command.get(2),
                     Direction.valueOf(command.get(3)),
@@ -126,7 +141,7 @@ public class ActionParser {
     }
 
     public void chooseColor(ArrayList<String> command) {
-        if(command.size()-1 == Command.CHOOSECOLOR.getNumArgs() ||
+        if(command.size()-1 == Command.CHOOSECOLOR.getNumArgs() &&
                 command.getFirst().equals(Command.CHOOSECOLOR.getCommandName())){
             clientNetwork.chooseColor(Color.valueOf(command.get(1)));
         }
@@ -134,28 +149,28 @@ public class ActionParser {
     }
 
     public void chooseGoal(ArrayList<String> command) {
-        if(command.size()-1 == Command.CHOOSEPRIVATEGOAL.getNumArgs() ||
+        if(command.size()-1 == Command.CHOOSEPRIVATEGOAL.getNumArgs() &&
                 command.getFirst().equals(Command.CHOOSEPRIVATEGOAL.getCommandName())){
             clientNetwork.choosePrivateGoalCard(Integer.parseInt(command.get(1)));
         }
     }
 
     public void placeInitialCard(ArrayList<String> command) {
-        if(command.size()-1 == Command.PLACEINITIALCARD.getNumArgs() ||
+        if(command.size()-1 == Command.PLACEINITIALCARD.getNumArgs() &&
                 command.getFirst().equals(Command.PLACEINITIALCARD.getCommandName())){
             clientNetwork.placeInitialCard(CardOrientation.valueOf(command.get(1)));
         }
     }
 
     public void availableGames(ArrayList<String> command) {
-        if(command.size()-1 == Command.AVAILABLEGAMES.getNumArgs() ||
+        if(command.size()-1 == Command.AVAILABLEGAMES.getNumArgs() &&
                 command.getFirst().equals(Command.AVAILABLEGAMES.getCommandName())){
             clientNetwork.availableGames();
         }
     }
 
     public void joinFirstGame(ArrayList<String> command) {
-        if(command.size()-1 == Command.JOINFIRSTGAME.getNumArgs() ||
+        if(command.size()-1 == Command.JOINFIRSTGAME.getNumArgs() &&
                 command.getFirst().equals(Command.JOINFIRSTGAME.getCommandName())){
             clientNetwork.joinFirstAvailableGame();
             prevState = new NotGame();
@@ -164,7 +179,7 @@ public class ActionParser {
     }
 
     public void joinGame(ArrayList<String> command) {
-        if(command.size()-1 == Command.JOINGAME.getNumArgs() ||
+        if(command.size()-1 == Command.JOINGAME.getNumArgs() &&
                 command.getFirst().equals(Command.JOINGAME.getCommandName())){
             clientNetwork.joinGame(command.get(1));
             prevState = new NotGame();
@@ -173,7 +188,7 @@ public class ActionParser {
     }
 
     public void createGameSeed(ArrayList<String> command) {
-        if(command.size()-1 == Command.CREATEGAMESEED.getNumArgs() ||
+        if(command.size()-1 == Command.CREATEGAMESEED.getNumArgs() &&
                 command.getFirst().equals(Command.CREATEGAMESEED.getCommandName())){
             clientNetwork.createGame(command.get(1), Integer.parseInt(command.get(2)), Integer.parseInt(command.get(3)));
             prevState = new NotGame();
@@ -182,7 +197,7 @@ public class ActionParser {
     }
 
     public void createGame(ArrayList<String> command) {
-        if(command.size()-1 == Command.CREATEGAME.getNumArgs() ||
+        if(command.size()-1 == Command.CREATEGAME.getNumArgs() &&
                 command.getFirst().equals(Command.CREATEGAME.getCommandName())){
             clientNetwork.createGame(command.get(1), Integer.parseInt(command.get(2)));
             prevState = new NotGame();
@@ -258,6 +273,8 @@ public class ActionParser {
 
     class Setup extends ClientState{
 
+        // error
+
         @Override
         public void nextState(StartPlayingGameMessage message) {
             if(message.getNickFirstPlayer().equals(getNickname())){
@@ -295,8 +312,12 @@ public class ActionParser {
         }
 
         @Override
-        public void nextState(AcceptedPlaceCardMessage message) {
-            viewState = new Pick();
+        public void nextState(TurnStateMessage message) {
+            if(message.getNick().equals(getNickname()) && message.getTurnState() == TurnState.DRAW) {
+                viewState = new Pick();
+            }else if(!message.getNick().equals(getNickname())){
+                viewState = new OtherTurn();
+            }
         }
 
         @Override
@@ -310,11 +331,6 @@ public class ActionParser {
         }
 
         @Override
-        public void nextState(AcceptedPickCardFromTable message) {
-            viewState = new OtherTurn();
-        }
-
-        @Override
         public void nextState(RefusedActionMessage message){
             viewState = prevState;
         }
@@ -322,6 +338,14 @@ public class ActionParser {
         @Override
         public void nextState(GameHandlingError message){
             viewState = prevState;
+        }
+
+        @Override
+        public void nextState(NetworkHandlingErrorMessage message){
+            /*@todo: if(message.getError() == NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER){
+                viewState = new NotPlayer();
+            }*/
+            viewState = new Disconnect();
         }
 
         @Override
@@ -355,9 +379,6 @@ public class ActionParser {
     }
 
     class Pick extends ClientState{
-        // no nextState because after a single pick
-        // is done in "parseAction" the attribute
-        // viewState should be updated
 
         @Override
         public ViewState getState() {
@@ -381,7 +402,8 @@ public class ActionParser {
         // @todo: maybe otherTurn can be included into a WAIT?
 
         public void nextState(TurnStateMessage message) {
-            if(message.getNick().equals(nickname)){
+            if(message.getNick().equals(nickname) &&
+                message.getTurnState() == TurnState.PLACE){
                 viewState = new Place();
             }
         }
@@ -399,11 +421,16 @@ public class ActionParser {
     }
 
     class Disconnect extends ClientState{
-
+        ScheduledExecutorService scheduler = null;
         @Override
-        public void nextState(MessageToClient message) {
-            // Create a thread to get into this state
+        public void nextState(JoinedGameMessage message) {
+            System.out.println("Riconnesso");
+            viewState = prevState;
+
+            // or shutdown
+            scheduler.shutdownNow();
         }
+
 
         @Override
         public ViewState getState() {
@@ -412,7 +439,13 @@ public class ActionParser {
 
         @Override
         void parseAction(ArrayList<String> command) {
-            // Nothing can be done during this state...
+            if(scheduler == null) {
+                scheduler = Executors.newScheduledThreadPool(1);
+                scheduler.scheduleAtFixedRate(() -> {
+                    System.out.println("Provo a riconnettermi..." + this.getState() + " " + getNickname() + " ");
+                    clientNetwork.reconnect();
+                }, 0, 10, TimeUnit.SECONDS);
+            }
         }
 
     }

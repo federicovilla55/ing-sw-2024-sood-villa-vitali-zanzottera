@@ -287,7 +287,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(NetworkHandlingErrorMessage message) {
-
+        actionParser.viewState.nextState(message);
     }
 
 }

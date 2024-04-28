@@ -9,6 +9,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectGam
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 
 import java.util.ArrayList;
@@ -34,6 +35,8 @@ public abstract class ClientState {
     public void nextState(TurnStateMessage message) {}
     public void nextState(RefusedActionMessage message) {}
     public void nextState(GameHandlingError message){}
+
+    public void nextState(NetworkHandlingErrorMessage message){ }
 
     abstract ViewState getState();
 
