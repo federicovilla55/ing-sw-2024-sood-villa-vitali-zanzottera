@@ -64,10 +64,23 @@ public class TUICardViewTest {
 
         playerAreaTUIView = tuiView.playerAreaTUIView(
                 List.of(
-                        new Tuple<>(stringPlayableCardHashMap.get("initial_03").setCardState(CardOrientation.DOWN), new Tuple<>(25,25)),
-                        new Tuple<>(stringPlayableCardHashMap.get("resource_01").setCardState(CardOrientation.UP), new Tuple<>(24,26)),
-                        new Tuple<>(stringPlayableCardHashMap.get("gold_26").setCardState(CardOrientation.UP), new Tuple<>(23,27)),
-                        new Tuple<>(stringPlayableCardHashMap.get("resource_11").setCardState(CardOrientation.UP), new Tuple<>(24,28))
+                        new Tuple<>(stringPlayableCardHashMap.get("initial_05").setCardState(CardOrientation.DOWN), new Tuple<>(25, 25)),
+                        new Tuple<>(stringPlayableCardHashMap.get("resource_23").setCardState(CardOrientation.DOWN), new Tuple<>(24, 26)),
+                        new Tuple<>(stringPlayableCardHashMap.get("resource_01").setCardState(CardOrientation.UP), new Tuple<>(24, 24)),
+                        new Tuple<>(stringPlayableCardHashMap.get("gold_39").setCardState(CardOrientation.DOWN), new Tuple<>(23, 23)),
+                        new Tuple<>(stringPlayableCardHashMap.get("gold_23").setCardState(CardOrientation.UP), new Tuple<>(23, 27)),
+                        new Tuple<>(stringPlayableCardHashMap.get("gold_40").setCardState(CardOrientation.DOWN), new Tuple<>(22, 26)),
+                        new Tuple<>(stringPlayableCardHashMap.get("resource_05").setCardState(CardOrientation.DOWN), new Tuple<>(22, 24)),
+                        new Tuple<>(stringPlayableCardHashMap.get("resource_03").setCardState(CardOrientation.DOWN), new Tuple<>(21, 25)),
+                        new Tuple<>(stringPlayableCardHashMap.get("gold_06").setCardState(CardOrientation.UP), new Tuple<>(23, 25)),
+                        new Tuple<>(stringPlayableCardHashMap.get("gold_20").setCardState(CardOrientation.DOWN), new Tuple<>(24, 28)),
+                        new Tuple<>(stringPlayableCardHashMap.get("resource_08").setCardState(CardOrientation.DOWN), new Tuple<>(25, 29)),
+                        new Tuple<>(stringPlayableCardHashMap.get("resource_21").setCardState(CardOrientation.DOWN), new Tuple<>(23, 29)),
+                        new Tuple<>(stringPlayableCardHashMap.get("gold_28").setCardState(CardOrientation.UP), new Tuple<>(26, 30)),
+                        new Tuple<>(stringPlayableCardHashMap.get("resource_30").setCardState(CardOrientation.UP), new Tuple<>(25, 31)),
+                        new Tuple<>(stringPlayableCardHashMap.get("resource_39").setCardState(CardOrientation.UP), new Tuple<>(22, 30)),
+                        new Tuple<>(stringPlayableCardHashMap.get("gold_24").setCardState(CardOrientation.UP), new Tuple<>(24, 30)),
+                        new Tuple<>(stringPlayableCardHashMap.get("resource_28").setCardState(CardOrientation.UP), new Tuple<>(21, 31))
                 )
         );
 
