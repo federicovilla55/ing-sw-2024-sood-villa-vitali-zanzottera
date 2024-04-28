@@ -56,7 +56,7 @@ public class ActionParserTest {
     }
 
     @BeforeEach
-    public void setUpTest() throws RemoteException {
+    public void setUpTest() throws IOException {
         this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client1");
         this.client2 = new TestClassClientTCP("client2", new MessageHandler(new ActionParser()));
         this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client3");

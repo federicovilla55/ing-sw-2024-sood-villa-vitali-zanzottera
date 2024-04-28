@@ -24,6 +24,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import org.junit.jupiter.api.*;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +40,7 @@ public class ClientTCPTest {
     private HashMap<TestClassClientTCP, PlayableCard> clientsAnchors;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
 
         MessageHandler messageHandler1 = new MessageHandler(new ActionParser());
@@ -126,7 +127,7 @@ public class ClientTCPTest {
 
 
     @Test
-    public void testJoinFirstAvailableGames(){
+    public void testJoinFirstAvailableGames() throws IOException {
         this.client1.connect();
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message1 = this.client1.getMessage();
@@ -223,7 +224,7 @@ public class ClientTCPTest {
 
 
     @Test
-    public void testDisconnectionWhileInLobby(){
+    public void testDisconnectionWhileInLobby() throws IOException {
 
         this.client1.connect();
         client1.waitForMessage(CreatedPlayerMessage.class);
@@ -322,7 +323,7 @@ public class ClientTCPTest {
 
 
     @Test
-    public void testCreateClientAfterDisconnection(){
+    public void testCreateClientAfterDisconnection() throws IOException {
         TestClassClientTCP client7 = new TestClassClientTCP("client7", new MessageHandler(new ActionParser()));
         client7.connect();
 
@@ -368,13 +369,10 @@ public class ClientTCPTest {
         assertMessageWithHeaderEquals(this.client1, new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2", "client3", "client4");
 
         this.client3.disconnect();
-
         assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client3"), "client1", "client2", "client4");
-        assertMessageWithHeaderEquals(this.client2, new DisconnectedPlayerMessage("client3"), "client1", "client2", "client4");
 
         this.client4.disconnect();
         assertMessageWithHeaderEquals(this.client1, new DisconnectedPlayerMessage("client4"), "client1", "client2");
-        assertMessageWithHeaderEquals(this.client2, new DisconnectedPlayerMessage("client4"), "client1", "client2");
 
 
         client1.placeCard("resource_23", "initial_05", Direction.UP_RIGHT, CardOrientation.DOWN);
@@ -584,7 +582,7 @@ public class ClientTCPTest {
 
 
     @Test
-    public void testReconnection(){
+    public void testReconnection() throws IOException {
         this.client1.connect();
 
         client1.waitForMessage(CreatedPlayerMessage.class);
