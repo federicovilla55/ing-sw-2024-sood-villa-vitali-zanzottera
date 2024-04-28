@@ -38,6 +38,8 @@ public class ActionParser {
 
     private ClientInterface clientNetwork;
 
+    private ScheduledExecutorService scheduler;
+
     public ActionParser(){
         viewState = new NotPlayer();
         prevState = new NotPlayer();
@@ -73,7 +75,7 @@ public class ActionParser {
     public synchronized void disconnect(){
         this.prevState = viewState;
         this.viewState = new Disconnect();
-        //System.out.println("Disconnect..." + this.getState() + " " + prevState);
+        scheduler = Executors.newSingleThreadScheduledExecutor();
         this.viewState.parseAction(null);
     }
 
@@ -81,7 +83,12 @@ public class ActionParser {
         return (this.viewState.getState() == ViewState.DISCONNECT);
     }
 
-    public void sendMessage(ArrayList<String> command){
+    public synchronized void goToWait(){
+        this.prevState = viewState;
+        this.viewState = new Wait();
+    }
+
+    public synchronized void sendMessage(ArrayList<String> command){
         if(command.size()-1 == Command.SENDCHATMESSAGE.getNumArgs() &&
             command.getFirst().equals(Command.SENDCHATMESSAGE.getCommandName())) {
             // first element is command name, second element is the message content
@@ -94,7 +101,7 @@ public class ActionParser {
         // The action doesn't modify the state of the ViewClient.
     }
 
-    public void createPlayer(ArrayList<String> command){
+    public synchronized void createPlayer(ArrayList<String> command){
         if(command.size()-1 == Command.CREATEPLAYER.getNumArgs()
                 && command.getFirst().equals(Command.CREATEPLAYER.getCommandName())){
             viewState = new Wait();
@@ -106,7 +113,7 @@ public class ActionParser {
         }
     }
 
-    public void pickCardFromDeck(ArrayList<String> command){
+    public synchronized void pickCardFromDeck(ArrayList<String> command){
         if(command.size()-1 == Command.PICKCARDDECK.getNumArgs()
                 && command.getFirst().equals(Command.PICKCARDDECK.getCommandName())){
             viewState = new Wait();
@@ -117,7 +124,7 @@ public class ActionParser {
         }
     }
 
-    public void pickCardFromTable(ArrayList<String> command){
+    public synchronized void pickCardFromTable(ArrayList<String> command){
         if(command.size()-1 == Command.PICKCARDTABLE.getNumArgs() &&
                 command.getFirst().equals(Command.PICKCARDTABLE.getCommandName())){
 
@@ -129,7 +136,7 @@ public class ActionParser {
         }
     }
 
-    public void placeCard(ArrayList<String> command){
+    public synchronized void placeCard(ArrayList<String> command){
         if(command.size()-1 == Command.PLACECARD.getNumArgs() &&
                 command.getFirst().equals(Command.PLACECARD.getCommandName())){
             clientNetwork.placeCard(command.get(1), command.get(2),
@@ -140,7 +147,7 @@ public class ActionParser {
         }
     }
 
-    public void chooseColor(ArrayList<String> command) {
+    public synchronized void chooseColor(ArrayList<String> command) {
         if(command.size()-1 == Command.CHOOSECOLOR.getNumArgs() &&
                 command.getFirst().equals(Command.CHOOSECOLOR.getCommandName())){
             clientNetwork.chooseColor(Color.valueOf(command.get(1)));
@@ -148,28 +155,28 @@ public class ActionParser {
 
     }
 
-    public void chooseGoal(ArrayList<String> command) {
+    public synchronized void chooseGoal(ArrayList<String> command) {
         if(command.size()-1 == Command.CHOOSEPRIVATEGOAL.getNumArgs() &&
                 command.getFirst().equals(Command.CHOOSEPRIVATEGOAL.getCommandName())){
             clientNetwork.choosePrivateGoalCard(Integer.parseInt(command.get(1)));
         }
     }
 
-    public void placeInitialCard(ArrayList<String> command) {
+    public synchronized void placeInitialCard(ArrayList<String> command) {
         if(command.size()-1 == Command.PLACEINITIALCARD.getNumArgs() &&
                 command.getFirst().equals(Command.PLACEINITIALCARD.getCommandName())){
             clientNetwork.placeInitialCard(CardOrientation.valueOf(command.get(1)));
         }
     }
 
-    public void availableGames(ArrayList<String> command) {
+    public synchronized void availableGames(ArrayList<String> command) {
         if(command.size()-1 == Command.AVAILABLEGAMES.getNumArgs() &&
                 command.getFirst().equals(Command.AVAILABLEGAMES.getCommandName())){
             clientNetwork.availableGames();
         }
     }
 
-    public void joinFirstGame(ArrayList<String> command) {
+    public synchronized void joinFirstGame(ArrayList<String> command) {
         if(command.size()-1 == Command.JOINFIRSTGAME.getNumArgs() &&
                 command.getFirst().equals(Command.JOINFIRSTGAME.getCommandName())){
             clientNetwork.joinFirstAvailableGame();
@@ -178,7 +185,7 @@ public class ActionParser {
         }
     }
 
-    public void joinGame(ArrayList<String> command) {
+    public synchronized void joinGame(ArrayList<String> command) {
         if(command.size()-1 == Command.JOINGAME.getNumArgs() &&
                 command.getFirst().equals(Command.JOINGAME.getCommandName())){
             clientNetwork.joinGame(command.get(1));
@@ -187,7 +194,7 @@ public class ActionParser {
         }
     }
 
-    public void createGameSeed(ArrayList<String> command) {
+    public synchronized void createGameSeed(ArrayList<String> command) {
         if(command.size()-1 == Command.CREATEGAMESEED.getNumArgs() &&
                 command.getFirst().equals(Command.CREATEGAMESEED.getCommandName())){
             clientNetwork.createGame(command.get(1), Integer.parseInt(command.get(2)), Integer.parseInt(command.get(3)));
@@ -196,13 +203,17 @@ public class ActionParser {
         }
     }
 
-    public void createGame(ArrayList<String> command) {
+    public synchronized void createGame(ArrayList<String> command) {
         if(command.size()-1 == Command.CREATEGAME.getNumArgs() &&
                 command.getFirst().equals(Command.CREATEGAME.getCommandName())){
             clientNetwork.createGame(command.get(1), Integer.parseInt(command.get(2)));
             prevState = new NotGame();
             viewState = new Wait();
         }
+    }
+
+    public synchronized void reconnect(){
+        clientNetwork.reconnect();
     }
 
 
@@ -276,6 +287,12 @@ public class ActionParser {
         // error
 
         @Override
+        public void nextState(GamePausedMessage message){
+            prevState = viewState;
+            viewState = new Pause();
+        }
+
+        @Override
         public void nextState(StartPlayingGameMessage message) {
             if(message.getNickFirstPlayer().equals(getNickname())){
                 viewState = new Place();
@@ -291,7 +308,7 @@ public class ActionParser {
 
         @Override
         public void parseAction(ArrayList<String> command) {
-            // send_mesage(...)
+            // send_message(...)
             sendMessage(command);
 
             // choose_color(color)
@@ -321,6 +338,11 @@ public class ActionParser {
         }
 
         @Override
+        public void nextState(OwnAcceptedPickCardFromDeckMessage message){
+            viewState = new OtherTurn();
+        }
+
+        @Override
         public void nextState(JoinedGameMessage message) {
             viewState = new Setup();
         }
@@ -332,6 +354,7 @@ public class ActionParser {
 
         @Override
         public void nextState(RefusedActionMessage message){
+            //@TODO: notify view about the reason of the error
             viewState = prevState;
         }
 
@@ -342,10 +365,18 @@ public class ActionParser {
 
         @Override
         public void nextState(NetworkHandlingErrorMessage message){
-            /*@todo: if(message.getError() == NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER){
+            //Messages CLIENT_ALREADY_CONNECTED_TO_SERVER, COULD_NOT_RECONNECT must be managed by
+            //reconnection routine.
+            //Only message can arrive is CLIENT_NOT_REGISTERED_TO_SERVER. In this case we must go
+            //to connection state
+            if(message.getError() == NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER){
                 viewState = new NotPlayer();
-            }*/
-            viewState = new Disconnect();
+            }
+        }
+
+        @Override
+        public void nextState(GamePausedMessage message){
+            viewState = new Pause();
         }
 
         @Override
@@ -369,6 +400,12 @@ public class ActionParser {
         }
 
         @Override
+        public void nextState(GamePausedMessage message){
+            prevState = viewState;
+            viewState = new Pause();
+        }
+
+        @Override
         public void parseAction(ArrayList<String> command) {
             // place_card(cardToInsert, anchorCard, directionToInsert, cardOrientation)
             placeCard(command);
@@ -383,6 +420,12 @@ public class ActionParser {
         @Override
         public ViewState getState() {
             return ViewState.PICK;
+        }
+
+        @Override
+        public void nextState(GamePausedMessage message){
+            prevState = viewState;
+            viewState = new Pause();
         }
 
         @Override
@@ -409,6 +452,12 @@ public class ActionParser {
         }
 
         @Override
+        public void nextState(GamePausedMessage message){
+            prevState = viewState;
+            viewState = new Pause();
+        }
+
+        @Override
         public ViewState getState() {
             return ViewState.OTHERTURN;
         }
@@ -421,14 +470,11 @@ public class ActionParser {
     }
 
     class Disconnect extends ClientState{
-        ScheduledExecutorService scheduler = null;
         @Override
         public void nextState(JoinedGameMessage message) {
-            //System.out.println("Riconnesso");
+            scheduler.shutdown();
             viewState = prevState;
-
-            // or shutdown
-            scheduler.shutdownNow();
+            System.out.println("Riconnesso " + viewState);
         }
 
 
@@ -439,13 +485,7 @@ public class ActionParser {
 
         @Override
         void parseAction(ArrayList<String> command) {
-            if(scheduler == null) {
-                scheduler = Executors.newScheduledThreadPool(1);
-                scheduler.scheduleAtFixedRate(() -> {
-                    //System.out.println("Provo a riconnettermi..." + this.getState() + " " + getNickname() + " ");
-                    clientNetwork.reconnect();
-                }, 0, 10, TimeUnit.SECONDS);
-            }
+            scheduler.scheduleAtFixedRate(ActionParser.this::reconnect, 0, 1, TimeUnit.SECONDS);
         }
 
     }
@@ -454,7 +494,7 @@ public class ActionParser {
 
         @Override
         public void nextState(GameResumedMessage message) {
-
+            viewState = prevState;
         }
 
         @Override

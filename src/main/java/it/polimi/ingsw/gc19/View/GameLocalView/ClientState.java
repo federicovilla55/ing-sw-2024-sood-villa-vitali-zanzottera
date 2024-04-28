@@ -35,11 +35,9 @@ public abstract class ClientState {
     public void nextState(TurnStateMessage message) {}
     public void nextState(RefusedActionMessage message) {}
     public void nextState(GameHandlingError message){}
-
-    public void nextState(NetworkHandlingErrorMessage message){ }
+    public void nextState(NetworkHandlingErrorMessage message){}
 
     abstract ViewState getState();
-
 
     // use boolean/string to return information on action
     abstract void parseAction(ArrayList<String> command); // choose_color(RED)
