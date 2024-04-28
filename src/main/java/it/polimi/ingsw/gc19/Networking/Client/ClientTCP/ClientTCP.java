@@ -92,9 +92,7 @@ public class ClientTCP implements ClientInterface {
             try {
                 this.outputStream.writeObject(message);
                 this.finalizeSending();
-                //System.out.println("sentt  " + message.getClass());
             } catch (IOException ioException) {
-                //System.out.println("ok");
                 return false;
             }
         }
@@ -206,7 +204,7 @@ public class ClientTCP implements ClientInterface {
             long startingTime = new Date().getTime();
             boolean sent = false;
 
-            while(!sent && new Date().getTime() - startingTime < 1000 * 2){
+            while(!sent && new Date().getTime() - startingTime < 100 * 2){
                 try{
                     ClientTCP.this.outputStream.writeObject(new DisconnectMessage(nickname));
                     ClientTCP.this.finalizeSending();

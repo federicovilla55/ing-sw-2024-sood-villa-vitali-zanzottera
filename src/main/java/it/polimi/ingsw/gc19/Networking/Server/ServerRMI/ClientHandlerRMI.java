@@ -9,7 +9,6 @@ import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -27,7 +26,6 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
     public ClientHandlerRMI(VirtualClient virtualClientAssociated, String username) {
         super(username, null);
         this.virtualClientAssociated = virtualClientAssociated;
-
     }
 
     public ClientHandlerRMI(VirtualClient virtualClientAssociated, ClientHandler clientHandler) {

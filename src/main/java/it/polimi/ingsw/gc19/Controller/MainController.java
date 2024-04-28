@@ -137,15 +137,42 @@ public class MainController {
     }
 
     /**
+     * This method is used when a player ask explicitly to leave game he is in,
+     * without being kicked off from the lobby (e.g. keeping his unique nickname).
+     * @param player {@link ClientHandler} of the player who want to exit game
+     */
+    public void disconnectPlayerFromGame(ClientHandler player){
+        String gameName;
+        synchronized (this.playerInfo){
+            if(this.playerInfo.containsKey(player.getUsername())) {
+                gameName = this.playerInfo.get(player.getUsername()).y();
+                if(gameName != null){
+                    this.playerInfo.put(player.getUsername(), new Tuple<>(this.playerInfo.get(player.getUsername()).x(), null));
+                    player.update(new PlayerCorrectlyDisconnectedFromGame().setHeader(player.getUsername()));
+                }
+                else{
+                    player.update(new GameHandlingError(Error.GAME_NOT_FOUND,
+                                                        "You are trying to exit a game that do not exists on server!")
+                                          .setHeader(player.getName()));
+                    return;
+                }
+            }
+            else{
+                return;
+            }
+        }
+        removePlayerFromGame(player, gameName);
+    }
+
+    /**
      * This method is used when a player ask explicitly to be disconnected both
-     * from game or lobby. It removes the player from <code>playerInfo</code> and
-     * if player has an associated game signals to its game controller that it has
-     * to be removed.
+     * from game or lobby. Namely, it removes player's name form
+     * <code>playerInfo</code> and calls {@link MainController#removePlayerFromGame(ClientHandler, String)}
+     * to disconnect player from its game.
      * @param player player's o be disconnected {@link ClientHandler}
      */
     public void disconnect(ClientHandler player) {
-        GameController gameController;
-        String gameName = null;
+        String gameName;
         synchronized (this.playerInfo){
             if(this.playerInfo.containsKey(player.getUsername())) {
                 gameName = this.playerInfo.remove(player.getUsername()).y();
@@ -155,6 +182,19 @@ public class MainController {
                 return;
             }
         }
+        removePlayerFromGame(player, gameName);
+    }
+
+    /**
+     * This method removes a player from its associated game. It signals to
+     * {@link GameController} to remove player from the game. If game
+     * is in {@link GameState#SETUP} and no clients are connected to it,
+     * it is removed from <code>gamesInfo</code>
+     * @param player the {@link ClientHandler} of the player to be removed
+     * @param gameName the name of the game from which disconnect player
+     */
+    public void removePlayerFromGame(ClientHandler player, String gameName){
+        GameController gameController;
         synchronized (this.gamesInfo){
             gameController = this.gamesInfo.get(gameName);
         }
@@ -203,6 +243,7 @@ public class MainController {
                 this.gamesInfo.put(gameName, gameController);
                 player.update(new CreatedGameMessage(gameName).setHeader(player.getUsername()));
                 this.registerToGame(player, gameName);
+                //System.out.println("after creation " + gameName + " -> " + gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer());
                 return true;
             }
             else {
@@ -289,6 +330,7 @@ public class MainController {
                                       .setHeader(player.getUsername()));
                 return false;
             }
+            //System.out.println(player.getUsername() + " requesting " + gameName + "  " + gamesInfo.get(gameName).getGameAssociated().getNumPlayers() + "  " + gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer());
             if (this.gamesInfo.get(gameName).getGameAssociated().getNumPlayers() == this.gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer() ||
                     this.gamesInfo.get(gameName).getGameAssociated().getGameState() != GameState.SETUP) {
                 player.update(new GameHandlingError(Error.GAME_NOT_ACCESSIBLE,
@@ -394,4 +436,3 @@ public class MainController {
         }
     }
 }
-

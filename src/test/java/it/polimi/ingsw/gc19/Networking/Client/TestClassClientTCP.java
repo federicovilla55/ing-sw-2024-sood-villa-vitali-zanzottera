@@ -15,8 +15,10 @@ import java.util.ArrayDeque;
 
 public class TestClassClientTCP extends ClientTCP implements CommonClientMethodsForTests{
 
-    public TestClassClientTCP(String nickname, MessageHandler messageHandler){
+    public TestClassClientTCP(String nickname, MessageHandler messageHandler) throws IOException {
+
         super(nickname, messageHandler);
+
 
     }
 

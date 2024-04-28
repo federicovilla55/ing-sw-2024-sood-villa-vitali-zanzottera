@@ -22,6 +22,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import org.junit.jupiter.api.*;
 
@@ -47,16 +49,16 @@ public class ClientRMITest {
     private HashMap<ClientInterface, PlayableCard> clientsAnchors;
     private TestClassClientRMI client1, client2, client3, client4, client5;
 
-    @BeforeAll
-    public static void setUpServer() throws IOException, NotBoundException {
-        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
-        mainServerRMI = ServerApp.getMainServerRMI();
-        registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
-    }
-
     @BeforeEach
-    public void setUpTest() throws RemoteException {
+    public void setUpTest() throws RemoteException, NotBoundException {
+        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
+
+        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
+        MainServerRMI mainServerRMI = ServerApp.getMainServerRMI();
+
+        Registry registry = LocateRegistry.getRegistry("localhost");
+        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+
         MessageHandler messageHandler1 = new MessageHandler(new ActionParser());
         MessageHandler messageHandler2 = new MessageHandler(new ActionParser());
         MessageHandler messageHandler3 = new MessageHandler(new ActionParser());
@@ -73,19 +75,13 @@ public class ClientRMITest {
     }
 
     @AfterEach
-    public void resetClients(){
+    public void tearDown(){
         this.client1.disconnect();
         this.client2.disconnect();
         this.client3.disconnect();
         this.client4.disconnect();
         this.client5.disconnect();
-        mainServerRMI.killClientHandlers();
-        mainServerRMI.resetServer();
-    }
-
-    @AfterAll
-    public static void tearDownServer() {
-        ServerApp.unexportRegistry();
+        ServerApp.stopRMI();
     }
 
     @Test

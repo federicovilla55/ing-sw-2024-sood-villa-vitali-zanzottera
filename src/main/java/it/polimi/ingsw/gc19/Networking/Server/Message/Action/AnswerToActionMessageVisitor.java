@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.Action;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.PlayerCorrectlyDisconnectedFromGame;
 
 /**
  * Classes that need to visit {@link AnswerToActionMessage}
