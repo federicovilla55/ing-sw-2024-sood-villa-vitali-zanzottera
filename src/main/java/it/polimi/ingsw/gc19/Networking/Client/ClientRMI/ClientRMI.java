@@ -9,9 +9,9 @@ import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
 import it.polimi.ingsw.gc19.ObserverPattern.ObservableMessageToClient;
 import it.polimi.ingsw.gc19.ObserverPattern.ObservableMessageToServer;
@@ -53,31 +53,6 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         this.messageHandler = messageHandler;
     }
 
-    public boolean networkDisconnectionRoutine(){
-        boolean sent = false;
-        int numOfTry = 0;
-
-        while(!Thread.interrupted() && !sent && numOfTry < 25){
-            try{
-                this.virtualMainServer.heartBeat(this);
-                sent = true;
-            }
-            catch (RemoteException remoteException){
-                numOfTry++;
-
-                try{
-                    Thread.sleep(250);
-                }
-                catch (InterruptedException interruptedException){
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
-        }
-
-        return sent;
-    }
-
     @Override
     public void connect(){
         try{
@@ -97,7 +72,6 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
             }
             catch (RemoteException e) {
                 //@TODO: invoke correct method of message handler
-                networkDisconnectionRoutine();
             }
         }
     }

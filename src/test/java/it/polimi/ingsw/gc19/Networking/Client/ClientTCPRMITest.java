@@ -24,7 +24,6 @@ import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import org.junit.jupiter.api.*;
 
@@ -51,15 +50,6 @@ public class ClientTCPRMITest {
     private TestClassClientRMI client1, client3, client5;
     private TestClassClientTCP client2, client4;
 
-    @BeforeAll
-    public static void setUpServer() throws IOException, NotBoundException {
-        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
-        ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
-        mainServerRMI = ServerApp.getMainServerRMI();
-        registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
-    }
-
     @BeforeEach
     public void setUpTest() throws IOException, NotBoundException {
         ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
@@ -74,6 +64,17 @@ public class ClientTCPRMITest {
         this.client4 = new TestClassClientTCP("client4", new MessageHandler(new ActionParser()));
         this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client5");
         clientsAnchors = new HashMap<>();
+    }
+
+    @AfterEach
+    public void tearDown(){
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
+        this.client4.disconnect();
+        this.client5.disconnect();
+        ServerApp.stopRMI();
+        ServerApp.stopTCP();
     }
 
     @Test
@@ -621,24 +622,6 @@ public class ClientTCPRMITest {
         client7.sendChatMessage(new ArrayList<>(List.of("client2")), "Send chat message after reconnection");
 
         assertMessageEquals(this.client2, new NotifyChatMessage("client1", "Send chat message after reconnection"));
-    }
-
-    @AfterEach
-    public void resetClients() throws RemoteException {
-        this.client1.disconnect();
-        this.client2.disconnect();
-        this.client2.stopClient();
-        this.client3.disconnect();
-        this.client4.disconnect();
-        this.client4.stopClient();
-        mainServerRMI.resetServer();
-    }
-
-
-    @AfterAll
-    public static void tearDownServer() {
-        ServerApp.unexportRegistry();
-        ServerApp.stopTCP();
     }
 
     private void assertMessageEquals(List<CommonClientMethodsForTests> receivers, MessageToClient message) {

@@ -79,9 +79,16 @@ public interface GameHandlingMessageVisitor{
 
     /**
      * This method is used by {@link GameHandlingMessageVisitor} to visit
-     * a message {@link PlayerCorrectlyDisconnected}
-     * @param message the {@link PlayerCorrectlyDisconnected} to visit
+     * a message {@link PlayerCorrectlyDisconnectedFromGame}
+     * @param message the {@link PlayerCorrectlyDisconnectedFromGame} to visit
      */
-    void visit(PlayerCorrectlyDisconnected message);
+    void visit(PlayerCorrectlyDisconnectedFromGame message);
+
+    /**
+     * This method is used by {@link GameHandlingMessageVisitor} to visit
+     * a message {@link PlayerCorrectlyDisconnectedFromServer}
+     * @param message the {@link PlayerCorrectlyDisconnectedFromServer} to visit
+     */
+    void visit(PlayerCorrectlyDisconnectedFromServer message);
 
 }

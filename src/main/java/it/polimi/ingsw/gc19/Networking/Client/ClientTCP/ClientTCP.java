@@ -92,9 +92,7 @@ public class ClientTCP implements ClientInterface {
             try {
                 this.outputStream.writeObject(message);
                 this.finalizeSending();
-                //System.out.println("sentt  " + message.getClass());
             } catch (IOException ioException) {
-                //System.out.println("ok");
                 return false;
             }
         }

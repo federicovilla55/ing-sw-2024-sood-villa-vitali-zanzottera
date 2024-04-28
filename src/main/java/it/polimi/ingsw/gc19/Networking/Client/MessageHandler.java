@@ -271,11 +271,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     @Override
-    public void visit(PlayerCorrectlyDisconnected message) {
-
-    }
-
-    @Override
     public void visit(PlayerCorrectlyDisconnectedFromServer message) {
 
     }
