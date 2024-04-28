@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.View.TUI;
 
 import it.polimi.ingsw.gc19.Controller.JSONParser;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
+import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
@@ -30,9 +31,9 @@ public class TUICardViewTest {
     public void testPlayableCardTUIView() {
         String[][] cardTUIView;
         PlayableCard card;
-        for(String type : List.of("resource_", "gold_")) {
-            for(Integer i = 1; i<=40; i++) {
-                String cardString = type+new DecimalFormat("00").format(i);
+        for (String type : List.of("resource_", "gold_")) {
+            for (Integer i = 1; i <= 40; i++) {
+                String cardString = type + new DecimalFormat("00").format(i);
                 System.out.println(cardString + ":");
                 card = stringPlayableCardHashMap.get(cardString);
                 cardTUIView = tuiView.cardTUIView(card);
@@ -44,8 +45,8 @@ public class TUICardViewTest {
                 System.out.println();
             }
         }
-        for(Integer i = 1; i<=6; i++) {
-            String cardString = "initial_"+new DecimalFormat("00").format(i);
+        for (Integer i = 1; i <= 6; i++) {
+            String cardString = "initial_" + new DecimalFormat("00").format(i);
             System.out.println(cardString + ":");
             card = stringPlayableCardHashMap.get(cardString);
             cardTUIView = tuiView.cardTUIView(card);
@@ -91,9 +92,29 @@ public class TUICardViewTest {
     public void testTableTUIView() {
         String[][] tableTUIView;
 
-        tableTUIView = tuiView.tableTUIView();
+        tableTUIView = tuiView.tableTUIView(
+                stringPlayableCardHashMap.get("resource_01"),
+                stringPlayableCardHashMap.get("resource_11"),
+                stringPlayableCardHashMap.get("gold_21"),
+                stringPlayableCardHashMap.get("gold_31"),
+                Symbol.INSECT,
+                Symbol.ANIMAL
+        );
 
         tuiView.printTUIView(tableTUIView);
+
+        tableTUIView = tuiView.tableTUIView(
+                stringPlayableCardHashMap.get("resource_01"),
+                null,
+                null,
+                stringPlayableCardHashMap.get("gold_31"),
+                Symbol.INSECT,
+                null
+        );
+
+        tuiView.printTUIView(tableTUIView);
+
+
     }
 
 }
