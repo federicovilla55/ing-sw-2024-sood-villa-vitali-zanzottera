@@ -63,7 +63,7 @@ public class MainController {
 
     /**
      * This method is used to delete a game from <code>gamesInfo</code> when it finishes. Consequently,
-     * it also kicks the game players inside the lobby, sending them a {@link DisconnectGameMessage}.
+     * it also kicks the game players inside the lobby, sending them a {@link DisconnectFromGameMessage}.
      * Responsible thread sleeps for <code>Settings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION</code>
      * before doing all above operations.
      * @param gameName is the name of the game to delete
@@ -77,7 +77,7 @@ public class MainController {
                 gameController = gamesInfo.remove(gameName);
             }
             if(gameController!=null) {
-                gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectGameMessage(gameName));
+                gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectFromGameMessage(gameName));
                 playersToRemove = gameController.getConnectedClients();
                 synchronized (playerInfo) {
                     for (String p : playersToRemove) {
@@ -148,7 +148,7 @@ public class MainController {
                 gameName = this.playerInfo.get(player.getUsername()).y();
                 if(gameName != null){
                     this.playerInfo.put(player.getUsername(), new Tuple<>(this.playerInfo.get(player.getUsername()).x(), null));
-                    player.update(new PlayerCorrectlyDisconnectedFromGame().setHeader(player.getUsername()));
+                    player.update(new DisconnectFromGameMessage(gameName).setHeader(player.getUsername()));
                 }
                 else{
                     player.update(new GameHandlingError(Error.GAME_NOT_FOUND,

@@ -1,10 +1,5 @@
 package it.polimi.ingsw.gc19.Networking.Client;
 
-import it.polimi.ingsw.gc19.Enums.Color;
-import it.polimi.ingsw.gc19.Enums.Symbol;
-import it.polimi.ingsw.gc19.Model.Card.GoalCard;
-import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.AllMessageVisitor;
@@ -17,14 +12,10 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErr
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.*;
-import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
-import org.controlsfx.control.action.Action;
 
 import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Handles incoming messages from the server to the client by implementing the AllMessageVisitor interface (design patter visitor).
@@ -266,17 +257,12 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     @Override
-    public void visit(DisconnectGameMessage disconnectGameMessage) {
+    public void visit(DisconnectFromGameMessage disconnectFromGameMessage) {
 
     }
 
     @Override
-    public void visit(PlayerCorrectlyDisconnectedFromServer message) {
-
-    }
-
-    @Override
-    public void visit(PlayerCorrectlyDisconnectedFromGame message) {
+    public void visit(DisconnectFromServer message) {
 
     }
 

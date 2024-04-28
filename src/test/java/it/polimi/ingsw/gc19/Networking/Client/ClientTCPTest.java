@@ -20,16 +20,13 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.MainServerTCP;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClientTCPTest {
@@ -46,10 +43,10 @@ public class ClientTCPTest {
         MessageHandler messageHandler3 = new MessageHandler(new ActionParser());
         MessageHandler messageHandler4 = new MessageHandler(new ActionParser());
 
-        client1 = new TestClassClientTCP("client1", messageHandler1);
-        client2 = new TestClassClientTCP("client2", messageHandler2);
-        client3 = new TestClassClientTCP("client3", messageHandler3);
-        client4 = new TestClassClientTCP("client4", messageHandler4);
+        client1 = new TestClassClientTCP("client1", messageHandler1, new ActionParser());
+        client2 = new TestClassClientTCP("client2", messageHandler2, new ActionParser());
+        client3 = new TestClassClientTCP("client3", messageHandler3, new ActionParser());
+        client4 = new TestClassClientTCP("client4", messageHandler4, new ActionParser());
         clientsAnchors = new HashMap<>();
     }
 
@@ -165,7 +162,7 @@ public class ClientTCPTest {
 
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage(this.client4.getNickname()));
 
-        TestClassClientTCP client5 = new TestClassClientTCP("client5", new MessageHandler(new ActionParser()));
+        TestClassClientTCP client5 = new TestClassClientTCP("client5", new MessageHandler(new ActionParser()), new ActionParser());
         client5.connect();
 
         client5.joinFirstAvailableGame();
@@ -263,7 +260,7 @@ public class ClientTCPTest {
         this.client1.stopSendingHeartbeat();
         waitingThread(5000);
 
-        TestClassClientTCP client8 = new TestClassClientTCP(this.client1.getNickname(), new MessageHandler(new ActionParser()));
+        TestClassClientTCP client8 = new TestClassClientTCP(this.client1.getNickname(), new MessageHandler(new ActionParser()), new ActionParser());
         client8.reconnect();
         assertMessageEquals(this.client1, new AvailableGamesMessage(List.of("game11")));
         client8.disconnect();
@@ -322,7 +319,7 @@ public class ClientTCPTest {
 
     @Test
     public void testCreateClientAfterDisconnection() throws IOException {
-        TestClassClientTCP client7 = new TestClassClientTCP("client7", new MessageHandler(new ActionParser()));
+        TestClassClientTCP client7 = new TestClassClientTCP("client7", new MessageHandler(new ActionParser()), new ActionParser());
         client7.connect();
 
         client7.waitForMessage(CreatedPlayerMessage.class);
@@ -334,7 +331,7 @@ public class ClientTCPTest {
 
         client7.disconnect();
 
-        TestClassClientTCP client8 = new TestClassClientTCP(client7.getNickname(), new MessageHandler(new ActionParser()));
+        TestClassClientTCP client8 = new TestClassClientTCP(client7.getNickname(), new MessageHandler(new ActionParser()), new ActionParser());
         client8.connect();
         client8.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message8 = client8.getMessage();
@@ -501,7 +498,7 @@ public class ClientTCPTest {
 
         waitingThread(4000);
 
-        assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game2"));
+        assertMessageEquals(List.of(this.client2, this.client1), new DisconnectFromGameMessage("game2"));
     }
 
     @Test
@@ -600,7 +597,7 @@ public class ClientTCPTest {
 
         waitingThread(5000);
 
-        TestClassClientTCP client7 = new TestClassClientTCP(this.client1.getNickname(), new MessageHandler(new ActionParser()));
+        TestClassClientTCP client7 = new TestClassClientTCP(this.client1.getNickname(), new MessageHandler(new ActionParser()), new ActionParser());
         client7.setToken(token1);
         client7.reconnect();
 

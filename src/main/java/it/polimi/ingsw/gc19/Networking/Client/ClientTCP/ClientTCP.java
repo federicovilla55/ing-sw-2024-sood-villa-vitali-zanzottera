@@ -13,6 +13,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -29,6 +30,7 @@ public class ClientTCP implements ClientInterface {
 
     private String nickname;
     private final MessageHandler messageHandler;
+    private final ActionParser actionParser;
 
     private ScheduledExecutorService heartbeatScheduler;
     private final Thread senderThread;
@@ -36,16 +38,18 @@ public class ClientTCP implements ClientInterface {
 
     private final Deque<MessageToServer> messagesToSend;
 
-    public ClientTCP(String nickname, MessageHandler messageHandler) throws IOException{
+    public ClientTCP(String nickname, MessageHandler messageHandler, ActionParser actionParser) throws IOException{
         this.nickname = nickname;
         this.messageHandler = messageHandler;
+        this.actionParser = actionParser;
 
         try {
             this.socket = new Socket(ClientSettings.serverIP, ClientSettings.serverTCPPort);
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.inputStream = new ObjectInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            //@TODO: handle this exception. How to notify view? Returning?
+        }
+        catch (IOException e) {
+            //Method throws IOException to notify Action Parsers that connection establishing have gone wrong
             throw new IOException();
         }
 
@@ -58,24 +62,26 @@ public class ClientTCP implements ClientInterface {
 
         this.receiverThread.start();
         this.senderThread.start();
+    }
 
+    public ClientTCP(ClientTCP clientTCP) throws IOException{
+        this(clientTCP.nickname, clientTCP.messageHandler, clientTCP.actionParser);
+        this.messagesToSend.addAll(clientTCP.messagesToSend);
     }
 
     private boolean networkDisconnectionRoutine(){
         boolean sent = false;
-        int numOfTry = 0;
+        long startingTime = new Date().getTime();
 
-        while(!Thread.interrupted() && !sent && numOfTry < 25){
+        while(!Thread.interrupted() && !sent && new Date().getTime() - startingTime < 1000 * ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION){
             try{
                 this.outputStream.writeObject(new HeartBeatMessage(this.nickname));
                 finalizeSending();
                 sent = true;
             }
             catch (IOException ioException){
-                numOfTry++;
-
                 try{
-                    Thread.sleep(400);
+                    Thread.sleep(20);
                 }
                 catch (InterruptedException interruptedException){
                     Thread.currentThread().interrupt();
@@ -103,37 +109,32 @@ public class ClientTCP implements ClientInterface {
         MessageToServer message;
 
         while(!Thread.interrupted()) {
-            //@TODO: ask Action Parser if we are in Reconnection State: if yes then do nothing, otherwise try to send message
-            synchronized (this.messagesToSend) {
-                while (this.messagesToSend.isEmpty()) {
-                    try {
-                        this.messagesToSend.wait();
-                    } catch (InterruptedException interruptedException) {
-                        Thread.currentThread().interrupt();
-                        return;
+            if(!this.actionParser.isDisconnected()) {
+                synchronized (this.messagesToSend) {
+                    while (this.messagesToSend.isEmpty()) {
+                        try {
+                            this.messagesToSend.wait();
+                        } catch (InterruptedException interruptedException) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
                     }
+                    message = this.messagesToSend.removeFirst();
                 }
-                message = this.messagesToSend.removeFirst();
-            }
 
-            if(message != null && !send(message)) {
-                if(!this.networkDisconnectionRoutine()) {
-
-                    //@TODO: clear queue or what?
-                    synchronized (this.messagesToSend){
-                        this.messagesToSend.clear();
+                if (message != null && !send(message)) {
+                    if (!this.networkDisconnectionRoutine()) {
+                        this.actionParser.disconnect();
                     }
-                    //Al posto di interrupt pulisco  la coda dei messaggi cosi il thread si addormenta
-                }
-                else{
-                    synchronized (this.messagesToSend){
-                        this.messagesToSend.addFirst(message);
+                    else {
+                        synchronized (this.messagesToSend) {
+                            this.messagesToSend.addFirst(message);
+                        }
                     }
                 }
             }
         }
     }
-
 
     public void sendMessage(MessageToServer message){
         synchronized (this.messagesToSend){
@@ -153,24 +154,15 @@ public class ClientTCP implements ClientInterface {
             try {
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
             }
-            catch (ClassNotFoundException classNotFoundException){
-                //@TODO: handle Class exception
-            }
+            catch (ClassNotFoundException ignored){ }
             catch (IOException ioException){
-                //@TODO: handle IO exception
+                //@TODO: what to do in this case?
+                this.actionParser.disconnect();
             }
 
             if(incomingMessage != null) {
                 this.messageHandler.update(incomingMessage);
             }
-        }
-    }
-
-    public void logout(){
-        this.stopClient();
-
-        synchronized (this.messagesToSend){
-            this.messagesToSend.clear();
         }
     }
 
@@ -181,12 +173,6 @@ public class ClientTCP implements ClientInterface {
         this.receiverThread.interrupt();
         this.heartbeatScheduler.shutdownNow();
 
-        Thread disconnectionThread = getDisconnectionThread();
-        try {
-            disconnectionThread.join();
-        }
-        catch (InterruptedException ignored){ }
-
         try {
             if (socket != null) {
                 this.socket.shutdownOutput();
@@ -194,28 +180,7 @@ public class ClientTCP implements ClientInterface {
                 this.socket.close();
             }
         }
-        catch (IOException ioException){
-            //@TODO: handle this exception
-        }
-    }
-
-    @NotNull
-    private Thread getDisconnectionThread() {
-        Thread disconnectionThread = new Thread(() -> {
-            long startingTime = new Date().getTime();
-            boolean sent = false;
-
-            while(!sent && new Date().getTime() - startingTime < 100 * 2){
-                try{
-                    ClientTCP.this.outputStream.writeObject(new DisconnectMessage(nickname));
-                    ClientTCP.this.finalizeSending();
-                    sent = true;
-                }
-                catch (IOException ignored){ };
-            }
-        });
-        disconnectionThread.start();
-        return disconnectionThread;
+        catch (IOException ignored){ }
     }
 
     public void startSendingHeartbeat(){
@@ -265,15 +230,30 @@ public class ClientTCP implements ClientInterface {
     }
 
     @Override
-    public void reconnect() throws IllegalStateException{
+    public void logoutFromGame() throws RuntimeException{
+        if(!this.send(new RequestGameExitMessage(this.nickname))){
+            throw new RuntimeException("Message could not be sent to server!");
+        }
+        synchronized (this.messagesToSend){
+            this.messagesToSend.clear();
+        }
+    }
+
+    @Override
+    public void reconnect() throws RuntimeException{
+        String token;
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
 
         if(tokenFile.isFile() && tokenFile.exists()) {
             try {
                 Scanner tokenScanner = new Scanner(tokenFile);
-                this.sendMessage(new ReconnectToServerMessage(this.nickname, tokenScanner.nextLine()));
+                token = tokenScanner.nextLine();
                 tokenScanner.close();
-            } catch (IOException ioException) {
+                if(!this.send(new ReconnectToServerMessage(this.nickname, token))){
+                    throw new RuntimeException("Could not send message to server!");
+                }
+            }
+            catch (IOException ioException) {
                 throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
             }
         }
@@ -283,11 +263,16 @@ public class ClientTCP implements ClientInterface {
     }
 
     @Override
-    public void disconnect() {
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
-        if(tokenFile.exists() && tokenFile.exists()){
-            tokenFile.delete();
+    public void disconnect() throws RuntimeException{
+        if(!this.send(new DisconnectMessage(this.nickname))){
+            throw new RuntimeException("Message could not be sent to server!");
         }
+
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
+        if(tokenFile.exists() && tokenFile.exists() && tokenFile.delete()){
+            System.err.println("[TOKEN]: token file deleted.");
+        }
+
         this.stopClient();
     }
 
@@ -338,7 +323,9 @@ public class ClientTCP implements ClientInterface {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
             bufferedWriter.write(token);
             bufferedWriter.close();
-            tokenFile.setReadOnly();
+            if(tokenFile.setReadOnly()){
+                System.err.println("[TOKEN]: token file updated and set read only.");
+            }
         }
         catch (IOException ignored){ };
     }

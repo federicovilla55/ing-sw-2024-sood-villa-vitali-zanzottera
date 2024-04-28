@@ -5,7 +5,6 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
@@ -27,7 +26,6 @@ import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -65,11 +63,11 @@ public class ClientRMITest {
         MessageHandler messageHandler4 = new MessageHandler(new ActionParser());
         MessageHandler messageHandler5 = new MessageHandler(new ActionParser());
 
-        this.client1 = new TestClassClientRMI(virtualMainServer, messageHandler1, "client1");
-        this.client2 = new TestClassClientRMI(virtualMainServer, messageHandler2, "client2");
-        this.client3 = new TestClassClientRMI(virtualMainServer, messageHandler3, "client3");
-        this.client4 = new TestClassClientRMI(virtualMainServer, messageHandler4, "client4");
-        this.client5 = new TestClassClientRMI(virtualMainServer, messageHandler5, "client5");
+        this.client1 = new TestClassClientRMI(virtualMainServer, messageHandler1, "client1", new ActionParser());
+        this.client2 = new TestClassClientRMI(virtualMainServer, messageHandler2, "client2", new ActionParser());
+        this.client3 = new TestClassClientRMI(virtualMainServer, messageHandler3, "client3", new ActionParser());
+        this.client4 = new TestClassClientRMI(virtualMainServer, messageHandler4, "client4", new ActionParser());
+        this.client5 = new TestClassClientRMI(virtualMainServer, messageHandler5, "client5", new ActionParser());
 
         clientsAnchors = new HashMap<>();
     }
@@ -313,7 +311,7 @@ public class ClientRMITest {
             throw new RuntimeException(e);
         }
 
-        assertMessageEquals(List.of(this.client1, this.client2), new DisconnectGameMessage("game13"));
+        assertMessageEquals(List.of(this.client1, this.client2), new DisconnectFromGameMessage("game13"));
     }
 
     @Test
@@ -442,7 +440,7 @@ public class ClientRMITest {
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("client4"));
 
 
-        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client5");
+        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client5", new ActionParser());
         this.client5.connect();
 
         this.client5.joinFirstAvailableGame();
@@ -476,7 +474,7 @@ public class ClientRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client2");
+        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client2", new ActionParser());
         client6.connect();
         assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
@@ -511,7 +509,7 @@ public class ClientRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client8 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client8");
+        TestClassClientRMI client8 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client8", new ActionParser());
         client8.connect();
         client8.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message8 = client8.getMessage();
@@ -560,7 +558,7 @@ public class ClientRMITest {
         client2.stopSendingHeartbeat();
 
         //Situation: client 2 has disconnected from game
-        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client6");
+        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client6", new ActionParser());
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
         this.client2.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Chat message after disconnection!");
@@ -593,7 +591,7 @@ public class ClientRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),this.client1.getNickname());
+        TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),this.client1.getNickname(), new ActionParser());
         client7.setToken(token1);
         client7.setNickname("client1");
         client7.reconnect();

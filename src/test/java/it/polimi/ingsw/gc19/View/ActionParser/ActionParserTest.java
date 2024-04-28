@@ -60,11 +60,11 @@ public class ActionParserTest {
 
     @BeforeEach
     public void setUpTest() throws IOException {
-        this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client1");
-        this.client2 = new TestClassClientTCP("client2", new MessageHandler(new ActionParser()));
-        this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client3");
-        this.client4 = new TestClassClientTCP("client4", new MessageHandler(new ActionParser()));
-        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client5");
+        this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client1", new ActionParser());
+        this.client2 = new TestClassClientTCP("client2", new MessageHandler(new ActionParser()), new ActionParser());
+        this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client3", new ActionParser());
+        this.client4 = new TestClassClientTCP("client4", new MessageHandler(new ActionParser()), new ActionParser());
+        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client5", new ActionParser());
         clientsAnchors = new HashMap<>();
 
         this.client1.getMessageHandler().setClient(this.client1);
@@ -103,7 +103,7 @@ public class ActionParserTest {
         actionParser2.viewState.nextState(new CreatedPlayerMessage(client2.getNickname()));
         assertEquals(actionParser2.getState(), ViewState.NOTGAME);
 
-        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client6");
+        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client6", new ActionParser());
         client6.getMessageHandler().setClient(client6);
         ActionParser actionParser6 = client6.getMessageHandler().getActionParser();
         actionParser6.parseAction("create_player(client2)");

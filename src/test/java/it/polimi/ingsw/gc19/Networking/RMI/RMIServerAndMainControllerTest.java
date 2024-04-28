@@ -28,7 +28,6 @@ import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -560,7 +559,7 @@ public class RMIServerAndMainControllerTest {
         waitingThread(4000);
         //assertEquals(this.client2.getIncomingMessages().size(), 1);
         //assertEquals(this.client1.getIncomingMessages().size(), 1);
-        assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game13"));
+        assertMessageEquals(List.of(this.client2, this.client1), new DisconnectFromGameMessage("game13"));
 
         waitingThread(2000);
         gameServer1.sendChatMessage(new ArrayList<String>(List.of(this.client2.getName())), "After game end!");
@@ -652,14 +651,14 @@ public class RMIServerAndMainControllerTest {
         assertMessageEquals(client2, new JoinedGameMessage("game30"));
         waitingThread(500);
         client1.exitFromGame();
-        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client1, new DisconnectFromGameMessage("game30"));
         assertMessageEquals(client2, new DisconnectedPlayerMessage(this.client1.getName()));
         client1.newGame("game30", 4, 2);
         assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
         client1.newGame("game31", 3);
         assertMessageEquals(this.client1, new CreatedGameMessage("game31"));
         client2.exitFromGame();
-        assertMessageEquals(client2, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client2, new DisconnectFromGameMessage("game30"));
         waitingThread(500);
         client2.newGame("game35", 2, 3);
         assertMessageEquals(client2, new CreatedGameMessage("game35"));
@@ -667,17 +666,17 @@ public class RMIServerAndMainControllerTest {
         client1.joinFirstAvailableGame();
         assertMessageEquals(client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
         client1.exitFromGame();
-        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client1, new DisconnectFromGameMessage("game31"));
         client1.joinGame("game35");
         assertMessageEquals(client2, new JoinedGameMessage("game35"));
         client3.connect();
         client3.joinGame("game35");
         assertMessageEquals(client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
         client1.exitFromGame();
-        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client1, new DisconnectFromGameMessage("game35"));
         client3.exitFromGame();
         client2.exitFromGame();
-        assertMessageEquals(client2, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client2, new DisconnectFromGameMessage("game35"));
         client2.newGame("game35", 2, 3);
         assertMessageEquals(client2, new CreatedGameMessage("game35"));
         client1.clearQueue();

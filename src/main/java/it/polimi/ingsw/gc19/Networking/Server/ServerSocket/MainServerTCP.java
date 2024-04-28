@@ -1,7 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.PlayerCorrectlyDisconnectedFromServer;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromServer;
 import it.polimi.ingsw.gc19.Utils.Triplet;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
@@ -453,7 +453,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         /**
          * This method is used to handle {@link DisconnectMessage} received from player.
          * It calls {@link MainServerTCP#disconnectSocket(Socket)}. It also sends to
-         * the player a {@link PlayerCorrectlyDisconnectedFromServer}.
+         * the player a {@link DisconnectFromServer}.
          * @param message {@link DisconnectMessage} to handle
          */
         @Override
@@ -464,7 +464,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 clientToDisconnect = connectedClients.get(clientSocket);
             }
             if(clientToDisconnect != null){
-                clientToDisconnect.x().update(new PlayerCorrectlyDisconnectedFromServer()
+                clientToDisconnect.x().update(new DisconnectFromServer()
                                                       .setHeader(clientToDisconnect.x().getUsername()));
             }
 

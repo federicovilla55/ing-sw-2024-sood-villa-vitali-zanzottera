@@ -41,7 +41,6 @@ public interface ClientInterface {
     void setNickname(String nickname);
 
     String getNickname();
-
-    void logout();
+    void logoutFromGame();
 
 }
