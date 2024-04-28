@@ -22,7 +22,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import org.junit.jupiter.api.*;
@@ -60,7 +61,13 @@ public class ClientTCPRMITest {
     }
 
     @BeforeEach
-    public void setUpTest() throws IOException {
+    public void setUpTest() throws IOException, NotBoundException {
+        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
+        ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
+        mainServerRMI = ServerApp.getMainServerRMI();
+        registry = LocateRegistry.getRegistry("localhost");
+        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+
         this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client1");
         this.client2 = new TestClassClientTCP("client2", new MessageHandler(new ActionParser()));
         this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client3");

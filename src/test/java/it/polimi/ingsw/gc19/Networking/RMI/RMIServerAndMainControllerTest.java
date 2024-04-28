@@ -13,6 +13,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigur
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
@@ -23,8 +24,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErr
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.Settings;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -42,37 +43,33 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RMIServerAndMainControllerTest {
-    private static MainServerRMI mainServerRMI;
     private static VirtualMainServer virtualMainServer;
     private Client client1, client2, client3, client4, client5;
     private ArrayList<Client> stressTestClients;
 
-    @BeforeAll
-    public static void setUpServer() throws IOException, NotBoundException {
+    @BeforeEach
+    public void setUpTest() throws RemoteException, NotBoundException {
+        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
+
         ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
-        mainServerRMI = ServerApp.getMainServerRMI();
+        MainServerRMI mainServerRMI = ServerApp.getMainServerRMI();
+
         Registry registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+
         overloadTest(100);
-    }
 
-    @AfterAll
-    public static void tearDownServer() {
-        ServerApp.unexportRegistry();
-    }
-
-    @BeforeEach
-    public void setUpTest() throws RemoteException {
         this.client1 = new Client(virtualMainServer, "client1");
         this.client2 = new Client(virtualMainServer, "client2");
         this.client3 = new Client(virtualMainServer, "client3");
         this.client4 = new Client(virtualMainServer, "client4");
         this.client5 = new Client(virtualMainServer, "client5");
+
         this.stressTestClients = overloadTest(100);
     }
 
     @AfterEach
-    public void resetClients() throws RemoteException {
+    public void tearDown() throws RemoteException {
         this.client1.disconnect();
         this.client1.destroyHeartBeatThread();
         this.client2.disconnect();
@@ -83,9 +80,12 @@ public class RMIServerAndMainControllerTest {
         this.client4.destroyHeartBeatThread();
         this.client5.disconnect();
         this.client5.destroyHeartBeatThread();
+
         this.killStressTestClients();
-        mainServerRMI.killClientHandlers();
-        mainServerRMI.resetServer();
+
+        ServerApp.stopRMI();
+
+        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 60 * 20;
     }
 
     private static ArrayList<Client> overloadTest(int numberOfClients) throws RemoteException {
@@ -631,6 +631,58 @@ public class RMIServerAndMainControllerTest {
         assertNull(this.client1.getMessage());
     }
 
+    @Test
+    public void testInactiveClientKiller() throws RemoteException {
+        client1.connect();
+        waitingThread(500);
+        client1.stopSendingHeartBeat();
+        waitingThread(25 * 1000);
+        Client client5 = new Client(virtualMainServer, this.client1.getName());
+        client5.connect();
+        assertMessageEquals(client5, new CreatedPlayerMessage(client5.getName()));
+        client5.disconnect();
+    }
+
+    @Test
+    public void testExitFromGame() throws RemoteException {
+        client1.connect();
+        client2.connect();
+        client1.newGame("game30", 3, 1);
+        client2.joinGame("game30");
+        assertMessageEquals(client2, new JoinedGameMessage("game30"));
+        waitingThread(500);
+        client1.exitFromGame();
+        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client2, new DisconnectedPlayerMessage(this.client1.getName()));
+        client1.newGame("game30", 4, 2);
+        assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
+        client1.newGame("game31", 3);
+        assertMessageEquals(this.client1, new CreatedGameMessage("game31"));
+        client2.exitFromGame();
+        assertMessageEquals(client2, new PlayerCorrectlyDisconnectedFromGame());
+        waitingThread(500);
+        client2.newGame("game35", 2, 3);
+        assertMessageEquals(client2, new CreatedGameMessage("game35"));
+        client1.clearQueue();
+        client1.joinFirstAvailableGame();
+        assertMessageEquals(client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
+        client1.exitFromGame();
+        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        client1.joinGame("game35");
+        assertMessageEquals(client2, new JoinedGameMessage("game35"));
+        client3.connect();
+        client3.joinGame("game35");
+        assertMessageEquals(client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
+        client1.exitFromGame();
+        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        client3.exitFromGame();
+        client2.exitFromGame();
+        assertMessageEquals(client2, new PlayerCorrectlyDisconnectedFromGame());
+        client2.newGame("game35", 2, 3);
+        assertMessageEquals(client2, new CreatedGameMessage("game35"));
+        client1.clearQueue();
+    }
+
     private void dummyTurn(VirtualGameServer virtualGameServer, Client client, PlayableCardType cardType) throws RemoteException {
         dummyPlace(virtualGameServer, client);
         virtualGameServer.pickCardFromDeck(cardType);
@@ -883,6 +935,10 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable 
 
     public void requestAvailableGames() throws RemoteException{
         this.virtualMainServer.requestAvailableGames(this, this.name);
+    }
+
+    public void exitFromGame() throws RemoteException{
+        this.virtualMainServer.disconnectFromGame(this, this.name);
     }
 
 }

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.PlayerCorrectlyDisconnectedFromServer;
 import it.polimi.ingsw.gc19.Utils.Triplet;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
@@ -29,7 +31,6 @@ import java.util.concurrent.*;
  */
 public class MainServerTCP extends Server implements ObserverMessageToServer<MessageToServer>{
 
-    private static MainServerTCP instance = null;
     private final HashMap<Socket, Triplet<ClientHandlerSocket, MessageToServerDispatcher, String>> connectedClients;
 
     private final HashMap<Socket, Long> pendingSocketToKill;
@@ -37,7 +38,10 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
     private final MessageToMainServerVisitor gameHandlingMessageHandler;
     private final HeartBeatMessageToServerVisitor heartBeatHandler;
-    private MainServerTCP(){
+
+    private final ScheduledExecutorService heartBeatTesterExecutor;
+    private final ScheduledExecutorService inactiveClientKillerExecutor;
+    public MainServerTCP(){
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new ConcurrentHashMap<>();
         this.pendingSocketToKill = new HashMap<>();
@@ -45,19 +49,10 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         this.gameHandlingMessageHandler = new MessageToMainServerVisitor();
         this.heartBeatHandler = new HeartBeatMessageToServerVisitor();
 
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * This method is used to implement Singleton pattern for {@link MainServerTCP}.
-     * @return {@link MainServerTCP} instance.
-     */
-    public static MainServerTCP getInstance(){
-        if(instance == null){
-            instance = new MainServerTCP();
-        }
-        return instance;
+        this.heartBeatTesterExecutor = new ScheduledThreadPoolExecutor(1);
+        this.inactiveClientKillerExecutor = new ScheduledThreadPoolExecutor(1);
+        this.heartBeatTesterExecutor.scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
+        this.inactiveClientKillerExecutor.scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -129,7 +124,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 }
                 catch (IOException ioException){
                     System.err.println("[EXCEPTION] IOException occurred while trying to build object output stream from socket " + socket + ". Closing socket...");
-                    scheduleSocketClosing(socket);
+                    closeSocket(socket);
                 }
             }
         }
@@ -172,29 +167,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         catch (IOException ioException){
             System.err.println("[IOException] IOException occurred while trying to close socket " + socket + ". Skipping...");
         }
-    }
-
-    /**
-     * This method is used to schedule {@param socket} closure. It tries to shut down both input
-     * and output of {@param socket}. If this cannot be done within a certain time it closes
-     * socket with {@link MainServerTCP#closeSocket(Socket)}
-     * @param socket socket to close
-     */
-    public void scheduleSocketClosing(Socket socket){
-        ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
-        ExecutorService scheduledClose = Executors.newSingleThreadExecutor();
-
-        timer.schedule(() -> {
-            closeSocket(socket);
-            scheduledClose.shutdownNow();
-        }, 250, TimeUnit.MILLISECONDS);
-
-        scheduledClose.submit(() -> {
-            while (!socket.isInputShutdown() || !socket.isOutputShutdown()) { };
-            closeSocket(socket);
-            timer.shutdownNow();
-        });
-
     }
 
     /**
@@ -287,6 +259,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
      */
     @Override
     public void resetServer() {
+        this.heartBeatTesterExecutor.shutdownNow();
+        this.inactiveClientKillerExecutor.shutdownNow();
+
         synchronized (connectedClients) {
             this.connectedClients.clear();
         }
@@ -399,9 +374,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                         clientHandlerSocket.update(new CreatedPlayerMessage(nickname, hashedMessage).setHeader(connectedClients.get(clientSocket).x().getUsername()));
                     }
                 }
-                else{
+                /*else{
                     closeSocket(clientSocket); //Maybe write message?
-                }
+                }*/
             }
         }
 
@@ -477,11 +452,22 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
         /**
          * This method is used to handle {@link DisconnectMessage} received from player.
-         * It calls {@link MainServerTCP#disconnectSocket(Socket)}
+         * It calls {@link MainServerTCP#disconnectSocket(Socket)}. It also sends to
+         * the player a {@link PlayerCorrectlyDisconnectedFromServer}.
          * @param message {@link DisconnectMessage} to handle
          */
         @Override
         public void visit(DisconnectMessage message) {
+            Triplet<ClientHandlerSocket, MessageToServerDispatcher, String> clientToDisconnect;
+
+            synchronized (connectedClients) {
+                clientToDisconnect = connectedClients.get(clientSocket);
+            }
+            if(clientToDisconnect != null){
+                clientToDisconnect.x().update(new PlayerCorrectlyDisconnectedFromServer()
+                                                      .setHeader(clientToDisconnect.x().getUsername()));
+            }
+
             disconnectSocket(clientSocket);
         }
 
@@ -519,7 +505,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
          * This method is used to handle {@link RequestAvailableGamesMessage} message.
          * First, it checks if requesting client is already registered to server using
          * {@link MainServerTCP#getClientHandlerFromSocket(Socket)}. If yes, it sends
-         * to a {@link AvailableGamesMessage} with all the a
+         * to a {@link AvailableGamesMessage} with all available games.
          * @param message {@link RequestAvailableGamesMessage} to handle.
          */
         @Override
@@ -528,6 +514,22 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
             if(clientHandlerSocket != null){
                 clientHandlerSocket.update(new AvailableGamesMessage(new ArrayList<>(mainController.findAvailableGames()))
                                                    .setHeader(clientHandlerSocket.getUsername()));
+            }
+        }
+
+        /**
+         * This method is used to handle {@link RequestGameExitMessage} message.
+         * First, it checks if requesting client is already registered to server using
+         * {@link MainServerTCP#getClientHandlerFromSocket(Socket)}. If yes, it
+         * calls {@link MainController#disconnectPlayerFromGame(ClientHandler)} to
+         * disconnect the player from the game.
+         * @param message {@link RequestGameExitMessage} to handle.
+         */
+        @Override
+        public void visit(RequestGameExitMessage message) {
+            ClientHandlerSocket clientHandlerSocket = getClientHandlerFromSocket(clientSocket);
+            if(clientHandlerSocket != null){
+                mainController.disconnectPlayerFromGame(clientHandlerSocket);
             }
         }
 

@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Networking.Server;
+package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Color;

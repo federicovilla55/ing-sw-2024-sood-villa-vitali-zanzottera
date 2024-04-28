@@ -276,6 +276,16 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     @Override
+    public void visit(PlayerCorrectlyDisconnectedFromServer message) {
+
+    }
+
+    @Override
+    public void visit(PlayerCorrectlyDisconnectedFromGame message) {
+
+    }
+
+    @Override
     public void visit(TurnStateMessage message) {
         actionParser.viewState.nextState(message);
     }

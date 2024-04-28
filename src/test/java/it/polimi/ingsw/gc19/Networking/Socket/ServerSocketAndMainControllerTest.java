@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Socket;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
@@ -45,6 +46,7 @@ public class ServerSocketAndMainControllerTest {
 
     @BeforeEach
     public void setUp(){
+        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
         ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
         this.client1 = new Client("client1");
         this.client2 = new Client("client2");
@@ -70,6 +72,8 @@ public class ServerSocketAndMainControllerTest {
         }
 
         ServerApp.stopTCP();
+
+        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 60 * 20;
     }
 
     private static ArrayList<Client> overloadTest(int numberOfClients){
@@ -696,7 +700,58 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(client2, new AvailableGamesMessage(List.of("game25", "game26")).setHeader(this.client2.getName()));
     }
 
-    private void dummyTurn(Client client, PlayableCardType cardType) throws RemoteException {
+    @Test
+    public void testInactiveClientKiller(){
+        System.out.println(Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL);
+        client1.createPlayer();
+        waitingThread(500);
+        client1.stopSendingHeartBeat();
+        waitingThread(25 * 1000);
+        Client client5 = new Client(this.client1.getName());
+        client5.createPlayer();
+        assertMessageEquals(client5, new CreatedPlayerMessage(client5.getName()));
+        client5.disconnect();
+    }
+
+    @Test
+    public void testExitFromGame(){
+        client1.createPlayer();
+        client2.createPlayer();
+        client1.createGame("game30", 3, 1);
+        client2.joinGame("game30", true);
+        waitingThread(500);
+        client1.exitFromGame();
+        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        assertMessageEquals(client2, new DisconnectedPlayerMessage(this.client1.getName()));
+        client1.createGame("game30", 4, 2);
+        assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
+        client1.createGame("game31", 3);
+        assertMessageEquals(this.client1, new CreatedGameMessage("game31"));
+        client2.exitFromGame();
+        assertMessageEquals(client2, new PlayerCorrectlyDisconnectedFromGame());
+        waitingThread(500);
+        client2.createGame("game35", 2, 3);
+        assertMessageEquals(client2, new CreatedGameMessage("game35"));
+        client1.clearQueue();
+        client1.joinFirstAvailableGame();
+        assertMessageEquals(client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
+        client1.exitFromGame();
+        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        client1.joinGame("game35", true);
+        client3.createPlayer();
+        client3.joinGame("game35", false);
+        assertMessageEquals(client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
+        client1.exitFromGame();
+        assertMessageEquals(client1, new PlayerCorrectlyDisconnectedFromGame());
+        client3.exitFromGame();
+        client2.exitFromGame();
+        assertMessageEquals(client2, new PlayerCorrectlyDisconnectedFromGame());
+        client2.createGame("game35", 2, 3);
+        assertMessageEquals(client2, new CreatedGameMessage("game35"));
+        client1.clearQueue();
+    }
+
+    private void dummyTurn(Client client, PlayableCardType cardType){
         dummyPlace(client);
         assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getName(), TurnState.DRAW));
         client.pickCardFromDeck(cardType);
@@ -1072,6 +1127,10 @@ class Client{
 
     public void joinFirstAvailableGame(){
         this.sendMessage(new JoinFirstAvailableGameMessage(this.name));
+    }
+
+    public void exitFromGame(){
+        this.sendMessage(new RequestGameExitMessage(this.name));
     }
 
 }

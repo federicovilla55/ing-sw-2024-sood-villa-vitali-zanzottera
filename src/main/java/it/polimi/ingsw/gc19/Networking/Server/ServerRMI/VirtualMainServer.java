@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Networking.Server;
+package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
 
@@ -81,7 +81,8 @@ public interface VirtualMainServer extends Remote {
     VirtualGameServer reconnect(VirtualClient clientRMI, String nickname, String token) throws RemoteException;
 
     /**
-     * This method is used by clients who need to explicitly disconnect themselves from server.
+     * This method is used by clients who need to explicitly disconnect themselves from server,
+     * so both game and lobby.
      * @param clientRMI is {@link VirtualClient} of the requesting client
      * @param nickname is the nickname of the requesting client
      * @throws RemoteException if something goes wrong while performing the requested action
@@ -104,6 +105,15 @@ public interface VirtualMainServer extends Remote {
      * @throws RemoteException if something goes wrong while performing the requested action.
      */
     void requestAvailableGames(VirtualClient clientRMI, String nickname) throws RemoteException;
+
+    /**
+     * This method is used by clients who need to explicitly disconnect themselves from game
+     * it is actually in, but not from the lobby.
+     * @param clientRMI is {@link VirtualClient} of the requesting client
+     * @param nickname is the nickname of the requesting client
+     * @throws RemoteException if something goes wrong while performing the requested action
+     */
+    void disconnectFromGame(VirtualClient clientRMI, String nickname) throws RemoteException;
 
 }
 
