@@ -58,8 +58,6 @@ public class ClientTCPRMITest {
         registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
 
-    @BeforeEach
-    public void setUpTest() throws IOException {
         this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client1");
         this.client2 = new TestClassClientTCP("client2", new MessageHandler(new ActionParser()));
         this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client3");

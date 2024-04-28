@@ -73,7 +73,7 @@ public class ActionParser {
     public synchronized void disconnect(){
         this.prevState = viewState;
         this.viewState = new Disconnect();
-        System.out.println("Disconnect..." + this.getState() + " " + prevState);
+        //System.out.println("Disconnect..." + this.getState() + " " + prevState);
         this.viewState.parseAction(null);
     }
 
@@ -424,7 +424,7 @@ public class ActionParser {
         ScheduledExecutorService scheduler = null;
         @Override
         public void nextState(JoinedGameMessage message) {
-            System.out.println("Riconnesso");
+            //System.out.println("Riconnesso");
             viewState = prevState;
 
             // or shutdown
@@ -442,7 +442,7 @@ public class ActionParser {
             if(scheduler == null) {
                 scheduler = Executors.newScheduledThreadPool(1);
                 scheduler.scheduleAtFixedRate(() -> {
-                    System.out.println("Provo a riconnettermi..." + this.getState() + " " + getNickname() + " ");
+                    //System.out.println("Provo a riconnettermi..." + this.getState() + " " + getNickname() + " ");
                     clientNetwork.reconnect();
                 }, 0, 10, TimeUnit.SECONDS);
             }

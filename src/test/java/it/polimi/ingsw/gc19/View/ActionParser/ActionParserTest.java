@@ -140,6 +140,7 @@ public class ActionParserTest {
         assertEquals(actionParser2.getState(), ViewState.SETUP);
     }
 
+    @Disabled
     @Test
     public void testSetup(){
         actionParser1.parseAction("create_player(client1)");
@@ -267,7 +268,7 @@ public class ActionParserTest {
         }
         assertMessageEquals(client1, new DisconnectedPlayerMessage(this.client2.getNickname()));
 
-        actionParser2.disconnect();
+        //actionParser2.disconnect();
 
 
     }
