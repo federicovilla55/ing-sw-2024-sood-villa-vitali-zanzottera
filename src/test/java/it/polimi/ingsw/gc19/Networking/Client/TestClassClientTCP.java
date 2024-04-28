@@ -5,18 +5,13 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.JoinGameMessa
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.ArrayDeque;
 
 public class TestClassClientTCP extends ClientTCP implements CommonClientMethodsForTests{
 
     public TestClassClientTCP(String nickname, MessageHandler messageHandler) throws IOException{
-        super(nickname, messageHandler);
+        super(nickname, messageHandler, );
 
 
     }
