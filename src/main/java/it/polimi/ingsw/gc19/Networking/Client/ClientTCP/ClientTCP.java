@@ -105,6 +105,7 @@ public class ClientTCP implements ClientInterface {
         MessageToServer message;
 
         while(!Thread.interrupted()) {
+            //@TODO: ask Action Parser if we are in Reconnection State: if yes then do nothing, otherwise try to send message
             synchronized (this.messagesToSend) {
                 while (this.messagesToSend.isEmpty()) {
                     try {
@@ -120,6 +121,7 @@ public class ClientTCP implements ClientInterface {
             if(message != null && !send(message)) {
                 if(!this.networkDisconnectionRoutine()) {
                     //@TODO: notify Action Parser
+                    //@TODO: clear queue or what?
                     synchronized (this.messagesToSend){
                         this.messagesToSend.clear();
                     }

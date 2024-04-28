@@ -4,6 +4,7 @@ import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.ReconnectToServerMessage;
+import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
@@ -52,6 +53,30 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         this.messageHandler = messageHandler;
     }
 
+    public boolean networkDisconnectionRoutine(){
+        boolean sent = false;
+        int numOfTry = 0;
+
+        while(!Thread.interrupted() && !sent && numOfTry < 25){
+            try{
+                this.virtualMainServer.heartBeat(this);
+                sent = true;
+            }
+            catch (RemoteException remoteException){
+                numOfTry++;
+
+                try{
+                    Thread.sleep(250);
+                }
+                catch (InterruptedException interruptedException){
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+
+        return sent;
+    }
 
     @Override
     public void connect(){
@@ -65,12 +90,14 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
     @Override
     public void createGame(String gameName, int numPlayers){
+        //@TODO: ask Action Parser if we are in Reconnection State: if yes then do nothing or insert message in queue, otherwise try to send message
         synchronized (this.virtualGameServerLock) {
             try {
                 this.virtualGameServer = this.virtualMainServer.createGame(this, gameName, this.nickname, numPlayers);
-            } catch (RemoteException e) {
+            }
+            catch (RemoteException e) {
                 //@TODO: invoke correct method of message handler
-                throw new RuntimeException(e);
+                networkDisconnectionRoutine();
             }
         }
     }
@@ -108,22 +135,30 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     }
 
     public void reconnect(){
-        synchronized (this.virtualGameServerLock) {
-            Scanner tokenScanner = null;
-            try {
-                File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/TokenFile" + "_" + this.nickname);
-                try {
-                    tokenScanner = new Scanner(tokenFile);
-                }
-                catch (IOException ignored){
-                    System.err.println(ignored.getClass());
-                    //@TODO: notify view or Client App
-                    return;
-                };
+        Scanner tokenScanner;
+        String token;
 
-                this.virtualGameServer = this.virtualMainServer.reconnect(this, this.nickname, tokenScanner.nextLine());
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/TokenFile" + "_" + this.nickname);
+
+        if(tokenFile.exists() && tokenFile.isFile()) {
+            try {
+                tokenScanner = new Scanner(tokenFile);
+                token = tokenScanner.nextLine();
                 tokenScanner.close();
-            } catch (RemoteException e) {
+            }
+            catch (IOException ioException) {
+                throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
+            }
+        }
+        else{
+            throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
+        }
+
+        synchronized (this.virtualGameServerLock) {
+            try {
+                this.virtualGameServer = this.virtualMainServer.reconnect(this, this.nickname, token);
+            }
+            catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
         }
