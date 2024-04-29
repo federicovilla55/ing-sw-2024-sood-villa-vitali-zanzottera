@@ -13,6 +13,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigur
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
@@ -462,7 +463,7 @@ public class ClientRMITest {
         client2.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message2 = this.client2.getMessage();
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        this.client2.setToken(token1);
+        this.client2.setToken(token2);
 
         this.client2.createGame("game11", 2);
 
@@ -521,7 +522,7 @@ public class ClientRMITest {
     }
 
     @Test
-    public void testDisconnectionWhileInGame() throws RemoteException {
+    public void testDisconnectionWhileInGame(){
         this.client1.connect();
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message = this.client1.getMessage();
@@ -531,7 +532,6 @@ public class ClientRMITest {
         this.client1.createGame("game6", 2);
 
         assertMessageEquals(this.client1, new CreatedGameMessage("game6"));
-
 
         this.client2.connect();
         client2.waitForMessage(CreatedPlayerMessage.class);
@@ -545,7 +545,6 @@ public class ClientRMITest {
 
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
-
         this.client2.stopSendingHeartbeat();
 
         try {
@@ -555,10 +554,8 @@ public class ClientRMITest {
         }
 
         client2.reconnect();
-        client2.stopSendingHeartbeat();
+        client2.startSendingHeartbeat();
 
-        //Situation: client 2 has disconnected from game
-        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client6", new ActionParser());
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
         this.client2.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Chat message after disconnection!");
@@ -601,6 +598,20 @@ public class ClientRMITest {
         client7.sendChatMessage(new ArrayList<>(List.of("client2")), "Send chat message after reconnection");
 
         assertMessageEquals(this.client2, new NotifyChatMessage("client1", "Send chat message after reconnection"));
+    }
+
+    @Test
+    public void testExitFromGame(){
+        this.client1.connect();
+        this.client2.connect();
+        this.client1.createGame("game11", 3);
+        this.client2.joinFirstAvailableGame();
+        this.client1.logoutFromGame();
+        assertMessageEquals(this.client2, new DisconnectedPlayerMessage(this.client1.getNickname()));
+        this.client2.logoutFromGame();
+        this.client3.connect();
+        this.client3.availableGames();
+        assertMessageEquals(this.client3, new AvailableGamesMessage(List.of()));
     }
 
     private void assertMessageEquals(TestClassClientRMI receiver, MessageToClient message) {

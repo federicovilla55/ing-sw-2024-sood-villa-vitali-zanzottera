@@ -49,6 +49,8 @@ public class ClientTCPRMITest {
     private TestClassClientRMI client1, client3, client5;
     private TestClassClientTCP client2, client4;
 
+    private ActionParser actionParser1, actionParser2, actionParser3, actionParser4, actionParser5;
+
     @BeforeEach
     public void setUpTest() throws IOException, NotBoundException {
         ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
@@ -57,21 +59,27 @@ public class ClientTCPRMITest {
         registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
 
-        this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client1", new ActionParser());
-        this.client2 = new TestClassClientTCP("client2", new MessageHandler(new ActionParser()), new ActionParser());
-        this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client3", new ActionParser());
-        this.client4 = new TestClassClientTCP("client4", new MessageHandler(new ActionParser()), new ActionParser());
-        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client5", new ActionParser());
+        actionParser1 = new ActionParser("client1");
+        actionParser2 = new ActionParser("client1");
+        actionParser3 = new ActionParser("client1");
+        actionParser4 = new ActionParser("client1");
+        actionParser5 = new ActionParser("client1");
+
+        this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser1),"client1", actionParser1);
+        this.client2 = new TestClassClientTCP("client2", new MessageHandler(actionParser1), actionParser2);
+        this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser3),"client3", actionParser3);
+        this.client4 = new TestClassClientTCP("client4", new MessageHandler(actionParser4), actionParser4);
+        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser5) ,"client5", actionParser5);
         clientsAnchors = new HashMap<>();
     }
 
     @AfterEach
     public void tearDown(){
-        this.client1.disconnect();
-        this.client2.disconnect();
-        this.client3.disconnect();
-        this.client4.disconnect();
-        this.client5.disconnect();
+        this.client1.stopClient();
+        this.client2.stopClient();
+        this.client3.stopClient();
+        this.client4.stopClient();
+        this.client5.stopClient();
         ServerApp.stopRMI();
         ServerApp.stopTCP();
     }
@@ -114,6 +122,12 @@ public class ClientTCPRMITest {
         this.client5.connect();
 
         assertMessageEquals(this.client5, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
+        this.client4.disconnect();
+        this.client5.disconnect();
     }
 
 
@@ -143,6 +157,9 @@ public class ClientTCPRMITest {
         this.client2.createGame("game1", 2);
 
         assertMessageEquals(this.client2, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
     }
 
 
@@ -154,16 +171,13 @@ public class ClientTCPRMITest {
 
         assertMessageEquals(this.client1, new CreatedGameMessage("game3"));
 
-
+        //this.client1.setVirtualMainServer(virtualMainServer);
         this.client2.connect();
-
         this.client2.joinGame("game3");
-
         assertMessageEquals(this.client2, new JoinedGameMessage("game3"));
-
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
-
+        //this.client1.setVirtualMainServer(virtualMainServer);
         this.client3.connect();
 
         this.client3.joinGame("game3");
@@ -171,14 +185,16 @@ public class ClientTCPRMITest {
         assertMessageEquals(this.client3, new JoinedGameMessage("game3"));
         assertMessageEquals(List.of(this.client2, this.client1), new NewPlayerConnectedToGameMessage("client3"));
 
-
         client3.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Message in chat");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage("client3", "Message in chat"));
-
 
         client3.chooseColor(Color.BLUE);
         assertMessageEquals(new ArrayList<>(List.of(this.client3, this.client2, this.client1)), new AcceptedColorMessage("client3", Color.BLUE));
         assertMessageEquals(new ArrayList<>(List.of(this.client2, this.client1)), new AvailableColorsMessage(new ArrayList<>(List.of(Color.GREEN, Color.YELLOW, Color.RED))));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
     }
 
 
@@ -192,6 +208,9 @@ public class ClientTCPRMITest {
         TestClassClientTCP client7 = new TestClassClientTCP(client6.getNickname(), new MessageHandler(new ActionParser()), new ActionParser());
         client7.connect();
         assertMessageEquals(client7, new CreatedPlayerMessage(client7.getNickname()));
+
+        client6.disconnect();
+        client7.disconnect();
     }
 
 
@@ -357,32 +376,30 @@ public class ClientTCPRMITest {
         waitingThread(4000);
 
         assertMessageEquals(List.of(this.client1, this.client2), new DisconnectFromGameMessage("game13"));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
     }
 
 
     @Test
-    public void testPlayerCanJoinFullGame() throws RemoteException {
+    public void testPlayerCanJoinFullGame(){
         this.client1.connect();
-
         this.client1.createGame("game5", 2);
-
         assertMessageEquals(this.client1, new CreatedGameMessage("game5"));
 
-
         this.client2.connect();
-
         this.client2.joinGame("game5");
-
         assertMessageEquals(this.client2, new JoinedGameMessage("game5"));
-
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
-
         this.client3.connect();
-
         this.client3.joinGame("game5");
-
         assertMessageEquals(this.client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
     }
 
 
@@ -425,6 +442,11 @@ public class ClientTCPRMITest {
 
         client3.sendChatMessage(new ArrayList<>(List.of("client3", "client4")), "Message in chat");
         assertMessageEquals(new ArrayList<>(List.of(this.client3, this.client4)), new NotifyChatMessage("client3", "Message in chat"));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
+        this.client4.disconnect();
     }
 
     @Test
@@ -466,6 +488,12 @@ public class ClientTCPRMITest {
         this.client5.connect();
 
         this.client5.joinFirstAvailableGame();
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
+        this.client4.disconnect();
+        this.client5.disconnect();
     }
 
 
@@ -535,6 +563,10 @@ public class ClientTCPRMITest {
         client8.setToken(token8);
         client8.reconnect();
         assertMessageEquals(client8, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        client8.disconnect();
     }
 
 
@@ -581,8 +613,26 @@ public class ClientTCPRMITest {
 
         client2.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage("client2", "Chat message after disconnection!"));
+
+        client6.disconnect();
+        this.client1.disconnect();
+        this.client2.disconnect();
     }
 
+    @Test
+    public void testExitFromGame(){
+        this.client1.connect();
+        this.client2.connect();
+        this.client1.createGame("game11", 3);
+        waitingThread(500);
+        this.client2.joinFirstAvailableGame();
+        this.client1.logoutFromGame();
+        assertMessageEquals(this.client2, new DisconnectedPlayerMessage(this.client1.getNickname()));
+        this.client2.logoutFromGame();
+        this.client3.connect();
+        this.client3.availableGames();
+        assertMessageEquals(this.client3, new AvailableGamesMessage(List.of()));
+    }
 
     @Test
     public void testReconnection() throws RemoteException {
@@ -621,6 +671,10 @@ public class ClientTCPRMITest {
         client7.sendChatMessage(new ArrayList<>(List.of("client2")), "Send chat message after reconnection");
 
         assertMessageEquals(this.client2, new NotifyChatMessage("client1", "Send chat message after reconnection"));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        client7.disconnect();
     }
 
     private void assertMessageEquals(List<CommonClientMethodsForTests> receivers, MessageToClient message) {

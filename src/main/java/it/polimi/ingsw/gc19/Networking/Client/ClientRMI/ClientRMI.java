@@ -168,7 +168,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
     @Override
     public void disconnect() throws RuntimeException{
-        stopSendingHeartbeat();
+        stopClient();
         try {
             this.virtualMainServer.disconnect(this, this.nickname);
         }
@@ -177,8 +177,8 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
 
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/TokenFile" + "_" + this.nickname);
-        if(tokenFile.delete()){
-            System.err.println("Token file deleted...");
+        if(tokenFile.exists() && tokenFile.isFile() && tokenFile.delete()){
+            System.err.println("[TOKEN]: token file deleted.");
         }
     }
 
@@ -186,7 +186,9 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         this.heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
         this.heartbeatScheduler.scheduleAtFixedRate(() -> {
             try {
-                virtualMainServer.heartBeat(this);
+                if(!this.actionParser.isDisconnected()) {
+                    virtualMainServer.heartBeat(this);
+                }
             }
             catch (RemoteException e) {
                 //@TODO: this case can be dangerous because thread have no lock. Skip?
@@ -197,8 +199,12 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
     public void stopSendingHeartbeat() {
         if (heartbeatScheduler != null && !heartbeatScheduler.isShutdown()) {
-            heartbeatScheduler.shutdown();
+            heartbeatScheduler.shutdownNow();
         }
+    }
+
+    public void stopClient(){
+        stopSendingHeartbeat();
     }
 
     @Override
@@ -325,9 +331,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
         synchronized (this.virtualGameServerLock) {
             try {
-                if(this.virtualGameServer != null) {
-                    this.virtualMainServer.requestAvailableGames(this, this.nickname);
-                }
+                this.virtualMainServer.requestAvailableGames(this, this.nickname);
             }
             catch (RemoteException e) {
                 this.actionParser.disconnect();
@@ -343,7 +347,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
             bufferedWriter.write(token);
             bufferedWriter.close();
             if(tokenFile.setReadOnly()){
-                System.err.println("[TOKEN]: token file wrote and set read only.");
+                System.err.println("[TOKEN]: token file written and set read only.");
             }
         }
         catch (IOException ignored){ };

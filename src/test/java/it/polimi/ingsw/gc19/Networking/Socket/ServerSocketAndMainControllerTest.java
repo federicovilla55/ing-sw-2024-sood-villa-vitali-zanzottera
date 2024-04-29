@@ -392,7 +392,7 @@ public class ServerSocketAndMainControllerTest {
     }
 
     @Test
-    public void testFirePlayersAndGames() throws RemoteException {
+    public void testFirePlayersAndGames(){
 
         this.client1.createPlayer();
         this.client2.createPlayer();
