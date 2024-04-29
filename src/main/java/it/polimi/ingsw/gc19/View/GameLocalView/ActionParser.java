@@ -338,6 +338,12 @@ public class ActionParser {
         }
 
         @Override
+        public void nextState(EndGameMessage message) {
+            prevState = new End();
+            viewState = new End();
+        }
+
+        @Override
         public void nextState(OwnAcceptedPickCardFromDeckMessage message){
             viewState = new OtherTurn();
         }
@@ -442,7 +448,11 @@ public class ActionParser {
     }
 
     class OtherTurn extends ClientState {
-        // @todo: maybe otherTurn can be included into a WAIT?
+        @Override
+        public void nextState(EndGameMessage message) {
+            prevState = new End();
+            viewState = new End();
+        }
 
         public void nextState(TurnStateMessage message) {
             if(message.getNick().equals(nickname) &&
