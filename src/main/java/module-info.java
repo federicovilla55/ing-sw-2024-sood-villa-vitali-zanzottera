@@ -53,5 +53,7 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.Networking.Client.ClientRMI;
     opens it.polimi.ingsw.gc19.View.GameLocalView;
     exports it.polimi.ingsw.gc19.View.GameLocalView;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message.Network;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message.Turn;
 
 }

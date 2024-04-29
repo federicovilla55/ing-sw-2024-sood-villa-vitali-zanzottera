@@ -6,10 +6,12 @@ import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
@@ -144,6 +146,50 @@ public class ActionParser {
                     CardOrientation.valueOf(command.get(4)));
             viewState = new Wait();
             prevState = new Place();
+        }
+    }
+
+    public synchronized void handleError(RefusedActionMessage message){
+        switch (message.getErrorType()){
+            case ErrorType.INVALID_CARD_ERROR, ErrorType.INVALID_ANCHOR_ERROR -> {
+                viewState = new Place();
+            }
+            case ErrorType.GENERIC, ErrorType.INVALID_TURN_STATE, ErrorType.INVALID_GAME_STATE -> {
+                if(viewState.getState() == ViewState.WAIT){
+                    viewState = prevState;
+                }
+            }
+            case ErrorType.EMPTY_DECK, ErrorType.EMPTY_TABLE_SLOT -> {
+                viewState = new Pick();
+            }
+            case ErrorType.INVALID_GOAL_CARD_ERROR, ErrorType.COLOR_ALREADY_CHOSEN -> {
+                viewState = new Setup();
+            }
+        }
+    }
+
+    public synchronized void handleError(NetworkHandlingErrorMessage message){
+        System.out.println("errore di rete...");
+        if(message.getError() == NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER || message.getError() == NetworkError.COULD_NOT_RECONNECT){
+            disconnect();
+        }else if (message.getError() == NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER){
+            viewState = new NotPlayer();
+        }
+    }
+
+    public synchronized void handleError(GameHandlingError message){
+        switch (message.getErrorType()){
+            case Error.PLAYER_NAME_ALREADY_IN_USE -> {
+                viewState = new NotPlayer();
+            }
+            case Error.GAME_NOT_FOUND, Error.PLAYER_NOT_IN_GAME, Error.INCORRECT_NUMBER_OF_PLAYERS,
+                    Error.CANNOT_BUILD_GAME, Error.GAME_NAME_ALREADY_IN_USE,
+                    Error.GAME_NOT_ACCESSIBLE, Error.NO_GAMES_FREE_TO_JOIN -> {
+                viewState = new NotGame();
+            }
+            case Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME -> {
+                viewState = new Disconnect();
+            }
         }
     }
 
@@ -359,25 +405,16 @@ public class ActionParser {
         }
 
         @Override
-        public void nextState(RefusedActionMessage message){
-            //@TODO: notify view about the reason of the error
-            viewState = prevState;
-        }
-
-        @Override
         public void nextState(GameHandlingError message){
-            viewState = prevState;
+            handleError(message);
         }
-
         @Override
         public void nextState(NetworkHandlingErrorMessage message){
-            //Messages CLIENT_ALREADY_CONNECTED_TO_SERVER, COULD_NOT_RECONNECT must be managed by
-            //reconnection routine.
-            //Only message can arrive is CLIENT_NOT_REGISTERED_TO_SERVER. In this case we must go
-            //to connection state
-            if(message.getError() == NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER){
-                viewState = new NotPlayer();
-            }
+            handleError(message);
+        }
+        @Override
+        public void nextState(RefusedActionMessage message){
+            handleError(message);
         }
 
         @Override
@@ -399,7 +436,6 @@ public class ActionParser {
 
 
     class Place extends ClientState{
-
         @Override
         public ViewState getState() {
             return ViewState.PLACE;
@@ -409,6 +445,19 @@ public class ActionParser {
         public void nextState(GamePausedMessage message){
             prevState = viewState;
             viewState = new Pause();
+        }
+
+        @Override
+        public void nextState(GameHandlingError message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(NetworkHandlingErrorMessage message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(RefusedActionMessage message){
+            handleError(message);
         }
 
         @Override
@@ -422,10 +471,22 @@ public class ActionParser {
     }
 
     class Pick extends ClientState{
-
         @Override
         public ViewState getState() {
             return ViewState.PICK;
+        }
+
+        @Override
+        public void nextState(GameHandlingError message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(NetworkHandlingErrorMessage message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(RefusedActionMessage message){
+            handleError(message);
         }
 
         @Override
@@ -452,6 +513,19 @@ public class ActionParser {
         public void nextState(EndGameMessage message) {
             prevState = new End();
             viewState = new End();
+        }
+
+        @Override
+        public void nextState(GameHandlingError message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(NetworkHandlingErrorMessage message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(RefusedActionMessage message){
+            handleError(message);
         }
 
         public void nextState(TurnStateMessage message) {
@@ -489,6 +563,20 @@ public class ActionParser {
 
 
         @Override
+        public void nextState(GameHandlingError message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(NetworkHandlingErrorMessage message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(RefusedActionMessage message){
+            handleError(message);
+        }
+
+
+        @Override
         public ViewState getState() {
             return ViewState.DISCONNECT;
         }
@@ -501,6 +589,18 @@ public class ActionParser {
     }
 
     class Pause extends ClientState{
+        @Override
+        public void nextState(GameHandlingError message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(NetworkHandlingErrorMessage message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(RefusedActionMessage message){
+            handleError(message);
+        }
 
         @Override
         public void nextState(GameResumedMessage message) {
@@ -520,7 +620,18 @@ public class ActionParser {
     }
 
     class End extends ClientState{
-
+        @Override
+        public void nextState(GameHandlingError message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(NetworkHandlingErrorMessage message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(RefusedActionMessage message){
+            handleError(message);
+        }
         @Override
         public void nextState(CreatedPlayerMessage message) {
             viewState = new NotGame();

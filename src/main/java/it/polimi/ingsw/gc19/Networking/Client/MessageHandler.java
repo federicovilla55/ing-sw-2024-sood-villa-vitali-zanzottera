@@ -238,6 +238,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     public void visit(DisconnectedPlayerMessage message) {
         // @ todo: your own disconnection?
         this.localModel.setPlayerInactive(message.getRemovedNick());
+        actionParser.viewState.nextState(message);
     }
 
     @Override
@@ -254,16 +255,17 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(GameHandlingError message) {
+        actionParser.viewState.nextState(message);
     }
 
     @Override
-    public void visit(DisconnectFromGameMessage disconnectFromGameMessage) {
-
+    public void visit(DisconnectFromGameMessage message) {
+        actionParser.viewState.nextState(message);
     }
 
     @Override
     public void visit(DisconnectFromServer message) {
-
+        actionParser.viewState.nextState(message);
     }
 
     @Override
