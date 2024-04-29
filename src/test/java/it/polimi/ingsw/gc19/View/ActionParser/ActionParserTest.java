@@ -4,11 +4,11 @@ import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Client.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.ChosenColorMessage;
+import it.polimi.ingsw.gc19.Networking.Client.Message.Action.PickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.PlayerReconnectedToGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
@@ -141,7 +141,6 @@ public class ActionParserTest {
         assertEquals(actionParser2.getState(), ViewState.SETUP);
     }
 
-    @Disabled
     @Test
     public void testSetup(){
         actionParser1.parseAction("create_player(client1)");
@@ -200,6 +199,8 @@ public class ActionParserTest {
 
         assertMessageWithHeaderEquals(this.client1, new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2", "client3", "client4");
 
+        System.out.println("Controllo Client1 PLACE");
+
         actionParser1.viewState.nextState(new StartPlayingGameMessage(this.client1.getNickname()));
         actionParser2.viewState.nextState(new StartPlayingGameMessage(this.client1.getNickname()));
         actionParser3.viewState.nextState(new StartPlayingGameMessage(this.client1.getNickname()));
@@ -226,26 +227,38 @@ public class ActionParserTest {
         assertEquals(actionParser3.getState(), ViewState.OTHERTURN);
         assertEquals(actionParser4.getState(), ViewState.OTHERTURN);
 
-        actionParser2.parseAction("place_card(resource_23, initial_05, UP_RIGHT, DOWN)");
-        assertEquals(actionParser2.getState(), ViewState.WAIT);
-        assertMessageWithHeaderEquals(List.of(this.client2), new TurnStateMessage(this.client2.getNickname(), TurnState.DRAW), "client1", "client2", "client3", "client4");
-        actionParser2.viewState.nextState(new TurnStateMessage(this.client2.getNickname(), TurnState.DRAW));
-        assertEquals(actionParser2.getState(), ViewState.PICK);
+        dummyFirstTurn(client2, actionParser2, PlayableCardType.RESOURCE);
 
+        System.out.println("Dopo la client2 siamo in client1 PLACE?");
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client3.getNickname(), TurnState.PLACE), "client1", "client2", "client3", "client4");
+
+        actionParser1.viewState.nextState(new TurnStateMessage(this.client3.getNickname(), TurnState.PLACE));
+        actionParser2.viewState.nextState(new TurnStateMessage(this.client3.getNickname(), TurnState.PLACE));
+        actionParser3.viewState.nextState(new TurnStateMessage(this.client3.getNickname(), TurnState.PLACE));
+        actionParser4.viewState.nextState(new TurnStateMessage(this.client3.getNickname(), TurnState.PLACE));
+        assertEquals(actionParser1.getState(), ViewState.OTHERTURN);
+        assertEquals(actionParser2.getState(), ViewState.OTHERTURN);
+        assertEquals(actionParser3.getState(), ViewState.PLACE);
+        assertEquals(actionParser4.getState(), ViewState.OTHERTURN);
     }
 
-    @Disabled
     @Test
     public void testDisconnect(){
         actionParser1.parseAction("create_player(client1)");
         assertEquals(actionParser1.getState(), ViewState.WAIT);
-        assertMessageEquals(client1, new CreatedPlayerMessage(client1.getNickname()));
+        MessageToClient message1 = assertMessageEquals(client1, new CreatedPlayerMessage(client1.getNickname()));
+        client1.setToken(((CreatedPlayerMessage) message1).getToken());
+        client1.setNickname(((CreatedPlayerMessage) message1).getNick());
         actionParser1.viewState.nextState(new CreatedPlayerMessage(client1.getNickname()));
         assertEquals(actionParser1.getState(), ViewState.NOTGAME);
 
         actionParser2.parseAction("create_player(client2)");
         assertEquals(actionParser2.getState(), ViewState.WAIT);
-        assertMessageEquals(client2, new CreatedPlayerMessage(client2.getNickname()));
+        MessageToClient message2 = assertMessageEquals(client2, new CreatedPlayerMessage(client2.getNickname()));
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        System.out.println(token2);
+        client2.setToken(token2);
+        client2.setNickname(((CreatedPlayerMessage) message2).getNick());
         actionParser2.viewState.nextState(new CreatedPlayerMessage(client2.getNickname()));
         assertEquals(actionParser2.getState(), ViewState.NOTGAME);
 
@@ -261,6 +274,20 @@ public class ActionParserTest {
         actionParser2.viewState.nextState(new JoinedGameMessage("GAME1"));
         assertEquals(actionParser2.getState(), ViewState.SETUP);
 
+        allPlayersPlacedInitialCard(actionParser1, actionParser2);
+        allPlayersChooseColor(actionParser1, actionParser2);
+        allPlayersChoosePrivateGoal(actionParser1, actionParser2);
+
+        assertMessageWithHeaderEquals(this.client1,  new StartPlayingGameMessage(this.client1.getNickname()), "client1", "client2");
+
+        assertMessageWithHeaderEquals(this.client1, new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
+
+        actionParser1.viewState.nextState(new StartPlayingGameMessage(this.client1.getNickname()));
+        actionParser2.viewState.nextState(new StartPlayingGameMessage(this.client1.getNickname()));
+
+        assertEquals(actionParser1.getState(), ViewState.PLACE);
+        assertEquals(actionParser2.getState(), ViewState.OTHERTURN);
+
         client2.stopSendingHeartbeat();
 
         try {
@@ -270,11 +297,24 @@ public class ActionParserTest {
         }
         assertMessageEquals(client1, new DisconnectedPlayerMessage(this.client2.getNickname()));
 
+        actionParser1.viewState.nextState(new GamePausedMessage());
+        assertEquals(actionParser1.getState(), ViewState.PAUSE);
+
         actionParser2.disconnect();
         assertEquals(actionParser2.getState(), ViewState.DISCONNECT);
 
-        assertMessageEquals(client1, new PlayerReconnectedToGameMessage(this.client2.getNickname()));
-        assertEquals(actionParser2.getState(), ViewState.SETUP);
+        assertMessageEquals(client1, new GamePausedMessage());
+
+        actionParser2.viewState.nextState(new JoinedGameMessage("GAME1"));
+        assertEquals(actionParser2.getState(), ViewState.OTHERTURN);
+
+        assertMessageWithHeaderEquals(client1, new GameResumedMessage(), "client1", "client2");
+        actionParser1.viewState.nextState(new GameResumedMessage());
+        assertEquals(actionParser1.getState(), ViewState.PLACE);
+    }
+
+    public void testEndGame(){
+
     }
 
     @AfterEach
@@ -301,13 +341,16 @@ public class ActionParserTest {
     }
 
 
-    private void assertMessageEquals(List<CommonClientMethodsForTests> receivers, MessageToClient message) {
+    private MessageToClient assertMessageEquals(List<CommonClientMethodsForTests> receivers, MessageToClient message) {
         List<String> receiversName = receivers.stream().map(CommonClientMethodsForTests::getNickname).toList();
         message.setHeader(receiversName);
+        MessageToClient retMessage = null;
         for (CommonClientMethodsForTests receiver : receivers) {
             receiver.waitForMessage(message.getClass());
-            assertEquals(message, receiver.getMessage(message.getClass()));
+            retMessage = receiver.getMessage(message.getClass());
+            assertEquals(message, retMessage);
         }
+        return retMessage;
     }
 
     private void dummyTurn(ClientInterface client, CommonClientMethodsForTests commonAction, PlayableCardType cardType){
@@ -322,6 +365,29 @@ public class ActionParserTest {
         client.pickCardFromDeck(cardType);
     }
 
+    private void dummyFirstTurn(TestClassClientTCP client, ActionParser actionParser, PlayableCardType cardType){
+        client.waitForMessage(OwnStationConfigurationMessage.class);
+        OwnStationConfigurationMessage latestMessage = (OwnStationConfigurationMessage) client.getMessage(OwnStationConfigurationMessage.class);
+
+        clientsAnchors.put(client, latestMessage.getCardsInHand().getFirst());
+        actionParser.parseAction("place_card("+latestMessage.getCardsInHand().getFirst().getCardCode()+
+                                        ", "+ latestMessage.getInitialCard().getCardCode() + ", UP_RIGHT, DOWN)");
+        assertEquals(actionParser.getState(), ViewState.WAIT);
+
+        assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(client.getNickname(), TurnState.DRAW), "client1", "client2", "client3", "client4");
+        actionParser.viewState.nextState(new TurnStateMessage(client.getNickname(), TurnState.DRAW));
+        assertEquals(actionParser.getState(), ViewState.PICK);
+
+        actionParser.parseAction("pick_card_deck(" + cardType.toString() + ")");
+        assertEquals(actionParser.getState(), ViewState.WAIT);
+
+        client.waitForMessage(OwnAcceptedPickCardFromDeckMessage.class);
+        OwnAcceptedPickCardFromDeckMessage pickedCardMessage = (OwnAcceptedPickCardFromDeckMessage) client.getMessage(OwnAcceptedPickCardFromDeckMessage.class);
+        actionParser.viewState.nextState(pickedCardMessage);
+        assertEquals(actionParser.getState(), ViewState.OTHERTURN);
+    }
+
+
     private void dummyFirstPlace(ClientInterface client, CommonClientMethodsForTests commonAction){
         commonAction.waitForMessage(OwnStationConfigurationMessage.class);
         OwnStationConfigurationMessage latestMessage = (OwnStationConfigurationMessage) commonAction.getMessage(OwnStationConfigurationMessage.class);
@@ -330,19 +396,19 @@ public class ActionParserTest {
         clientsAnchors.put(client, latestMessage.getCardsInHand().getFirst());
     }
 
-    private void allPlayersPlacedInitialCard(ClientInterface clientInterface1, ClientInterface clientInterface2){
-        clientInterface1.placeInitialCard(CardOrientation.DOWN);
-        clientInterface2.placeInitialCard(CardOrientation.DOWN);
+    private void allPlayersChooseColor(ActionParser actionParser1, ActionParser actionParser2){
+        actionParser1.parseAction("choose_color(RED)");
+        actionParser2.parseAction("choose_color(GREEN)");
     }
 
-    private void allPlayersChoosePrivateGoal(ClientInterface clientInterface1, ClientInterface clientInterface2){
-        clientInterface1.choosePrivateGoalCard(0);
-        clientInterface2.choosePrivateGoalCard(1);
+    private void allPlayersChoosePrivateGoal(ActionParser actionParser1, ActionParser actionParser2){
+        actionParser1.parseAction("choose_goal(0)");
+        actionParser2.parseAction("choose_goal(1)");
     }
 
-    private void allPlayersChooseColor(ClientInterface clientInterface1, ClientInterface clientInterface2){
-        clientInterface1.chooseColor(Color.RED);
-        clientInterface2.chooseColor(Color.GREEN);
+    private void allPlayersPlacedInitialCard(ActionParser actionParser1, ActionParser actionParser2){
+        actionParser1.parseAction("place_initial_card(DOWN)");
+        actionParser2.parseAction("place_initial_card(DOWN)");
     }
 
     private void dummyTurn(TestClassClientTCP client, CommonClientMethodsForTests commonAction, PlayableCardType cardType){
@@ -355,6 +421,20 @@ public class ActionParserTest {
         dummyFirstPlace(client, commonAction);
         assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getNickname(), TurnState.DRAW));
         client.pickCardFromDeck(cardType);
+    }
+
+    private void dummyTurn(TestClassClientTCP client, ActionParser actionParser, PlayableCardType cardType){
+        AcceptedPickCardMessage latestMessage;
+        do {
+            client.waitForMessage(AcceptedPickCardMessage.class);
+            latestMessage = (AcceptedPickCardMessage) client.getMessage(AcceptedPickCardMessage.class);
+        } while (!latestMessage.getNick().equals(client.getNickname()));
+
+        assertMessageEquals(client, new TurnStateMessage(client.getNickname(), TurnState.PLACE));
+        assertMessageEquals(client, new TurnStateMessage(client.getNickname(), TurnState.DRAW));
+
+        assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getNickname(), TurnState.PLACE));
+
     }
 
     private void dummyPlace(ClientInterface client, CommonClientMethodsForTests commonAction){
@@ -395,9 +475,7 @@ public class ActionParserTest {
     }
 
     private MessageToClient assertMessageEquals(CommonClientMethodsForTests receiver, MessageToClient message) {
-        assertMessageEquals(List.of(receiver), message);
-
-        return message;
+        return assertMessageEquals(List.of(receiver), message);
     }
 
     private void assertMessageEquals(MessageToClient message, CommonClientMethodsForTests... receivers) {
