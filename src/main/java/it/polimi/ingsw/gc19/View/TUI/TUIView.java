@@ -333,7 +333,7 @@ public class TUIView {
         return res;
     }
 
-    public String[][] visibleSymbolsTUIView(Map<Symbol, Integer> visibleSymbols) {
+    private String[][] visibleSymbolsTUIView(Map<Symbol, Integer> visibleSymbols) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[9][1];
         for (String[] strings : res) {

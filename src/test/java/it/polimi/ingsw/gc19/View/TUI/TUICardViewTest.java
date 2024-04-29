@@ -122,25 +122,6 @@ public class TUICardViewTest {
     }
 
     @Test
-    public void testVisibleSymbolsTUIView() {
-        String[][] visibleSymbolsTUIView;
-
-        visibleSymbolsTUIView = tuiView.visibleSymbolsTUIView(
-                Map.of(
-                        Symbol.INSECT, 0,
-                        Symbol.ANIMAL, 1,
-                        Symbol.VEGETABLE, 22,
-                        Symbol.MUSHROOM, 3,
-                        Symbol.INK, 14,
-                        Symbol.SCROLL, 5,
-                        Symbol.FEATHER, 6
-                )
-        );
-
-        tuiView.printTUIView(visibleSymbolsTUIView);
-    }
-
-    @Test
     public void testScoreboardTUIView() {
         String[][] scoreboardTUIView;
 
