@@ -11,10 +11,10 @@ import java.util.Optional;
  */
 @JsonTypeName("symbol")
 public enum Symbol implements Corner {
-    ANIMAL ("\u001b[46;1m", "\uD83D\uDC3A"),
-    VEGETABLE ("\u001b[42;1m", "\uD83C\uDF31"),
-    INSECT ("\u001b[45;1m", "\uD83E\uDD8B"),
     MUSHROOM ("\u001b[41;1m", "\uD83C\uDF44"),
+    VEGETABLE ("\u001b[42;1m", "\uD83C\uDF31"),
+    ANIMAL ("\u001b[46;1m", "\uD83D\uDC3A"),
+    INSECT ("\u001b[45;1m", "\uD83E\uDD8B"),
     INK ("", "✒\uFE0F "),
     FEATHER ("", "\uD83E\uDEB6"),
     SCROLL ("", "\uD83D\uDCDC");

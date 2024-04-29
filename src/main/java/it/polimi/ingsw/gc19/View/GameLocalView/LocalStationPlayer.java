@@ -79,6 +79,10 @@ public abstract class LocalStationPlayer {
         return visibleSymbols;
     }
 
+    public Color getChosenColor() {
+        return chosenColor;
+    }
+
     public void setNumPoints(int numPoints) {
         this.numPoints = numPoints;
     }

@@ -1,17 +1,12 @@
 package it.polimi.ingsw.gc19.View.TUI;
 
-import it.polimi.ingsw.gc19.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Enums.CornerPosition;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Corner;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class TUIView {
 
@@ -114,7 +109,7 @@ public class TUIView {
         return res;
     }
 
-    public String[][] deckSeedTUIView(Symbol deckSeed) {
+    public String[][] cardBackTUIView(Symbol deckSeed) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[3][5];
         for (String[] strings : res) {
@@ -268,7 +263,7 @@ public class TUIView {
         }
         if (resourceDeckSeed != null) {
             // print deck
-            String[][] deckSeedTUIView = deckSeedTUIView(resourceDeckSeed);
+            String[][] deckSeedTUIView = cardBackTUIView(resourceDeckSeed);
             for (int i = 0; i < deckSeedTUIView.length; i++) {
                 for (int j = 0; j < deckSeedTUIView[i].length; j++) {
                     res[2 + i][20 + j] = deckSeedTUIView[i][j];
@@ -292,7 +287,7 @@ public class TUIView {
         }
         if (goldDeckSeed != null) {
             // print deck
-            String[][] deckSeedTUIView = deckSeedTUIView(goldDeckSeed);
+            String[][] deckSeedTUIView = cardBackTUIView(goldDeckSeed);
             for (int i = 0; i < deckSeedTUIView.length; i++) {
                 for (int j = 0; j < deckSeedTUIView[i].length; j++) {
                     res[8 + i][20 + j] = deckSeedTUIView[i][j];
@@ -335,6 +330,67 @@ public class TUIView {
                 strings[i] = strings[i].concat("\u001B[0m");
             }
         }
+        return res;
+    }
+
+    public String[][] visibleSymbolsTUIView(Map<Symbol, Integer> visibleSymbols) {
+        // create matrix of empty strings, each representing a single unicode character to display in console
+        String[][] res = new String[9][1];
+        for (String[] strings : res) {
+            Arrays.fill(strings, "");
+        }
+        res[0][0] = "\t┏━━━━━━━━━━┓\t";
+        for (Symbol s : Symbol.values()) {
+            res[1 + s.ordinal()][0] = "\t┃ " + s.stringEmoji() + "\t" + String.format("%2d", visibleSymbols.get(s)) + " ┃\t";
+        }
+        res[8][0] = "\t┣━━━━━━━━━━┫\t";
+
+        return res;
+    }
+
+    public String[][] scoreboardTUIView(LocalStationPlayer localStationPlayer) {
+        // create matrix of empty strings, each representing a single unicode character to display in console
+        String[][] res = new String[12][1];
+        for (String[] strings : res) {
+            Arrays.fill(strings, "");
+        }
+
+        Optional<Color> color = Optional.ofNullable(localStationPlayer.getChosenColor());
+        res[0][0] = "\t" + color.map(Color::stringColor).orElse("") +
+                String.format("%-18.18s",
+                        String.format("%.17s", localStationPlayer.getOwnerPlayer()) +
+                                ":") +
+                color.map(Color::colorReset).orElse("");
+
+        String[][] visibleSymbolsTUIView = visibleSymbolsTUIView(localStationPlayer.getVisibleSymbols());
+        for (int i = 0; i < visibleSymbolsTUIView.length; i++) {
+            res[1 + i] = visibleSymbolsTUIView[i];
+        }
+
+        res[10][0] = "\t┃ " + "\uD83C\uDFC5" + "\t" + String.format("%2d", localStationPlayer.getNumPoints()) + " ┃\t";
+        res[11][0] = "\t┗━━━━━━━━━━┛\t";
+
+        return res;
+    }
+
+    public String[][] scoreboardTUIView(LocalStationPlayer... localStationPlayer) {
+        // create matrix of empty strings, each representing a single unicode character to display in console
+        String[][] res = new String[12][localStationPlayer.length];
+        for (String[] strings : res) {
+            Arrays.fill(strings, "");
+        }
+
+        int playerIndex = 0;
+        for (LocalStationPlayer lsp : localStationPlayer) {
+            String[][] scoreboardTUIView = scoreboardTUIView(lsp);
+            for (int i = 0; i < scoreboardTUIView.length; i++) {
+                for (int j = 0; j < scoreboardTUIView[i].length; j++) {
+                    res[i][playerIndex] = scoreboardTUIView[i][j];
+                }
+            }
+            playerIndex++;
+        }
+
         return res;
     }
 }
