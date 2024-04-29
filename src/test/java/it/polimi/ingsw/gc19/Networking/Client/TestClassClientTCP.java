@@ -13,8 +13,6 @@ public class TestClassClientTCP extends ClientTCP implements CommonClientMethods
 
     public TestClassClientTCP(String nickname, MessageHandler messageHandler, ActionParser actionParser) throws IOException{
         super(nickname, messageHandler, actionParser);
-
-
     }
 
     @Override

@@ -157,7 +157,7 @@ public class ClientTCP implements ClientInterface {
             catch (ClassNotFoundException ignored){ }
             catch (IOException ioException){
                 //@TODO: what to do in this case?
-                this.actionParser.disconnect();
+                //this.actionParser.disconnect();
             }
 
             if(incomingMessage != null) {
@@ -171,7 +171,6 @@ public class ClientTCP implements ClientInterface {
 
         this.senderThread.interrupt();
         this.receiverThread.interrupt();
-        this.heartbeatScheduler.shutdownNow();
 
         try {
             if (socket != null) {
@@ -189,8 +188,11 @@ public class ClientTCP implements ClientInterface {
         }
 
         this.heartbeatScheduler.scheduleAtFixedRate(() -> {
-            sendMessage(new HeartBeatMessage(this.nickname));
-        }, 0, 400, TimeUnit.MILLISECONDS);
+            if(!this.actionParser.isDisconnected()) {
+                sendMessage(new HeartBeatMessage(this.nickname));
+            }
+        }
+        , 0, 400, TimeUnit.MILLISECONDS);
 
     }
 
@@ -324,7 +326,7 @@ public class ClientTCP implements ClientInterface {
             bufferedWriter.write(token);
             bufferedWriter.close();
             if(tokenFile.setReadOnly()){
-                System.err.println("[TOKEN]: token file updated and set read only.");
+                System.err.println("[TOKEN]: token file written and set read only.");
             }
         }
         catch (IOException ignored){ };
