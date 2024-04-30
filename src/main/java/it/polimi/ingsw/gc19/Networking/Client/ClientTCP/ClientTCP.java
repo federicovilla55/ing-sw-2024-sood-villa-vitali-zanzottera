@@ -284,6 +284,7 @@ public class ClientTCP implements ClientInterface {
         if(tokenFile.isFile() && tokenFile.exists()) {
             try {
                 Scanner tokenScanner = new Scanner(tokenFile);
+                System.out.println("LUNGHEZZA: " + tokenFile.length() + " " + tokenScanner.hasNextLine());
                 token = tokenScanner.nextLine();
                 tokenScanner.close();
             }

@@ -64,11 +64,17 @@ public class ActionParserTest {
 
     @BeforeEach
     public void setUpTest() throws IOException {
-        this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client1", new ActionParser());
-        this.client2 = new TestClassClientTCP("client2", new MessageHandler(new ActionParser()), new ActionParser());
-        this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client3", new ActionParser());
-        this.client4 = new TestClassClientTCP("client4", new MessageHandler(new ActionParser()), new ActionParser());
-        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()) ,"client5", new ActionParser());
+        actionParser1 = new ActionParser();
+        actionParser2 = new ActionParser();
+        actionParser3 = new ActionParser();
+        actionParser4 = new ActionParser();
+        actionParser5 = new ActionParser();
+
+        this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser1),"client1", actionParser1);
+        this.client2 = new TestClassClientTCP("client2", new MessageHandler(actionParser2), actionParser2);
+        this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser3),"client3", actionParser3);
+        this.client4 = new TestClassClientTCP("client4", new MessageHandler(actionParser4), actionParser4);
+        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser5) ,"client5", actionParser5);
         clientsAnchors = new HashMap<>();
 
         this.client1.getMessageHandler().setClient(this.client1);
@@ -76,12 +82,6 @@ public class ActionParserTest {
         this.client3.getMessageHandler().setClient(this.client3);
         this.client4.getMessageHandler().setClient(this.client4);
         this.client5.getMessageHandler().setClient(this.client5);
-
-        actionParser1 = this.client1.getMessageHandler().getActionParser();
-        actionParser2 = this.client2.getMessageHandler().getActionParser();
-        actionParser3 = this.client3.getMessageHandler().getActionParser();
-        actionParser4 = this.client4.getMessageHandler().getActionParser();
-        actionParser5 = this.client5.getMessageHandler().getActionParser();
     }
 
     @Test
@@ -252,6 +252,7 @@ public class ActionParserTest {
         assertEquals(actionParser1.getState(), ViewState.WAIT);
         MessageToClient message1 = assertMessageEquals(client1, new CreatedPlayerMessage(client1.getNickname()));
         client1.setToken(((CreatedPlayerMessage) message1).getToken());
+        System.out.println();
         client1.setNickname(((CreatedPlayerMessage) message1).getNick());
         actionParser1.viewState.nextState(new CreatedPlayerMessage(client1.getNickname()));
         assertEquals(actionParser1.getState(), ViewState.NOTGAME);
@@ -303,6 +304,8 @@ public class ActionParserTest {
 
         assertMessageEquals(client1, new DisconnectedPlayerMessage(this.client2.getNickname()));
 
+        System.out.println("Disoconnected");
+
         actionParser1.viewState.nextState(new GamePausedMessage());
         assertEquals(actionParser1.getState(), ViewState.PAUSE);
 
@@ -313,9 +316,10 @@ public class ActionParserTest {
 
         System.out.println("Fine wait");
         actionParser2.viewState.nextState(new JoinedGameMessage("GAME1"));
+        actionParser2.viewState.nextState(new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE));
         assertEquals(actionParser2.getState(), ViewState.OTHERTURN);
 
-        System.out.println("Fine wait");
+        System.out.println("Now let's see if the game can Resume for client1");
         assertMessageWithHeaderEquals(client1, new GameResumedMessage(), "client1", "client2");
         //assertMessageEquals(client1, new GameResumedMessage());
         System.out.println("Fine wait");

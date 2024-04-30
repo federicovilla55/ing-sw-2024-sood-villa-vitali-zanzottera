@@ -3,12 +3,15 @@ package it.polimi.ingsw.gc19.View.GameLocalView;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
+import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
@@ -39,8 +42,6 @@ public class ActionParser {
     private ClientState prevState;
 
     private ClientInterface clientNetwork;
-
-    private ScheduledExecutorService scheduler;
 
     public ActionParser(){
         viewState = new NotPlayer();
@@ -77,7 +78,6 @@ public class ActionParser {
     public synchronized void disconnect(){
         this.prevState = viewState;
         this.viewState = new Disconnect();
-        scheduler = Executors.newSingleThreadScheduledExecutor();
         this.viewState.parseAction(null);
     }
 
@@ -141,6 +141,7 @@ public class ActionParser {
     public synchronized void placeCard(ArrayList<String> command){
         if(command.size()-1 == Command.PLACECARD.getNumArgs() &&
                 command.getFirst().equals(Command.PLACECARD.getCommandName())){
+            // @todo: is placeable???
             clientNetwork.placeCard(command.get(1), command.get(2),
                     Direction.valueOf(command.get(3)),
                     CardOrientation.valueOf(command.get(4)));
@@ -169,7 +170,6 @@ public class ActionParser {
     }
 
     public synchronized void handleError(NetworkHandlingErrorMessage message){
-        System.out.println("errore di rete...");
         if(message.getError() == NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER || message.getError() == NetworkError.COULD_NOT_RECONNECT){
             disconnect();
         }else if (message.getError() == NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER){
@@ -182,14 +182,13 @@ public class ActionParser {
             case Error.PLAYER_NAME_ALREADY_IN_USE -> {
                 viewState = new NotPlayer();
             }
-            case Error.GAME_NOT_FOUND, Error.PLAYER_NOT_IN_GAME, Error.INCORRECT_NUMBER_OF_PLAYERS,
-                    Error.CANNOT_BUILD_GAME, Error.GAME_NAME_ALREADY_IN_USE,
-                    Error.GAME_NOT_ACCESSIBLE, Error.NO_GAMES_FREE_TO_JOIN -> {
-                viewState = new NotGame();
-            }
             case Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME -> {
                 viewState = new Disconnect();
             }
+            default -> {
+                viewState = new NotGame();
+            }
+
         }
     }
 
@@ -258,12 +257,6 @@ public class ActionParser {
         }
     }
 
-    public synchronized void reconnect(){
-        clientNetwork.reconnect();
-    }
-
-
-
     public static ArrayList<String> commandParser(String command){
         ArrayList<String> commandParsed = new ArrayList<>();
 
@@ -330,8 +323,6 @@ public class ActionParser {
 
     class Setup extends ClientState{
 
-        // error
-
         @Override
         public void nextState(GamePausedMessage message){
             prevState = viewState;
@@ -346,6 +337,22 @@ public class ActionParser {
                 viewState = new OtherTurn();
             }
         }
+
+        @Override
+        public void nextState(GameHandlingError message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(NetworkHandlingErrorMessage message){
+            handleError(message);
+        }
+        @Override
+        public void nextState(RefusedActionMessage message){
+            handleError(message);
+        }
+
+
+
 
         @Override
         public ViewState getState() {
@@ -376,6 +383,8 @@ public class ActionParser {
 
         @Override
         public void nextState(TurnStateMessage message) {
+            //if(prevState.getState() == ViewState.NOTPLAYER || prevState.getState() == ViewState.PAUSE) return;
+
             if(message.getNick().equals(getNickname()) && message.getTurnState() == TurnState.DRAW) {
                 viewState = new Pick();
             }else if(!message.getNick().equals(getNickname())){
@@ -423,6 +432,13 @@ public class ActionParser {
         }
 
         @Override
+        public void nextState(GameConfigurationMessage message){
+            if(message.getGameState() == GameState.SETUP){
+                viewState = new Setup();
+            }
+        }
+
+        @Override
         public ViewState getState() {
             return ViewState.WAIT;
         }
@@ -433,7 +449,6 @@ public class ActionParser {
             sendMessage(command);
         }
     }
-
 
     class Place extends ClientState{
         @Override
@@ -466,7 +481,7 @@ public class ActionParser {
             placeCard(command);
 
             // send_message(...)
-            placeCard(command);
+            sendMessage(command);
         }
     }
 
@@ -554,24 +569,35 @@ public class ActionParser {
     }
 
     class Disconnect extends ClientState{
+        //ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        Thread reconnectScheduler;
+
+        int numReconnect = 0;
+
         @Override
         public void nextState(JoinedGameMessage message) {
-            scheduler.shutdown();
-            viewState = prevState;
-            System.out.println("Riconnesso " + viewState);
+            //scheduler.shutdown();
+            System.out.println("Joined the game " + message.getGameName());
+            reconnectScheduler.interrupt();
+            System.out.println("Thread interrotto...");
+            viewState = new Wait();
         }
 
+        @Override
+        public void nextState(AvailableGamesMessage message) {
+            //scheduler.shutdown();
+            reconnectScheduler.interrupt();
+            viewState = new NotGame();
+        }
 
         @Override
         public void nextState(GameHandlingError message){
+            System.out.println("GameHandlingError " + message.getErrorType());
             handleError(message);
         }
         @Override
         public void nextState(NetworkHandlingErrorMessage message){
-            handleError(message);
-        }
-        @Override
-        public void nextState(RefusedActionMessage message){
+            System.out.println("NetworkError " + message.getError());
             handleError(message);
         }
 
@@ -583,9 +609,39 @@ public class ActionParser {
 
         @Override
         void parseAction(ArrayList<String> command) {
-            scheduler.scheduleAtFixedRate(ActionParser.this::reconnect, 0, 1, TimeUnit.SECONDS);
+            System.out.println("Thread costruito: ");
+            reconnectScheduler = new Thread(this::reconnect);
+            reconnectScheduler.start();
+            System.out.println("Thread start");
         }
 
+        public void reconnect(){
+            while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING && !Thread.currentThread().isInterrupted()){
+                System.out.println("Tentativo reconnect: " + numReconnect);
+                try {
+                    clientNetwork.reconnect();
+                    System.out.println("Richiesta reconnect andata...");
+                } catch (IllegalStateException e) {
+                    // Token file not found...
+                    System.out.println("Token file not found...");
+                    viewState = new NotPlayer();
+                    Thread.currentThread().interrupt();
+                    return;
+                } catch (RuntimeException e) {
+                    System.out.println("RunTimeException..." + e.getMessage());
+                    e.printStackTrace();
+                    numReconnect++;
+                }
+
+                try {
+                    Thread.currentThread().sleep(100/*ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000*/);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+
+        }
     }
 
     class Pause extends ClientState{
@@ -653,5 +709,3 @@ public class ActionParser {
     }
 
 }
-
-
