@@ -1,27 +1,30 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
-import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromServer;
-import it.polimi.ingsw.gc19.Utils.Triplet;
-import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromServer;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Server;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
+import it.polimi.ingsw.gc19.Networking.Client.Settings;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToServer;
-import it.polimi.ingsw.gc19.Controller.MainController;
+import it.polimi.ingsw.gc19.Utils.Triplet;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class is the TCP main server. It extends {@link Server} and implements {@link ObserverMessageToServer<MessageToServer>}.
@@ -41,6 +44,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
     private final ScheduledExecutorService heartBeatTesterExecutor;
     private final ScheduledExecutorService inactiveClientKillerExecutor;
+
     public MainServerTCP(){
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new ConcurrentHashMap<>();
@@ -567,8 +571,14 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
          */
         @Override
         public void visit(HeartBeatMessage message) {
+            ClientHandlerSocket clientHandlerSocket;
+
             if (lastHeartBeatOfClients.containsKey(clientSocket)) {
                 lastHeartBeatOfClients.put(clientSocket, new Date().getTime());
+                synchronized (connectedClients){
+                    clientHandlerSocket = connectedClients.get(clientSocket).x();
+                }
+                clientHandlerSocket.sendMessageToClient(new it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.HeartBeatMessage().setHeader(clientHandlerSocket.getUsername()));
                 synchronized (pendingSocketToKill){
                     pendingSocketToKill.remove(clientSocket);
                 }

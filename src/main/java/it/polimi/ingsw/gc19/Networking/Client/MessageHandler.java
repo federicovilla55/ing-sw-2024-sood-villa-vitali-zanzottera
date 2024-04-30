@@ -57,7 +57,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void run() {
         MessageToClient message;
-        while (!Thread.interrupted()){
+        while (!Thread.currentThread().isInterrupted()){
             synchronized (this.messagesToHandle){
                 while(this.messagesToHandle.isEmpty()){
                     try{

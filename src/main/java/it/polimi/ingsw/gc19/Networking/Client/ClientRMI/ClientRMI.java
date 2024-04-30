@@ -1,20 +1,18 @@
 package it.polimi.ingsw.gc19.Networking.Client.ClientRMI;
 
 import it.polimi.ingsw.gc19.Enums.*;
-import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
-import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
-import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
-import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
+import it.polimi.ingsw.gc19.Networking.Client.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GameResumedMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.rmi.NoSuchObjectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -28,13 +26,17 @@ import java.util.concurrent.TimeUnit;
 /**
  * Represents a client using RMI for communication with the server.
  */
-public class ClientRMI extends UnicastRemoteObject implements VirtualClient, ClientInterface{
+public class ClientRMI extends UnicastRemoteObject implements VirtualClient, ClientInterface, ConfigurableClient {
 
+    private final Registry registry;
     private VirtualMainServer virtualMainServer;
     private VirtualGameServer virtualGameServer;
     private final Object virtualGameServerLock;
+
     private ScheduledExecutorService heartbeatScheduler;
+
     private String nickname;
+
     private final MessageHandler messageHandler;
     private final ActionParser actionParser;
 
@@ -43,7 +45,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         this.nickname = nickname;
 
         try {
-            Registry registry = LocateRegistry.getRegistry("localhost");
+            this.registry = LocateRegistry.getRegistry("localhost");
             virtualMainServer = (VirtualMainServer) registry.lookup(ClientSettings.serverRMIName);
         }
         catch (RemoteException remoteException){
@@ -167,8 +169,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         int numOfTry = 0;
 
         try {
-            Registry registry = LocateRegistry.getRegistry("localhost");
-            virtualMainServer = (VirtualMainServer) registry.lookup(ClientSettings.serverRMIName);
+            virtualMainServer = (VirtualMainServer) this.registry.lookup(ClientSettings.serverRMIName);
 
             while(!Thread.currentThread().isInterrupted() && numOfTry < 10) {
                 try {
@@ -252,6 +253,11 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     }
 
     public void stopClient(){
+        try{
+            UnicastRemoteObject.unexportObject(this.registry, true);
+        }
+        catch (NoSuchObjectException ignored){ };
+
         stopSendingHeartbeat();
     }
 
@@ -417,7 +423,12 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
     @Override
     public void pushUpdate(MessageToClient message) throws RemoteException {
+        if(message instanceof GameResumedMessage) System.out.println("arrivato");
         this.messageHandler.update(message);
     }
 
+    @Override
+    public void configure(String nik, String token) {
+
+    }
 }

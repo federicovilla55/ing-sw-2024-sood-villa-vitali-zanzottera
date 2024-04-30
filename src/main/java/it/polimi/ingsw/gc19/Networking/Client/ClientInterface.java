@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Enums.*;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
 import java.util.*;
@@ -42,5 +43,9 @@ public interface ClientInterface {
 
     String getNickname();
     void logoutFromGame();
+
+    void signalDisconnection();
+
+    void heartBeat();
 
 }

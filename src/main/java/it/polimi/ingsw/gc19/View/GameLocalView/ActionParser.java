@@ -578,7 +578,7 @@ public class ActionParser {
         public void nextState(JoinedGameMessage message) {
             //scheduler.shutdown();
             System.out.println("Joined the game " + message.getGameName());
-            reconnectScheduler.interrupt();
+            //reconnectScheduler.interrupt();
             System.out.println("Thread interrotto...");
             viewState = new Wait();
         }
@@ -586,7 +586,7 @@ public class ActionParser {
         @Override
         public void nextState(AvailableGamesMessage message) {
             //scheduler.shutdown();
-            reconnectScheduler.interrupt();
+            //reconnectScheduler.interrupt();
             viewState = new NotGame();
         }
 
@@ -612,10 +612,11 @@ public class ActionParser {
             System.out.println("Thread costruito: ");
             reconnectScheduler = new Thread(this::reconnect);
             reconnectScheduler.start();
-            System.out.println("Thread start");
+            System.out.println("Thread start " + reconnectScheduler.getName());
         }
 
         public void reconnect(){
+            System.out.println("ok reconnect");
             while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING && !Thread.currentThread().isInterrupted()){
                 System.out.println("Tentativo reconnect: " + numReconnect);
                 try {
@@ -634,7 +635,7 @@ public class ActionParser {
                 }
 
                 try {
-                    Thread.currentThread().sleep(100/*ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000*/);
+                    Thread.currentThread().sleep(2500/*ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000*/);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return;
@@ -707,5 +708,7 @@ public class ActionParser {
             sendMessage(command);
         }
     }
+
+
 
 }

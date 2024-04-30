@@ -27,12 +27,15 @@ public class ClientTCP implements ClientInterface {
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
+    private final Object outputStreamLock;
 
     private String nickname;
     private final MessageHandler messageHandler;
     private final ActionParser actionParser;
 
     private ScheduledExecutorService heartbeatScheduler;
+    private long lastHeartBeatFromServer;
+
     private final Thread senderThread;
     private final Thread receiverThread;
 
@@ -53,6 +56,8 @@ public class ClientTCP implements ClientInterface {
             throw new IOException();
         }
 
+        this.outputStreamLock = new Object();
+
         this.messagesToSend = new ArrayDeque<>();
 
         this.heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
@@ -62,11 +67,6 @@ public class ClientTCP implements ClientInterface {
 
         this.receiverThread.start();
         this.senderThread.start();
-    }
-
-    public ClientTCP(ClientTCP clientTCP) throws IOException{
-        this(clientTCP.nickname, clientTCP.messageHandler, clientTCP.actionParser);
-        this.messagesToSend.addAll(clientTCP.messagesToSend);
     }
 
     private boolean networkDisconnectionRoutine(){
@@ -94,11 +94,12 @@ public class ClientTCP implements ClientInterface {
     }
 
     private boolean send(MessageToServer message){
-        synchronized (this.outputStream) {
+        synchronized (this.outputStreamLock) {
             try {
                 this.outputStream.writeObject(message);
                 this.finalizeSending();
-            } catch (IOException ioException) {
+            }
+            catch (IOException ioException) {
                 return false;
             }
         }
@@ -153,12 +154,9 @@ public class ClientTCP implements ClientInterface {
         while(!Thread.interrupted()) {
             try {
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
+                System.out.println(incomingMessage.getClass());
             }
-            catch (ClassNotFoundException ignored){ }
-            catch (IOException ioException){
-                //@TODO: what to do in this case?
-                //this.actionParser.disconnect();
-            }
+            catch (ClassNotFoundException  | IOException ignored){ }
 
             if(incomingMessage != null) {
                 this.messageHandler.update(incomingMessage);
@@ -245,6 +243,8 @@ public class ClientTCP implements ClientInterface {
     public void reconnect() throws RuntimeException{
         String token = getToken();
 
+        System.out.println("entrato");
+
         int numOfTry = 0;
 
         try{
@@ -252,21 +252,28 @@ public class ClientTCP implements ClientInterface {
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
 
+            System.out.println("thread " + Thread.currentThread().getName());
+
             while(!Thread.currentThread().isInterrupted() && numOfTry < 10){
                 if(!this.send(new ReconnectToServerMessage(this.nickname, token))){
+                    System.err.println("problema");
                     numOfTry++;
                     try{
                         Thread.sleep(250);
                     }
                     catch (InterruptedException interruptedException){
+                        System.err.println("interrupt");
                         Thread.currentThread().interrupt();
                         return;
                     }
                 }
                 else{
+                    System.err.println(token + "   " + this.nickname);
                     return;
                 }
             }
+
+            System.out.println("uscito!!");
 
             if(numOfTry == 10){
                 throw new RuntimeException("Could not send reconnection message to server!");
@@ -277,15 +284,15 @@ public class ClientTCP implements ClientInterface {
         }
     }
 
-    private String getToken() {
+    private String getToken() throws IllegalStateException{
         String token;
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
 
         if(tokenFile.isFile() && tokenFile.exists()) {
             try {
-                Scanner tokenScanner = new Scanner(tokenFile);
-                System.out.println("LUNGHEZZA: " + tokenFile.length() + " " + tokenScanner.hasNextLine());
-                token = tokenScanner.nextLine();
+                BufferedReader tokenScanner = new BufferedReader(new FileReader(tokenFile));
+                //System.out.println("LUNGHEZZA: " + tokenFile.length() + " " + tokenScanner.readLine());
+                token = tokenScanner.readLine();
                 tokenScanner.close();
             }
             catch (IOException ioException) {
