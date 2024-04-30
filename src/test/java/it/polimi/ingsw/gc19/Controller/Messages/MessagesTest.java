@@ -6,6 +6,8 @@ import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
@@ -353,8 +355,12 @@ public class MessagesTest{
 
         //Invalid action on color already taken
         this.player4.chooseColor(Color.BLUE);
+
+        // @info: before was
         //player4 should not receive messages
-        assertNull(player4.getMessage());
+        //assertNull(player4.getMessage());
+        // @info: now
+        assertMessageEquals(player4, new RefusedActionMessage(ErrorType.COLOR_ALREADY_CHOSEN, "The color BLUE was already taken"));
 
         this.player4.chooseColor(Color.RED);
 

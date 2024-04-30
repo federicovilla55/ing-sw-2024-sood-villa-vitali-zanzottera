@@ -179,7 +179,14 @@ public class GameController{
             return;
         }
 
-        if(this.gameAssociated.getPlayerByName(nickname).getColor()==null && this.gameAssociated.getAvailableColors().contains(color)) {
+        if(!this.gameAssociated.getAvailableColors().contains(color)){
+            this.messageFactory.sendMessageToPlayer(nickname,
+                    new RefusedActionMessage(ErrorType.COLOR_ALREADY_CHOSEN, "The color " +
+                            color + " was already taken"));
+            return;
+        }
+
+        if(this.gameAssociated.getPlayerByName(nickname).getColor()==null) {
             this.gameAssociated.getPlayerByName(nickname).setColor(color);
             this.messageFactory.sendMessageToAllGamePlayersExcept(new AvailableColorsMessage(new ArrayList<>(this.gameAssociated.getAvailableColors())), nickname);
         }
