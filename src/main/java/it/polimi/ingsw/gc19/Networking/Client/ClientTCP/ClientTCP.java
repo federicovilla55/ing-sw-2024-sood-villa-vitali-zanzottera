@@ -24,9 +24,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class ClientTCP implements ClientInterface {
-    private final Socket socket;
-    private final ObjectInputStream inputStream;
-    private final ObjectOutputStream outputStream;
+    private Socket socket;
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
 
     private String nickname;
     private final MessageHandler messageHandler;
@@ -243,6 +243,41 @@ public class ClientTCP implements ClientInterface {
 
     @Override
     public void reconnect() throws RuntimeException{
+        String token = getToken();
+
+        int numOfTry = 0;
+
+        try{
+            this.socket = new Socket(ClientSettings.serverIP, ClientSettings.serverTCPPort);
+            this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
+            this.inputStream = new ObjectInputStream(this.socket.getInputStream());
+
+            while(!Thread.currentThread().isInterrupted() && numOfTry < 10){
+                if(!this.send(new ReconnectToServerMessage(this.nickname, token))){
+                    numOfTry++;
+                    try{
+                        Thread.sleep(250);
+                    }
+                    catch (InterruptedException interruptedException){
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+                else{
+                    return;
+                }
+            }
+
+            if(numOfTry == 10){
+                throw new RuntimeException("Could not send reconnection message to server!");
+            }
+        }
+        catch (IOException ioException){
+            throw new RuntimeException("[IOException]: could not start new socket because of " + ioException.getMessage());
+        }
+    }
+
+    private String getToken() {
         String token;
         File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
 
@@ -251,9 +286,6 @@ public class ClientTCP implements ClientInterface {
                 Scanner tokenScanner = new Scanner(tokenFile);
                 token = tokenScanner.nextLine();
                 tokenScanner.close();
-                if(!this.send(new ReconnectToServerMessage(this.nickname, token))){
-                    throw new RuntimeException("Could not send message to server!");
-                }
             }
             catch (IOException ioException) {
                 throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
@@ -262,6 +294,7 @@ public class ClientTCP implements ClientInterface {
         else{
             throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
         }
+        return token;
     }
 
     @Override

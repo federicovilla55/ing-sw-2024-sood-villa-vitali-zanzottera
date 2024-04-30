@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Client.ClientRMI;
 
 import it.polimi.ingsw.gc19.Enums.*;
+import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
@@ -14,7 +15,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -34,9 +38,20 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     private final MessageHandler messageHandler;
     private final ActionParser actionParser;
 
-    public ClientRMI(String nickname, MessageHandler messageHandler, ActionParser actionParser) throws RemoteException {
+    public ClientRMI(String nickname, MessageHandler messageHandler, ActionParser actionParser) throws RuntimeException, RemoteException{
         super();
         this.nickname = nickname;
+
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost");
+            virtualMainServer = (VirtualMainServer) registry.lookup(ClientSettings.serverRMIName);
+        }
+        catch (RemoteException remoteException){
+            throw new RuntimeException("[Remote Exception]: could not locate registry.");
+        }
+        catch (NotBoundException notBoundException){
+            throw new RuntimeException("[Not Bound Exception]: could not lookup on registry.");
+        }
 
         this.virtualGameServer = null;
         this.virtualGameServerLock = new Object();
@@ -122,8 +137,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
     }
 
-    @Override
-    public void reconnect() throws RuntimeException{
+    public String getToken() throws IllegalStateException{
         Scanner tokenScanner;
         String token;
 
@@ -143,13 +157,46 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
             throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
         }
 
-        synchronized (this.virtualGameServerLock) {
-            try {
-                this.virtualGameServer = this.virtualMainServer.reconnect(this, this.nickname, token);
+        return token;
+    }
+
+    @Override
+    public void reconnect() throws RuntimeException{
+        String token = this.getToken();
+
+        int numOfTry = 0;
+
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost");
+            virtualMainServer = (VirtualMainServer) registry.lookup(ClientSettings.serverRMIName);
+
+            while(!Thread.currentThread().isInterrupted() && numOfTry < 10) {
+                try {
+                    this.virtualGameServer = this.virtualMainServer.reconnect(this, this.nickname, token);
+                    return;
+                }
+                catch (RemoteException remoteException){
+                    numOfTry++;
+
+                    try{
+                        Thread.sleep(250);
+                    }
+                    catch (InterruptedException interruptedException){
+                        Thread.currentThread().interrupt(); //This operation can be dangerous?
+                        return;
+                    }
+                }
             }
-            catch (RemoteException e) {
-                throw new RuntimeException("Could not perform reconnection due to Remote Exception:" + e);
+
+            if(numOfTry == 10){
+                throw new RuntimeException("[Remote Exception]: could not invoke remote method of RMI Server.");
             }
+        }
+        catch (NotBoundException e) {
+            throw new RuntimeException("[Not Bound Exception]: could not invoke remote method of RMI Server.");
+        }
+        catch (RemoteException remoteException){
+            throw new RuntimeException("[Remote Exception]: could not invoke remote method of RMI Server.");
         }
     }
 
@@ -168,7 +215,6 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
     @Override
     public void disconnect() throws RuntimeException{
-        stopClient();
         try {
             this.virtualMainServer.disconnect(this, this.nickname);
         }
@@ -180,6 +226,8 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         if(tokenFile.exists() && tokenFile.isFile() && tokenFile.delete()){
             System.err.println("[TOKEN]: token file deleted.");
         }
+
+        stopClient();
     }
 
     public void startSendingHeartbeat(){

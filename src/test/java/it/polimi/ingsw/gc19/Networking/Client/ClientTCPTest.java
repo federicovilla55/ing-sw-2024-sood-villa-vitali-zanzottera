@@ -230,7 +230,7 @@ public class ClientTCPTest {
 
 
     @Test
-    public void testDisconnectionWhileInLobby() throws IOException {
+    public void testDisconnectionWhileInLobby(){
         this.client1.connect();
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message1 = this.client1.getMessage();
@@ -267,13 +267,10 @@ public class ClientTCPTest {
         this.client1.stopSendingHeartbeat();
         waitingThread(5000);
 
-        TestClassClientTCP client8 = new TestClassClientTCP(this.client1.getNickname(), new MessageHandler(new ActionParser()), new ActionParser());
-        client8.reconnect();
-        assertMessageEquals(client8, new AvailableGamesMessage(List.of("game11")));
-        //client1 has disconnected and then connected as client8, so server has closed its previous socket
-        assertThrows(RuntimeException.class, () -> client1.reconnect());
+        this.client1.reconnect();
+        assertMessageEquals(client1, new AvailableGamesMessage(List.of("game11")));
 
-        client8.disconnect();
+        client1.disconnect();
 
         //client8 has disconnected so, it has deleted the token file
         assertThrows(IllegalStateException.class, () -> client1.reconnect());
