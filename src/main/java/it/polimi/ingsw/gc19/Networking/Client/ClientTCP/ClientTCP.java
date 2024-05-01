@@ -8,26 +8,26 @@ import it.polimi.ingsw.gc19.Networking.Client.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
+import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.ClientHeartBeatMessage;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
-import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.HeartBeatMessage;
+import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.HeartBeatManager;
+import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.NetworkManagementInterface;
+import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-public class ClientTCP implements ConfigurableClient, NetworkManagementInterface, ClientInterface {
+public class ClientTCP implements ConfigurableClient, NetworkManagementInterface, GameManagementInterface {
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private final Object outputStreamLock;
 
-    private String nickname;
+    private final String nickname;
     private final MessageHandler messageHandler;
     private final ActionParser actionParser;
 
@@ -150,8 +150,8 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
             }
             catch (ClassNotFoundException  | IOException ignored){ }
 
-            if(incomingMessage != null) {
-                if(incomingMessage instanceof HeartBeatMessage){
+            if(incomingMessage != null && (incomingMessage.getHeader() == null || incomingMessage.getHeader().contains(this.nickname))) {
+                if(incomingMessage instanceof ServerHeartBeatMessage){
                     this.heartBeatManager.heartBeat();
                     return;
                 }
@@ -165,6 +165,10 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
 
         this.senderThread.interrupt();
         this.receiverThread.interrupt();
+
+        synchronized (this.messagesToSend){
+            this.messagesToSend.clear();
+        }
 
         try {
             if (socket != null) {
@@ -188,9 +192,13 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
         return this.messageHandler;
     }
 
+    public String getNickname(){
+        return this.nickname;
+    }
+
     @Override
-    public void connect() {
-        this.sendMessage(new NewUserMessage(this.nickname));
+    public void connect(String nickname) {
+        this.sendMessage(new NewUserMessage(nickname));
     }
 
     @Override
@@ -286,7 +294,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
             throw new RuntimeException("Message could not be sent to server!");
         }
 
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/TokenFile" + "_" + this.nickname);
         if(tokenFile.exists() && tokenFile.exists() && tokenFile.delete()){
             System.err.println("[TOKEN]: token file deleted.");
         }
@@ -296,12 +304,17 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
 
     @Override
     public void signalPossibleNetworkProblem() {
-
+        if(!this.actionParser.isDisconnected()){
+            this.actionParser.disconnect();
+        }
+        this.heartBeatManager.stopHeartBeatManager();
     }
 
     @Override
-    public void sendHeartBeat() {
-
+    public void sendHeartBeat() throws RuntimeException{
+        if(!this.send(new ClientHeartBeatMessage(this.nickname))){
+            throw new RuntimeException("Could not send heart beat message to server!");
+        }
     }
 
     @Override
@@ -347,7 +360,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
     @Override
     public void configure(String nick, String token){
         File configFile;
-        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
+        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(configFile));
             bufferedWriter.write(nick);

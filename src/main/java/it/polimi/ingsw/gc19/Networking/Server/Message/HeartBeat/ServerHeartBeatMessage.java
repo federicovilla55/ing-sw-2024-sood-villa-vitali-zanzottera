@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
-public class HeartBeatMessage extends MessageToClient {
+public class ServerHeartBeatMessage extends MessageToClient {
 
     @Override
     public void accept(MessageToClientVisitor visitor) {

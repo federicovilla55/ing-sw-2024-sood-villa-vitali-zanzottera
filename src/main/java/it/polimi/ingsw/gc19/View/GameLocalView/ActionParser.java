@@ -2,10 +2,7 @@ package it.polimi.ingsw.gc19.View.GameLocalView;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
-import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
-import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -17,20 +14,11 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayer
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 
-import java.io.StringReader;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -109,9 +97,7 @@ public class ActionParser {
             viewState = new Wait();
             prevState = new NotPlayer();
 
-            clientNetwork.setNickname(command.get(1));
-
-            clientNetwork.connect();
+            clientNetwork.connect(command.get(1));
         }
     }
 

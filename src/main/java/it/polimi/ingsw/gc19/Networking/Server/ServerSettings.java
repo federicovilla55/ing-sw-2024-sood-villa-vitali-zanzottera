@@ -1,7 +1,7 @@
-package it.polimi.ingsw.gc19.Networking.Client;
+package it.polimi.ingsw.gc19.Networking.Server;
 
-public class Settings {
-    private static Settings instance;
+public class ServerSettings {
+    private static ServerSettings instance;
     public static final long MAX_DELTA_TIME_BETWEEN_HEARTBEATS = 1;
     public static final long TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 3;
     public static long TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL =  20 * 60;

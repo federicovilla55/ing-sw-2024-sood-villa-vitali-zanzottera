@@ -1,5 +1,6 @@
-package it.polimi.ingsw.gc19.Networking.Client;
+package it.polimi.ingsw.gc19.Networking.Client.Message;
 
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.AllMessageVisitor;

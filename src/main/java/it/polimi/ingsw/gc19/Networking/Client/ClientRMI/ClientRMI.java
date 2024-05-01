@@ -2,8 +2,10 @@ package it.polimi.ingsw.gc19.Networking.Client.ClientRMI;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Networking.Client.*;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GameResumedMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.HeartBeatMessage;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
+import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.HeartBeatManager;
+import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.NetworkManagementInterface;
+import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
@@ -17,21 +19,18 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a client using RMI for communication with the server.
  */
-public class ClientRMI extends UnicastRemoteObject implements VirtualClient, ClientInterface, ConfigurableClient, NetworkManagementInterface {
+public class ClientRMI extends UnicastRemoteObject implements VirtualClient, ConfigurableClient, NetworkManagementInterface, GameManagementInterface {
 
     private final Registry registry;
     private VirtualMainServer virtualMainServer;
     private VirtualGameServer virtualGameServer;
     private final Object virtualGameServerLock;
 
-    private HeartBeatManager heartBeatManager;
+    private final HeartBeatManager heartBeatManager;
 
     private String nickname;
 
@@ -53,6 +52,8 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
             throw new RuntimeException("[Not Bound Exception]: could not lookup on registry.");
         }
 
+        this.heartBeatManager = new HeartBeatManager(this);
+
         this.virtualGameServer = null;
         this.virtualGameServerLock = new Object();
 
@@ -65,7 +66,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     }
 
     @Override
-    public void connect(){
+    public void connect(String nickname){
         if(this.actionParser.isDisconnected()){
             return;
         }
@@ -235,12 +236,12 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     }
 
     @Override
-    public void sendHeartBeat() {
+    public void sendHeartBeat() throws RuntimeException{
         try {
             this.virtualMainServer.heartBeat(this);
         }
         catch (RemoteException remoteException){
-            //@TODO: handle this exception
+            throw new RuntimeException("Could not send heartbeat due to exception: " + remoteException.getClass());
         }
     }
 
@@ -403,11 +404,13 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
     @Override
     public void pushUpdate(MessageToClient message) throws RemoteException {
-        if(message instanceof HeartBeatMessage){ //How to not use instance of? MessageHandler has to open the message
+        if(message instanceof ServerHeartBeatMessage){ //How to not use instance of? MessageHandler has to open the message
             this.heartBeatManager.heartBeat();
             return;
         }
-        this.messageHandler.update(message);
+        if(message.getHeader() == null || message.getHeader().contains(this.nickname)) {
+            this.messageHandler.update(message);
+        }
     }
 
     @Override

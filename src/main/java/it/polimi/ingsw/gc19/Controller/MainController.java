@@ -9,7 +9,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMes
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Client.Settings;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 
 import java.io.IOException;
 import java.util.*;
@@ -87,7 +87,7 @@ public class MainController {
                 }
             }
 
-        }, Settings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION, TimeUnit.SECONDS);
+        }, ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION, TimeUnit.SECONDS);
     }
 
     /**

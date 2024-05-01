@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
@@ -50,13 +51,13 @@ public class ClientRMITest {
 
     @BeforeEach
     public void setUpTest() throws RemoteException, NotBoundException {
-        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
 
-        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
+        ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
         MainServerRMI mainServerRMI = ServerApp.getMainServerRMI();
 
         Registry registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+        virtualMainServer = (VirtualMainServer) registry.lookup(ServerSettings.mainRMIServerName);
 
         MessageHandler messageHandler1 = new MessageHandler(new ActionParser());
         MessageHandler messageHandler2 = new MessageHandler(new ActionParser());
@@ -117,8 +118,8 @@ public class ClientRMITest {
         assertNull(this.client4.getMessage());
 
         //Create new client with other name
-        this.client5.setNickname("client1");
-        this.client5.connect();
+        this.client5.connect("client1");
+        //this.client5.connect();
 
         assertMessageEquals(this.client5, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
     }
@@ -391,7 +392,7 @@ public class ClientRMITest {
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message).getToken();
-        this.client1.setToken(token1);
+        this.client1.configure("client1", token1);
 
         this.client1.createGame("game4", 2);
 
@@ -404,7 +405,7 @@ public class ClientRMITest {
         client2.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message2 = this.client2.getMessage();
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        this.client2.setToken(token2);
+        this.client2.configure("client2", token2);
 
         this.client2.joinGame("game4");
         assertNotNull(this.client2);
@@ -421,7 +422,7 @@ public class ClientRMITest {
         client3.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message3 = this.client3.getMessage();
         String token3 = ((CreatedPlayerMessage) message3).getToken();
-        this.client3.setToken(token3);
+        this.client3.configure("client3", token3);
 
         this.client3.createGame("game7", 2);
 
@@ -432,7 +433,7 @@ public class ClientRMITest {
         client4.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message4 = this.client4.getMessage();
         String token4 = ((CreatedPlayerMessage) message4).getToken();
-        this.client4.setToken(token4);
+        this.client4.configure(client4.getNickname(), token4);
 
         this.client4.joinFirstAvailableGame();
 
@@ -457,13 +458,13 @@ public class ClientRMITest {
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message).getToken();
-        this.client1.setToken(token1);
+        this.client1.configure(client1.getNickname(), token1);
 
         this.client2.connect();
         client2.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message2 = this.client2.getMessage();
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        this.client2.setToken(token2);
+        this.client2.configure(client2.getNickname(), token2);
 
         this.client2.createGame("game11", 2);
 
@@ -515,7 +516,7 @@ public class ClientRMITest {
         client8.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message8 = client8.getMessage();
         String token8 = ((CreatedPlayerMessage) message8).getToken();
-        client8.setToken(token8);
+        client8.configure(client8.getNickname(), token8);
         client8.reconnect();
         assertMessageEquals(client8, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
         client8.disconnect();
@@ -527,7 +528,7 @@ public class ClientRMITest {
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message).getToken();
-        this.client1.setToken(token1);
+        this.client1.configure(client1.getNickname(), token1);
 
         this.client1.createGame("game6", 2);
 
@@ -537,7 +538,7 @@ public class ClientRMITest {
         client2.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message2 = this.client2.getMessage();
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        this.client2.setToken(token2);
+        this.client2.configure(client2.getNickname(), token2);
 
         this.client2.joinGame("game6");
 
@@ -589,8 +590,7 @@ public class ClientRMITest {
         }
 
         TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),this.client1.getNickname(), new ActionParser());
-        client7.setToken(token1);
-        client7.setNickname("client1");
+        client7.configure("client1", token1);
         client7.reconnect();
 
         assertMessageEquals(client7, new JoinedGameMessage("game15"));

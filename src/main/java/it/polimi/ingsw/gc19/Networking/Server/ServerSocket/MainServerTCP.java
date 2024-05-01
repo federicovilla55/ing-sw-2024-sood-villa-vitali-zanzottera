@@ -2,7 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
 import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
+import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.ClientHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
@@ -10,10 +10,11 @@ import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromServer;
+import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Server;
-import it.polimi.ingsw.gc19.Networking.Client.Settings;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToServer;
 import it.polimi.ingsw.gc19.Utils.Triplet;
 import it.polimi.ingsw.gc19.Utils.Tuple;
@@ -55,8 +56,8 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
         this.heartBeatTesterExecutor = new ScheduledThreadPoolExecutor(1);
         this.inactiveClientKillerExecutor = new ScheduledThreadPoolExecutor(1);
-        this.heartBeatTesterExecutor.scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
-        this.inactiveClientKillerExecutor.scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
+        this.heartBeatTesterExecutor.scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
+        this.inactiveClientKillerExecutor.scheduleAtFixedRate(this::runInactiveClientKiller, 0, ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -103,7 +104,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
      */
     @Override
     public boolean accept(MessageToServer message) {
-        return message instanceof GameHandlingMessage || message instanceof HeartBeatMessage;
+        return message instanceof GameHandlingMessage || message instanceof ClientHeartBeatMessage;
     }
 
     /**
@@ -181,7 +182,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
     private void runInactiveClientKiller(){
         synchronized (this.pendingSocketToKill){
             for(Socket socket : this.pendingSocketToKill.keySet()){
-                if(new Date().getTime() - this.pendingSocketToKill.get(socket) > 1000 * Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL){
+                if(new Date().getTime() - this.pendingSocketToKill.get(socket) > 1000 * ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL){
                     disconnectSocket(socket);
                 }
             }
@@ -235,7 +236,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         ArrayList<Socket> socketToRemove = new ArrayList<>();
 
         for (Socket socket : this.lastHeartBeatOfClients.keySet()) {
-            if (new Date().getTime() - this.lastHeartBeatOfClients.get(socket) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
+            if (new Date().getTime() - this.lastHeartBeatOfClients.get(socket) > 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
                 socketToRemove.add(socket);
                 synchronized (this.pendingSocketToKill){
                     pendingSocketToKill.put(socket, new Date().getTime());
@@ -550,7 +551,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
          * @return <code>true</code> if and only if {@param message} can be accepted by this object.
          */
         public boolean canAccept(MessageToServer message){
-            return message instanceof HeartBeatMessage;
+            return message instanceof ClientHeartBeatMessage;
         }
 
         /**
@@ -564,13 +565,13 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         }
 
         /**
-         * This method is used handle a {@link HeartBeatMessage} received from client.
+         * This method is used handle a {@link ClientHeartBeatMessage} received from client.
          * It checks if {@link Socket} is in <code>lastHeartBeatOfClients</code> and if yes,
          * it updates the hashmap. It also removes {@param socket} from <code>pendingSocketToKill</code>
-         * @param message {@link HeartBeatMessage} to handle.
+         * @param message {@link ClientHeartBeatMessage} to handle.
          */
         @Override
-        public void visit(HeartBeatMessage message) {
+        public void visit(ClientHeartBeatMessage message) {
             ClientHandlerSocket clientHandlerSocket;
 
             if (lastHeartBeatOfClients.containsKey(clientSocket)) {
@@ -578,7 +579,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 synchronized (connectedClients){
                     clientHandlerSocket = connectedClients.get(clientSocket).x();
                 }
-                clientHandlerSocket.sendMessageToClient(new it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.HeartBeatMessage().setHeader(clientHandlerSocket.getUsername()));
+                clientHandlerSocket.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerSocket.getUsername()));
                 synchronized (pendingSocketToKill){
                     pendingSocketToKill.remove(clientSocket);
                 }

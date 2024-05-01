@@ -1,10 +1,10 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
 import it.polimi.ingsw.gc19.Controller.MainController;
-import it.polimi.ingsw.gc19.Networking.Client.Settings;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromServer;
-import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.HeartBeatMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.*;
@@ -36,8 +36,8 @@ public class MainServerRMI extends Server implements VirtualMainServer{
 
         this.heartBeatTesterExecutor = new ScheduledThreadPoolExecutor(1);
         this.inactiveClientKillerExecutor = new ScheduledThreadPoolExecutor(1);
-        this.heartBeatTesterExecutor.scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
-        this.inactiveClientKillerExecutor.scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
+        this.heartBeatTesterExecutor.scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
+        this.inactiveClientKillerExecutor.scheduleAtFixedRate(this::runInactiveClientKiller, 0, ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -85,7 +85,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     private void runInactiveClientKiller(){
         synchronized (this.pendingVirtualClientToKill){
             for(VirtualClient client : this.pendingVirtualClientToKill.keySet()){
-                if(new Date().getTime() - this.pendingVirtualClientToKill.get(client) > 1000 * Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL){
+                if(new Date().getTime() - this.pendingVirtualClientToKill.get(client) > 1000 * ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL){
                     if(this.connectedClients.containsKey(client)){
                         connectedClients.get(client).x().interrupt();
                         this.mainController.disconnect(this.connectedClients.remove(client).x());
@@ -360,7 +360,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     protected void runHeartBeatTesterForClient(){
         String playerName;
         for (VirtualClient virtualClient : this.lastHeartBeatOfClients.keySet()) {
-            if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
+            if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
                 this.lastHeartBeatOfClients.remove(virtualClient);
                 synchronized (this.connectedClients) {
                     playerName = this.connectedClients.get(virtualClient).x().getUsername();
@@ -393,7 +393,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
                 this.pendingVirtualClientToKill.remove(virtualClient);
             }
 
-            clientHandlerRMI.sendMessageToClient(new HeartBeatMessage().setHeader(clientHandlerRMI.getUsername()));
+            clientHandlerRMI.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerRMI.getUsername()));
         }
     }
 

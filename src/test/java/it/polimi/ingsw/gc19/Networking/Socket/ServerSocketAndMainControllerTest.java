@@ -5,7 +5,7 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
+import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.ClientHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
@@ -21,7 +21,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Client.Settings;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -41,8 +41,8 @@ public class ServerSocketAndMainControllerTest {
 
     @BeforeEach
     public void setUp(){
-        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
-        ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
+        ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
         this.client1 = new Client("client1");
         this.client2 = new Client("client2");
         this.client3 = new Client("client3");
@@ -68,7 +68,7 @@ public class ServerSocketAndMainControllerTest {
 
         ServerApp.stopTCP();
 
-        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 60 * 20;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 60 * 20;
     }
 
     private static ArrayList<Client> overloadTest(int numberOfClients){
@@ -699,7 +699,7 @@ public class ServerSocketAndMainControllerTest {
 
     @Test
     public void testInactiveClientKiller(){
-        System.out.println(Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL);
+        System.out.println(ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL);
         client1.createPlayer();
         waitingThread(500);
         client1.stopSendingHeartBeat();
@@ -878,7 +878,7 @@ class Client{
 
     public Client(String name){
         try{
-            this.socket = new Socket(Settings.DEFAULT_SERVER_IP, Settings.DEFAULT_TCP_SERVER_PORT);
+            this.socket = new Socket(ServerSettings.DEFAULT_SERVER_IP, ServerSettings.DEFAULT_TCP_SERVER_PORT);
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         } catch (IOException e) {
@@ -944,7 +944,7 @@ class Client{
 
     private synchronized void heartBeat() {
         if (this.sendHeartBeat && !Thread.interrupted()) {
-            this.sendMessage(new HeartBeatMessage(this.name));
+            this.sendMessage(new ClientHeartBeatMessage(this.name));
         }
     }
 

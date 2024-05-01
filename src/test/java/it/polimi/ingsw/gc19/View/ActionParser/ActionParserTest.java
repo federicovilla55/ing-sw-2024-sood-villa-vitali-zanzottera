@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.View.ActionParser;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Client.*;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
@@ -20,7 +21,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
-import it.polimi.ingsw.gc19.Networking.Client.Settings;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import it.polimi.ingsw.gc19.View.GameLocalView.ViewState;
 import org.junit.jupiter.api.*;
@@ -52,11 +53,11 @@ public class ActionParserTest {
 
     @BeforeAll
     public static void setUpServer() throws IOException, NotBoundException {
-        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
-        ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
+        ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
+        ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
         mainServerRMI = ServerApp.getMainServerRMI();
         registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+        virtualMainServer = (VirtualMainServer) registry.lookup(ServerSettings.mainRMIServerName);
     }
 
     @BeforeEach
@@ -67,7 +68,7 @@ public class ActionParserTest {
         actionParser4 = new ActionParser();
         actionParser5 = new ActionParser();
 
-        this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser1),"client1", actionParser1);
+        this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser1), "client1", actionParser1);
         this.client2 = new TestClassClientTCP("client2", new MessageHandler(actionParser2), actionParser2);
         this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser3),"client3", actionParser3);
         this.client4 = new TestClassClientTCP("client4", new MessageHandler(actionParser4), actionParser4);
