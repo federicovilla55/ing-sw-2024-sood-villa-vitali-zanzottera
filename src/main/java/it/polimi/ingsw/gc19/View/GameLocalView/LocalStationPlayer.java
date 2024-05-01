@@ -109,6 +109,10 @@ public abstract class LocalStationPlayer {
         return new Tuple<>(-1, -1);
     }
 
+    public List<Tuple<PlayableCard, Tuple<Integer,Integer>>> getPlacedCardSequence(){
+        return this.placedCardSequence;
+    }
+
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard cardToPlace, Direction direction){
         return true;
     }

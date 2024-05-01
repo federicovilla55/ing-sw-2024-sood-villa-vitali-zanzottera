@@ -29,8 +29,10 @@ public class LocalModel {
     private final Object lockTable;
     private final Object lockPersonal;
     private final Object lockOther;
-
     private int numPlayers;
+
+    private final ConcurrentHashMap<String, PlayableCard> previousPlayableCards;
+    private final ConcurrentHashMap<String, GoalCard> previousGoalCards;
 
     private List<Color> availableColors;
 
@@ -40,15 +42,45 @@ public class LocalModel {
         personalStation = null;
         otherStations = new ConcurrentHashMap<>();
         otherPlayerState = new ConcurrentHashMap<>();
+        previousPlayableCards = new ConcurrentHashMap<>();
+        previousGoalCards = new ConcurrentHashMap<>();
         lockTable = new Object();
         lockPersonal = new Object();
         lockOther = new Object();
+
         messages = new ArrayList<>();
     }
 
     public void setPersonalStation(PersonalStation localStation) {
         synchronized (this.lockPersonal) {
             this.personalStation = localStation;
+        }
+        synchronized (previousGoalCards){
+            GoalCard goalCard = localStation.getPrivateGoalCardInStation();
+            if(goalCard != null) {
+                previousGoalCards.put(goalCard.getCardCode(), goalCard);
+            }
+            GoalCard[] goalCards = localStation.getPrivateGoalCardsInStation();
+            if(goalCards[0] != null && goalCards[1] != null){
+                previousGoalCards.put(goalCards[0].getCardCode(), goalCards[0]);
+                previousGoalCards.put(goalCards[1].getCardCode(), goalCards[1]);
+            }
+        }
+        synchronized (previousPlayableCards){
+            for(PlayableCard card : localStation.getCardsInHand()){
+                previousPlayableCards.put(card.getCardCode(), card);
+            }
+        }
+        this.addCardsFromStationToMap(localStation);
+    }
+
+    public void addCardsFromStationToMap(LocalStationPlayer station){
+        synchronized (previousPlayableCards){
+            for(Tuple<PlayableCard, Tuple<Integer, Integer>> cardAndPos : station.getPlacedCardSequence()){
+                PlayableCard card = cardAndPos.x();
+
+                previousPlayableCards.put(card.getCardCode(), card);
+            }
         }
     }
 
@@ -154,7 +186,7 @@ public class LocalModel {
         }
     }
 
-    public boolean isCardPlaceablePersonalStation(PlayableCard anchor, PlayableCard cardToPlace, Direction direction){
+    public boolean isCardPlaceablePersonalStation(PlayableCard cardToPlace, PlayableCard anchor, Direction direction){
         synchronized (this.lockPersonal) {
             return this.personalStation.cardIsPlaceable(anchor, cardToPlace, direction);
         }
@@ -168,20 +200,24 @@ public class LocalModel {
 
     public void updateCardsInTable(PlayableCard playableCard, PlayableCardType playableCardType, int position){
         synchronized (this.lockTable) {
-            if (playableCard.getCardType() == PlayableCardType.GOLD) {
+            if (playableCardType == PlayableCardType.GOLD) {
                 if (position == 0) {
                     this.table.setGold1(playableCard);
                 } else {
                     this.table.setGold2(playableCard);
                 }
             }
-            if (playableCard.getCardType() == PlayableCardType.RESOURCE) {
+            if (playableCardType == PlayableCardType.RESOURCE) {
                 if (position == 0) {
                     this.table.setResource1(playableCard);
                 } else {
                     this.table.setResource2(playableCard);
                 }
             }
+        }
+
+        synchronized (previousPlayableCards){
+            previousPlayableCards.put(playableCard.getCardCode(), playableCard);
         }
     }
 
@@ -194,6 +230,22 @@ public class LocalModel {
     public void setTable(LocalTable table) {
         synchronized (this.lockTable) {
             this.table = table;
+        }
+        synchronized (previousGoalCards){
+            GoalCard[] goalCards = {table.getPublicGoal1(), table.getPublicGoal2()};
+            for (GoalCard goalCard : goalCards) {
+                previousGoalCards.put(goalCard.getCardCode(), goalCard);
+            }
+        }
+
+        synchronized (previousPlayableCards){
+            PlayableCard[] resources = {table.getResource1(), table.getResource2(), table.getGold1(), table.getGold2()};
+            for (PlayableCard card : resources) {
+                if (card != null) {
+                    previousPlayableCards.put(card.getCardCode(), card);
+                }
+            }
+
         }
     }
 
@@ -244,6 +296,18 @@ public class LocalModel {
     public ArrayList<Message> getMessages() {
         synchronized (this.messages) {
             return messages;
+        }
+    }
+
+    public GoalCard getGoalCard(String cardCode){
+        synchronized (this.previousGoalCards){
+            return previousGoalCards.get(cardCode);
+        }
+    }
+
+    public PlayableCard getPlayableCard(String cardCode){
+        synchronized (this.previousPlayableCards){
+            return previousPlayableCards.get(cardCode);
         }
     }
 

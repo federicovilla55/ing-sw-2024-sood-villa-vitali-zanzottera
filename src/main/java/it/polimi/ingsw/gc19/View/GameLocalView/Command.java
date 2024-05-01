@@ -26,11 +26,6 @@ public enum Command {
 
     CHOOSEPRIVATEGOAL("choose_goal", 1);
 
-    // @todo: do I have to add a reconnect message or is all
-    // automatically handled?
-
-
-
     private final String commandName;
     private final int numArgs;
     Command(String commandName, int numArgs){

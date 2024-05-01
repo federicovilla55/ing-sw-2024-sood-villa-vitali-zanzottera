@@ -15,7 +15,6 @@ public class PersonalStation extends LocalStationPlayer {
     private final ArrayList<PlayableCard> cardsInHand;
     private Integer privateGoalCardIdx;
     private GoalCard privateGoalCardInStation;
-
     private final GoalCard[] privateGoalCardsInStation;
 
     public PersonalStation(String nicknameOwner, GoalCard privateGoalCardInStation1, GoalCard privateGoalCardInStation2){
@@ -111,5 +110,9 @@ public class PersonalStation extends LocalStationPlayer {
 
     public GoalCard getPrivateGoalCardInStation() {
         return privateGoalCardInStation;
+    }
+
+    public GoalCard[] getPrivateGoalCardsInStation() {
+        return privateGoalCardsInStation;
     }
 }

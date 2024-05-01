@@ -35,11 +35,11 @@ public class ServerApp {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Here yuo can start TCP and RMI server... \n");
-        System.out.println("Insert port for  (or 'default'): ");
+        System.out.println("Insert port for RMI (or 'default'): ");
 
         while(!validPort){
             String portRMI = scanner.nextLine();
-            if(portRMI.equals("default")){
+            if(portRMI.equals("default") || portRMI.equals("\n")){
                 validPort = true;
             }
             else{
@@ -58,12 +58,13 @@ public class ServerApp {
             }
         }
         System.out.println("Starting RMI on IP " + ServerSettings.DEFAULT_SERVER_IP + " and port " + validPort + "... \n");
+        System.out.println("Insert port for TCP (or 'default'): ");
         startRMI(RMIPort);
 
         validPort = false;
         while(!validPort){
             String portRMI = scanner.nextLine();
-            if(portRMI.equals("default")){
+            if(portRMI.equals("default") || portRMI.equals("\n")){
                 validPort = true;
             }
             else{
