@@ -55,6 +55,11 @@ public class GameController{
     private final Game gameAssociated;
 
     /**
+     * The value contains the number of clients currently connected.
+     */
+    private int numConnectedClients;
+
+    /**
      * This constructor creates a GameController to manage a game
      * @param gameAssociated the game managed by the controller
      */
@@ -73,6 +78,7 @@ public class GameController{
         gameAssociated.setMessageFactory(this.messageFactory);
         this.connectedClients = new HashMap<>();
         this.timeout = timeout;
+        this.numConnectedClients = 0;
     }
 
     public Game getGameAssociated() {
@@ -125,6 +131,7 @@ public class GameController{
                 clientHandler.setGameController(this);
                 messageFactory.attachObserver(nickname, clientHandler);
                 this.gameAssociated.createNewPlayer(nickname);
+                this.numConnectedClients++;
             }
         }
     }
@@ -137,6 +144,7 @@ public class GameController{
         ClientHandler clientHandlerToRemove = this.connectedClients.remove(nickname);
         if(clientHandlerToRemove != null) {
             clientHandlerToRemove.setGameController(null);
+            this.numConnectedClients--;
             this.messageFactory.removeObserver(nickname);
             this.messageFactory.sendMessageToAllGamePlayers(new DisconnectedPlayerMessage(nickname));
             if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)){
@@ -482,6 +490,10 @@ public class GameController{
             return;
         }
         this.gameAssociated.getChat().pushMessage(new Message(message, senderNick, receivers));
+    }
+
+    public synchronized int getNumConnectedClients(){
+        return this.numConnectedClients;
     }
 
 }

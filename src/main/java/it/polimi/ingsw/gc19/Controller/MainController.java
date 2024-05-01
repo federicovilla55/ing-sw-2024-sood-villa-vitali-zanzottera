@@ -360,7 +360,7 @@ public class MainController {
             return this.gamesInfo.entrySet()
                                  .stream()
                                  .filter(e -> e.getValue().getGameAssociated().getGameState() == GameState.SETUP &&
-                                         e.getValue().getGameAssociated().getNumPlayers() != e.getValue().getGameAssociated().getNumJoinedPlayer())
+                                         e.getValue().getGameAssociated().getNumPlayers() != e.getValue().getNumConnectedClients())
                                  .map(Map.Entry::getKey)
                                  .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         }
