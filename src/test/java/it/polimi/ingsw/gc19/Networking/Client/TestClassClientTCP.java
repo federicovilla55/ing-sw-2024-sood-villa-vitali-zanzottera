@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.JoinGameMessage;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
@@ -9,10 +10,10 @@ import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 
 import java.io.IOException;
 
-public class TestClassClientTCP extends ClientTCP implements CommonClientMethodsForTests{
+public class TestClassClientTCP extends ClientTCP implements CommonClientMethodsForTests, ClientInterface{
 
-    public TestClassClientTCP(String nickname, MessageHandler messageHandler, ActionParser actionParser) throws IOException{
-        super(nickname, messageHandler, actionParser);
+    public TestClassClientTCP(MessageHandler messageHandler, ActionParser actionParser) throws IOException{
+        super(messageHandler, actionParser);
     }
 
     @Override

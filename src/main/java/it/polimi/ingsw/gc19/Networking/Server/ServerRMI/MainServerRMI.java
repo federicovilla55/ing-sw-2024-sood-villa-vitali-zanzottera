@@ -1,8 +1,10 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 
 import it.polimi.ingsw.gc19.Controller.MainController;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromServer;
+import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.*;
@@ -34,8 +36,8 @@ public class MainServerRMI extends Server implements VirtualMainServer{
 
         this.heartBeatTesterExecutor = new ScheduledThreadPoolExecutor(1);
         this.inactiveClientKillerExecutor = new ScheduledThreadPoolExecutor(1);
-        this.heartBeatTesterExecutor.scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
-        this.inactiveClientKillerExecutor.scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
+        this.heartBeatTesterExecutor.scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
+        this.inactiveClientKillerExecutor.scheduleAtFixedRate(this::runInactiveClientKiller, 0, ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -83,7 +85,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     private void runInactiveClientKiller(){
         synchronized (this.pendingVirtualClientToKill){
             for(VirtualClient client : this.pendingVirtualClientToKill.keySet()){
-                if(new Date().getTime() - this.pendingVirtualClientToKill.get(client) > 1000 * Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL){
+                if(new Date().getTime() - this.pendingVirtualClientToKill.get(client) > 1000 * ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL){
                     if(this.connectedClients.containsKey(client)){
                         connectedClients.get(client).x().interrupt();
                         this.mainController.disconnect(this.connectedClients.remove(client).x());
@@ -262,17 +264,17 @@ public class MainServerRMI extends Server implements VirtualMainServer{
         VirtualClient clientRMIBefore = null;
         ClientHandlerRMI clientHandlerRMI = null;
         boolean found = false;
-        if(this.lastHeartBeatOfClients.containsKey(clientRMI)){
+
+        if(this.mainController.isPlayerActive(nickName)){ //Maybe problems here?
             clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,
                                                        "You cannot reconnect to server because you are already connected!")
                                          .setHeader(nickName));
             return null;
         }
 
-
         synchronized (this.connectedClients) {
             for (var v : this.connectedClients.entrySet()) {
-                if (v.getValue().y().equals(token)) {
+                if (v.getValue().y().equals(token) && v.getValue().x().getUsername().equals(nickName)) { //For tests if problems check this
                     clientRMIBefore = v.getKey();
                     v.getValue().x().interruptClientHandler();
                     clientHandlerRMI = new ClientHandlerRMI(clientRMI, v.getValue().x());
@@ -324,7 +326,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
      * This method disconnects one client from the RMI server. Client must explicitly tell to server that
      * he wants to be disconnected. It removes {@param clientRMI} from both <code>connectedClients</code>
      * and <code>lastHeartBeatOfClients</code>. Finally, it tells to {@link MainController} to disconnect
-     * the player and and send to player a {@link DisconnectFromServer}.
+     * the player and send to player a {@link DisconnectFromServer}.
      * @param clientRMI virtual client of the player who wants to be disconnected
      * @throws RemoteException exception thrown if something goes wrong
      */
@@ -358,7 +360,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     protected void runHeartBeatTesterForClient(){
         String playerName;
         for (VirtualClient virtualClient : this.lastHeartBeatOfClients.keySet()) {
-            if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
+            if (new Date().getTime() - this.lastHeartBeatOfClients.get(virtualClient) > 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
                 this.lastHeartBeatOfClients.remove(virtualClient);
                 synchronized (this.connectedClients) {
                     playerName = this.connectedClients.get(virtualClient).x().getUsername();
@@ -379,11 +381,19 @@ public class MainServerRMI extends Server implements VirtualMainServer{
      */
     @Override
     public void heartBeat(VirtualClient virtualClient) throws RemoteException{
+        ClientHandlerRMI clientHandlerRMI;
         if(this.lastHeartBeatOfClients.containsKey(virtualClient)) {
             this.lastHeartBeatOfClients.put(virtualClient, new Date().getTime());
+
+            synchronized (this.connectedClients){
+                clientHandlerRMI = this.connectedClients.get(virtualClient).x();
+            }
+
             synchronized (this.pendingVirtualClientToKill){
                 this.pendingVirtualClientToKill.remove(virtualClient);
             }
+
+            clientHandlerRMI.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerRMI.getUsername()));
         }
     }
 

@@ -1,5 +1,6 @@
-package it.polimi.ingsw.gc19.Networking.Client;
+package it.polimi.ingsw.gc19.Networking.Client.Message;
 
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.AllMessageVisitor;
@@ -57,7 +58,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void run() {
         MessageToClient message;
-        while (!Thread.interrupted()){
+        while (!Thread.currentThread().isInterrupted()){
             synchronized (this.messagesToHandle){
                 while(this.messagesToHandle.isEmpty()){
                     try{
@@ -82,7 +83,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     @Override
-    public void visit(AcceptedChooseGoalCard message) {
+    public void visit(AcceptedChooseGoalCardMessage message) {
         this.localModel.setPrivateGoal(message.getGoalCard());
     }
 
@@ -228,8 +229,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(CreatedPlayerMessage message) {
-        this.client.setNickname(message.getNick());
-        this.client.setToken(message.getToken());
+        this.client.configure(message.getNick(), message.getToken());
         this.localModel.setNickname(message.getNick());
         actionParser.viewState.nextState(message);
     }

@@ -4,42 +4,42 @@ import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
-import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
+import it.polimi.ingsw.gc19.Networking.Client.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
+import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.ClientHeartBeatMessage;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
-import it.polimi.ingsw.gc19.Networking.Client.MessageHandler;
+import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.HeartBeatManager;
+import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.NetworkManagementInterface;
+import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ClientTCP implements ClientInterface {
+public class ClientTCP implements ConfigurableClient, NetworkManagementInterface, GameManagementInterface {
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
+    private final Object outputStreamLock;
 
     private String nickname;
     private final MessageHandler messageHandler;
     private final ActionParser actionParser;
 
-    private ScheduledExecutorService heartbeatScheduler;
+    private final HeartBeatManager heartBeatManager;
+
     private final Thread senderThread;
     private final Thread receiverThread;
 
     private final Deque<MessageToServer> messagesToSend;
 
-    public ClientTCP(String nickname, MessageHandler messageHandler, ActionParser actionParser) throws IOException{
-        this.nickname = nickname;
+    public ClientTCP(MessageHandler messageHandler, ActionParser actionParser) throws IOException{
         this.messageHandler = messageHandler;
         this.actionParser = actionParser;
 
@@ -53,52 +53,25 @@ public class ClientTCP implements ClientInterface {
             throw new IOException();
         }
 
+        this.outputStreamLock = new Object();
+
         this.messagesToSend = new ArrayDeque<>();
 
-        this.heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
-        this.startSendingHeartbeat();
+        this.heartBeatManager = new HeartBeatManager(this);
+
         this.receiverThread = new Thread(this::receiveMessages);
         this.senderThread = new Thread(this::sendMessageToServer);
-
         this.receiverThread.start();
         this.senderThread.start();
     }
 
-    public ClientTCP(ClientTCP clientTCP) throws IOException{
-        this(clientTCP.nickname, clientTCP.messageHandler, clientTCP.actionParser);
-        this.messagesToSend.addAll(clientTCP.messagesToSend);
-    }
-
-    private boolean networkDisconnectionRoutine(){
-        boolean sent = false;
-        long startingTime = new Date().getTime();
-
-        while(!Thread.interrupted() && !sent && new Date().getTime() - startingTime < 1000 * ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION){
-            try{
-                this.outputStream.writeObject(new HeartBeatMessage(this.nickname));
-                finalizeSending();
-                sent = true;
-            }
-            catch (IOException ioException){
-                try{
-                    Thread.sleep(20);
-                }
-                catch (InterruptedException interruptedException){
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
-        }
-
-        return sent;
-    }
-
     private boolean send(MessageToServer message){
-        synchronized (this.outputStream) {
+        synchronized (this.outputStreamLock) {
             try {
                 this.outputStream.writeObject(message);
                 this.finalizeSending();
-            } catch (IOException ioException) {
+            }
+            catch (IOException ioException) {
                 return false;
             }
         }
@@ -123,14 +96,11 @@ public class ClientTCP implements ClientInterface {
                 }
 
                 if (message != null && !send(message)) {
-                    if (!this.networkDisconnectionRoutine()) {
-                        this.actionParser.disconnect();
+                    synchronized (this.messagesToSend) {
+                        this.messagesToSend.clear();
                     }
-                    else {
-                        synchronized (this.messagesToSend) {
-                            this.messagesToSend.addFirst(message);
-                        }
-                    }
+                    System.out.println("calleddddddddddddddddddddddd");
+                    this.actionParser.disconnect();
                 }
             }
         }
@@ -150,27 +120,32 @@ public class ClientTCP implements ClientInterface {
 
     public void receiveMessages(){
         MessageToClient incomingMessage = null;
-        while(!Thread.interrupted()) {
+        while(!Thread.currentThread().isInterrupted()) {
             try {
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
             }
-            catch (ClassNotFoundException ignored){ }
-            catch (IOException ioException){
-                //@TODO: what to do in this case?
-                //this.actionParser.disconnect();
-            }
+            catch (ClassNotFoundException  | IOException ignored){ }
 
-            if(incomingMessage != null) {
-                this.messageHandler.update(incomingMessage);
+            if(incomingMessage != null && (this.nickname == null || incomingMessage.getHeader() == null || incomingMessage.getHeader().contains(this.nickname))) {
+                if(incomingMessage instanceof ServerHeartBeatMessage){
+                    this.heartBeatManager.heartBeat();
+                }
+                else {
+                    this.messageHandler.update(incomingMessage);
+                }
             }
         }
     }
 
     public void stopClient(){
-        stopSendingHeartbeat();
+        this.heartBeatManager.stopHeartBeatManager();
 
         this.senderThread.interrupt();
         this.receiverThread.interrupt();
+
+        synchronized (this.messagesToSend){
+            this.messagesToSend.clear();
+        }
 
         try {
             if (socket != null) {
@@ -183,32 +158,25 @@ public class ClientTCP implements ClientInterface {
     }
 
     public void startSendingHeartbeat(){
-        if(this.heartbeatScheduler.isShutdown()) {
-            this.heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
-        }
-
-        this.heartbeatScheduler.scheduleAtFixedRate(() -> {
-            if(!this.actionParser.isDisconnected()) {
-                sendMessage(new HeartBeatMessage(this.nickname));
-            }
-        }
-        , 0, 400, TimeUnit.MILLISECONDS);
-
+        this.heartBeatManager.startHeartBeatManager();
     }
 
     public void stopSendingHeartbeat() {
-        if (heartbeatScheduler != null && !heartbeatScheduler.isShutdown()) {
-            heartbeatScheduler.shutdownNow();
-        }
+        this.heartBeatManager.stopHeartBeatManager();
     }
 
     public MessageHandler getMessageHandler() {
         return this.messageHandler;
     }
 
+    public String getNickname(){
+        return this.nickname;
+    }
+
     @Override
-    public void connect() {
-        this.sendMessage(new NewUserMessage(this.nickname));
+    public void connect(String nickname) {
+        this.sendMessage(new NewUserMessage(nickname));
+        this.heartBeatManager.startHeartBeatManager();
     }
 
     @Override
@@ -243,20 +211,48 @@ public class ClientTCP implements ClientInterface {
 
     @Override
     public void reconnect() throws RuntimeException{
-        String token = getToken();
+        File configFile;
+        String nick, token;
+
+        /*
+        FIXME: if client shut down its machine how to do for fle? Ask client for username or save on file? Also for path with nick?
+         */
+        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
+
+        if(configFile.isFile() && configFile.exists()) {
+            try {
+                BufferedReader configReader = new BufferedReader(new FileReader(configFile));
+                nick = configReader.readLine();
+                token = configReader.readLine();
+                configReader.close();
+            }
+            catch (IOException ioException) {
+                throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
+            }
+        }
+        else{
+            throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
+        }
 
         int numOfTry = 0;
 
         try{
+            this.socket.close();
+
             this.socket = new Socket(ClientSettings.serverIP, ClientSettings.serverTCPPort);
-            this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
+            synchronized (this.outputStreamLock) {
+                this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
+            }
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
 
             while(!Thread.currentThread().isInterrupted() && numOfTry < 10){
-                if(!this.send(new ReconnectToServerMessage(this.nickname, token))){
+                if(this.nickname != null){
+                    nick = this.nickname;
+                }
+                if(!this.send(new ReconnectToServerMessage(nick, token))){
                     numOfTry++;
                     try{
-                        Thread.sleep(250);
+                        TimeUnit.MILLISECONDS.sleep(250);
                     }
                     catch (InterruptedException interruptedException){
                         Thread.currentThread().interrupt();
@@ -277,39 +273,34 @@ public class ClientTCP implements ClientInterface {
         }
     }
 
-    private String getToken() {
-        String token;
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
-
-        if(tokenFile.isFile() && tokenFile.exists()) {
-            try {
-                Scanner tokenScanner = new Scanner(tokenFile);
-                System.out.println("LUNGHEZZA: " + tokenFile.length() + " " + tokenScanner.hasNextLine());
-                token = tokenScanner.nextLine();
-                tokenScanner.close();
-            }
-            catch (IOException ioException) {
-                throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
-            }
-        }
-        else{
-            throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
-        }
-        return token;
-    }
-
     @Override
     public void disconnect() throws RuntimeException{
-        if(!this.send(new DisconnectMessage(this.nickname))){
-            throw new RuntimeException("Message could not be sent to server!");
-        }
-
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
         if(tokenFile.exists() && tokenFile.exists() && tokenFile.delete()){
             System.err.println("[TOKEN]: token file deleted.");
         }
 
+        if(!this.send(new DisconnectMessage(this.nickname))){
+            throw new RuntimeException("Message could not be sent to server!");
+        }
+
         this.stopClient();
+    }
+
+    @Override
+    public void signalPossibleNetworkProblem() {
+        if(!this.actionParser.isDisconnected()){
+            this.actionParser.disconnect();
+        }
+        this.heartBeatManager.stopHeartBeatManager();
+        System.out.println("from   " + nickname);
+    }
+
+    @Override
+    public void sendHeartBeat() throws RuntimeException{
+        if(!this.send(new ClientHeartBeatMessage(this.nickname))){
+            throw new RuntimeException("Could not send heart beat message to server!");
+        }
     }
 
     @Override
@@ -353,27 +344,22 @@ public class ClientTCP implements ClientInterface {
     }
 
     @Override
-    public void setToken(String token) {
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + this.nickname);
+    public void configure(String nick, String token){
+        File configFile;
+        this.nickname = nick;
+
+        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
         try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(configFile));
+            bufferedWriter.write(nick);
+            bufferedWriter.write("\n");
             bufferedWriter.write(token);
             bufferedWriter.close();
-            if(tokenFile.setReadOnly()){
+            if(configFile.setReadOnly()){
                 System.err.println("[TOKEN]: token file written and set read only.");
             }
         }
         catch (IOException ignored){ };
-    }
-
-    @Override
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    @Override
-    public String getNickname() {
-        return this.nickname;
     }
 
 }

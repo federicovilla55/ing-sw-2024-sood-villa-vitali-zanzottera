@@ -56,5 +56,7 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.Networking.Server.Message.Network;
     exports it.polimi.ingsw.gc19.Networking.Server.Message.Turn;
     exports it.polimi.ingsw.gc19.Networking.Server.Message.Configuration;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat;
+    exports it.polimi.ingsw.gc19.Networking.Client.NetworkManagement;
 
 }

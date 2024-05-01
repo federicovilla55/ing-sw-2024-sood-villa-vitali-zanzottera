@@ -1,8 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents;
 
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedChooseGoalCard;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedChooseGoalCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.ConfigurationMessageVisitor;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 /**
  * Classes that need to visit {@link NotifyEventOnGame} have
@@ -12,8 +11,8 @@ public interface GameEventsMessageVisitor{
 
     /**
      * This method is used by {@link GameEventsMessageVisitor} to visit
-     * a message {@link AcceptedChooseGoalCard}
-     * @param message the {@link AcceptedChooseGoalCard} to visit
+     * a message {@link AcceptedChooseGoalCardMessage}
+     * @param message the {@link AcceptedChooseGoalCardMessage} to visit
      */
     void visit(AvailableColorsMessage message);
 

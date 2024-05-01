@@ -1,7 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Enums.*;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.NetworkManagementInterface;
 
 import java.util.*;
 
@@ -19,6 +19,7 @@ public interface ClientInterface {
      * The nickname should be set before calling this method.
      */
     void connect();
+public interface ClientInterface extends ConfigurableClient, NetworkManagementInterface, GameManagementInterface {
 
     /**
      * The method is used to create a new game with the given name and number of players.

@@ -88,6 +88,7 @@ public class GameController{
      * @param nickname the name of the client to add
      */
     public synchronized void addClient(String nickname, ClientHandler clientHandler) {
+        System.err.println("entrato");
         try {
             this.gameAssociated.getPlayerByName(nickname);
             //player already present in game
@@ -113,6 +114,7 @@ public class GameController{
                         //if the game is in pause and there are 2 or more clients connected, unpause game
                         this.gameAssociated.setGameState(GameState.PLAYING);
                         this.messageFactory.sendMessageToAllGamePlayers(new GameResumedMessage());
+                        System.out.println("mandato");
                     }
                 }
             }

@@ -29,8 +29,8 @@ public class ServerApp {
 
     public static void main(String[] args){
         boolean validPort = false;
-        int RMIPort = Settings.DEFAULT_RMI_SERVER_PORT;
-        int TCPPort = Settings.DEFAULT_TCP_SERVER_PORT;
+        int RMIPort = ServerSettings.DEFAULT_RMI_SERVER_PORT;
+        int TCPPort = ServerSettings.DEFAULT_TCP_SERVER_PORT;
 
         Scanner scanner = new Scanner(System.in);
 
@@ -87,7 +87,7 @@ public class ServerApp {
                 }
             }
         }
-        System.out.println("Starting TCP on IP " + Settings.DEFAULT_SERVER_IP + " and port " + TCPPort);
+        System.out.println("Starting TCP on IP " + ServerSettings.DEFAULT_SERVER_IP + " and port " + TCPPort);
         startTCP(TCPPort);
     }
 
@@ -104,7 +104,7 @@ public class ServerApp {
         try {
             registry = LocateRegistry.createRegistry(RMIPort);
             VirtualMainServer stub = (VirtualMainServer) UnicastRemoteObject.exportObject(mainServerRMI, 0);
-            registry.rebind(Settings.mainRMIServerName, stub);
+            registry.rebind(ServerSettings.mainRMIServerName, stub);
         }
         catch (RemoteException remoteException){
             System.out.println("[EXCEPTION] RemoteException occurred while trying to start RMI Server. Quitting...");

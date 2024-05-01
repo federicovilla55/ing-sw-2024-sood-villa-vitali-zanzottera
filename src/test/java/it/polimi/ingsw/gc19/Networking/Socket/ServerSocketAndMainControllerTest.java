@@ -5,7 +5,7 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
+import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.ClientHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
@@ -21,16 +21,16 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -42,8 +42,8 @@ public class ServerSocketAndMainControllerTest {
 
     @BeforeEach
     public void setUp(){
-        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
-        ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
+        ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
         this.client1 = new Client("client1");
         this.client2 = new Client("client2");
         this.client3 = new Client("client3");
@@ -69,7 +69,7 @@ public class ServerSocketAndMainControllerTest {
 
         ServerApp.stopTCP();
 
-        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 60 * 20;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 60 * 20;
     }
 
     private static ArrayList<Client> overloadTest(int numberOfClients){
@@ -101,7 +101,7 @@ public class ServerSocketAndMainControllerTest {
     public void testMultiplePlayerInGame(){
         this.client1.createPlayer();
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message1 = this.client1.getMessage();
+        MessageToClient message1 = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
@@ -110,7 +110,6 @@ public class ServerSocketAndMainControllerTest {
         this.client1.createGame("game3", 3, 1);
 
         assertMessageEquals(this.client1, new CreatedGameMessage("game3"));
-
 
         this.client2.createPlayer();
 
@@ -144,7 +143,7 @@ public class ServerSocketAndMainControllerTest {
     public void testJoinFirstAvailableGames(){
         this.client1.createPlayer();
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message1 = this.client1.getMessage();
+        MessageToClient message1 = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
@@ -207,7 +206,7 @@ public class ServerSocketAndMainControllerTest {
         this.client1.createPlayer();
 
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message1 = this.client1.getMessage();
+        MessageToClient message1 = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
@@ -255,14 +254,14 @@ public class ServerSocketAndMainControllerTest {
         this.client1.createPlayer();
 
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message1 = this.client1.getMessage();
+        MessageToClient message1 = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
         this.client2.createPlayer();
 
         client2.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message2 = this.client2.getMessage();
+        MessageToClient message2 = this.client2.getMessage(CreatedPlayerMessage.class);
         String token2 = ((CreatedPlayerMessage) message2).getToken();
         this.client2.setToken(token2);
 
@@ -373,7 +372,7 @@ public class ServerSocketAndMainControllerTest {
         client7.createPlayer();
 
         client7.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message7 = client7.getMessage();
+        MessageToClient message7 = client7.getMessage(CreatedPlayerMessage.class);
         String token7 = ((CreatedPlayerMessage) message7).getToken();
 
         client7.createGame("game18", 2, 1);
@@ -384,7 +383,7 @@ public class ServerSocketAndMainControllerTest {
         Client client8 = new Client(client7.getName());
         client8.createPlayer();
         client8.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message8 = client8.getMessage();
+        MessageToClient message8 = client8.getMessage(CreatedPlayerMessage.class);
         String token8 = ((CreatedPlayerMessage) message8).getToken();
 
         client8.joinFirstAvailableGame();
@@ -555,7 +554,7 @@ public class ServerSocketAndMainControllerTest {
 
         this.client1.createPlayer();
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message = this.client1.getMessage();
+        MessageToClient message = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message).getToken();
         this.client1.setToken(token1);
         this.client1.startSendingHeartBeat();
@@ -566,7 +565,7 @@ public class ServerSocketAndMainControllerTest {
 
         this.client2.createPlayer();
         client2.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message2 = this.client2.getMessage();
+        MessageToClient message2 = this.client2.getMessage(CreatedPlayerMessage.class);
         String token2 = ((CreatedPlayerMessage) message2).getToken();
         this.client2.setToken(token2);
 
@@ -633,7 +632,7 @@ public class ServerSocketAndMainControllerTest {
         this.client1.createPlayer();
 
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message = this.client1.getMessage();
+        MessageToClient message = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message).getToken();
 
         this.client1.createGame("game15", 2, 1);
@@ -700,7 +699,7 @@ public class ServerSocketAndMainControllerTest {
 
     @Test
     public void testInactiveClientKiller(){
-        System.out.println(Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL);
+        System.out.println(ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL);
         client1.createPlayer();
         waitingThread(500);
         client1.stopSendingHeartBeat();
@@ -879,7 +878,7 @@ class Client{
 
     public Client(String name){
         try{
-            this.socket = new Socket(Settings.DEFAULT_SERVER_IP, Settings.DEFAULT_TCP_SERVER_PORT);
+            this.socket = new Socket(ServerSettings.DEFAULT_SERVER_IP, ServerSettings.DEFAULT_TCP_SERVER_PORT);
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         } catch (IOException e) {
@@ -945,7 +944,7 @@ class Client{
 
     private synchronized void heartBeat() {
         if (this.sendHeartBeat && !Thread.interrupted()) {
-            this.sendMessage(new HeartBeatMessage(this.name));
+            this.sendMessage(new ClientHeartBeatMessage(this.name));
         }
     }
 

@@ -3,10 +3,7 @@ package it.polimi.ingsw.gc19.View.GameLocalView;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
-import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
-import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -18,20 +15,11 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayer
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 
-import java.io.StringReader;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,7 +101,7 @@ public class ActionParser {
      */
     public synchronized void disconnect(){
         this.prevState = viewState;
-        this.viewState = new Disconnect();
+        this.viewState = new Disconnect(); //@TODO: maybe check if we are alredy in diconnect?
         this.viewState.parseAction(null);
     }
 
@@ -149,9 +137,7 @@ public class ActionParser {
             viewState = new Wait();
             prevState = new NotPlayer();
 
-            clientNetwork.setNickname(command.get(1));
-
-            clientNetwork.connect();
+            clientNetwork.connect(command.get(1));
         }
     }
 
@@ -748,8 +734,10 @@ public class ActionParser {
 
         @Override
         void parseAction(ArrayList<String> command) {
-            reconnectScheduler = new Thread(this::reconnect);
-            reconnectScheduler.start();
+            if(clientNetwork != null) {
+                reconnectScheduler = new Thread(this::reconnect);
+                reconnectScheduler.start();
+            }
         }
 
         public synchronized void setIsSend(boolean toSet){
@@ -761,8 +749,9 @@ public class ActionParser {
         }
 
         public void reconnect(){
-            while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING
-                    && !Thread.currentThread().isInterrupted()){
+            System.out.println("ok reconnect");
+            while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING && !Thread.currentThread().isInterrupted()){
+                System.out.println("Tentativo reconnect: " + numReconnect);
                 try {
                     System.out.println("IS INTERR? " + Thread.currentThread().isInterrupted());
                     clientNetwork.reconnect();
@@ -776,7 +765,7 @@ public class ActionParser {
                 }
 
                 try {
-                    reconnectScheduler.sleep(ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000);
+                    Thread.currentThread().sleep(2500/*ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000*/);
                 } catch (InterruptedException e) {
                     reconnectScheduler.interrupt();
                     return;
@@ -849,5 +838,7 @@ public class ActionParser {
             sendMessage(command);
         }
     }
+
+
 
 }

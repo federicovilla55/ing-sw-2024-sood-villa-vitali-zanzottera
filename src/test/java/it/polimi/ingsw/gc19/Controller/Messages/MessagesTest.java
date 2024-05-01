@@ -397,7 +397,7 @@ public class MessagesTest{
         this.player1.choosePrivateGoalCard(0);
         //player1 only should receive the chosen private goal card
         assertMessageEquals(player1,
-                new AcceptedChooseGoalCard(goalCards.get("goal_09")));
+                new AcceptedChooseGoalCardMessage(goalCards.get("goal_09")));
         assertNull(player2.getMessage());
         assertNull(player3.getMessage());
         assertNull(player4.getMessage());
@@ -411,7 +411,7 @@ public class MessagesTest{
         this.player4.choosePrivateGoalCard(1);
 
         assertMessageEquals(player4,
-                new AcceptedChooseGoalCard(goalCards.get("goal_04")));
+                new AcceptedChooseGoalCardMessage(goalCards.get("goal_04")));
 
         assertMessageEquals(List.of(player1,player2,player3,player4),
                 new StartPlayingGameMessage("player1"));
@@ -605,7 +605,7 @@ public class MessagesTest{
         this.player4.choosePrivateGoalCard(1);
 
         assertMessageEquals(player4,
-                new AcceptedChooseGoalCard(goalCards.get("goal_04")));
+                new AcceptedChooseGoalCardMessage(goalCards.get("goal_04")));
 
         assertMessageEquals(List.of(player1,player2,player3,player4),
                 new StartPlayingGameMessage("player1"));

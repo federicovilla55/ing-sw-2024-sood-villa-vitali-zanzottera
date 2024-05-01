@@ -9,7 +9,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMes
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 
 import java.io.IOException;
 import java.util.*;
@@ -87,7 +87,7 @@ public class MainController {
                 }
             }
 
-        }, Settings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION, TimeUnit.SECONDS);
+        }, ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION, TimeUnit.SECONDS);
     }
 
     /**
@@ -368,7 +368,7 @@ public class MainController {
 
     /**
      * This method is responsible for advanced functionality resilience to disconnection.
-     * It is used when a player wants to reconnect to a game. Player cannot reconnect while they are in lobby.
+     * It is used when a player wants to reconnect to a game.
      * First, it checks if player is registered in <code>playerInfo</code> and then if it is part
      * of some game. If the answer is no, then it sends {@link AvailableGamesMessage}, otherwise signals
      * to game controller associated to the game that a player has reconnected and updates <code>playerInfo</code>
@@ -381,14 +381,18 @@ public class MainController {
         synchronized (this.playerInfo){
             if(this.playerInfo.containsKey(clientHandler.getUsername())) {
                 gameName = this.playerInfo.get(clientHandler.getUsername()).y();
+                playerInfo.put(clientHandler.getUsername(), new Tuple<>(State.ACTIVE, gameName)); //FOR ERRORS CHECK HERE
+                System.err.println("gameeeeeeeeeeeeeeeeeeeeee " + gameName);
             }
             else{
+                System.err.println("QUI CI SIAMOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                 clientHandler.update(new AvailableGamesMessage(findAvailableGames()).setHeader(clientHandler.getUsername()));
                 return false;
             }
         }
         synchronized (this.gamesInfo) {
             if (!this.gamesInfo.containsKey(gameName)) {
+                System.err.println("QUI CI SIAMOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!!!!!!!!!! " + findAvailableGames());
                 clientHandler.update(new AvailableGamesMessage(findAvailableGames()).setHeader(clientHandler.getUsername()));
                 return false;
             }
@@ -402,10 +406,6 @@ public class MainController {
             this.gamesInfo.get(gameName).removeClient(clientHandler.getUsername());
             this.gamesInfo.get(gameName).addClient(clientHandler.getUsername(), clientHandler);
             clientHandler.setGameController(this.gamesInfo.get(gameName));
-
-            synchronized (this.playerInfo) {
-                playerInfo.put(clientHandler.getUsername(), new Tuple<>(State.ACTIVE, gameName));
-            }
 
             return true;
         }

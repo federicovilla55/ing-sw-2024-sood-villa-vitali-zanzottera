@@ -3,9 +3,12 @@ package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.NewUserMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
@@ -67,6 +70,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
             synchronized (this.socketLock) {
                 this.outputStream.writeObject(message);
                 finalizeSending();
+                if(message instanceof CreatedPlayerMessage)System.err.println("senttttttttttt");
             }
         }
         catch (SocketException socketException){

@@ -23,7 +23,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import org.junit.jupiter.api.*;
@@ -48,13 +48,13 @@ public class RMIServerAndMainControllerTest {
 
     @BeforeEach
     public void setUpTest() throws RemoteException, NotBoundException {
-        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
 
-        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
+        ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
         MainServerRMI mainServerRMI = ServerApp.getMainServerRMI();
 
         Registry registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+        virtualMainServer = (VirtualMainServer) registry.lookup(ServerSettings.mainRMIServerName);
 
         overloadTest(100);
 
@@ -84,7 +84,7 @@ public class RMIServerAndMainControllerTest {
 
         ServerApp.stopRMI();
 
-        Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 60 * 20;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 60 * 20;
     }
 
     private static ArrayList<Client> overloadTest(int numberOfClients) throws RemoteException {
@@ -423,7 +423,7 @@ public class RMIServerAndMainControllerTest {
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
         client6.reconnect();
-        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
 
         gameServer2.sendChatMessage(new ArrayList<>(List.of(this.client1.getName(), this.client2.getName())), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client2.getName(), "Chat message after disconnection!"));
@@ -790,7 +790,7 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable 
         this.incomingMessages = new ArrayDeque<>();
         this.sendHeartBeat = false;
         this.token = null;
-        heartBeatThread = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::heartBeat, 0, 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
+        heartBeatThread = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::heartBeat, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
     }
 
     private synchronized void heartBeat() {

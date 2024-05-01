@@ -6,14 +6,14 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
 /**
  * This message is used by client to send heartbeat to server
  */
-public class HeartBeatMessage extends MessageToServer{
+public class ClientHeartBeatMessage extends MessageToServer{
 
-    public HeartBeatMessage(String nickname) {
+    public ClientHeartBeatMessage(String nickname) {
         super(nickname);
     }
 
     /**
-     * This method is used by server to handle a {@link HeartBeatMessage} from client.
+     * This method is used by server to handle a {@link ClientHeartBeatMessage} from client.
      * @param visitor the {@link MessageToServerVisitor} for the message
      */
     @Override

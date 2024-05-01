@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
@@ -21,8 +22,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErr
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import org.junit.jupiter.api.*;
 
@@ -39,9 +40,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClientTCPRMITest {
-    private static VirtualMainServer virtualMainServer;
-    private static Registry registry;
-    private static MainServerRMI mainServerRMI;
 
     // Hashmap to save the get the anchor for the placeCard.
     private HashMap<ClientInterface, PlayableCard> clientsAnchors;
@@ -49,27 +47,22 @@ public class ClientTCPRMITest {
     private TestClassClientRMI client1, client3, client5;
     private TestClassClientTCP client2, client4;
 
-    private ActionParser actionParser1, actionParser2, actionParser3, actionParser4, actionParser5;
-
     @BeforeEach
-    public void setUpTest() throws IOException, NotBoundException {
-        ServerApp.startRMI(Settings.DEFAULT_RMI_SERVER_PORT);
-        ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
-        mainServerRMI = ServerApp.getMainServerRMI();
-        registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServer) registry.lookup(Settings.mainRMIServerName);
+    public void setUpTest() throws IOException{
+        ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
+        ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
 
-        actionParser1 = new ActionParser("client1");
-        actionParser2 = new ActionParser("client1");
-        actionParser3 = new ActionParser("client1");
-        actionParser4 = new ActionParser("client1");
-        actionParser5 = new ActionParser("client1");
+        ActionParser actionParser1 = new ActionParser("client1");
+        ActionParser actionParser2 = new ActionParser("client1");
+        ActionParser actionParser3 = new ActionParser("client1");
+        ActionParser actionParser4 = new ActionParser("client1");
+        ActionParser actionParser5 = new ActionParser("client1");
 
-        this.client1 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser1),"client1", actionParser1);
-        this.client2 = new TestClassClientTCP("client2", new MessageHandler(actionParser1), actionParser2);
-        this.client3 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser3),"client3", actionParser3);
-        this.client4 = new TestClassClientTCP("client4", new MessageHandler(actionParser4), actionParser4);
-        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(actionParser5) ,"client5", actionParser5);
+        this.client1 = new TestClassClientRMI(new MessageHandler(actionParser1), actionParser1);
+        this.client2 = new TestClassClientTCP(new MessageHandler(actionParser1), actionParser2);
+        this.client3 = new TestClassClientRMI(new MessageHandler(actionParser3), actionParser3);
+        this.client4 = new TestClassClientTCP(new MessageHandler(actionParser4), actionParser4);
+        this.client5 = new TestClassClientRMI(new MessageHandler(actionParser5), actionParser5);
         clientsAnchors = new HashMap<>();
     }
 
@@ -86,31 +79,31 @@ public class ClientTCPRMITest {
 
     @Test
     public void testClientCreation(){
-        this.client1.connect();
+        this.client1.connect("client1");
         assertMessageEquals(this.client1, new CreatedPlayerMessage("client1"));
     }
 
     @Test
     public void testCreateClient(){
-        this.client1.connect();
+        this.client1.connect("client1");
         assertMessageEquals(this.client1, new CreatedPlayerMessage("client1"));
-        this.client2.connect();
+        this.client2.connect("client2");
 
         assertMessageEquals(this.client2, new CreatedPlayerMessage("client2"));
         assertNull(this.client1.getMessage());
-        this.client3.connect();
+        this.client3.connect("client3");
 
         assertMessageEquals(this.client3, new CreatedPlayerMessage("client3"));
         assertNull(this.client1.getMessage());
         assertNull(this.client2.getMessage());
-        this.client4.connect();
+        this.client4.connect("client4");
 
         assertMessageEquals(this.client4, new CreatedPlayerMessage("client4"));
         assertNull(this.client1.getMessage());
         assertNull(this.client2.getMessage());
         assertNull(this.client3.getMessage());
 
-        this.client1.connect();
+        this.client1.connect("client1");
 
         assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
         assertNull(this.client2.getMessage());
@@ -118,8 +111,7 @@ public class ClientTCPRMITest {
         assertNull(this.client4.getMessage());
 
         //Create new client with other name
-        this.client5.setNickname("client1");
-        this.client5.connect();
+        this.client5.connect("client1");
 
         assertMessageEquals(this.client5, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
@@ -130,10 +122,13 @@ public class ClientTCPRMITest {
         this.client5.disconnect();
     }
 
-
     @Test
     public void testCreateGame(){
-        this.client1.connect();
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
 
         this.client1.createGame("game1", 2);
 
@@ -152,7 +147,11 @@ public class ClientTCPRMITest {
         assertMessageEquals(this.client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
 
         //Game name already in use
-        this.client2.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
 
         this.client2.createGame("game1", 2);
 
@@ -165,20 +164,33 @@ public class ClientTCPRMITest {
 
     @Test
     public void testMultiplePlayerInGame(){
-        this.client1.connect();
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
 
         this.client1.createGame("game3", 3);
 
         assertMessageEquals(this.client1, new CreatedGameMessage("game3"));
 
         //this.client1.setVirtualMainServer(virtualMainServer);
-        this.client2.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
+
         this.client2.joinGame("game3");
         assertMessageEquals(this.client2, new JoinedGameMessage("game3"));
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
         //this.client1.setVirtualMainServer(virtualMainServer);
-        this.client3.connect();
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
 
         this.client3.joinGame("game3");
 
@@ -200,14 +212,14 @@ public class ClientTCPRMITest {
 
     @Test
     public void testDisconnectionAndReconnection() throws IOException {
-        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client6", new ActionParser());
-        client6.connect();
+        TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(new ActionParser()), new ActionParser());
+        client6.connect("client6");
         client6.startSendingHeartbeat();
         waitingThread(2500);
         client6.disconnect();
-        TestClassClientTCP client7 = new TestClassClientTCP(client6.getNickname(), new MessageHandler(new ActionParser()), new ActionParser());
-        client7.connect();
-        assertMessageEquals(client7, new CreatedPlayerMessage(client7.getNickname()));
+        TestClassClientTCP client7 = new TestClassClientTCP(new MessageHandler(new ActionParser()), new ActionParser());
+        client7.connect("client6");
+        assertMessageEquals(client7, new CreatedPlayerMessage("client6"));
 
         client6.disconnect();
         client7.disconnect();
@@ -217,15 +229,35 @@ public class ClientTCPRMITest {
     @Test
     public void testFirePlayersAndGames(){
 
-        this.client1.connect();
-        this.client2.connect();
-        this.client3.connect();
-        this.client4.connect();
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
+
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
+
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
+
+        this.client4.connect("client4");
+        client4.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message4 = this.client4.getMessage();
+        String token4 = ((CreatedPlayerMessage) message4).getToken();
+        this.client4.configure("client4", token4);
 
         this.client1.createGame("game13", 4, 1);
         this.client2.joinGame("game13");
         this.client3.joinGame("game13");
         this.client4.joinGame("game13");
+
         assertMessageEquals(this.client2, new JoinedGameMessage("game13"));
         assertMessageEquals(this.client3, new JoinedGameMessage("game13"));
         assertMessageEquals(this.client4, new JoinedGameMessage("game13"));
@@ -384,16 +416,31 @@ public class ClientTCPRMITest {
 
     @Test
     public void testPlayerCanJoinFullGame(){
-        this.client1.connect();
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
+
         this.client1.createGame("game5", 2);
         assertMessageEquals(this.client1, new CreatedGameMessage("game5"));
 
-        this.client2.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
+
         this.client2.joinGame("game5");
         assertMessageEquals(this.client2, new JoinedGameMessage("game5"));
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
-        this.client3.connect();
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
+
         this.client3.joinGame("game5");
         assertMessageEquals(this.client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
 
@@ -405,7 +452,11 @@ public class ClientTCPRMITest {
 
     @Test
     public void testMultipleGames(){
-        this.client1.connect();
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
 
         this.client1.createGame("game8", 2);
 
@@ -413,7 +464,11 @@ public class ClientTCPRMITest {
 
         client1.waitForMessage(TableConfigurationMessage.class);
 
-        this.client2.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
 
         this.client2.joinGame("game8");
 
@@ -421,18 +476,24 @@ public class ClientTCPRMITest {
 
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
-
         this.client1.waitForMessage(TableConfigurationMessage.class);
         this.client2.waitForMessage(GameConfigurationMessage.class);
 
-        this.client3.connect();
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
 
         this.client3.createGame("game9", 2);
 
         assertMessageEquals(this.client3, new CreatedGameMessage("game9"));
 
-
-        this.client4.connect();
+        this.client4.connect("client4");
+        client4.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message4 = this.client4.getMessage();
+        String token4 = ((CreatedPlayerMessage) message4).getToken();
+        this.client4.configure("client4", token4);
 
         this.client4.joinGame("game9");
 
@@ -451,7 +512,11 @@ public class ClientTCPRMITest {
 
     @Test
     public void testJoinFirstAvailableGames() throws RemoteException {
-        this.client1.connect();
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
 
         this.client1.createGame("game4", 2);
 
@@ -459,33 +524,47 @@ public class ClientTCPRMITest {
 
         client1.waitForMessage(GameConfigurationMessage.class);
 
-        this.client2.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
 
         this.client2.joinGame("game4");
         assertMessageEquals(this.client2, new JoinedGameMessage("game4"));
 
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
-
         this.client1.waitForMessage(TableConfigurationMessage.class);
         this.client2.waitForMessage(GameConfigurationMessage.class);
 
-        this.client3.connect();
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
 
         this.client3.createGame("game7", 2);
 
         assertMessageEquals(this.client3, new CreatedGameMessage("game7"));
 
-
-        this.client4.connect();
+        this.client4.connect("client4");
+        client4.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message4 = this.client4.getMessage();
+        String token4 = ((CreatedPlayerMessage) message4).getToken();
+        this.client4.configure("client4", token4);
 
         this.client4.joinFirstAvailableGame();
         assertMessageEquals(this.client4, new JoinedGameMessage("game7"));
 
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("client4"));
 
-        this.client5 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client5", new ActionParser());
-        this.client5.connect();
+        this.client5 = new TestClassClientRMI(new MessageHandler(new ActionParser()), new ActionParser());
+        this.client5.connect("client5");
+        client5.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message5 = this.client5.getMessage();
+        String token5 = ((CreatedPlayerMessage) message5).getToken();
+        this.client5.configure("client4", token5);
 
         this.client5.joinFirstAvailableGame();
 
@@ -499,17 +578,17 @@ public class ClientTCPRMITest {
 
     @Test
     public void testDisconnectionWhileInLobby() throws RemoteException {
-        this.client1.connect();
+        this.client1.connect("client1");
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message1 = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message1).getToken();
-        this.client1.setToken(token1);
+        this.client1.configure("client1", token1);
 
-        this.client2.connect();
+        this.client2.connect("client2");
         client2.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message2 = this.client2.getMessage();
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        this.client2.setToken(token2);
+        this.client2.configure("client2", token2);
 
         this.client2.createGame("game11", 2);
 
@@ -521,8 +600,8 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client2", new ActionParser());
-        client6.connect();
+        TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(new ActionParser()), new ActionParser());
+        client6.connect("client2");
         assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
         this.client2.reconnect();
@@ -555,12 +634,12 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client8 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client8", new ActionParser());
-        client8.connect();
+        TestClassClientRMI client8 = new TestClassClientRMI(new MessageHandler(new ActionParser()),new ActionParser());
+        client8.connect("client8");
         client8.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message8 = client8.getMessage();
         String token8 = ((CreatedPlayerMessage) message8).getToken();
-        client8.setToken(token8);
+        client8.configure("client8", token8);
         client8.reconnect();
         assertMessageEquals(client8, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
 
@@ -572,17 +651,21 @@ public class ClientTCPRMITest {
 
     @Test
     public void testDisconnectionWhileInGame() throws RemoteException {
-        this.client1.connect();
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
 
         this.client1.createGame("game6", 2);
 
         assertMessageEquals(this.client1, new CreatedGameMessage("game6"));
 
-        this.client2.connect();
+        this.client2.connect("client2");
         client2.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message2 = this.client2.getMessage();
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        this.client2.setToken(token2);
+        this.client2.configure("client2", token2);
 
         this.client2.joinGame("game6");
         assertMessageEquals(this.client2, new JoinedGameMessage("game6"));
@@ -605,9 +688,9 @@ public class ClientTCPRMITest {
         this.client2.stopSendingHeartbeat();
 
         //Situation: client 2 has disconnected from game
-        TestClassClientRMI client6 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()),"client6", new ActionParser());
+        TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(new ActionParser()), new ActionParser());
         //Client6 tries to reconnect with no token
-        client6.setToken("fake token");
+        client6.configure("client6", "fake token");
         client6.reconnect();
         assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
@@ -621,8 +704,18 @@ public class ClientTCPRMITest {
 
     @Test
     public void testExitFromGame(){
-        this.client1.connect();
-        this.client2.connect();
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
+
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
+
         this.client1.createGame("game11", 3);
         waitingThread(500);
         this.client2.joinFirstAvailableGame();
@@ -630,24 +723,39 @@ public class ClientTCPRMITest {
         waitingThread(500);
         assertMessageEquals(this.client2, new DisconnectedPlayerMessage(this.client1.getNickname()));
         this.client2.logoutFromGame();
-        this.client3.connect();
+
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
+
         this.client3.availableGames();
         assertMessageEquals(this.client3, new AvailableGamesMessage(List.of()));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
     }
 
     @Test
     public void testReconnection() throws RemoteException {
-        this.client1.connect();
-
+        this.client1.connect("client1");
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message = this.client1.getMessage();
-        String token1 = ((CreatedPlayerMessage) message).getToken();
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
 
         this.client1.createGame("game15", 2);
 
         client1.waitForMessage(GameConfigurationMessage.class);
 
-        this.client2.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
+
         this.client2.joinGame("game15");
 
         assertMessageEquals(this.client2, new JoinedGameMessage("game15"));
@@ -662,9 +770,8 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client7 = new TestClassClientRMI(virtualMainServer, new MessageHandler(new ActionParser()), "client7", new ActionParser());
-        client7.setNickname("client1");
-        client7.setToken(token1);
+        TestClassClientRMI client7 = new TestClassClientRMI(new MessageHandler(new ActionParser()), new ActionParser());
+        client7.configure("client1", token1);
         client7.reconnect();
 
         assertMessageEquals(client7, new JoinedGameMessage("game15"));
