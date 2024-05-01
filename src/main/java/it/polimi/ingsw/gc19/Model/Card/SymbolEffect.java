@@ -28,9 +28,8 @@ class SymbolEffect implements GoalEffect, PlayableEffect{
 
     @Override
     public String getEffectDescription(){
-        return "Points per pattern: " + this.cardValue + "\n" +
-               "Required pattern: " + this.requiredSymbol.toString();
-
+        return "This card gives " + this.cardValue + " points for every group of indicated symbols.\n" +
+               "The symbols are the visible symbols in the player area.";
     }
 
     @Override

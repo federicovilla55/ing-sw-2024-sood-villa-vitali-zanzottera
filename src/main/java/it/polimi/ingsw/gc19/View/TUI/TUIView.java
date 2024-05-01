@@ -2,7 +2,9 @@ package it.polimi.ingsw.gc19.View.TUI;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Corner;
+import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 
@@ -42,6 +44,30 @@ public class TUIView {
         }
 
         return res.toArray(String[]::new);
+    }
+
+    public String[][] availableColorsTUIView(List<Color> availableColors) {
+        // create matrix of empty strings, each representing a single unicode character to display in console
+        String[][] res = new String[availableColors.size() + 2][1];
+        for (String[] strings : res) {
+            Arrays.fill(strings, "");
+        }
+
+        res[0][0] = "Available colors:";
+        for(int i = 1; i <= availableColors.size(); i++) {
+            Color c = availableColors.get(i - 1);
+            res[i][0] = i + ") " + c.stringColor() + c + c.colorReset();
+        }
+
+        return res;
+    }
+
+    public void printCardDescriptionTUIView(GoalCard card) {
+        if(card != null) {
+            System.out.println(card.getCardDescription());
+
+
+        }
     }
 
     public String[][] cardTUIView(PlayableCard card) {
@@ -106,6 +132,47 @@ public class TUIView {
                 strings[i] = strings[i].concat("\u001B[0m");
             }
         }
+        return res;
+    }
+
+    public String[][] initialCardTUIView(PlayableCard card) {
+        // create matrix of empty strings, each representing a single unicode character to display in console
+        String[][] res = new String[5][17];
+        for (String[] strings : res) {
+            Arrays.fill(strings, "  ");
+        }
+
+        if (card != null) {
+            card.setCardState(CardOrientation.UP);
+            String[][] cardTUIView = cardTUIView(card);
+
+            //print up above the printed card front
+            String[] textTUIView = textTUIView("up:");
+            for (int i = 0; i < textTUIView.length; i++) {
+                res[0][4 + i] = textTUIView[i];
+            }
+            //print card front
+            for (int i = 0; i < cardTUIView.length; i++) {
+                for (int j = 0; j < cardTUIView[i].length; j++) {
+                    res[1 + i][4 + j] = cardTUIView[i][j];
+                }
+            }
+            card.setCardState(CardOrientation.DOWN);
+            cardTUIView = cardTUIView(card);
+
+            //print down above the printed card back
+            textTUIView = textTUIView("down:");
+            for (int i = 0; i < textTUIView.length; i++) {
+                res[0][12 + i] = textTUIView[i];
+            }
+            //print card back
+            for (int i = 0; i < cardTUIView.length; i++) {
+                for (int j = 0; j < cardTUIView[i].length; j++) {
+                    res[1 + i][12 + j] = cardTUIView[i][j];
+                }
+            }
+        }
+
         return res;
     }
 
@@ -389,6 +456,38 @@ public class TUIView {
                 }
             }
             playerIndex++;
+        }
+
+        return res;
+    }
+
+    public String[][] handTUIView(List<PlayableCard> cardsInHand) {
+        // create matrix of "  " strings, each representing a single unicode character to display in console
+        String[][] res = new String[5][25];
+        for (String[] strings : res) {
+            Arrays.fill(strings, "  ");
+        }
+
+        for (int idx = 0; idx < cardsInHand.size(); idx++) {
+
+            PlayableCard card = cardsInHand.get(idx);
+
+            if (card != null) {
+                card.setCardState(CardOrientation.UP);
+                String[][] cardTUIView = cardTUIView(card);
+
+                //print card
+                for (int i = 0; i < cardTUIView.length; i++) {
+                    for (int j = 0; j < cardTUIView[i].length; j++) {
+                        res[1 + i][4 + idx * 8 + j] = cardTUIView[i][j];
+                    }
+                }
+                //print card code under the printed card
+                String[] textTUIView = textTUIView(card.getCardCode());
+                for (int i = 0; i < textTUIView.length; i++) {
+                    res[1 + 3][4 + idx * 8 + i] = textTUIView[i];
+                }
+            }
         }
 
         return res;

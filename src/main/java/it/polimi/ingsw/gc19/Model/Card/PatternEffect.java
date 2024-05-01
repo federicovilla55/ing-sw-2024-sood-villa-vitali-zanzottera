@@ -37,9 +37,9 @@ class PatternEffect implements GoalEffect{
 
     @Override
     public String getEffectDescription(){
-        return "Points per pattern: " + this.cardValue + "\n" +
-               "Pattern moves required starting from a card: " + this.moves.toString() + "\n" +
-               "Patter resource required: " + this.requiredSymbol.toString();
+        return "This card gives " + this.cardValue + " points for every occurrence of the pattern in the player area.\n" +
+               "The pattern must exactly respect color and position as illustrated by the card.\n" +
+               "Each card can be used only once per card effect (no overlap).";
     }
 
 }

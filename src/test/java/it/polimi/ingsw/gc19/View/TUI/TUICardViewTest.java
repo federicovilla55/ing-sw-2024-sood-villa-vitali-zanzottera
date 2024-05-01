@@ -7,7 +7,6 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
-import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,32 @@ public class TUICardViewTest {
     }
 
     @Test
+    public void testAvailableColorsTUIView() {
+        String[][] availableColorsTUIView;
+
+        availableColorsTUIView = tuiView.availableColorsTUIView(
+                List.of(
+
+                )
+        );
+
+        tuiView.printTUIView(availableColorsTUIView);
+
+        availableColorsTUIView = tuiView.availableColorsTUIView(
+                List.of(
+                        Color.RED,
+                        Color.GREEN,
+                        Color.BLUE,
+                        Color.YELLOW
+                )
+        );
+
+        tuiView.printTUIView(availableColorsTUIView);
+
+
+    }
+
+    @Test
     public void testPlayableCardTUIView() {
         String[][] cardTUIView;
         PlayableCard card;
@@ -47,6 +72,8 @@ public class TUICardViewTest {
                 cardTUIView = tuiView.cardTUIView(card);
                 tuiView.printTUIView(cardTUIView);
                 System.out.println();
+                System.out.println(card.getCardDescription());
+                System.out.println();
             }
         }
         for (Integer i = 1; i <= 6; i++) {
@@ -59,6 +86,27 @@ public class TUICardViewTest {
             System.out.println();
             cardTUIView = tuiView.cardTUIView(card);
             tuiView.printTUIView(cardTUIView);
+            System.out.println();
+        }
+    }
+
+    @Test
+    public void testInitialCardTUIView() {
+        String[][] initialCardTUIView = tuiView.initialCardTUIView(
+                stringPlayableCardHashMap.get("initial_05")
+        );
+
+        tuiView.printTUIView(initialCardTUIView);
+    }
+
+    @Test
+    public void testGoalCardTUIView() {
+        GoalCard card;
+        for (Integer i = 1; i <= 16; i++) {
+            String cardString = "goal_" + new DecimalFormat("00").format(i);
+            System.out.println(cardString + ":");
+            card = stringGoalCardHashMap.get(cardString);
+            System.out.println(card.getCardDescription());
             System.out.println();
         }
     }
@@ -117,6 +165,31 @@ public class TUICardViewTest {
         );
 
         tuiView.printTUIView(tableTUIView);
+
+
+    }
+
+    @Test
+    public void testHandTUIView() {
+        String[][] handTUIView;
+
+        handTUIView = tuiView.handTUIView(
+                List.of(
+
+                )
+        );
+
+        tuiView.printTUIView(handTUIView);
+
+        handTUIView = tuiView.handTUIView(
+                List.of(
+                        stringPlayableCardHashMap.get("gold_09"),
+                        stringPlayableCardHashMap.get("gold_19"),
+                        stringPlayableCardHashMap.get("gold_39")
+                )
+        );
+
+        tuiView.printTUIView(handTUIView);
 
 
     }

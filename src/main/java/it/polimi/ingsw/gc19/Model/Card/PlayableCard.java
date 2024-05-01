@@ -177,12 +177,8 @@ public class PlayableCard extends Card implements Serializable{
 
     @Override
     public String getCardDescription(){
-        return "Type: " + cardType + "\n" +
-                "Front grid configuration: DOWN-LEFT = " + frontGridConfiguration[1][0] + " UP-LEFT = " + frontGridConfiguration[0][0] + " UP-RIGHT = " + frontGridConfiguration[0][1] + " DOWN-RIGHT = " + frontGridConfiguration[1][1] + "\n" +
-                this.playableEffect.getEffectDescription() + "\n" +
-                "Required symbols to place front: " + this.requiredSymbolToPlace.toString() + "\n" +
-                "Back grid configuration: DOWN-LEFT = " + backGridConfiguration[1][0] + " UP-LEFT = " + backGridConfiguration[0][0] + " UP-RIGHT = " + backGridConfiguration[0][1] + " DOWN-RIGHT = " + backGridConfiguration[1][1] + "\n" +
-                "Permanent resources: " + permanentResources.toString();
+        return "Playable card " + this.getCardCode() + ":\n" +
+                this.playableEffect.getEffectDescription() + "\n";
     }
 
     /**
