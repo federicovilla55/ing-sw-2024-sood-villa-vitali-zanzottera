@@ -57,7 +57,7 @@ public class ServerApp {
                 }
             }
         }
-        System.out.println("Starting RMI on IP " + Settings.DEFAULT_SERVER_IP + " and port " + validPort + "... \n");
+        System.out.println("Starting RMI on IP " + ServerSettings.DEFAULT_SERVER_IP + " and port " + validPort + "... \n");
         System.out.println("Insert port for TCP (or 'default'): ");
         startRMI(RMIPort);
 
