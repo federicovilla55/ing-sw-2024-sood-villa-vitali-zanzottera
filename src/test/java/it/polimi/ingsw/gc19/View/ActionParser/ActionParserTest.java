@@ -7,6 +7,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.Action.ChosenColorMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.PickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
@@ -28,15 +29,14 @@ import it.polimi.ingsw.gc19.View.GameLocalView.ViewState;
 import org.junit.jupiter.api.*;
 
 import javax.swing.text.View;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -252,7 +252,6 @@ public class ActionParserTest {
         assertEquals(actionParser1.getState(), ViewState.WAIT);
         MessageToClient message1 = assertMessageEquals(client1, new CreatedPlayerMessage(client1.getNickname()));
         client1.setToken(((CreatedPlayerMessage) message1).getToken());
-        System.out.println();
         client1.setNickname(((CreatedPlayerMessage) message1).getNick());
         actionParser1.viewState.nextState(new CreatedPlayerMessage(client1.getNickname()));
         assertEquals(actionParser1.getState(), ViewState.NOTGAME);
@@ -261,7 +260,6 @@ public class ActionParserTest {
         assertEquals(actionParser2.getState(), ViewState.WAIT);
         MessageToClient message2 = assertMessageEquals(client2, new CreatedPlayerMessage(client2.getNickname()));
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        System.out.println(token2);
         client2.setToken(token2);
         client2.setNickname(((CreatedPlayerMessage) message2).getNick());
         actionParser2.viewState.nextState(new CreatedPlayerMessage(client2.getNickname()));
@@ -283,9 +281,9 @@ public class ActionParserTest {
         allPlayersChooseColor(actionParser1, actionParser2);
         allPlayersChoosePrivateGoal(actionParser1, actionParser2);
 
-        assertMessageWithHeaderEquals(this.client1,  new StartPlayingGameMessage(this.client1.getNickname()), "client1", "client2");
+        assertMessageWithHeaderEquals(List.of(this.client1, this.client2),  new StartPlayingGameMessage(this.client1.getNickname()), "client1", "client2");
 
-        assertMessageWithHeaderEquals(this.client1, new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
+        assertMessageWithHeaderEquals(List.of(this.client1, this.client2), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
 
         actionParser1.viewState.nextState(new StartPlayingGameMessage(this.client1.getNickname()));
         actionParser2.viewState.nextState(new StartPlayingGameMessage(this.client1.getNickname()));
@@ -300,11 +298,16 @@ public class ActionParserTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("Fine wait");
+
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/TokenFile" + "_" + client2.getNickname());
+        Scanner tokenScanner = null;
+        try {
+            tokenScanner = new Scanner(tokenFile);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         assertMessageEquals(client1, new DisconnectedPlayerMessage(this.client2.getNickname()));
-
-        System.out.println("Disoconnected");
 
         actionParser1.viewState.nextState(new GamePausedMessage());
         assertEquals(actionParser1.getState(), ViewState.PAUSE);
@@ -314,15 +317,16 @@ public class ActionParserTest {
 
         assertMessageEquals(client1, new GamePausedMessage());
 
-        System.out.println("Fine wait");
+        assertMessageEquals(client2, new JoinedGameMessage("GAME1"));
         actionParser2.viewState.nextState(new JoinedGameMessage("GAME1"));
-        actionParser2.viewState.nextState(new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE));
+        assertEquals(actionParser2.getState(), ViewState.WAIT);
+        assertMessageEquals(client2, new GameConfigurationMessage(GameState.PAUSE, TurnState.PLACE, client1.getNickname(), client1.getNickname(), false, 2));
+        actionParser2.viewState.nextState(new GameConfigurationMessage(GameState.PAUSE, TurnState.PLACE, client1.getNickname(), client1.getNickname(), false, 2));
         assertEquals(actionParser2.getState(), ViewState.OTHERTURN);
 
-        System.out.println("Now let's see if the game can Resume for client1");
+        assertEquals(actionParser1.getState(), ViewState.PAUSE);
         assertMessageWithHeaderEquals(client1, new GameResumedMessage(), "client1", "client2");
         //assertMessageEquals(client1, new GameResumedMessage());
-        System.out.println("Fine wait");
         actionParser1.viewState.nextState(new GameResumedMessage());
         assertEquals(actionParser1.getState(), ViewState.PLACE);
     }
@@ -532,7 +536,6 @@ public class ActionParserTest {
         assertEquals(actionParser2.getState(), ViewState.WAIT);
         MessageToClient message2 = assertMessageEquals(client2, new CreatedPlayerMessage(client2.getNickname()));
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        System.out.println(token2);
         client2.setToken(token2);
         client2.setNickname(((CreatedPlayerMessage) message2).getNick());
         actionParser2.viewState.nextState(new CreatedPlayerMessage(client2.getNickname()));

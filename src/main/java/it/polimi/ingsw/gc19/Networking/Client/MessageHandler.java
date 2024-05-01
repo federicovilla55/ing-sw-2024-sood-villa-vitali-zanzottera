@@ -107,7 +107,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
             this.localModel.updateCardsInHand(message.getPickedCard());
         }
 
-        this.localModel.updateCardsInTable(message.getPickedCard(), message.getDeckType(), message.getCoords());
+        this.localModel.updateCardsInTable(message.getCardToPutInSlot(), message.getDeckType(), message.getCoords());
         actionParser.viewState.nextState(message);
     }
 
@@ -153,7 +153,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         this.localModel.setFirstPlayer(message.getFirstPlayer());
         actionParser.viewState.nextState(message);
 
-        // @todo: handle final round and game state
     }
 
     @Override
@@ -171,6 +170,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     @Override
+
     public void visit(TableConfigurationMessage message) {
         this.localModel.setTable(new LocalTable(message.getSxResource(), message.getDxResource(),
                         message.getSxGold(), message.getDxGold(), message.getSxPublicGoal(),

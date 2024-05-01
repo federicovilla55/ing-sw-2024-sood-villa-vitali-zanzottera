@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.View.GameLocalView;
 
 import it.polimi.ingsw.gc19.Enums.*;
+import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
@@ -34,12 +35,29 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The class is used to forward the actions given by the user to the client network interface.
+ * The class can permit different action based on the state of the client, that vary when certain actions are
+ * done or when certain messages are received.
+ * It contains a method to parse a string and various states that can elaborate the action.
+ */
 public class ActionParser {
     private String nickname;
 
+    /**
+     * The attribute represent the current state of the client.
+     * Depending on its value only certain actions can be perfomed.
+     */
     public ClientState viewState;
 
+    /**
+     * The attribute represent the previous state of the client.
+     * Used to retrieve the old state after an action is refused,
+     * the game is no more in PAUSE, ...
+     */
     private ClientState prevState;
+
+    private LocalModel localModel;
 
     private ClientInterface clientNetwork;
 
@@ -54,6 +72,11 @@ public class ActionParser {
         prevState = new NotPlayer();
     }
 
+    /**
+     * Public method used to forward a string containing an action to be performed
+     * to the methods that effectively performs those actions.
+     * @param action a string containing the actions to be done.
+     */
     public void parseAction(String action) {
         viewState.parseAction(commandParser(action));
     }
@@ -75,6 +98,19 @@ public class ActionParser {
         return viewState.getState();
     }
 
+    public synchronized void setLocalModel(LocalModel localModel){
+        this.localModel = localModel;
+    }
+
+    public synchronized LocalModel getLocalModel(){
+        return this.localModel;
+    }
+
+    /**
+     * The method should be called when the client detects a disconnection.
+     * The client state is changed in Disconnect and a new thread tries to
+     * reconnect the client sending requests at a fixed rate.
+     */
     public synchronized void disconnect(){
         this.prevState = viewState;
         this.viewState = new Disconnect();
@@ -85,13 +121,13 @@ public class ActionParser {
         return (this.viewState.getState() == ViewState.DISCONNECT);
     }
 
-    public synchronized void goToWait(){
-        this.prevState = viewState;
-        this.viewState = new Wait();
-    }
 
+    /**
+     * To send a message in the chat.
+     * send_message(message_content, receiver1 {, receiver2, ...})
+     */
     public synchronized void sendMessage(ArrayList<String> command){
-        if(command.size()-1 == Command.SENDCHATMESSAGE.getNumArgs() &&
+        if(command.size()-1 >= Command.SENDCHATMESSAGE.getNumArgs() &&
             command.getFirst().equals(Command.SENDCHATMESSAGE.getCommandName())) {
             // first element is command name, second element is the message content
             // and the following elements are the receivers.
@@ -103,6 +139,10 @@ public class ActionParser {
         // The action doesn't modify the state of the ViewClient.
     }
 
+    /**
+     * To set the nickname of the client and request a connection.
+     * create_player(nickname)
+     */
     public synchronized void createPlayer(ArrayList<String> command){
         if(command.size()-1 == Command.CREATEPLAYER.getNumArgs()
                 && command.getFirst().equals(Command.CREATEPLAYER.getCommandName())){
@@ -115,6 +155,10 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To pick a card from a deck.
+     * pick_card_deck(cardType)
+     */
     public synchronized void pickCardFromDeck(ArrayList<String> command){
         if(command.size()-1 == Command.PICKCARDDECK.getNumArgs()
                 && command.getFirst().equals(Command.PICKCARDDECK.getCommandName())){
@@ -126,6 +170,10 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To pick a card from the table.
+     * pick_card_table(cardType, tablePosition)
+     */
     public synchronized void pickCardFromTable(ArrayList<String> command){
         if(command.size()-1 == Command.PICKCARDTABLE.getNumArgs() &&
                 command.getFirst().equals(Command.PICKCARDTABLE.getCommandName())){
@@ -138,10 +186,25 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To place a card given its anchor, the direction and the orientation.
+     * place_card(cardToInsert, anchorCard, directionToInsert, cardOrientation)
+     */
     public synchronized void placeCard(ArrayList<String> command){
+        // place_card(cardToInsert, anchorCard, directionToInsert, cardOrientation)
         if(command.size()-1 == Command.PLACECARD.getNumArgs() &&
                 command.getFirst().equals(Command.PLACECARD.getCommandName())){
-            // @todo: is placeable???
+
+            /*PlayableCard cardToPlace = localModel.getPlayableCard(command.get(1));
+            PlayableCard anchorCard = localModel.getPlayableCard(command.get(2));
+
+            if(!getLocalModel().isCardPlaceablePersonalStation(
+                    cardToPlace, anchorCard, Direction.valueOf(command.get(3)))){
+                // notify observer that the card can't be placed
+
+                return;
+            }*/
+
             clientNetwork.placeCard(command.get(1), command.get(2),
                     Direction.valueOf(command.get(3)),
                     CardOrientation.valueOf(command.get(4)));
@@ -150,6 +213,11 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To handle a RefusedActionMessage handle and modify the client
+     * state consequently.
+     * @param message RefusedActionMessage to analyze
+     */
     public synchronized void handleError(RefusedActionMessage message){
         switch (message.getErrorType()){
             case ErrorType.INVALID_CARD_ERROR, ErrorType.INVALID_ANCHOR_ERROR -> {
@@ -169,6 +237,11 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To handle a NetworkHandlingErrorMessage handle and modify the client
+     * state consequently.
+     * @param message NetworkHandlingErrorMessage to analyze
+     */
     public synchronized void handleError(NetworkHandlingErrorMessage message){
         if(message.getError() == NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER || message.getError() == NetworkError.COULD_NOT_RECONNECT){
             disconnect();
@@ -177,6 +250,11 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To handle a GameHandlingError handle and modify the client
+     * state consequently.
+     * @param message GameHandlingError to analyze
+     */
     public synchronized void handleError(GameHandlingError message){
         switch (message.getErrorType()){
             case Error.PLAYER_NAME_ALREADY_IN_USE -> {
@@ -192,14 +270,31 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To choose a color at the beginning of the game.
+     * choose_color(colorType)
+     */
     public synchronized void chooseColor(ArrayList<String> command) {
         if(command.size()-1 == Command.CHOOSECOLOR.getNumArgs() &&
                 command.getFirst().equals(Command.CHOOSECOLOR.getCommandName())){
+
+            /*if(!localModel.getAvailableColors().contains(Color.valueOf(command.get(1)))){
+                // notify the observer that the color selected is not available
+
+                return;
+            }*/
+
             clientNetwork.chooseColor(Color.valueOf(command.get(1)));
         }
 
     }
 
+    /**
+     * To choose a goal card at the beginning of the game.
+     * There should two cards to select from so the user should give a number
+     * representing the selected card.
+     * choose_goal(goalCardIndex)
+     */
     public synchronized void chooseGoal(ArrayList<String> command) {
         if(command.size()-1 == Command.CHOOSEPRIVATEGOAL.getNumArgs() &&
                 command.getFirst().equals(Command.CHOOSEPRIVATEGOAL.getCommandName())){
@@ -207,6 +302,10 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To place the initial card at the beginning of the game vien its orientation.
+     * place_initial_card(orientation)
+     */
     public synchronized void placeInitialCard(ArrayList<String> command) {
         if(command.size()-1 == Command.PLACEINITIALCARD.getNumArgs() &&
                 command.getFirst().equals(Command.PLACEINITIALCARD.getCommandName())){
@@ -214,6 +313,10 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To ask the server which games are free to join.
+     * available_games()
+     */
     public synchronized void availableGames(ArrayList<String> command) {
         if(command.size()-1 == Command.AVAILABLEGAMES.getNumArgs() &&
                 command.getFirst().equals(Command.AVAILABLEGAMES.getCommandName())){
@@ -221,6 +324,10 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To notify the server that the player want to join the first available fame.
+     * join_first_game()
+     */
     public synchronized void joinFirstGame(ArrayList<String> command) {
         if(command.size()-1 == Command.JOINFIRSTGAME.getNumArgs() &&
                 command.getFirst().equals(Command.JOINFIRSTGAME.getCommandName())){
@@ -230,6 +337,11 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To notify the server that the player want to join
+     * a particular game.
+     * join_game(gameName)
+     */
     public synchronized void joinGame(ArrayList<String> command) {
         if(command.size()-1 == Command.JOINGAME.getNumArgs() &&
                 command.getFirst().equals(Command.JOINGAME.getCommandName())){
@@ -239,6 +351,10 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To create a game specifying the game name, the number of players and the seed.
+     * create_game(gameName, numPlayers, seed)
+     */
     public synchronized void createGameSeed(ArrayList<String> command) {
         if(command.size()-1 == Command.CREATEGAMESEED.getNumArgs() &&
                 command.getFirst().equals(Command.CREATEGAMESEED.getCommandName())){
@@ -248,6 +364,10 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To create a game specifying the game name and the number of players.
+     * create_game(gameName, numPlayers)
+     */
     public synchronized void createGame(ArrayList<String> command) {
         if(command.size()-1 == Command.CREATEGAME.getNumArgs() &&
                 command.getFirst().equals(Command.CREATEGAME.getCommandName())){
@@ -257,6 +377,13 @@ public class ActionParser {
         }
     }
 
+    /**
+     * To parse a string containing the command we want to execute.
+     * @return an arraylist that contains at the first position the command
+     * name and in the following positions there are the parameters.
+     * Ex. create_game(game1, 2, 4) => {create_game, game1, 2, 4}
+     * Ex. available_games() => {available_games}
+     */
     public static ArrayList<String> commandParser(String command){
         ArrayList<String> commandParsed = new ArrayList<>();
 
@@ -435,6 +562,9 @@ public class ActionParser {
         public void nextState(GameConfigurationMessage message){
             if(message.getGameState() == GameState.SETUP){
                 viewState = new Setup();
+            }else{
+                viewState = (message.getActivePlayer().equals(getNickname())) ?
+                        new Place() : new OtherTurn();
             }
         }
 
@@ -480,7 +610,7 @@ public class ActionParser {
             // place_card(cardToInsert, anchorCard, directionToInsert, cardOrientation)
             placeCard(command);
 
-            // send_message(...)
+            // send_message()
             sendMessage(command);
         }
     }
@@ -569,23 +699,21 @@ public class ActionParser {
     }
 
     class Disconnect extends ClientState{
-        //ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         Thread reconnectScheduler;
+
+        boolean isSend = false;
 
         int numReconnect = 0;
 
         @Override
         public void nextState(JoinedGameMessage message) {
-            //scheduler.shutdown();
-            System.out.println("Joined the game " + message.getGameName());
+            System.out.println("RIENTRATO");
             reconnectScheduler.interrupt();
-            System.out.println("Thread interrotto...");
             viewState = new Wait();
         }
 
         @Override
         public void nextState(AvailableGamesMessage message) {
-            //scheduler.shutdown();
             reconnectScheduler.interrupt();
             viewState = new NotGame();
         }
@@ -593,7 +721,18 @@ public class ActionParser {
         @Override
         public void nextState(GameHandlingError message){
             System.out.println("GameHandlingError " + message.getErrorType());
-            handleError(message);
+            switch (message.getErrorType()){
+                case Error.PLAYER_NAME_ALREADY_IN_USE -> {
+                    viewState = new NotPlayer();
+                }
+                case Error.PLAYER_NOT_IN_GAME -> {
+                    viewState = new Disconnect();
+                }
+                default -> {
+                    viewState = new NotGame();
+                }
+
+            }
         }
         @Override
         public void nextState(NetworkHandlingErrorMessage message){
@@ -609,34 +748,37 @@ public class ActionParser {
 
         @Override
         void parseAction(ArrayList<String> command) {
-            System.out.println("Thread costruito: ");
             reconnectScheduler = new Thread(this::reconnect);
             reconnectScheduler.start();
-            System.out.println("Thread start");
+        }
+
+        public synchronized void setIsSend(boolean toSet){
+            isSend = toSet;
+        }
+
+        public synchronized boolean getIsSend(){
+            return isSend;
         }
 
         public void reconnect(){
-            while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING && !Thread.currentThread().isInterrupted()){
-                System.out.println("Tentativo reconnect: " + numReconnect);
+            while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING
+                    && !Thread.currentThread().isInterrupted()){
                 try {
+                    System.out.println("IS INTERR? " + Thread.currentThread().isInterrupted());
                     clientNetwork.reconnect();
-                    System.out.println("Richiesta reconnect andata...");
                 } catch (IllegalStateException e) {
                     // Token file not found...
-                    System.out.println("Token file not found...");
                     viewState = new NotPlayer();
-                    Thread.currentThread().interrupt();
+                    reconnectScheduler.interrupt();
                     return;
                 } catch (RuntimeException e) {
-                    System.out.println("RunTimeException..." + e.getMessage());
-                    e.printStackTrace();
                     numReconnect++;
                 }
 
                 try {
-                    Thread.currentThread().sleep(100/*ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000*/);
+                    reconnectScheduler.sleep(ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000);
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                    reconnectScheduler.interrupt();
                     return;
                 }
             }

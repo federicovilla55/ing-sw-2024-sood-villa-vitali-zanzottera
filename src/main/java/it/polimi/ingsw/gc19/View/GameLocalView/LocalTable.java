@@ -26,6 +26,30 @@ public class LocalTable {
         this.nextSeedOfGoldDeck = nextSeedOfGoldDeck;
     }
 
+    public PlayableCard getResource1() {
+        return resource1;
+    }
+
+    public PlayableCard getResource2() {
+        return resource2;
+    }
+
+    public PlayableCard getGold1() {
+        return gold1;
+    }
+
+    public PlayableCard getGold2() {
+        return gold2;
+    }
+
+    public GoalCard getPublicGoal1() {
+        return publicGoal1;
+    }
+
+    public GoalCard getPublicGoal2() {
+        return publicGoal2;
+    }
+
     public void setGold1(PlayableCard gold1) {
         this.gold1 = gold1;
     }
