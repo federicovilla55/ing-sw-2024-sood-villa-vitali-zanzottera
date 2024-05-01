@@ -6,9 +6,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 
 import java.util.*;
 
-public interface ClientInterface {
-    void connect();
-
+public interface ClientInterface extends ConfigurableClient, NetworkManagementInterface{
     void createGame(String gameName, int numPlayers);
 
     void createGame(String gameName, int numPlayers, int seed);
@@ -16,10 +14,6 @@ public interface ClientInterface {
     void joinGame(String gameName);
 
     void joinFirstAvailableGame();
-
-    void reconnect();
-
-    void disconnect();
 
     void placeCard(String cardToInsert, String anchorCard, Direction directionToInsert, CardOrientation orientation);
 
@@ -37,15 +31,6 @@ public interface ClientInterface {
 
     void availableGames();
 
-    void setToken(String token);
-
-    void setNickname(String nickname);
-
-    String getNickname();
     void logoutFromGame();
-
-    void signalDisconnection();
-
-    void heartBeat();
 
 }

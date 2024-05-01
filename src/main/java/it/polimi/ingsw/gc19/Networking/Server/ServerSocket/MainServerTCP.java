@@ -401,7 +401,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
             synchronized (connectedClients) {
                 for (var v : connectedClients.entrySet()) {
-                    if (v.getValue().z() != null && v.getValue().z().equals(message.getToken())) {
+                    if (v.getValue().z() != null && v.getValue().z().equals(message.getToken()) && v.getValue().x().getUsername().equals(nickname)) { //For tests if problems check this
                         socketBefore = v.getKey();
 
                         if (mainController.isPlayerActive(nickname)) {

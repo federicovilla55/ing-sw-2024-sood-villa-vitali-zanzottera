@@ -82,7 +82,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     @Override
-    public void visit(AcceptedChooseGoalCard message) {
+    public void visit(AcceptedChooseGoalCardMessage message) {
         this.localModel.setPrivateGoal(message.getGoalCard());
     }
 
@@ -228,8 +228,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(CreatedPlayerMessage message) {
-        this.client.setNickname(message.getNick());
-        this.client.setToken(message.getToken());
+        this.client.configure(message.getNick(), message.getToken());
         this.localModel.setNickname(message.getNick());
         actionParser.viewState.nextState(message);
     }

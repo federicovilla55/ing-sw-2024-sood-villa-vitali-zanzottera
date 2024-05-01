@@ -11,14 +11,14 @@ import java.util.function.Supplier;
 
 public class HeartBeatManager{
 
-    private final ClientInterface clientInterface;
+    private final NetworkManagementInterface networkManagementInterface;
     private final ScheduledExecutorService heartBeatSenderScheduler;
     private final ScheduledExecutorService heartBeatChecker;
     private long lastHeartBeatFromServer;
     private final Object lastHeartBeatLock;
 
-    public HeartBeatManager(ClientInterface clientInterface){
-        this.clientInterface = clientInterface;
+    public HeartBeatManager(NetworkManagementInterface networkManagementInterface){
+        this.networkManagementInterface = networkManagementInterface;
         this.heartBeatSenderScheduler = Executors.newSingleThreadScheduledExecutor();
         this.heartBeatChecker = Executors.newSingleThreadScheduledExecutor();
         this.lastHeartBeatLock = new Object();
@@ -33,14 +33,17 @@ public class HeartBeatManager{
     private void runHeartBeatTesterForServer(){
         synchronized (this.lastHeartBeatLock){
             if(new Date().getTime() - lastHeartBeatFromServer > 30 * 1000){
-                clientInterface.signalDisconnection();
+                networkManagementInterface.signalPossibleNetworkProblem();
             }
         }
     }
 
     public void startHeartBeatManager(){
         if(this.heartBeatSenderScheduler.isShutdown()){
-            this.heartBeatSenderScheduler.scheduleAtFixedRate(clientInterface::heartBeat, 0, 400, TimeUnit.MILLISECONDS);
+            this.heartBeatSenderScheduler.scheduleAtFixedRate(networkManagementInterface::sendHeartBeat, 0, 400, TimeUnit.MILLISECONDS);
+        }
+        if(this.heartBeatChecker.isShutdown()){
+            this.heartBeatChecker.scheduleAtFixedRate(this::runHeartBeatTesterForServer, 0, 400, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -48,7 +51,9 @@ public class HeartBeatManager{
         if(!this.heartBeatSenderScheduler.isShutdown()){
             this.heartBeatSenderScheduler.shutdownNow();
         }
+        if(this.heartBeatChecker.isShutdown()){
+            this.heartBeatChecker.shutdownNow();
+        }
     }
-
 
 }

@@ -8,11 +8,11 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  * This message is used to notify player that that his
  * choice for private goal card has been accepted.
  */
-public class AcceptedChooseGoalCard extends AcceptedActionMessage{
+public class AcceptedChooseGoalCardMessage extends AcceptedActionMessage{
 
     private final GoalCard goalCard;
 
-    public AcceptedChooseGoalCard(GoalCard goalCard){
+    public AcceptedChooseGoalCardMessage(GoalCard goalCard){
         this.goalCard = goalCard;
     }
 

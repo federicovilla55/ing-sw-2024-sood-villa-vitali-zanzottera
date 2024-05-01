@@ -77,7 +77,7 @@ public class ActionParser {
 
     public synchronized void disconnect(){
         this.prevState = viewState;
-        this.viewState = new Disconnect();
+        this.viewState = new Disconnect(); //@TODO: maybe check if we are alredy in diconnect?
         this.viewState.parseAction(null);
     }
 

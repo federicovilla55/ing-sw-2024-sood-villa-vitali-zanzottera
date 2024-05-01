@@ -264,17 +264,17 @@ public class MainServerRMI extends Server implements VirtualMainServer{
         VirtualClient clientRMIBefore = null;
         ClientHandlerRMI clientHandlerRMI = null;
         boolean found = false;
-        if(this.lastHeartBeatOfClients.containsKey(clientRMI)){
+
+        if(this.mainController.isPlayerActive(nickName)){ //Maybe problems here?
             clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,
                                                        "You cannot reconnect to server because you are already connected!")
                                          .setHeader(nickName));
             return null;
         }
 
-
         synchronized (this.connectedClients) {
             for (var v : this.connectedClients.entrySet()) {
-                if (v.getValue().y().equals(token)) {
+                if (v.getValue().y().equals(token) && v.getValue().x().getUsername().equals(nickName)) { //For tests if problems check this
                     clientRMIBefore = v.getKey();
                     v.getValue().x().interruptClientHandler();
                     clientHandlerRMI = new ClientHandlerRMI(clientRMI, v.getValue().x());

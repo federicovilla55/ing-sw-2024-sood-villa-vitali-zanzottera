@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public abstract class ClientState {
     public void nextState(MessageToClient message) {}
-    public void nextState(AcceptedChooseGoalCard message) {}
+    public void nextState(AcceptedChooseGoalCardMessage message) {}
     public void nextState(AcceptedColorMessage message) {}
     public void nextState(OwnAcceptedPickCardFromDeckMessage message) {}
     public void nextState(OtherAcceptedPickCardFromDeckMessage message) {}
