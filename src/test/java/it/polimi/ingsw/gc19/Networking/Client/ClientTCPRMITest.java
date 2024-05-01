@@ -724,6 +724,7 @@ public class ClientTCPRMITest {
         assertMessageEquals(this.client1, new DisconnectFromGameMessage("game11"));
         assertMessageEquals(this.client2, new DisconnectedPlayerMessage(this.client1.getNickname()));
         this.client2.logoutFromGame();
+        assertMessageEquals(this.client2, new DisconnectFromGameMessage("game11"));
 
         this.client3.connect("client3");
         client3.waitForMessage(CreatedPlayerMessage.class);
