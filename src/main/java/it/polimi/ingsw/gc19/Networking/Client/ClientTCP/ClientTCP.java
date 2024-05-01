@@ -99,7 +99,6 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
                     synchronized (this.messagesToSend) {
                         this.messagesToSend.clear();
                     }
-                    System.out.println("calleddddddddddddddddddddddd");
                     this.actionParser.disconnect();
                 }
             }
@@ -214,10 +213,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
         File configFile;
         String nick, token;
 
-        /*
-        FIXME: if client shut down its machine how to do for fle? Ask client for username or save on file? Also for path with nick?
-         */
-        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
+        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME);
 
         if(configFile.isFile() && configFile.exists()) {
             try {
@@ -275,7 +271,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
 
     @Override
     public void disconnect() throws RuntimeException{
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME);
         if(tokenFile.exists() && tokenFile.exists() && tokenFile.delete()){
             System.err.println("[TOKEN]: token file deleted.");
         }
@@ -293,7 +289,6 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
             this.actionParser.disconnect();
         }
         this.heartBeatManager.stopHeartBeatManager();
-        System.out.println("from   " + nickname);
     }
 
     @Override
@@ -348,7 +343,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
         File configFile;
         this.nickname = nick;
 
-        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
+        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME);
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(configFile));
             bufferedWriter.write(nick);

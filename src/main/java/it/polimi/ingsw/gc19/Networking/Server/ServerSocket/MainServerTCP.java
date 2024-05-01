@@ -376,8 +376,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                         connectedClients.put(clientSocket, new Triplet<>(clientHandlerSocket, connectedClients.get(clientSocket).y(), hashedMessage));
                         connectedClients.notifyAll();
 
-                        System.err.println(new CreatedPlayerMessage(nickname, hashedMessage).setHeader(connectedClients.get(clientSocket).x().getUsername()));
-
                         clientHandlerSocket.update(new CreatedPlayerMessage(nickname, hashedMessage).setHeader(connectedClients.get(clientSocket).x().getUsername()));
                     }
                 }
@@ -405,14 +403,12 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
             synchronized (connectedClients) {
                 for (var v : connectedClients.entrySet()) {
                     if (v.getValue().z() != null && v.getValue().z().equals(message.getToken()) && v.getValue().x().getUsername().equals(nickname)) { //For tests if problems check this
-                        System.err.println("ok");
                         socketBefore = v.getKey();
 
                         if (mainController.isPlayerActive(nickname)) {
                             connectedClients.get(clientSocket).x().update(new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,
                                                                                                           "You are trying to reconnect a client that is already connected to sever!")
                                                                                   .setHeader(connectedClients.get(clientSocket).x().getUsername()));
-                            System.err.println("ok");
                             return;
                         }
 
@@ -582,7 +578,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 lastHeartBeatOfClients.put(clientSocket, new Date().getTime());
                 synchronized (connectedClients){
                     clientHandlerSocket = connectedClients.get(clientSocket).x();
-                    System.err.println("Heartbeat from " + clientHandlerSocket.getUsername());
                 }
                 clientHandlerSocket.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerSocket.getUsername()));
                 synchronized (pendingSocketToKill){

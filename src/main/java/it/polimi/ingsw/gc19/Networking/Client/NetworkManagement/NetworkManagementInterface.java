@@ -8,4 +8,5 @@ public interface NetworkManagementInterface {
     void sendHeartBeat();
     void startSendingHeartbeat();
     void stopSendingHeartbeat();
+    void stopClient();
 }

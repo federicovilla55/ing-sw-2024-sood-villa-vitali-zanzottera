@@ -141,7 +141,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
         BufferedReader configReader;
         String nick, token;
 
-        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
+        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME);
 
         if(configFile.exists() && configFile.isFile()) {
             try {
@@ -155,6 +155,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
             }
         }
         else{
+            System.out.println(configFile.exists() + "   " + configFile.isDirectory());
             throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
         }
 
@@ -221,8 +222,8 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
             throw new RuntimeException("Cannot disconnect from server because of Remote Exception: " + e);
         }
 
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
-        if(tokenFile.exists() && tokenFile.isFile() && tokenFile.delete()){
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME);
+        if(tokenFile.exists() && tokenFile.delete()){
             System.err.println("[CONFIG]: token file deleted.");
         }
 
@@ -421,19 +422,19 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void configure(String nick, String token) {
         File tokenFile;
-
         this.nickname = nick;
 
-        tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
         try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
-            System.err.println("writinggggggggggggggggg" + nick + "   " + token);
-            bufferedWriter.write(nick);
-            bufferedWriter.write("\n");
-            bufferedWriter.write(token);
-            bufferedWriter.close();
-            if(tokenFile.setReadOnly()){
-                System.err.println("[CONFIG]: configuration file written and set read only.");
+            tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME);
+            if(tokenFile.createNewFile()) {
+                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
+                bufferedWriter.write(nick);
+                bufferedWriter.write("\n");
+                bufferedWriter.write(token);
+                bufferedWriter.close();
+                if (tokenFile.setReadOnly()) {
+                    System.err.println("[CONFIG]: configuration file written and set read only.");
+                }
             }
         }
         catch (IOException ignored){ };

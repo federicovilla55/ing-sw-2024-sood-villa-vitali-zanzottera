@@ -314,7 +314,6 @@ public class ServerSocketAndMainControllerTest {
         this.client1.createGame("game5", 2, 1);
         assertMessageEquals(this.client1, new CreatedGameMessage("game5").setHeader(this.client1.getName()));
 
-
         this.client2.createPlayer();
         this.client2.joinGame("game5", false);
         assertMessageEquals(this.client2, new JoinedGameMessage("game5").setHeader(this.client2.getName()));

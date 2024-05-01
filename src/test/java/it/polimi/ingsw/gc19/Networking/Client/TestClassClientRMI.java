@@ -48,4 +48,16 @@ public class TestClassClientRMI extends ClientRMI implements CommonClientMethods
         return super.getNickname();
     }
 
+    @Override
+    public void configure(String nick, String token){
+        String prevSetting;
+        synchronized (ClientSettings.class){
+            prevSetting = ClientSettings.CONFIG_FILE_NAME;
+            ClientSettings.CONFIG_FILE_NAME = nick;
+            System.out.println("prev -> " + prevSetting + "   " + "now -> " + nick);
+            super.configure(nick, token);
+            ClientSettings.CONFIG_FILE_NAME = prevSetting;
+        }
+    }
+
 }

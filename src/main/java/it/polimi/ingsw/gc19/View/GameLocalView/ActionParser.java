@@ -555,38 +555,31 @@ public class ActionParser {
     }
 
     class Disconnect extends ClientState{
-        //ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        Thread reconnectScheduler;
-
+        Thread reconnectThread;
         int numReconnect = 0;
 
         @Override
         public void nextState(JoinedGameMessage message) {
-            //scheduler.shutdown();
-            System.out.println("Joined the game " + message.getGameName());
-            reconnectScheduler.interrupt();
-            System.out.println("Thread interrotto...");
+            //@TODO: only interrupt with new messages
+            reconnectThread.interrupt();
             viewState = new Wait();
         }
 
         @Override
         public void nextState(AvailableGamesMessage message) {
-            //scheduler.shutdown();
-            reconnectScheduler.interrupt();
+            //@TODO: only interrupt with new messages
+            reconnectThread.interrupt();
             viewState = new NotGame();
         }
 
         @Override
         public void nextState(GameHandlingError message){
-            System.out.println("GameHandlingError " + message.getErrorType());
             handleError(message);
         }
         @Override
         public void nextState(NetworkHandlingErrorMessage message){
-            System.out.println("NetworkError " + message.getError());
             handleError(message);
         }
-
 
         @Override
         public ViewState getState() {
@@ -596,13 +589,12 @@ public class ActionParser {
         @Override
         void parseAction(ArrayList<String> command) {
             if(clientNetwork != null) {
-                reconnectScheduler = new Thread(this::reconnect);
-                reconnectScheduler.start();
+                reconnectThread = new Thread(this::reconnect);
+                reconnectThread.start();
             }
         }
 
         public void reconnect(){
-            System.out.println("ok reconnect");
             while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING && !Thread.currentThread().isInterrupted()){
                 System.out.println("Tentativo reconnect: " + numReconnect);
                 try {
@@ -694,7 +686,5 @@ public class ActionParser {
             sendMessage(command);
         }
     }
-
-
 
 }
