@@ -141,7 +141,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
         BufferedReader configReader;
         String nick, token;
 
-        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME);
+        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + this.nickname);
 
         if(configFile.exists() && configFile.isFile()) {
             try {
@@ -222,7 +222,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
             throw new RuntimeException("Cannot disconnect from server because of Remote Exception: " + e);
         }
 
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME);
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + this.nickname);
         if(tokenFile.exists() && tokenFile.delete()){
             System.err.println("[CONFIG]: token file deleted.");
         }
@@ -408,7 +408,6 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
 
     @Override
     public void pushUpdate(MessageToClient message) throws RemoteException {
-        System.out.println(message);
         if(message instanceof ServerHeartBeatMessage){ //How to not use instance of? MessageHandler has to open the message
             this.heartBeatManager.heartBeat();
         }
@@ -425,7 +424,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
         this.nickname = nick;
 
         try {
-            tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME);
+            tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + this.nickname);
             if(tokenFile.createNewFile()) {
                 BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
                 bufferedWriter.write(nick);

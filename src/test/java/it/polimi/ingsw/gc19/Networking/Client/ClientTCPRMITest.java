@@ -717,10 +717,11 @@ public class ClientTCPRMITest {
         this.client2.configure("client2", token2);
 
         this.client1.createGame("game11", 3);
-        waitingThread(500);
+        assertMessageEquals(this.client1, new CreatedGameMessage("game11"));
         this.client2.joinFirstAvailableGame();
+        assertMessageEquals(this.client2, new JoinedGameMessage("game11"));
         this.client1.logoutFromGame();
-        waitingThread(500);
+        assertMessageEquals(this.client1, new DisconnectFromGameMessage("game11"));
         assertMessageEquals(this.client2, new DisconnectedPlayerMessage(this.client1.getNickname()));
         this.client2.logoutFromGame();
 

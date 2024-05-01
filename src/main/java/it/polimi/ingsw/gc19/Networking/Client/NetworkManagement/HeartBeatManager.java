@@ -44,11 +44,9 @@ public class HeartBeatManager{
 
     private void sendHeartBeat(){
         try{
-            System.err.println("heartbeat");
             this.networkManagementInterface.sendHeartBeat();
         }
         catch (RuntimeException runtimeException){
-            System.out.println("*****************************");
             this.stopHeartBeatManager();
             this.networkManagementInterface.signalPossibleNetworkProblem();
         }

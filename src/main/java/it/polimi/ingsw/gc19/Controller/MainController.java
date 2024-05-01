@@ -195,13 +195,13 @@ public class MainController {
      */
     public void removePlayerFromGame(ClientHandler player, String gameName){
         GameController gameController;
-        synchronized (this.gamesInfo){
+        synchronized (this.gamesInfo) {
             gameController = this.gamesInfo.get(gameName);
-        }
-        if(gameController != null) {
-            gameController.removeClient(player.getUsername());
-            if(gameController.getGameAssociated().getGameState() == GameState.SETUP && gameController.getConnectedClients().isEmpty()){
-                this.gamesInfo.remove(gameName);
+            if (gameController != null) {
+                gameController.removeClient(player.getUsername());
+                if (gameController.getGameAssociated().getGameState() == GameState.SETUP && gameController.getConnectedClients().isEmpty()) {
+                    this.gamesInfo.remove(gameName);
+                }
             }
         }
     }
@@ -243,7 +243,6 @@ public class MainController {
                 this.gamesInfo.put(gameName, gameController);
                 player.update(new CreatedGameMessage(gameName).setHeader(player.getUsername()));
                 this.registerToGame(player, gameName);
-                //System.out.println("after creation " + gameName + " -> " + gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer());
                 return true;
             }
             else {
@@ -297,13 +296,16 @@ public class MainController {
      * @return name of joined game if it exists, otherwise null.
      */
     public boolean registerToFirstAvailableGame(ClientHandler player) {
-        ArrayList<String> availableGames = findAvailableGames();
-        if(!findAvailableGames().isEmpty()) {
-            return !availableGames.isEmpty() && registerToGame(player, availableGames.getFirst());
-        }
-        else{
-            player.update(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, "Attention, there aren't games to join! Try later...").setHeader(player.getUsername()));
-            return false;
+        ArrayList<String> availableGames;
+        synchronized (this.gamesInfo) {
+            availableGames = findAvailableGames();
+            if (!availableGames.isEmpty()) {
+                return registerToGame(player, availableGames.getFirst());
+            }
+            else {
+                player.update(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, "Attention, there aren't games to join! Try later...").setHeader(player.getUsername()));
+                return false;
+            }
         }
     }
 
@@ -330,7 +332,6 @@ public class MainController {
                                       .setHeader(player.getUsername()));
                 return false;
             }
-            //System.out.println(player.getUsername() + " requesting " + gameName + "  " + gamesInfo.get(gameName).getGameAssociated().getNumPlayers() + "  " + gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer());
             if (this.gamesInfo.get(gameName).getGameAssociated().getNumPlayers() == this.gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer() ||
                     this.gamesInfo.get(gameName).getGameAssociated().getGameState() != GameState.SETUP) {
                 player.update(new GameHandlingError(Error.GAME_NOT_ACCESSIBLE,
@@ -360,7 +361,7 @@ public class MainController {
             return this.gamesInfo.entrySet()
                                  .stream()
                                  .filter(e -> e.getValue().getGameAssociated().getGameState() == GameState.SETUP &&
-                                         e.getValue().getGameAssociated().getNumPlayers() != e.getValue().getGameAssociated().getNumJoinedPlayer())
+                                         e.getValue().getGameAssociated().getNumPlayers() > e.getValue().getGameAssociated().getNumJoinedPlayer())
                                  .map(Map.Entry::getKey)
                                  .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         }
@@ -382,17 +383,14 @@ public class MainController {
             if(this.playerInfo.containsKey(clientHandler.getUsername())) {
                 gameName = this.playerInfo.get(clientHandler.getUsername()).y();
                 playerInfo.put(clientHandler.getUsername(), new Tuple<>(State.ACTIVE, gameName)); //FOR ERRORS CHECK HERE
-                System.err.println("gameeeeeeeeeeeeeeeeeeeeee " + gameName);
             }
             else{
-                System.err.println("QUI CI SIAMOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                 clientHandler.update(new AvailableGamesMessage(findAvailableGames()).setHeader(clientHandler.getUsername()));
                 return false;
             }
         }
         synchronized (this.gamesInfo) {
             if (!this.gamesInfo.containsKey(gameName)) {
-                System.err.println("QUI CI SIAMOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!!!!!!!!!! " + findAvailableGames());
                 clientHandler.update(new AvailableGamesMessage(findAvailableGames()).setHeader(clientHandler.getUsername()));
                 return false;
             }

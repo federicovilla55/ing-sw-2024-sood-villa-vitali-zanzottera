@@ -122,6 +122,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
         while(!Thread.currentThread().isInterrupted()) {
             try {
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
+                System.out.println(incomingMessage);
             }
             catch (ClassNotFoundException  | IOException ignored){ }
 
@@ -213,7 +214,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
         File configFile;
         String nick, token;
 
-        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME);
+        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + this.nickname);
 
         if(configFile.isFile() && configFile.exists()) {
             try {
@@ -271,7 +272,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
 
     @Override
     public void disconnect() throws RuntimeException{
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME);
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + this.nickname);
         if(tokenFile.exists() && tokenFile.exists() && tokenFile.delete()){
             System.err.println("[TOKEN]: token file deleted.");
         }
@@ -343,7 +344,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
         File configFile;
         this.nickname = nick;
 
-        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME);
+        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + this.nickname);
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(configFile));
             bufferedWriter.write(nick);

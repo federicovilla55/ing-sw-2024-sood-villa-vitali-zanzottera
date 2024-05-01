@@ -109,7 +109,6 @@ public class ActionParser {
         return (this.viewState.getState() == ViewState.DISCONNECT);
     }
 
-
     /**
      * To send a message in the chat.
      * send_message(message_content, receiver1 {, receiver2, ...})

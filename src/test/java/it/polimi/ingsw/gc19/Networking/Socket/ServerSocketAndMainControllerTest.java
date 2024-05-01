@@ -304,7 +304,7 @@ public class ServerSocketAndMainControllerTest {
         Client client8 = new Client(this.client1.getName());
         client8.setToken(token1);
         client8.reconnect();
-        assertMessageEquals(this.client1, new AvailableGamesMessage(List.of("game11")));
+        assertMessageEquals(client8, new AvailableGamesMessage(List.of("game11")));
         client8.disconnect();
     }
 
