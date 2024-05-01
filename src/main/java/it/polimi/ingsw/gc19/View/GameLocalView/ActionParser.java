@@ -100,8 +100,9 @@ public class ActionParser {
      * reconnect the client sending requests at a fixed rate.
      */
     public synchronized void disconnect(){
+        if(this.viewState.getState() == ViewState.DISCONNECT) return;
         this.prevState = viewState;
-        this.viewState = new Disconnect(); //@TODO: maybe check if we are alredy in diconnect?
+        this.viewState = new Disconnect();
         this.viewState.parseAction(null);
     }
 
@@ -113,89 +114,108 @@ public class ActionParser {
      * To send a message in the chat.
      * send_message(message_content, receiver1 {, receiver2, ...})
      */
-    public synchronized void sendMessage(ArrayList<String> command){
-        if(command.size()-1 >= Command.SENDCHATMESSAGE.getNumArgs() &&
-            command.getFirst().equals(Command.SENDCHATMESSAGE.getCommandName())) {
-            // first element is command name, second element is the message content
-            // and the following elements are the receivers.
-            ArrayList<String> usersToSend = new ArrayList<>();
-            for(int i = 2; i < command.size(); i++) usersToSend.add(command.get(i));
+    public synchronized boolean sendMessage(ArrayList<String> command) {
+        try{
+            if (command.size() - 1 >= Command.SENDCHATMESSAGE.getNumArgs() &&
+                    command.getFirst().equals(Command.SENDCHATMESSAGE.getCommandName())) {
+                // first element is command name, second element is the message content
+                // and the following elements are the receivers.
+                ArrayList<String> usersToSend = new ArrayList<>();
+                for (int i = 2; i < command.size(); i++) usersToSend.add(command.get(i));
 
-            this.clientNetwork.sendChatMessage(usersToSend, command.get(1));
-        }
-        // The action doesn't modify the state of the ViewClient.
+                this.clientNetwork.sendChatMessage(usersToSend, command.get(1));
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
      * To set the nickname of the client and request a connection.
      * create_player(nickname)
      */
-    public synchronized void createPlayer(ArrayList<String> command){
-        if(command.size()-1 == Command.CREATEPLAYER.getNumArgs()
-                && command.getFirst().equals(Command.CREATEPLAYER.getCommandName())){
-            viewState = new Wait();
-            prevState = new NotPlayer();
+    public synchronized boolean createPlayer(ArrayList<String> command){
+        try {
+            if (command.size() - 1 == Command.CREATEPLAYER.getNumArgs()
+                    && command.getFirst().equals(Command.CREATEPLAYER.getCommandName())) {
+                viewState = new Wait();
+                prevState = new NotPlayer();
 
-            clientNetwork.connect(command.get(1));
-        }
+                clientNetwork.connect(command.get(1));
+
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
      * To pick a card from a deck.
      * pick_card_deck(cardType)
      */
-    public synchronized void pickCardFromDeck(ArrayList<String> command){
-        if(command.size()-1 == Command.PICKCARDDECK.getNumArgs()
-                && command.getFirst().equals(Command.PICKCARDDECK.getCommandName())){
-            viewState = new Wait();
-            prevState = new Pick();
+    public synchronized boolean pickCardFromDeck(ArrayList<String> command){
+        try {
+            if (command.size() - 1 == Command.PICKCARDDECK.getNumArgs()
+                    && command.getFirst().equals(Command.PICKCARDDECK.getCommandName())) {
+                viewState = new Wait();
+                prevState = new Pick();
 
-            // how is the player created...
-            clientNetwork.pickCardFromDeck(PlayableCardType.valueOf(command.get(1)));
-        }
+                clientNetwork.pickCardFromDeck(PlayableCardType.valueOf(command.get(1)));
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
      * To pick a card from the table.
      * pick_card_table(cardType, tablePosition)
      */
-    public synchronized void pickCardFromTable(ArrayList<String> command){
-        if(command.size()-1 == Command.PICKCARDTABLE.getNumArgs() &&
-                command.getFirst().equals(Command.PICKCARDTABLE.getCommandName())){
+    public synchronized boolean pickCardFromTable(ArrayList<String> command) {
+        try {
+            if (command.size() - 1 == Command.PICKCARDTABLE.getNumArgs() &&
+                    command.getFirst().equals(Command.PICKCARDTABLE.getCommandName())) {
 
-            clientNetwork.pickCardFromTable(PlayableCardType.valueOf(command.get(1)),
-                    Integer.parseInt(command.get(2)));
+                clientNetwork.pickCardFromTable(PlayableCardType.valueOf(command.get(1)),
+                        Integer.parseInt(command.get(2)));
 
-            viewState = new Wait();
-            prevState = new Pick();
-        }
+                viewState = new Wait();
+                prevState = new Pick();
+
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
      * To place a card given its anchor, the direction and the orientation.
      * place_card(cardToInsert, anchorCard, directionToInsert, cardOrientation)
      */
-    public synchronized void placeCard(ArrayList<String> command){
-        // place_card(cardToInsert, anchorCard, directionToInsert, cardOrientation)
-        if(command.size()-1 == Command.PLACECARD.getNumArgs() &&
-                command.getFirst().equals(Command.PLACECARD.getCommandName())){
+    public synchronized boolean placeCard(ArrayList<String> command) {
+        try {
+            if (command.size() - 1 == Command.PLACECARD.getNumArgs() &&
+                    command.getFirst().equals(Command.PLACECARD.getCommandName())) {
+                PlayableCard cardToPlace = localModel.getPlayableCard(command.get(1));
+                PlayableCard anchorCard = localModel.getPlayableCard(command.get(2));
 
-            /*PlayableCard cardToPlace = localModel.getPlayableCard(command.get(1));
-            PlayableCard anchorCard = localModel.getPlayableCard(command.get(2));
+                if(!getLocalModel().isCardPlaceablePersonalStation(
+                        cardToPlace, anchorCard, Direction.valueOf(command.get(3)))){
+                    // notify observer that the card can't be placed
 
-            if(!getLocalModel().isCardPlaceablePersonalStation(
-                    cardToPlace, anchorCard, Direction.valueOf(command.get(3)))){
-                // notify observer that the card can't be placed
+                    return false;
+                }
 
-                return;
-            }*/
+                clientNetwork.placeCard(command.get(1), command.get(2),
+                        Direction.valueOf(command.get(3)),
+                        CardOrientation.valueOf(command.get(4)));
+                viewState = new Wait();
+                prevState = new Place();
 
-            clientNetwork.placeCard(command.get(1), command.get(2),
-                    Direction.valueOf(command.get(3)),
-                    CardOrientation.valueOf(command.get(4)));
-            viewState = new Wait();
-            prevState = new Place();
-        }
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
@@ -259,19 +279,21 @@ public class ActionParser {
      * To choose a color at the beginning of the game.
      * choose_color(colorType)
      */
-    public synchronized void chooseColor(ArrayList<String> command) {
-        if(command.size()-1 == Command.CHOOSECOLOR.getNumArgs() &&
-                command.getFirst().equals(Command.CHOOSECOLOR.getCommandName())){
+    public synchronized boolean chooseColor(ArrayList<String> command) {
+        try {
+            if (command.size() - 1 == Command.CHOOSECOLOR.getNumArgs() &&
+                    command.getFirst().equals(Command.CHOOSECOLOR.getCommandName())) {
 
-            /*if(!localModel.getAvailableColors().contains(Color.valueOf(command.get(1)))){
-                // notify the observer that the color selected is not available
+                if(localModel == null || !localModel.getAvailableColors().contains(Color.valueOf(command.get(1)))){
+                    // notify the observer that the color selected is not available
+                    return false;
+                }
 
-                return;
-            }*/
-
-            clientNetwork.chooseColor(Color.valueOf(command.get(1)));
-        }
-
+                clientNetwork.chooseColor(Color.valueOf(command.get(1)));
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
@@ -280,46 +302,63 @@ public class ActionParser {
      * representing the selected card.
      * choose_goal(goalCardIndex)
      */
-    public synchronized void chooseGoal(ArrayList<String> command) {
-        if(command.size()-1 == Command.CHOOSEPRIVATEGOAL.getNumArgs() &&
-                command.getFirst().equals(Command.CHOOSEPRIVATEGOAL.getCommandName())){
-            clientNetwork.choosePrivateGoalCard(Integer.parseInt(command.get(1)));
-        }
+    public synchronized boolean chooseGoal(ArrayList<String> command) {
+        try {
+            if (command.size() - 1 == Command.CHOOSEPRIVATEGOAL.getNumArgs() &&
+                    command.getFirst().equals(Command.CHOOSEPRIVATEGOAL.getCommandName())) {
+                clientNetwork.choosePrivateGoalCard(Integer.parseInt(command.get(1)));
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
      * To place the initial card at the beginning of the game vien its orientation.
      * place_initial_card(orientation)
      */
-    public synchronized void placeInitialCard(ArrayList<String> command) {
-        if(command.size()-1 == Command.PLACEINITIALCARD.getNumArgs() &&
-                command.getFirst().equals(Command.PLACEINITIALCARD.getCommandName())){
-            clientNetwork.placeInitialCard(CardOrientation.valueOf(command.get(1)));
-        }
+    public synchronized boolean placeInitialCard(ArrayList<String> command) {
+        try {
+            if (command.size() - 1 == Command.PLACEINITIALCARD.getNumArgs() &&
+                    command.getFirst().equals(Command.PLACEINITIALCARD.getCommandName())) {
+                clientNetwork.placeInitialCard(CardOrientation.valueOf(command.get(1)));
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
      * To ask the server which games are free to join.
      * available_games()
      */
-    public synchronized void availableGames(ArrayList<String> command) {
-        if(command.size()-1 == Command.AVAILABLEGAMES.getNumArgs() &&
-                command.getFirst().equals(Command.AVAILABLEGAMES.getCommandName())){
-            clientNetwork.availableGames();
-        }
+    public synchronized boolean availableGames(ArrayList<String> command) {
+        try {
+            if (command.size() - 1 == Command.AVAILABLEGAMES.getNumArgs() &&
+                    command.getFirst().equals(Command.AVAILABLEGAMES.getCommandName())) {
+                clientNetwork.availableGames();
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
      * To notify the server that the player want to join the first available fame.
      * join_first_game()
      */
-    public synchronized void joinFirstGame(ArrayList<String> command) {
-        if(command.size()-1 == Command.JOINFIRSTGAME.getNumArgs() &&
-                command.getFirst().equals(Command.JOINFIRSTGAME.getCommandName())){
-            clientNetwork.joinFirstAvailableGame();
-            prevState = new NotGame();
-            viewState = new Wait();
-        }
+    public synchronized boolean joinFirstGame(ArrayList<String> command) {
+        try {
+            if (command.size() - 1 == Command.JOINFIRSTGAME.getNumArgs() &&
+                    command.getFirst().equals(Command.JOINFIRSTGAME.getCommandName())) {
+                clientNetwork.joinFirstAvailableGame();
+                prevState = new NotGame();
+                viewState = new Wait();
+
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
@@ -327,39 +366,34 @@ public class ActionParser {
      * a particular game.
      * join_game(gameName)
      */
-    public synchronized void joinGame(ArrayList<String> command) {
-        if(command.size()-1 == Command.JOINGAME.getNumArgs() &&
-                command.getFirst().equals(Command.JOINGAME.getCommandName())){
-            clientNetwork.joinGame(command.get(1));
-            prevState = new NotGame();
-            viewState = new Wait();
-        }
-    }
-
-    /**
-     * To create a game specifying the game name, the number of players and the seed.
-     * create_game(gameName, numPlayers, seed)
-     */
-    public synchronized void createGameSeed(ArrayList<String> command) {
-        if(command.size()-1 == Command.CREATEGAMESEED.getNumArgs() &&
-                command.getFirst().equals(Command.CREATEGAMESEED.getCommandName())){
-            clientNetwork.createGame(command.get(1), Integer.parseInt(command.get(2)), Integer.parseInt(command.get(3)));
-            prevState = new NotGame();
-            viewState = new Wait();
-        }
+    public synchronized boolean joinGame(ArrayList<String> command) {
+        try {
+            if (command.size() - 1 == Command.JOINGAME.getNumArgs() &&
+                    command.getFirst().equals(Command.JOINGAME.getCommandName())) {
+                clientNetwork.joinGame(command.get(1));
+                prevState = new NotGame();
+                viewState = new Wait();
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
      * To create a game specifying the game name and the number of players.
      * create_game(gameName, numPlayers)
      */
-    public synchronized void createGame(ArrayList<String> command) {
-        if(command.size()-1 == Command.CREATEGAME.getNumArgs() &&
-                command.getFirst().equals(Command.CREATEGAME.getCommandName())){
-            clientNetwork.createGame(command.get(1), Integer.parseInt(command.get(2)));
-            prevState = new NotGame();
-            viewState = new Wait();
-        }
+    public synchronized boolean createGame(ArrayList<String> command) {
+        try {
+            if (command.size() - 1 == Command.CREATEGAME.getNumArgs() &&
+                    command.getFirst().equals(Command.CREATEGAME.getCommandName())) {
+                clientNetwork.createGame(command.get(1), Integer.parseInt(command.get(2)));
+                prevState = new NotGame();
+                viewState = new Wait();
+                return true;
+            }
+        }catch (IllegalStateException e) {}
+        return false;
     }
 
     /**
@@ -370,15 +404,15 @@ public class ActionParser {
      * Ex. available_games() => {available_games}
      */
     public static ArrayList<String> commandParser(String command){
-        ArrayList<String> commandParsed = new ArrayList<>();
+        if(command == null) return new ArrayList<>();
 
+        ArrayList<String> commandParsed = new ArrayList<>();
         command = command.replaceAll("\\s", "");
         Pattern pattern = Pattern.compile("(\\w+)\\((.*?)\\)");
         Matcher matcher = pattern.matcher(command);
 
         if (matcher.matches()) {
             commandParsed.add(matcher.group(1));
-
             String[] arguments = matcher.group(2).split(",\\s*");
             for (String arg : arguments) {
                 if(!arg.isEmpty()) {
@@ -392,9 +426,11 @@ public class ActionParser {
         return commandParsed;
     }
 
-
+    /**
+     * This state represent the moment a client opens the game and is not connected
+     * to the server. The client needs to select a nickname and ask for a connection request.
+     */
     class NotPlayer extends ClientState{
-
         @Override
         public ViewState getState() {
             return ViewState.NOTPLAYER;
@@ -402,11 +438,16 @@ public class ActionParser {
 
         @Override
         public void parseAction(ArrayList<String> command) {
-            // create_player(nickname_player)
-            createPlayer(command);
+            if(!createPlayer(command)){
+                // notify the given command was not found or suitable for the round
+            }
         }
     }
 
+    /**
+     * The client is connected to the server, but it is in no game.
+     * Methods to determine the available games and to join/create games are permitted.
+     */
     class NotGame extends ClientState{
 
         @Override
@@ -416,24 +457,20 @@ public class ActionParser {
 
         @Override
         public void parseAction(ArrayList<String> command) {
-            // create_game(game_name, num_players)
-            createGame(command);
-
-            // create_game_seed(game_name, num_players, game_seed)
-            createGameSeed(command);
-
-            // join_game(game_name)
-            joinGame(command);
-
-            // join_first_game()
-            joinFirstGame(command);
-
-            // available_games()
-            availableGames(command);
+            if(!(createGame(command) || joinGame(command)
+                || joinFirstGame(command) || availableGames(command))){
+                // notify the given command was not found or suitable for the round
+            }
         }
     }
 
+    /**
+     * The client is connected in a game that is in the SETUP state.
+     */
     class Setup extends ClientState{
+        private boolean colorChosen = false;
+        private boolean goalChosen = false;
+        private boolean initialCardPlaced = false;
 
         @Override
         public void nextState(GamePausedMessage message){
@@ -458,12 +495,13 @@ public class ActionParser {
         public void nextState(NetworkHandlingErrorMessage message){
             handleError(message);
         }
+
         @Override
         public void nextState(RefusedActionMessage message){
             handleError(message);
+            if(message.getErrorType() == ErrorType.COLOR_ALREADY_CHOSEN) colorChosen = false;
+            else if (message.getErrorType() == ErrorType.INVALID_GOAL_CARD_ERROR) goalChosen = false;
         }
-
-
 
 
         @Override
@@ -473,20 +511,19 @@ public class ActionParser {
 
         @Override
         public void parseAction(ArrayList<String> command) {
-            // send_message(...)
+            if(!colorChosen) colorChosen = chooseColor(command);
+            if(!goalChosen) goalChosen = chooseGoal(command);
+            if(!initialCardPlaced) initialCardPlaced = placeInitialCard(command);
+
             sendMessage(command);
-
-            // choose_color(color)
-            chooseColor(command);
-
-            // choose_goal(card_index)
-            chooseGoal(command);
-
-            // place_initial_card(orientation)
-            placeInitialCard(command);
         }
     }
 
+    /**
+     * The client is waiting for a message from the server to continue playing.
+     * This can be because of a place/draw he just made or because it's someone
+     * else's turn.
+     */
     class Wait extends ClientState{
         @Override
         public void nextState(CreatedPlayerMessage message) {
@@ -495,8 +532,6 @@ public class ActionParser {
 
         @Override
         public void nextState(TurnStateMessage message) {
-            //if(prevState.getState() == ViewState.NOTPLAYER || prevState.getState() == ViewState.PAUSE) return;
-
             if(message.getNick().equals(getNickname()) && message.getTurnState() == TurnState.DRAW) {
                 viewState = new Pick();
             }else if(!message.getNick().equals(getNickname())){
@@ -560,11 +595,15 @@ public class ActionParser {
 
         @Override
         public void parseAction(ArrayList<String> command) {
-            // send_message(...)
-            sendMessage(command);
+            if(!sendMessage(command)){
+                // notify the given command was not found or suitable for the round
+            }
         }
     }
 
+    /**
+     * The clients can place a card in its station.
+     */
     class Place extends ClientState{
         @Override
         public ViewState getState() {
@@ -592,14 +631,16 @@ public class ActionParser {
 
         @Override
         public void parseAction(ArrayList<String> command) {
-            // place_card(cardToInsert, anchorCard, directionToInsert, cardOrientation)
-            placeCard(command);
-
-            // send_message()
-            sendMessage(command);
+            if(!(placeCard(command) || sendMessage(command))){
+                // notify the given command was not found or suitable for the round
+            }
         }
     }
 
+    /**
+     * The client can pick a card from one of the two decks or from
+     * one of the four cards in the table.
+     */
     class Pick extends ClientState{
         @Override
         public ViewState getState() {
@@ -627,14 +668,10 @@ public class ActionParser {
 
         @Override
         public void parseAction(ArrayList<String> command) {
-            // pick_card_table(cardType, position)
-            pickCardFromTable(command);
-
-            // pick_card_deck(cardType)
-            pickCardFromDeck(command);
-
-            // send_message(...)
-            sendMessage(command);
+            if(!(pickCardFromTable(command) || pickCardFromDeck(command)
+                    || sendMessage(command))){
+                // notify the given command was not found or suitable for the round
+            }
         }
     }
 
@@ -678,21 +715,24 @@ public class ActionParser {
 
         @Override
         public void parseAction(ArrayList<String> command) {
-            // send_message(...)
-            sendMessage(command);
+            if(!sendMessage(command)){
+                // notify the given command was not found or suitable for the round
+            }
         }
     }
 
+    /**
+     * The client is currently disconnected from the game. A new thread is created
+     * to try to reconnect to the game or the main lobby. As soon as a connection is
+     * established, the client changes its state.
+     */
     class Disconnect extends ClientState{
         Thread reconnectScheduler;
-
-        boolean isSend = false;
 
         int numReconnect = 0;
 
         @Override
         public void nextState(JoinedGameMessage message) {
-            System.out.println("RIENTRATO");
             reconnectScheduler.interrupt();
             viewState = new Wait();
         }
@@ -705,7 +745,6 @@ public class ActionParser {
 
         @Override
         public void nextState(GameHandlingError message){
-            System.out.println("GameHandlingError " + message.getErrorType());
             switch (message.getErrorType()){
                 case Error.PLAYER_NAME_ALREADY_IN_USE -> {
                     viewState = new NotPlayer();
@@ -721,7 +760,6 @@ public class ActionParser {
         }
         @Override
         public void nextState(NetworkHandlingErrorMessage message){
-            System.out.println("NetworkError " + message.getError());
             handleError(message);
         }
 
@@ -739,20 +777,9 @@ public class ActionParser {
             }
         }
 
-        public synchronized void setIsSend(boolean toSet){
-            isSend = toSet;
-        }
-
-        public synchronized boolean getIsSend(){
-            return isSend;
-        }
-
         public void reconnect(){
-            System.out.println("ok reconnect");
             while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING && !Thread.currentThread().isInterrupted()){
-                System.out.println("Tentativo reconnect: " + numReconnect);
                 try {
-                    System.out.println("IS INTERR? " + Thread.currentThread().isInterrupted());
                     clientNetwork.reconnect();
                 } catch (IllegalStateException e) {
                     // Token file not found...
@@ -764,7 +791,7 @@ public class ActionParser {
                 }
 
                 try {
-                    Thread.currentThread().sleep(2500/*ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000*/);
+                    Thread.currentThread().sleep(ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000);
                 } catch (InterruptedException e) {
                     reconnectScheduler.interrupt();
                     return;
@@ -774,6 +801,10 @@ public class ActionParser {
         }
     }
 
+    /**
+     * Because all the other players in the game left, the game is in pause
+     * and therefore the client can't make any action in the game.
+     */
     class Pause extends ClientState{
         @Override
         public void nextState(GameHandlingError message){
@@ -800,11 +831,16 @@ public class ActionParser {
 
         @Override
         public void parseAction(ArrayList<String> command) {
-            // send_message(...)
-            sendMessage(command);
+            if(!sendMessage(command)){
+                // notify the given command was not found or suitable for the round
+            }
         }
     }
 
+    /**
+     * The game ended. The client can still write in chat or try to connect
+     * to new games.
+     */
     class End extends ClientState{
         @Override
         public void nextState(GameHandlingError message){
@@ -830,14 +866,10 @@ public class ActionParser {
 
         @Override
         public void parseAction(ArrayList<String> command) {
-            // create_player(nickname_player)
-            createPlayer(command);
-
-            // send_message(...)
-            sendMessage(command);
+            if(!(createPlayer(command) || sendMessage(command))){
+                // notify the given command was not found or suitable for the round
+            }
         }
     }
-
-
 
 }

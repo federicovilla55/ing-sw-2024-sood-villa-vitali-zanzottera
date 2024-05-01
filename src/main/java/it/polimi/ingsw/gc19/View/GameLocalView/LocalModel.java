@@ -25,7 +25,6 @@ public class LocalModel {
 
     private LocalTable table;
     private String firstPlayer;
-
     private final Object lockTable;
     private final Object lockPersonal;
     private final Object lockOther;
