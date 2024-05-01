@@ -12,8 +12,8 @@ import java.io.IOException;
 
 public class TestClassClientTCP extends ClientTCP implements CommonClientMethodsForTests, ClientInterface{
 
-    public TestClassClientTCP(String nickname, MessageHandler messageHandler, ActionParser actionParser) throws IOException{
-        super(nickname, messageHandler, actionParser);
+    public TestClassClientTCP(MessageHandler messageHandler, ActionParser actionParser) throws IOException{
+        super(messageHandler, actionParser);
     }
 
     @Override

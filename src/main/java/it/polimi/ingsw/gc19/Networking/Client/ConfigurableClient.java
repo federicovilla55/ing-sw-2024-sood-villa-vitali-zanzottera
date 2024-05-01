@@ -4,6 +4,4 @@ public interface ConfigurableClient {
 
     void configure(String nick, String token);
 
-    String getNickname();
-
 }

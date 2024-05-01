@@ -564,7 +564,7 @@ public class ActionParser {
         public void nextState(JoinedGameMessage message) {
             //scheduler.shutdown();
             System.out.println("Joined the game " + message.getGameName());
-            //reconnectScheduler.interrupt();
+            reconnectScheduler.interrupt();
             System.out.println("Thread interrotto...");
             viewState = new Wait();
         }
@@ -572,7 +572,7 @@ public class ActionParser {
         @Override
         public void nextState(AvailableGamesMessage message) {
             //scheduler.shutdown();
-            //reconnectScheduler.interrupt();
+            reconnectScheduler.interrupt();
             viewState = new NotGame();
         }
 
@@ -595,10 +595,10 @@ public class ActionParser {
 
         @Override
         void parseAction(ArrayList<String> command) {
-            System.out.println("Thread costruito: ");
-            reconnectScheduler = new Thread(this::reconnect);
-            reconnectScheduler.start();
-            System.out.println("Thread start " + reconnectScheduler.getName());
+            if(clientNetwork != null) {
+                reconnectScheduler = new Thread(this::reconnect);
+                reconnectScheduler.start();
+            }
         }
 
         public void reconnect(){

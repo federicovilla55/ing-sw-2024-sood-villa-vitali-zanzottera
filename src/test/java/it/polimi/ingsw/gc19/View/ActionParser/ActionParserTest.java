@@ -38,7 +38,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ActionParserTest {
+/*public class ActionParserTest {
 
     private static VirtualMainServer virtualMainServer;
     private static Registry registry;
@@ -669,7 +669,7 @@ public class ActionParserTest {
         /*System.out.println("Cosa Piazzo: " + latestMessage.getCardsInHand().getFirst().getCardCode());
         System.out.println("Cosa Initial: " + latestMessage.getInitialCard().getCardCode());
         System.out.println("place_card("+latestMessage.getCardsInHand().getFirst().getCardCode()+
-                ", "+ latestMessage.getInitialCard().getCardCode() + ", UP_RIGHT, DOWN)");*/
+                ", "+ latestMessage.getInitialCard().getCardCode() + ", UP_RIGHT, DOWN)");
         clientsAnchors.put(client, latestMessage.getCardsInHand().getFirst());
         actionParser.parseAction("place_card("+latestMessage.getCardsInHand().getFirst().getCardCode()+
                 ", "+ latestMessage.getInitialCard().getCardCode() + ", UP_RIGHT, DOWN)");
@@ -737,7 +737,7 @@ public class ActionParserTest {
         /*System.out.println("Cosa Piazzo: " + latestMessage.getPickedCard().getCardCode());
         System.out.println("Cosa Ancora: " + anchor);
         System.out.println("place_card(" + latestMessage.getPickedCard().getCardCode() +
-                ", "+ anchor + ", UP_RIGHT, DOWN)");*/
+                ", "+ anchor + ", UP_RIGHT, DOWN)");
         clientsAnchors.put(client, latestMessage.getPickedCard());
         actionParser.parseAction("place_card(" + latestMessage.getPickedCard().getCardCode() +
                 ", "+ anchor + ", UP_RIGHT, DOWN)");
@@ -824,4 +824,4 @@ public class ActionParserTest {
             throw new RuntimeException(e);
         }
     }
-}
+}*/

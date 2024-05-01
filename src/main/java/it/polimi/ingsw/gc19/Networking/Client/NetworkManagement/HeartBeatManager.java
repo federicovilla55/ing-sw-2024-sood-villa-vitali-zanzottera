@@ -10,15 +10,21 @@ import java.util.concurrent.TimeUnit;
 public class HeartBeatManager{
 
     private final NetworkManagementInterface networkManagementInterface;
-    private final ScheduledExecutorService heartBeatSenderScheduler;
-    private final ScheduledExecutorService heartBeatChecker;
+    private ScheduledExecutorService heartBeatSenderScheduler;
+    private ScheduledExecutorService heartBeatChecker;
     private long lastHeartBeatFromServer;
     private final Object lastHeartBeatLock;
 
     public HeartBeatManager(NetworkManagementInterface networkManagementInterface){
         this.networkManagementInterface = networkManagementInterface;
+
         this.heartBeatSenderScheduler = Executors.newSingleThreadScheduledExecutor();
+        this.heartBeatSenderScheduler.scheduleAtFixedRate(this::sendHeartBeat, 0, 400, TimeUnit.MILLISECONDS);
         this.heartBeatChecker = Executors.newSingleThreadScheduledExecutor();
+        this.heartBeatChecker.scheduleAtFixedRate(this::runHeartBeatTesterForServer, 0, 400, TimeUnit.MILLISECONDS);
+
+        this.lastHeartBeatFromServer = new Date().getTime();
+
         this.lastHeartBeatLock = new Object();
     }
 
@@ -38,28 +44,33 @@ public class HeartBeatManager{
 
     private void sendHeartBeat(){
         try{
+            System.err.println("heartbeat");
             this.networkManagementInterface.sendHeartBeat();
         }
         catch (RuntimeException runtimeException){
-            this.startHeartBeatManager();
+            System.out.println("*****************************");
+            this.stopHeartBeatManager();
             this.networkManagementInterface.signalPossibleNetworkProblem();
         }
     }
 
     public void startHeartBeatManager(){
         if(this.heartBeatSenderScheduler.isShutdown()){
+            this.heartBeatSenderScheduler = Executors.newSingleThreadScheduledExecutor();
             this.heartBeatSenderScheduler.scheduleAtFixedRate(this::sendHeartBeat, 0, 400, TimeUnit.MILLISECONDS);
         }
         if(this.heartBeatChecker.isShutdown()){
+            this.heartBeatChecker = Executors.newSingleThreadScheduledExecutor();
             this.heartBeatChecker.scheduleAtFixedRate(this::runHeartBeatTesterForServer, 0, 400, TimeUnit.MILLISECONDS);
         }
+
     }
 
     public void stopHeartBeatManager(){
         if(!this.heartBeatSenderScheduler.isShutdown()){
             this.heartBeatSenderScheduler.shutdownNow();
         }
-        if(this.heartBeatChecker.isShutdown()){
+        if(!this.heartBeatChecker.isShutdown()){
             this.heartBeatChecker.shutdownNow();
         }
     }

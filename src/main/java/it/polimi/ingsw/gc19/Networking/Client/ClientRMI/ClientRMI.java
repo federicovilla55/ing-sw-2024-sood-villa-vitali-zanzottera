@@ -19,6 +19,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a client using RMI for communication with the server.
@@ -37,9 +38,8 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     private final MessageHandler messageHandler;
     private final ActionParser actionParser;
 
-    public ClientRMI(String nickname, MessageHandler messageHandler, ActionParser actionParser) throws RuntimeException, RemoteException{
+    public ClientRMI(MessageHandler messageHandler, ActionParser actionParser) throws RuntimeException, RemoteException{
         super();
-        this.nickname = nickname;
 
         try {
             this.registry = LocateRegistry.getRegistry("localhost");
@@ -61,10 +61,6 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
         this.actionParser = actionParser;
     }
 
-    public void setVirtualMainServer(VirtualMainServer virtualMainServer){
-        this.virtualMainServer = virtualMainServer;
-    }
-
     @Override
     public void connect(String nickname){
         if(this.actionParser.isDisconnected()){
@@ -72,7 +68,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
         }
         try{
             this.virtualMainServer.newConnection(this, nickname);
-            startSendingHeartbeat();
+            this.heartBeatManager.startHeartBeatManager();
         }
         catch (RemoteException e) {
             this.actionParser.disconnect();
@@ -141,14 +137,15 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
 
     @Override
     public void reconnect() throws RuntimeException{
+        File configFile;
         BufferedReader configReader;
         String nick, token;
 
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/TokenFile" + "_" + this.nickname);
+        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
 
-        if(tokenFile.exists() && tokenFile.isFile()) {
+        if(configFile.exists() && configFile.isFile()) {
             try {
-                configReader = new BufferedReader(new FileReader(tokenFile));
+                configReader = new BufferedReader(new FileReader(configFile));
                 nick = configReader.readLine();
                 token = configReader.readLine();
                 configReader.close();
@@ -168,7 +165,12 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
 
             while(!Thread.currentThread().isInterrupted() && numOfTry < 10) {
                 try {
-                    this.virtualGameServer = this.virtualMainServer.reconnect(this, nick, token);
+                    if(this.nickname != null) {
+                        this.virtualGameServer = this.virtualMainServer.reconnect(this, this.nickname, token);
+                    }
+                    else{
+                        this.virtualGameServer = this.virtualMainServer.reconnect(this, nick, token);
+                    }
                     //@TODO: when correct message is arrived call startSendingHeartBeat
                     return;
                 }
@@ -176,7 +178,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                     numOfTry++;
 
                     try{
-                        Thread.sleep(250);
+                        TimeUnit.MILLISECONDS.sleep(250);
                     }
                     catch (InterruptedException interruptedException){
                         Thread.currentThread().interrupt(); //This operation can be dangerous?
@@ -219,7 +221,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
             throw new RuntimeException("Cannot disconnect from server because of Remote Exception: " + e);
         }
 
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
+        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
         if(tokenFile.exists() && tokenFile.isFile() && tokenFile.delete()){
             System.err.println("[CONFIG]: token file deleted.");
         }
@@ -232,6 +234,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
         if(!this.actionParser.isDisconnected()) {
             this.actionParser.disconnect();
         }
+        System.out.println("from ---------" + nickname);
         this.heartBeatManager.stopHeartBeatManager();
     }
 
@@ -404,12 +407,14 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
 
     @Override
     public void pushUpdate(MessageToClient message) throws RemoteException {
+        System.out.println(message);
         if(message instanceof ServerHeartBeatMessage){ //How to not use instance of? MessageHandler has to open the message
             this.heartBeatManager.heartBeat();
-            return;
         }
-        if(message.getHeader() == null || message.getHeader().contains(this.nickname)) {
-            this.messageHandler.update(message);
+        else{
+            if(this.nickname == null || message.getHeader() == null || message.getHeader().contains(this.nickname)){
+                this.messageHandler.update(message);
+            }
         }
     }
 
@@ -419,12 +424,13 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
 
         this.nickname = nick;
 
-        tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
+        tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + ClientSettings.CONFIG_FILE_NAME + "_" + this.nickname);
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
-            bufferedWriter.write(token);
-            bufferedWriter.write("\n");
+            System.err.println("writinggggggggggggggggg" + nick + "   " + token);
             bufferedWriter.write(nick);
+            bufferedWriter.write("\n");
+            bufferedWriter.write(token);
             bufferedWriter.close();
             if(tokenFile.setReadOnly()){
                 System.err.println("[CONFIG]: configuration file written and set read only.");

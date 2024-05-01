@@ -33,4 +33,6 @@ public interface GameManagementInterface {
     void availableGames();
 
     void logoutFromGame();
+
+    String getNickname();
 }

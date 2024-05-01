@@ -10,13 +10,8 @@ import java.rmi.RemoteException;
 
 public class TestClassClientRMI extends ClientRMI implements CommonClientMethodsForTests, ClientInterface{
 
-    public TestClassClientRMI(VirtualMainServer virtualMainServer, MessageHandler messageHandler, String nickname, ActionParser actionParser) throws RemoteException {
-        super(nickname, messageHandler, actionParser);
-        super.setVirtualMainServer(virtualMainServer);
-    }
-
-    public void connect(){
-        super.connect(getNickname());
+    public TestClassClientRMI(MessageHandler messageHandler, ActionParser actionParser) throws RemoteException {
+        super(messageHandler, actionParser);
     }
 
     @Override
@@ -52,4 +47,5 @@ public class TestClassClientRMI extends ClientRMI implements CommonClientMethods
     public String getNickname() {
         return super.getNickname();
     }
+
 }

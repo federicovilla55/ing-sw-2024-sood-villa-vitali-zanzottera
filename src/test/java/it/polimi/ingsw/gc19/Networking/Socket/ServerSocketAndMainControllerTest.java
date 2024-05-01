@@ -30,6 +30,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -100,7 +101,7 @@ public class ServerSocketAndMainControllerTest {
     public void testMultiplePlayerInGame(){
         this.client1.createPlayer();
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message1 = this.client1.getMessage();
+        MessageToClient message1 = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
@@ -109,7 +110,6 @@ public class ServerSocketAndMainControllerTest {
         this.client1.createGame("game3", 3, 1);
 
         assertMessageEquals(this.client1, new CreatedGameMessage("game3"));
-
 
         this.client2.createPlayer();
 
@@ -143,7 +143,7 @@ public class ServerSocketAndMainControllerTest {
     public void testJoinFirstAvailableGames(){
         this.client1.createPlayer();
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message1 = this.client1.getMessage();
+        MessageToClient message1 = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
@@ -206,7 +206,7 @@ public class ServerSocketAndMainControllerTest {
         this.client1.createPlayer();
 
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message1 = this.client1.getMessage();
+        MessageToClient message1 = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
@@ -254,14 +254,14 @@ public class ServerSocketAndMainControllerTest {
         this.client1.createPlayer();
 
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message1 = this.client1.getMessage();
+        MessageToClient message1 = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
         this.client2.createPlayer();
 
         client2.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message2 = this.client2.getMessage();
+        MessageToClient message2 = this.client2.getMessage(CreatedPlayerMessage.class);
         String token2 = ((CreatedPlayerMessage) message2).getToken();
         this.client2.setToken(token2);
 
@@ -372,7 +372,7 @@ public class ServerSocketAndMainControllerTest {
         client7.createPlayer();
 
         client7.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message7 = client7.getMessage();
+        MessageToClient message7 = client7.getMessage(CreatedPlayerMessage.class);
         String token7 = ((CreatedPlayerMessage) message7).getToken();
 
         client7.createGame("game18", 2, 1);
@@ -383,7 +383,7 @@ public class ServerSocketAndMainControllerTest {
         Client client8 = new Client(client7.getName());
         client8.createPlayer();
         client8.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message8 = client8.getMessage();
+        MessageToClient message8 = client8.getMessage(CreatedPlayerMessage.class);
         String token8 = ((CreatedPlayerMessage) message8).getToken();
 
         client8.joinFirstAvailableGame();
@@ -554,7 +554,7 @@ public class ServerSocketAndMainControllerTest {
 
         this.client1.createPlayer();
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message = this.client1.getMessage();
+        MessageToClient message = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message).getToken();
         this.client1.setToken(token1);
         this.client1.startSendingHeartBeat();
@@ -565,7 +565,7 @@ public class ServerSocketAndMainControllerTest {
 
         this.client2.createPlayer();
         client2.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message2 = this.client2.getMessage();
+        MessageToClient message2 = this.client2.getMessage(CreatedPlayerMessage.class);
         String token2 = ((CreatedPlayerMessage) message2).getToken();
         this.client2.setToken(token2);
 
@@ -632,7 +632,7 @@ public class ServerSocketAndMainControllerTest {
         this.client1.createPlayer();
 
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message = this.client1.getMessage();
+        MessageToClient message = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message).getToken();
 
         this.client1.createGame("game15", 2, 1);
