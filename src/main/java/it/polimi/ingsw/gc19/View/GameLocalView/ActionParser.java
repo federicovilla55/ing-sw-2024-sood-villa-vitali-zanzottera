@@ -20,6 +20,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErr
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -791,7 +792,7 @@ public class ActionParser {
                 }
 
                 try {
-                    Thread.currentThread().sleep(ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000);
+                    TimeUnit.MILLISECONDS.sleep(ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000);
                 } catch (InterruptedException e) {
                     reconnectScheduler.interrupt();
                     return;

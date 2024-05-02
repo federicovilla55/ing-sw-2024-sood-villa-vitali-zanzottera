@@ -5,6 +5,8 @@ import it.polimi.ingsw.gc19.Networking.Client.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.HeartBeatManager;
 import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.NetworkManagementInterface;
+import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
+import it.polimi.ingsw.gc19.Networking.Client.Configuration.Configuration;
 import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
@@ -136,27 +138,15 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     }
 
     @Override
-    public void reconnect() throws RuntimeException{
-        File configFile;
-        BufferedReader configReader;
-        String nick, token;
+    public void reconnect() throws IllegalStateException{
+        Configuration clientConfig;
+        String nick;
 
-        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + this.nickname);
-
-        if(configFile.exists() && configFile.isFile()) {
-            try {
-                configReader = new BufferedReader(new FileReader(configFile));
-                nick = configReader.readLine();
-                token = configReader.readLine();
-                configReader.close();
-            }
-            catch (IOException ioException) {
-                throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
-            }
+        try{
+            clientConfig = ConfigurationManager.retriveConfiguration(this.nickname);
         }
-        else{
-            System.out.println(configFile.exists() + "   " + configFile.isDirectory());
-            throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
+        catch (IllegalStateException | IOException e){
+            throw new IllegalStateException("[EXCEPTION]: could not reconnect due to: " + e);
         }
 
         int numOfTry = 0;
@@ -165,12 +155,18 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
             virtualMainServer = (VirtualMainServer) this.registry.lookup(ClientSettings.serverRMIName);
 
             while(!Thread.currentThread().isInterrupted() && numOfTry < 10) {
+                if(this.nickname != null){
+                    nick = this.nickname;
+                }
+                else{
+                    nick = clientConfig.getNick();
+                }
                 try {
                     if(this.nickname != null) {
-                        this.virtualGameServer = this.virtualMainServer.reconnect(this, this.nickname, token);
+                        this.virtualGameServer = this.virtualMainServer.reconnect(this, nick, clientConfig.getToken());
                     }
                     else{
-                        this.virtualGameServer = this.virtualMainServer.reconnect(this, nick, token);
+                        this.virtualGameServer = this.virtualMainServer.reconnect(this, nick, clientConfig.getToken());
                     }
                     //@TODO: when correct message is arrived call startSendingHeartBeat
                     return;
@@ -222,10 +218,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
             throw new RuntimeException("Cannot disconnect from server because of Remote Exception: " + e);
         }
 
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + this.nickname);
-        if(tokenFile.exists() && tokenFile.delete()){
-            System.err.println("[CONFIG]: token file deleted.");
-        }
+        ConfigurationManager.deleteConfiguration(this.nickname);
 
         stopClient();
     }
@@ -235,7 +228,6 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
         if(!this.actionParser.isDisconnected()) {
             this.actionParser.disconnect();
         }
-        System.out.println("from ---------" + nickname);
         this.heartBeatManager.stopHeartBeatManager();
     }
 
@@ -420,22 +412,14 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
 
     @Override
     public void configure(String nick, String token) {
-        File tokenFile;
         this.nickname = nick;
 
         try {
-            tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientRMI/" + this.nickname);
-            if(tokenFile.createNewFile()) {
-                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tokenFile));
-                bufferedWriter.write(nick);
-                bufferedWriter.write("\n");
-                bufferedWriter.write(token);
-                bufferedWriter.close();
-                if (tokenFile.setReadOnly()) {
-                    System.err.println("[CONFIG]: configuration file written and set read only.");
-                }
-            }
+            ConfigurationManager.saveConfiguration(new Configuration(nick, token, Configuration.ConnectionType.RMI));
         }
-        catch (IOException ignored){ };
+        catch (RuntimeException runtimeException){
+            System.err.println("[CONFIG]: could not write config file. Skipping...");
+        }
     }
+
 }

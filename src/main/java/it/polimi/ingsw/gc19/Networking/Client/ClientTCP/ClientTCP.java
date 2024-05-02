@@ -5,6 +5,8 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Networking.Client.*;
+import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
+import it.polimi.ingsw.gc19.Networking.Client.Configuration.Configuration;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
@@ -210,25 +212,14 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
     }
 
     @Override
-    public void reconnect() throws RuntimeException{
-        File configFile;
-        String nick, token;
+    public void reconnect() throws IllegalStateException{
+        Configuration configuration;
+        String nick;
 
-        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + this.nickname);
-
-        if(configFile.isFile() && configFile.exists()) {
-            try {
-                BufferedReader configReader = new BufferedReader(new FileReader(configFile));
-                nick = configReader.readLine();
-                token = configReader.readLine();
-                configReader.close();
-            }
-            catch (IOException ioException) {
-                throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
-            }
-        }
-        else{
-            throw new IllegalStateException("Reconnection is not possible because token file has not been found!");
+        try{
+            configuration = ConfigurationManager.retriveConfiguration(this.nickname);
+        } catch (IOException | IllegalStateException e) {
+            throw new IllegalStateException("[EXCEPTION]: could not reconnect due to: " + e);
         }
 
         int numOfTry = 0;
@@ -246,7 +237,10 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
                 if(this.nickname != null){
                     nick = this.nickname;
                 }
-                if(!this.send(new ReconnectToServerMessage(nick, token))){
+                else{
+                    nick = configuration.getNick();
+                }
+                if(!this.send(new ReconnectToServerMessage(nick, configuration.getToken()))){
                     numOfTry++;
                     try{
                         TimeUnit.MILLISECONDS.sleep(250);
@@ -255,6 +249,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
                         Thread.currentThread().interrupt();
                         return;
                     }
+                    //@TODO: when correct message is arrived call startSendingHeartBeat
                 }
                 else{
                     return;
@@ -272,10 +267,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
 
     @Override
     public void disconnect() throws RuntimeException{
-        File tokenFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + this.nickname);
-        if(tokenFile.exists() && tokenFile.exists() && tokenFile.delete()){
-            System.err.println("[TOKEN]: token file deleted.");
-        }
+        ConfigurationManager.deleteConfiguration(this.nickname);
 
         if(!this.send(new DisconnectMessage(this.nickname))){
             throw new RuntimeException("Message could not be sent to server!");
@@ -341,21 +333,14 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
 
     @Override
     public void configure(String nick, String token){
-        File configFile;
         this.nickname = nick;
 
-        configFile = new File("src/main/java/it/polimi/ingsw/gc19/Networking/Client/ClientTCP/" + this.nickname);
         try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(configFile));
-            bufferedWriter.write(nick);
-            bufferedWriter.write("\n");
-            bufferedWriter.write(token);
-            bufferedWriter.close();
-            if(configFile.setReadOnly()){
-                System.err.println("[TOKEN]: token file written and set read only.");
-            }
+            ConfigurationManager.saveConfiguration(new Configuration(nick, token, Configuration.ConnectionType.TCP));
         }
-        catch (IOException ignored){ };
+        catch (RuntimeException runtimeException){
+            System.err.println("[CONFIG]: could not write config file. Skipping...");
+        }
     }
 
 }

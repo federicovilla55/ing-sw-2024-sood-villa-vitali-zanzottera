@@ -6,5 +6,5 @@ public class ClientSettings {
     public static int serverTCPPort = 25000;
     public static final String serverRMIName = "RMIMainServer";
     public static final long MAX_RECONNECTION_TRY_BEFORE_ABORTING = 50;
-    public static String CONFIG_FILE_NAME = "config";
+    public static final String CONFIG_FILE_PATH = "src/main/java/it/polimi/ingsw/gc19/Networking/Client/Configuration/Local Config/";
 }
