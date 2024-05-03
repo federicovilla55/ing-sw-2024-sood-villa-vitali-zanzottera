@@ -1,0 +1,50 @@
+@startuml
+actor Actor #lightgreen
+participant ClientTCP #lightgreen
+participant NewUserMessage
+participant HeartBeatManager #lightgreen
+participant ScheduledExecutorService #lightgreen
+participant MessageToServerDispatcher #lightblue
+participant ClientHandlerSocket #lightblue
+participant MainServerTCP #lightblue
+participant CreatedPlayerMessage
+
+activate ClientTCP
+activate ClientTCP
+
+activate MessageToServerDispatcher
+activate ClientHandlerSocket
+
+Actor -> ClientTCP ++ : connect
+
+create NewUserMessage
+ClientTCP -> NewUserMessage ++ : new
+NewUserMessage --> ClientTCP --
+
+ClientTCP -> ClientTCP : sendMessage(NewUserMessage)
+
+ClientTCP -> HeartBeatManager ++ : startHeartBeatManager
+HeartBeatManager --> ScheduledExecutorService ++ : scheduleAtFixedRate
+HeartBeatManager --> ScheduledExecutorService ++ : scheduleAtFixedRate
+HeartBeatManager --> ClientTCP --
+ClientTCP --> Actor --
+
+ClientTCP -> ClientTCP : sendMessageToServer(NewUserMessage)
+
+ClientTCP --> MessageToServerDispatcher : **socket** (sending NewUserMessage over the network)
+
+MessageToServerDispatcher -> MainServerTCP ++ : update(NewUserMessage)
+
+create CreatedPlayerMessage
+MainServerTCP -> CreatedPlayerMessage ++ : new
+CreatedPlayerMessage --> MainServerTCP --
+
+MainServerTCP -> ClientHandlerSocket ++ : update(CreatedPlayerMessage)
+ClientHandlerSocket --> MainServerTCP --
+MainServerTCP --> MessageToServerDispatcher --
+deactivate MainServerTCP
+
+ClientHandlerSocket -> ClientHandlerSocket : sendMessageToClient(CreatedPlayerMessage)
+ClientHandlerSocket --> ClientTCP : **socket**  (sending CreatedPlayerMessage over the network)
+
+@enduml

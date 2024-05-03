@@ -1,0 +1,47 @@
+@startuml
+actor Actor #lightgreen
+participant ClientRMI #lightgreen
+participant HeartBeatManager #lightgreen
+participant ScheduledExecutorService #lightgreen
+participant ClientHandlerRMI #lightblue
+participant MainServerRMI #lightblue
+participant CreatedPlayerMessage
+
+activate MainServerRMI
+Actor -> ClientRMI : connect
+activate ClientRMI
+ClientRMI --> MainServerRMI : newConnection
+activate MainServerRMI
+ClientRMI -> HeartBeatManager : startHeartBeatManager
+activate HeartBeatManager
+HeartBeatManager --> ScheduledExecutorService : scheduleAtFixedRate
+activate ScheduledExecutorService
+HeartBeatManager --> ScheduledExecutorService : scheduleAtFixedRate
+activate ScheduledExecutorService
+HeartBeatManager --> ClientRMI
+deactivate HeartBeatManager
+ClientRMI --> Actor
+deactivate ClientRMI
+create ClientHandlerRMI
+MainServerRMI -> ClientHandlerRMI : new
+activate ClientHandlerRMI
+ClientHandlerRMI --> MainServerRMI
+deactivate ClientHandlerRMI
+MainServerRMI --> ClientHandlerRMI : start
+activate ClientHandlerRMI
+create CreatedPlayerMessage
+MainServerRMI -> CreatedPlayerMessage : new
+activate CreatedPlayerMessage
+CreatedPlayerMessage --> MainServerRMI
+deactivate CreatedPlayerMessage
+MainServerRMI -> ClientHandlerRMI : update(CreatedPlayerMessage)
+activate ClientHandlerRMI
+ClientHandlerRMI --> MainServerRMI
+deactivate ClientHandlerRMI
+deactivate MainServerRMI
+
+ClientHandlerRMI -> ClientRMI : pushUpdate(CreatedPlayerMessage)
+activate ClientRMI
+ClientRMI --> ClientHandlerRMI
+deactivate ClientRMI
+@enduml

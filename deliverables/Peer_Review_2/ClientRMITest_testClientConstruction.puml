@@ -1,0 +1,32 @@
+@startuml
+actor Actor #lightgreen
+participant ClientRMI #lightgreen
+participant HeartBeatManager #lightgreen
+participant ScheduledExecutorService #lightgreen
+participant Registry #lightblue
+participant MainServerRMI #lightblue
+
+activate MainServerRMI
+
+create ClientRMI
+Actor -> ClientRMI ++ : new
+ClientRMI-> Registry ++ : **RMI** (lookup)
+Registry --> ClientRMI -- : remote ref to MainServer
+
+create HeartBeatManager
+ClientRMI -> HeartBeatManager ++ : new
+create ScheduledExecutorService
+HeartBeatManager -> ScheduledExecutorService ++ : new
+ScheduledExecutorService --> HeartBeatManager --
+HeartBeatManager -> ScheduledExecutorService ++ : scheduleAtFixedRate
+ScheduledExecutorService --> HeartBeatManager --
+create ScheduledExecutorService
+HeartBeatManager -> ScheduledExecutorService ++ : new
+ScheduledExecutorService --> HeartBeatManager --
+HeartBeatManager -> ScheduledExecutorService ++ : scheduleAtFixedRate
+ScheduledExecutorService --> HeartBeatManager --
+
+HeartBeatManager --> ClientRMI --
+
+ClientRMI -->  Actor --
+@enduml

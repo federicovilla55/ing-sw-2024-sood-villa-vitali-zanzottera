@@ -1,0 +1,20 @@
+@startuml
+actor Actor #lightgreen
+participant ClientRMI #lightgreen
+participant HeartBeatManager #lightgreen
+participant ScheduledExecutorService #lightgreen
+participant Registry #lightblue
+participant ClientHandlerRMI #lightblue
+participant MainServerRMI #lightblue
+participant CreatedPlayerMessage
+
+activate MainServerRMI
+Actor -> ClientRMI ++ : reconnect
+
+ClientRMI-> Registry ++ : **RMI** (lookup)
+Registry --> ClientRMI -- : remote ref to MainServer
+
+ClientRMI -> MainServerRMI : reconnect
+
+ClientRMI --> Actor --
+@enduml
