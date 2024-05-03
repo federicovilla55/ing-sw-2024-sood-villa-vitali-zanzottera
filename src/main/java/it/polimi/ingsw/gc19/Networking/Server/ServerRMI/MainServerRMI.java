@@ -280,6 +280,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
                     clientHandlerRMI = new ClientHandlerRMI(clientRMI, v.getValue().x());
                     clientHandlerRMI.start();
                     clientHandlerRMI.setGameController(v.getValue().x().getGameController()); //Setting new game controller inside Client RMI Handler
+                    this.connectedClients.remove(clientRMIBefore);
                     this.connectedClients.put(clientRMI, new Tuple<>(clientHandlerRMI, v.getValue().y()));
                     found = true;
                     break;

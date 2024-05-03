@@ -43,16 +43,6 @@ public interface GameManagementInterface {
     void joinFirstAvailableGame();
 
     /**
-     * The method is used to reconnect the client to the server.
-     */
-    void reconnect();
-
-    /**
-     * The method is used to explicitly disconnect the client from the server.
-     */
-    void disconnect();
-
-    /**
      * The method is used to send a request to place a card in the personal table.
      * @param cardToInsert the card that needs to be placed.
      * @param anchorCard the card from which to place the card.

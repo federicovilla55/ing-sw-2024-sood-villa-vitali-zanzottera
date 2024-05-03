@@ -8,7 +8,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
@@ -254,7 +254,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     @Override
-    public void visit(GameHandlingError message) {
+    public void visit(GameHandlingErrorMessage message) {
         actionParser.viewState.nextState(message);
     }
 

@@ -1,20 +1,20 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors;
 
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessagePriorityLevel;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 /**
  * This message is used to tell player that an error concerning game
  * (game name not valid, player name already in used...) has occurred
  */
-public class GameHandlingError extends MessageToClient{
+public class GameHandlingErrorMessage extends GameHandlingMessage {
 
     private final Error errorType;
     private final String description;
 
-    public GameHandlingError(Error errorType, String description) {
+    public GameHandlingErrorMessage(Error errorType, String description) {
         this.errorType = errorType;
         this.description = description;
         this.setPriorityLevel(MessagePriorityLevel.HIGH);
@@ -48,8 +48,8 @@ public class GameHandlingError extends MessageToClient{
     @Override
     public boolean equals(Object o) {
         if(o == null) return false;
-        if(o instanceof GameHandlingError){
-            return ((GameHandlingError) o).errorType == this.errorType;
+        if(o instanceof GameHandlingErrorMessage){
+            return ((GameHandlingErrorMessage) o).errorType == this.errorType;
         }
         return false;
     }
