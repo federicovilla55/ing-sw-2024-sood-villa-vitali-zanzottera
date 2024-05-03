@@ -3,25 +3,19 @@ package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Action.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessageVisitor;
-import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.NewUserMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToServer;
-import it.polimi.ingsw.gc19.ObserverPattern.ObservableMessageToServer;
 import it.polimi.ingsw.gc19.Controller.GameController;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Timer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ClientHandlerSocket extends ClientHandler implements ObserverMessageToServer<MessageToServer> {
 
@@ -139,7 +133,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         /**
          * This method is used to visit a {@link ChosenGoalCardMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
-         * is null, it sends {@link GameHandlingError} to the player.
+         * is null, it sends {@link GameHandlingErrorMessage} to the player.
          * @param message {@link ChosenColorMessage} to read.
          */
         @Override
@@ -148,8 +142,8 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
                 ClientHandlerSocket.this.gameController.choosePrivateGoal(ClientHandlerSocket.this.username, message.getCardIdx());
             }
             else{
-                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                                 "You aren't connected to any game! It can be finished or you have lost connection!")
                                             .setHeader(username));
             }
         }
@@ -157,7 +151,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         /**
          * This method is used to visit a {@link DirectionOfInitialCardMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
-         * is null, it sends {@link GameHandlingError} to the player.
+         * is null, it sends {@link GameHandlingErrorMessage} to the player.
          * @param message {@link DirectionOfInitialCardMessage} message to read.
          */
         @Override
@@ -166,8 +160,8 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
                 ClientHandlerSocket.this.gameController.placeInitialCard(ClientHandlerSocket.this.username, message.getDirectionOfInitialCard());
             }
             else{
-                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                                 "You aren't connected to any game! It can be finished or you have lost connection!")
                                             .setHeader(username));
             }
         }
@@ -175,7 +169,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         /**
          * This method is used to visit a {@link PlaceCardMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
-         * is null, it sends {@link GameHandlingError} to the player.
+         * is null, it sends {@link GameHandlingErrorMessage} to the player.
          * @param message {@link PlaceCardMessage} to read.
          */
         @Override
@@ -184,8 +178,8 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
                 ClientHandlerSocket.this.gameController.placeCard(message.getNickname(), message.getCardToPlaceCode(), message.getAnchorCode(), message.getDirection(), message.getCardOrientation());
             }
             else{
-                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                                 "You aren't connected to any game! It can be finished or you have lost connection!")
                                             .setHeader(username));
             }
         }
@@ -193,7 +187,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         /**
          * This method is used to visit a {@link ChosenColorMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
-         * is null, it sends {@link GameHandlingError} to the player.
+         * is null, it sends {@link GameHandlingErrorMessage} to the player.
          * @param message {@link ChosenColorMessage} to read.
          */
         @Override
@@ -202,8 +196,8 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
                 ClientHandlerSocket.this.gameController.chooseColor(message.getNickname(), message.getChosenColor());
             }
             else{
-                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                                 "You aren't connected to any game! It can be finished or you have lost connection!")
                                             .setHeader(username));
             }
         }
@@ -211,7 +205,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         /**
          * This method is used to visit a {@link PickCardFromDeckMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
-         * is null, it sends {@link GameHandlingError} to the player.
+         * is null, it sends {@link GameHandlingErrorMessage} to the player.
          * @param message {@link PickCardFromDeckMessage} to read.
          */
         @Override
@@ -220,8 +214,8 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
                 ClientHandlerSocket.this.gameController.drawCardFromDeck(message.getNickname(), message.getType());
             }
             else{
-                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                                 "You aren't connected to any game! It can be finished or you have lost connection!")
                                             .setHeader(username));
             }
         }
@@ -229,7 +223,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         /**
          * This method is used to visit a {@link PickCardFromTableMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
-         * is null, it sends {@link GameHandlingError} to the player.
+         * is null, it sends {@link GameHandlingErrorMessage} to the player.
          * @param message {@link PickCardFromTableMessage} to read.
          */
         @Override
@@ -238,8 +232,8 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
                 ClientHandlerSocket.this.gameController.drawCardFromTable(message.getNickname(), message.getType(), message.getPosition());
             }
             else{
-                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                                 "You aren't connected to any game! It can be finished or you have lost connection!")
                                             .setHeader(username));
             }
         }
@@ -247,7 +241,7 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         /**
          * This method is used to visit a {@link PlayerChatMessage}.
          * If {@link ClientHandlerSocket} is not registered to any game (e.g.its {@link GameController})
-         * is null, it sends {@link GameHandlingError} to the player.
+         * is null, it sends {@link GameHandlingErrorMessage} to the player.
          * @param message {@link PlayerChatMessage} to read.
          */
         @Override
@@ -256,8 +250,8 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
                 ClientHandlerSocket.this.gameController.sendChatMessage(message.getReceivers(), message.getNickname(), message.getMessage());
             }
             else{
-                sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                          "You aren't connected to any game! It can be finished or you have lost connection!")
+                sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                                 "You aren't connected to any game! It can be finished or you have lost connection!")
                                             .setHeader(username));
             }
         }

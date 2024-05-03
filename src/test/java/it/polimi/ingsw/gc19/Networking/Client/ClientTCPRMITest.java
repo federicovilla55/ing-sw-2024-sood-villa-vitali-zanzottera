@@ -15,23 +15,18 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnec
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -113,7 +108,7 @@ public class ClientTCPRMITest {
         //Create new client with other name
         this.client5.connect("client1");
 
-        assertMessageEquals(this.client5, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(this.client5, new GameHandlingErrorMessage(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
         this.client1.disconnect();
         this.client2.disconnect();
@@ -138,13 +133,13 @@ public class ClientTCPRMITest {
 
         this.client1.createGame("game2", 2);
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
+        assertMessageEquals(this.client1, new GameHandlingErrorMessage(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
 
         //Player already registered and game name equal
 
         this.client1.createGame("game1", 2);
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
+        assertMessageEquals(this.client1, new GameHandlingErrorMessage(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
 
         //Game name already in use
         this.client2.connect("client2");
@@ -155,7 +150,7 @@ public class ClientTCPRMITest {
 
         this.client2.createGame("game1", 2);
 
-        assertMessageEquals(this.client2, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(this.client2, new GameHandlingErrorMessage(Error.GAME_NAME_ALREADY_IN_USE, null));
 
         this.client1.disconnect();
         this.client2.disconnect();
@@ -442,7 +437,7 @@ public class ClientTCPRMITest {
         this.client3.configure("client3", token3);
 
         this.client3.joinGame("game5");
-        assertMessageEquals(this.client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
+        assertMessageEquals(this.client3, new GameHandlingErrorMessage(Error.GAME_NOT_ACCESSIBLE, null));
 
         this.client1.disconnect();
         this.client2.disconnect();
@@ -602,7 +597,7 @@ public class ClientTCPRMITest {
 
         TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(new ActionParser()), new ActionParser());
         client6.connect("client2");
-        assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(client6, new GameHandlingErrorMessage(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
         this.client2.reconnect();
 

@@ -15,7 +15,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigu
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
@@ -30,7 +30,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -195,7 +194,7 @@ public class ServerSocketAndMainControllerTest {
         client5.createPlayer();
 
         client5.joinFirstAvailableGame();
-        assertMessageEquals(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
+        assertMessageEquals(new GameHandlingErrorMessage(Error.NO_GAMES_FREE_TO_JOIN, null));
 
         client5.disconnect();
 
@@ -245,7 +244,7 @@ public class ServerSocketAndMainControllerTest {
         waitingThread(2500);
 
         this.client1.sendChatMessage(List.of(this.client2.getName(), this.client3.getName()), "Chat message after heartbeat dead!");
-        assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NOT_FOUND, null));
+        assertMessageEquals(this.client1, new GameHandlingErrorMessage(Error.GAME_NOT_FOUND, null));
     }
 
     @Test
@@ -273,7 +272,7 @@ public class ServerSocketAndMainControllerTest {
 
         Client client6 = new Client(this.client2.getName());
         client6.createPlayer();
-        assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(client6, new GameHandlingErrorMessage(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
         this.client2.reconnect();
 
@@ -323,7 +322,7 @@ public class ServerSocketAndMainControllerTest {
         this.client3.createPlayer();
         assertMessageEquals(this.client3, new CreatedPlayerMessage(this.client3.getName()));
         this.client3.joinGame("game5", false);
-        assertMessageEquals(this.client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
+        assertMessageEquals(this.client3, new GameHandlingErrorMessage(Error.GAME_NOT_ACCESSIBLE, null));
     }
 
     @Test
@@ -386,7 +385,7 @@ public class ServerSocketAndMainControllerTest {
         String token8 = ((CreatedPlayerMessage) message8).getToken();
 
         client8.joinFirstAvailableGame();
-        assertMessageEquals(client8, new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
+        assertMessageEquals(client8, new GameHandlingErrorMessage(Error.NO_GAMES_FREE_TO_JOIN, null));
     }
 
     @Test
@@ -610,7 +609,7 @@ public class ServerSocketAndMainControllerTest {
         this.client2.createPlayer();
         assertMessageEquals(this.client2, new CreatedPlayerMessage(this.client2.getName()));
         this.client2.createGame("game1", 2, 1);
-        assertMessageEquals(this.client2, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(this.client2, new GameHandlingErrorMessage(Error.GAME_NAME_ALREADY_IN_USE, null));
 
         this.client2.joinGame("game1", false);
         assertMessageEquals(this.client2, new JoinedGameMessage("game1"));
@@ -720,7 +719,7 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(client1, new DisconnectFromGameMessage("game30"));
         assertMessageEquals(client2, new DisconnectedPlayerMessage(this.client1.getName()));
         client1.createGame("game30", 4, 2);
-        assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(this.client1, new GameHandlingErrorMessage(Error.GAME_NAME_ALREADY_IN_USE, null));
         client1.createGame("game31", 3);
         assertMessageEquals(this.client1, new CreatedGameMessage("game31"));
         client2.exitFromGame();
@@ -730,13 +729,13 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(client2, new CreatedGameMessage("game35"));
         client1.clearQueue();
         client1.joinFirstAvailableGame();
-        assertMessageEquals(client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
+        assertMessageEquals(client1, new GameHandlingErrorMessage(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
         client1.exitFromGame();
         assertMessageEquals(client1, new DisconnectFromGameMessage("game31"));
         client1.joinGame("game35", true);
         client3.createPlayer();
         client3.joinGame("game35", false);
-        assertMessageEquals(client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
+        assertMessageEquals(client3, new GameHandlingErrorMessage(Error.GAME_NOT_ACCESSIBLE, null));
         client1.exitFromGame();
         assertMessageEquals(client1, new DisconnectFromGameMessage("game35"));
         client3.exitFromGame();
@@ -1076,11 +1075,11 @@ class Client{
         if(wait) {
             while (!found) {
                 this.sendMessage(new JoinGameMessage(gameName, this.name));
-                if (waitAndNotifyTypeOfMessage(GameHandlingError.class, JoinedGameMessage.class) == 1) {
+                if (waitAndNotifyTypeOfMessage(GameHandlingErrorMessage.class, JoinedGameMessage.class) == 1) {
                     found = true;
                 }
                 else {
-                    getMessage(GameHandlingError.class);
+                    getMessage(GameHandlingErrorMessage.class);
                 }
             }
         }

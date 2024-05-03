@@ -21,6 +21,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,6 +41,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
 
     private final MessageHandler messageHandler;
     private final ActionParser actionParser;
+    private final ExecutorService virtualServerMethodsInvoker;
 
     public ClientRMI(MessageHandler messageHandler, ActionParser actionParser) throws RuntimeException, RemoteException{
         super();
@@ -61,80 +64,90 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
 
         this.messageHandler = messageHandler;
         this.actionParser = actionParser;
+
+        this.virtualServerMethodsInvoker = Executors.newSingleThreadExecutor();
     }
 
     @Override
     public void connect(String nickname){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        try{
-            this.virtualMainServer.newConnection(this, nickname);
-            this.heartBeatManager.startHeartBeatManager();
-        }
-        catch (RemoteException e) {
-            this.actionParser.disconnect();
-        }
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
+            }
+            try{
+                this.virtualMainServer.newConnection(this, nickname);
+                this.heartBeatManager.startHeartBeatManager();
+            }
+            catch (RemoteException e) {
+                this.actionParser.disconnect();
+            }
+
+        });
     }
 
     @Override
     public void createGame(String gameName, int numPlayers){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
+            }
             try {
                 this.virtualGameServer = this.virtualMainServer.createGame(this, gameName, this.nickname, numPlayers);
-            }
-            catch (RemoteException e) {
+            } catch (RemoteException e) {
                 this.actionParser.disconnect();
             }
-        }
+        });
     }
 
     @Override
     public void createGame(String gameName, int numPlayers, int seed){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
-            try {
-                this.virtualGameServer = this.virtualMainServer.createGame(this, gameName, this.nickname, numPlayers, seed);
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
             }
-            catch (RemoteException e) {
-                this.actionParser.disconnect();
+            synchronized (this.virtualGameServerLock) {
+                try {
+                    this.virtualGameServer = this.virtualMainServer.createGame(this, gameName, this.nickname, numPlayers, seed);
+                }
+                catch (RemoteException e) {
+                    this.actionParser.disconnect();
+                }
             }
-        }
+        });
     }
 
     @Override
     public void joinGame(String gameName){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
-            try {
-                this.virtualGameServer = this.virtualMainServer.joinGame(this, gameName, this.nickname);
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
             }
-            catch (RemoteException e) {
-                this.actionParser.disconnect();
+            synchronized (this.virtualGameServerLock) {
+                try {
+                    this.virtualGameServer = this.virtualMainServer.joinGame(this, gameName, this.nickname);
+                }
+                catch (RemoteException e) {
+                    this.actionParser.disconnect();
+                }
             }
-        }
+        });
     }
 
     @Override
     public void joinFirstAvailableGame(){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
-            try {
-                this.virtualGameServer = this.virtualMainServer.joinFirstAvailableGame(this, this.nickname);
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
             }
-            catch (RemoteException e) {
-                this.actionParser.disconnect();
+            synchronized (this.virtualGameServerLock) {
+                try {
+                    this.virtualGameServer = this.virtualMainServer.joinFirstAvailableGame(this, this.nickname);
+                }
+                catch (RemoteException e) {
+                    this.actionParser.disconnect();
+                }
             }
-        }
+        });
     }
 
     @Override
@@ -161,13 +174,9 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                 else{
                     nick = clientConfig.getNick();
                 }
+
                 try {
-                    if(this.nickname != null) {
-                        this.virtualGameServer = this.virtualMainServer.reconnect(this, nick, clientConfig.getToken());
-                    }
-                    else{
-                        this.virtualGameServer = this.virtualMainServer.reconnect(this, nick, clientConfig.getToken());
-                    }
+                    this.virtualGameServer = this.virtualMainServer.reconnect(this, nick, clientConfig.getToken());
                     //@TODO: when correct message is arrived call startSendingHeartBeat
                     return;
                 }
@@ -211,14 +220,14 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
 
     @Override
     public void disconnect() throws RuntimeException{
+        ConfigurationManager.deleteConfiguration(this.nickname);
+
         try {
             this.virtualMainServer.disconnect(this, this.nickname);
         }
         catch (RemoteException e) {
             throw new RuntimeException("Cannot disconnect from server because of Remote Exception: " + e);
         }
-
-        ConfigurationManager.deleteConfiguration(this.nickname);
 
         stopClient();
     }
@@ -250,144 +259,162 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     }
 
     public void stopClient(){
+        stopSendingHeartbeat();
+
+        this.virtualServerMethodsInvoker.shutdownNow();
+
         try{
             UnicastRemoteObject.unexportObject(this.registry, true);
         }
         catch (NoSuchObjectException ignored){ };
-
-        stopSendingHeartbeat();
     }
 
     @Override
     public void placeCard(String cardToInsert, String anchorCard, Direction directionToInsert, CardOrientation orientation){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
-            try {
-                if (this.virtualGameServer != null) {
-                    this.virtualGameServer.placeCard(cardToInsert, anchorCard, directionToInsert, orientation);
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
+            }
+            synchronized (this.virtualGameServerLock) {
+                try {
+                    if (this.virtualGameServer != null) {
+                        this.virtualGameServer.placeCard(cardToInsert, anchorCard, directionToInsert, orientation);
+                    }
+                }
+                catch (RemoteException e) {
+                    this.actionParser.disconnect();
                 }
             }
-            catch (RemoteException e) {
-                this.actionParser.disconnect();
-            }
-        }
+        });
     }
 
     @Override
     public void sendChatMessage(ArrayList<String> UsersToSend, String messageToSend){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
-            try {
-                if (this.virtualGameServer != null) {
-                    this.virtualGameServer.sendChatMessage(UsersToSend, messageToSend);
-                }
-            } catch (RemoteException e) {
-                this.actionParser.disconnect();
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
             }
-        }
+            synchronized (this.virtualGameServerLock) {
+                try {
+                    if (this.virtualGameServer != null) {
+                        this.virtualGameServer.sendChatMessage(UsersToSend, messageToSend);
+                    }
+                } catch (RemoteException e) {
+                    this.actionParser.disconnect();
+                }
+            }
+        });
     }
 
     @Override
     public void placeInitialCard(CardOrientation cardOrientation){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
-            try {
-                if (this.virtualGameServer != null) {
-                    this.virtualGameServer.placeInitialCard(cardOrientation);
-                }
-            } catch (RemoteException e) {
-                this.actionParser.disconnect();
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
             }
-        }
+            synchronized (this.virtualGameServerLock) {
+                try {
+                    if (this.virtualGameServer != null) {
+                        this.virtualGameServer.placeInitialCard(cardOrientation);
+                    }
+                } catch (RemoteException e) {
+                    this.actionParser.disconnect();
+                }
+            }
+        });
     }
 
     @Override
     public void pickCardFromTable(PlayableCardType type, int position){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
-            try {
-                if(this.virtualGameServer != null) {
-                    this.virtualGameServer.pickCardFromTable(type, position);
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
+            }
+            synchronized (this.virtualGameServerLock) {
+                try {
+                    if(this.virtualGameServer != null) {
+                        this.virtualGameServer.pickCardFromTable(type, position);
+                    }
+                }
+                catch (RemoteException e) {
+                    this.actionParser.disconnect();
                 }
             }
-            catch (RemoteException e) {
-                this.actionParser.disconnect();
-            }
-        }
+        });
     }
 
     @Override
     public void pickCardFromDeck(PlayableCardType type){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
-            try {
-                if(this.virtualGameServer != null) {
-                    this.virtualGameServer.pickCardFromDeck(type);
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
+            }
+            synchronized (this.virtualGameServerLock) {
+                try {
+                    if(this.virtualGameServer != null) {
+                        this.virtualGameServer.pickCardFromDeck(type);
+                    }
+                }
+                catch (RemoteException e) {
+                    this.actionParser.disconnect();
                 }
             }
-            catch (RemoteException e) {
-                this.actionParser.disconnect();
-            }
-        }
+        });
     }
 
     @Override
     public void chooseColor(Color color){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
-            try {
-                if(this.virtualGameServer != null) {
-                    this.virtualGameServer.chooseColor(color);
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
+            }
+            synchronized (this.virtualGameServerLock) {
+                try {
+                    if(this.virtualGameServer != null) {
+                        this.virtualGameServer.chooseColor(color);
+                    }
+                }
+                catch (RemoteException e) {
+                    this.actionParser.disconnect();
                 }
             }
-            catch (RemoteException e) {
-                this.actionParser.disconnect();
-            }
-        }
+        });
     }
 
     @Override
     public void choosePrivateGoalCard(int cardIdx){
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
-            try {
-                if(this.virtualGameServer != null) {
-                    this.virtualGameServer.choosePrivateGoalCard(cardIdx);
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
+            }
+            synchronized (this.virtualGameServerLock) {
+                try {
+                    if(this.virtualGameServer != null) {
+                        this.virtualGameServer.choosePrivateGoalCard(cardIdx);
+                    }
+                }
+                catch (RemoteException e) {
+                    this.actionParser.disconnect();
                 }
             }
-            catch (RemoteException e) {
-                this.actionParser.disconnect();
-            }
-        }
+        });
     }
 
     @Override
     public void availableGames() {
-        if(this.actionParser.isDisconnected()){
-            return;
-        }
-        synchronized (this.virtualGameServerLock) {
-            try {
-                this.virtualMainServer.requestAvailableGames(this, this.nickname);
+        this.virtualServerMethodsInvoker.submit(() -> {
+            if(this.actionParser.isDisconnected()){
+                return;
             }
-            catch (RemoteException e) {
-                this.actionParser.disconnect();
+            synchronized (this.virtualGameServerLock) {
+                try {
+                    this.virtualMainServer.requestAvailableGames(this, this.nickname);
+                }
+                catch (RemoteException e) {
+                    this.actionParser.disconnect();
+                }
             }
-        }
+        });
     }
 
     public MessageHandler getMessageHandler(){

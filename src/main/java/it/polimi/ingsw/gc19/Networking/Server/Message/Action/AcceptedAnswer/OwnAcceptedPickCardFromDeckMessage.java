@@ -15,10 +15,13 @@ public class OwnAcceptedPickCardFromDeckMessage extends AcceptedPickCardMessage{
         super(nick, pickedCard, deckType, symbol);
     }
 
+    /**
+     * Implementation of the visitor pattern
+     * @param visitor {@link MessageToClientVisitor} visitor of the message
+     */
     @Override
     public void accept(MessageToClientVisitor visitor) {
         if(visitor instanceof AnswerToActionMessageVisitor) ((AnswerToActionMessageVisitor) visitor).visit(this);
     }
-
 
 }

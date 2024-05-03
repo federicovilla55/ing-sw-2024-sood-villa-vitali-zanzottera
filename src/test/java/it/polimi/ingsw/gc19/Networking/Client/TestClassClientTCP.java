@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.Networking.Client;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.JoinGameMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
@@ -67,10 +67,10 @@ public class TestClassClientTCP extends ClientTCP implements CommonClientMethods
             boolean found = false;
             while (!found) {
                 this.sendMessage(new JoinGameMessage(gameName, this.getNickname()));
-                if (waitAndNotifyTypeOfMessage(GameHandlingError.class, JoinedGameMessage.class) == 1) {
+                if (waitAndNotifyTypeOfMessage(GameHandlingErrorMessage.class, JoinedGameMessage.class) == 1) {
                     found = true;
                 } else {
-                    getMessage(GameHandlingError.class);
+                    getMessage(GameHandlingErrorMessage.class);
                 }
             }
         }else {

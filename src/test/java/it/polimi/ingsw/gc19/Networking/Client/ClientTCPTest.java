@@ -15,7 +15,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnec
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
@@ -198,7 +198,7 @@ public class ClientTCPTest {
         client5.connect("client5");
 
         client5.joinFirstAvailableGame();
-        assertMessageEquals(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
+        assertMessageEquals(new GameHandlingErrorMessage(Error.NO_GAMES_FREE_TO_JOIN, null));
 
         client5.disconnect();
 
@@ -261,7 +261,7 @@ public class ClientTCPTest {
         waitingThread(5000);
 
         this.client1.sendChatMessage(new ArrayList<>(List.of(this.client2.getNickname(), "client3")), "Chat message after heartbeat dead!");
-        assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NOT_FOUND, null));
+        assertMessageEquals(this.client1, new GameHandlingErrorMessage(Error.GAME_NOT_FOUND, null));
 
         this.client1.disconnect();
         this.client2.disconnect();
@@ -385,7 +385,7 @@ public class ClientTCPTest {
         this.client3.configure("client3", token3);
 
         this.client3.joinGame("game5", false);
-        assertMessageEquals(this.client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
+        assertMessageEquals(this.client3, new GameHandlingErrorMessage(Error.GAME_NOT_ACCESSIBLE, null));
 
         this.client1.disconnect();
         this.client2.disconnect();
@@ -469,7 +469,7 @@ public class ClientTCPTest {
         client8.configure(client7.getNickname(), token8);
 
         client8.joinFirstAvailableGame();
-        assertMessageEquals(client8, new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
+        assertMessageEquals(client8, new GameHandlingErrorMessage(Error.NO_GAMES_FREE_TO_JOIN, null));
         client8.disconnect();
     }
 
@@ -709,7 +709,7 @@ public class ClientTCPTest {
         this.client2.configure("client2", token2);
 
         this.client2.createGame("game1", 2, 1);
-        assertMessageEquals(this.client2, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(this.client2, new GameHandlingErrorMessage(Error.GAME_NAME_ALREADY_IN_USE, null));
 
         this.client2.joinGame("game1", false);
         assertMessageEquals(this.client2, new JoinedGameMessage("game1"));

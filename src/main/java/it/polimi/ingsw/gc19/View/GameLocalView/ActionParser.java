@@ -13,7 +13,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGame
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
@@ -61,6 +61,10 @@ public class ActionParser {
         prevState = new NotPlayer();
     }
 
+    public ClientInterface getClientNetwork(){
+        return this.clientNetwork;
+    }
+
     /**
      * Public method used to forward a string containing an action to be performed
      * to the methods that effectively performs those actions.
@@ -103,7 +107,7 @@ public class ActionParser {
     public synchronized void disconnect(){
         if(this.viewState.getState() == ViewState.DISCONNECT) return;
         this.prevState = viewState;
-        this.viewState = new Disconnect();
+        this.viewState = new Disconnect(this);
         this.viewState.parseAction(null);
     }
 
@@ -261,13 +265,13 @@ public class ActionParser {
      * state consequently.
      * @param message GameHandlingError to analyze
      */
-    public synchronized void handleError(GameHandlingError message){
+    public synchronized void handleError(GameHandlingErrorMessage message){
         switch (message.getErrorType()){
             case Error.PLAYER_NAME_ALREADY_IN_USE -> {
                 viewState = new NotPlayer();
             }
             case Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME -> {
-                viewState = new Disconnect();
+                viewState = new Disconnect(this);
             }
             default -> {
                 viewState = new NotGame();
@@ -489,7 +493,7 @@ public class ActionParser {
         }
 
         @Override
-        public void nextState(GameHandlingError message){
+        public void nextState(GameHandlingErrorMessage message){
             handleError(message);
         }
         @Override
@@ -562,7 +566,7 @@ public class ActionParser {
         }
 
         @Override
-        public void nextState(GameHandlingError message){
+        public void nextState(GameHandlingErrorMessage message){
             handleError(message);
         }
         @Override
@@ -618,7 +622,7 @@ public class ActionParser {
         }
 
         @Override
-        public void nextState(GameHandlingError message){
+        public void nextState(GameHandlingErrorMessage message){
             handleError(message);
         }
         @Override
@@ -649,7 +653,7 @@ public class ActionParser {
         }
 
         @Override
-        public void nextState(GameHandlingError message){
+        public void nextState(GameHandlingErrorMessage message){
             handleError(message);
         }
         @Override
@@ -684,7 +688,7 @@ public class ActionParser {
         }
 
         @Override
-        public void nextState(GameHandlingError message){
+        public void nextState(GameHandlingErrorMessage message){
             handleError(message);
         }
         @Override
@@ -723,92 +727,12 @@ public class ActionParser {
     }
 
     /**
-     * The client is currently disconnected from the game. A new thread is created
-     * to try to reconnect to the game or the main lobby. As soon as a connection is
-     * established, the client changes its state.
-     */
-    class Disconnect extends ClientState{
-        Thread reconnectScheduler;
-
-        int numReconnect = 0;
-
-        @Override
-        public void nextState(JoinedGameMessage message) {
-            reconnectScheduler.interrupt();
-            viewState = new Wait();
-        }
-
-        @Override
-        public void nextState(AvailableGamesMessage message) {
-            reconnectScheduler.interrupt();
-            viewState = new NotGame();
-        }
-
-        @Override
-        public void nextState(GameHandlingError message){
-            switch (message.getErrorType()){
-                case Error.PLAYER_NAME_ALREADY_IN_USE -> {
-                    viewState = new NotPlayer();
-                }
-                case Error.PLAYER_NOT_IN_GAME -> {
-                    viewState = new Disconnect();
-                }
-                default -> {
-                    viewState = new NotGame();
-                }
-
-            }
-        }
-        @Override
-        public void nextState(NetworkHandlingErrorMessage message){
-            handleError(message);
-        }
-
-
-        @Override
-        public ViewState getState() {
-            return ViewState.DISCONNECT;
-        }
-
-        @Override
-        void parseAction(ArrayList<String> command) {
-            if(clientNetwork != null) {
-                reconnectScheduler = new Thread(this::reconnect);
-                reconnectScheduler.start();
-            }
-        }
-
-        public void reconnect(){
-            while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING && !Thread.currentThread().isInterrupted()){
-                try {
-                    clientNetwork.reconnect();
-                } catch (IllegalStateException e) {
-                    // Token file not found...
-                    viewState = new NotPlayer();
-                    reconnectScheduler.interrupt();
-                    return;
-                } catch (RuntimeException e) {
-                    numReconnect++;
-                }
-
-                try {
-                    TimeUnit.MILLISECONDS.sleep(ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION*1000);
-                } catch (InterruptedException e) {
-                    reconnectScheduler.interrupt();
-                    return;
-                }
-            }
-
-        }
-    }
-
-    /**
      * Because all the other players in the game left, the game is in pause
      * and therefore the client can't make any action in the game.
      */
     class Pause extends ClientState{
         @Override
-        public void nextState(GameHandlingError message){
+        public void nextState(GameHandlingErrorMessage message){
             handleError(message);
         }
         @Override
@@ -844,7 +768,7 @@ public class ActionParser {
      */
     class End extends ClientState{
         @Override
-        public void nextState(GameHandlingError message){
+        public void nextState(GameHandlingErrorMessage message){
             handleError(message);
         }
         @Override
@@ -873,4 +797,93 @@ public class ActionParser {
         }
     }
 
+    /**
+     * The client is currently disconnected from the game. A new thread is created
+     * to try to reconnect to the game or the main lobby. As soon as a connection is
+     * established, the client changes its state.
+     */
+    class Disconnect extends ClientState {
+        private final ActionParser actionParser;
+        Thread reconnectScheduler;
+
+        public Disconnect(ActionParser actionParser) {
+            this.actionParser = actionParser;
+        }
+
+        @Override
+        public void nextState(JoinedGameMessage message) {
+            reconnectScheduler.interrupt();
+            actionParser.clientNetwork.startSendingHeartbeat();
+            actionParser.viewState = new Wait();
+        }
+
+        //When we receive correct message from server, we notify client to start sending heartbeat
+        @Override
+        public void nextState(AvailableGamesMessage message) {
+            reconnectScheduler.interrupt();
+            actionParser.clientNetwork.startSendingHeartbeat();
+            actionParser.viewState = new NotGame();
+        }
+
+        @Override
+        public void nextState(GameHandlingErrorMessage message) {
+            switch (message.getErrorType()) {
+                case Error.PLAYER_NAME_ALREADY_IN_USE -> {
+                    actionParser.viewState = new NotPlayer();
+                }
+                case Error.PLAYER_NOT_IN_GAME -> {
+                    actionParser.viewState = new Disconnect(this.actionParser);
+                }
+                default -> {
+                    actionParser.viewState = new NotGame();
+                }
+
+            }
+        }
+
+        @Override
+        public void nextState(NetworkHandlingErrorMessage message) {
+            //@TODO: handle better the error?
+            actionParser.handleError(message);
+        }
+
+
+        @Override
+        public ViewState getState() {
+            return ViewState.DISCONNECT;
+        }
+
+        @Override
+        void parseAction(ArrayList<String> command) {
+            if (actionParser.clientNetwork != null) {
+                reconnectScheduler = new Thread(this::reconnect);
+                reconnectScheduler.start();
+            }
+        }
+
+        public void reconnect() {
+            int numReconnect = 0;
+
+            while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING && !Thread.currentThread().isInterrupted()) {
+                try {
+                    actionParser.clientNetwork.reconnect();
+                } catch (IllegalStateException e) {
+                    // Token file not found...
+                    actionParser.viewState = new NotPlayer();
+                    reconnectScheduler.interrupt();
+                    return;
+                } catch (RuntimeException e) {
+                    numReconnect++;
+                }
+
+                try {
+                    TimeUnit.MILLISECONDS.sleep(ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION * 1000);
+                } catch (InterruptedException e) {
+                    reconnectScheduler.interrupt();
+                    return;
+                }
+            }
+
+        }
+    }
 }

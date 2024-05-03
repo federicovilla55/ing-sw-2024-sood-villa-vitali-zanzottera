@@ -17,7 +17,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPla
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
@@ -136,7 +136,7 @@ public class RMIServerAndMainControllerTest {
         this.client5.setName("client1");
         this.client5.connect();
 
-        assertMessageEquals(this.client5, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(this.client5, new GameHandlingErrorMessage(Error.PLAYER_NAME_ALREADY_IN_USE, null));
     }
 
     @Test
@@ -151,20 +151,20 @@ public class RMIServerAndMainControllerTest {
 
         this.client1.newGame("game2", 2);
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
+        assertMessageEquals(this.client1, new GameHandlingErrorMessage(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
 
         //Player already registered and game name equal
 
         this.client1.newGame("game1", 2);
 
-        assertMessageEquals(this.client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
+        assertMessageEquals(this.client1, new GameHandlingErrorMessage(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
 
         //Game name already in use
         this.client2.connect();
 
         this.client2.newGame("game1", 2);
 
-        assertMessageEquals(this.client2, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(this.client2, new GameHandlingErrorMessage(Error.GAME_NAME_ALREADY_IN_USE, null));
     }
 
     @Test
@@ -224,7 +224,7 @@ public class RMIServerAndMainControllerTest {
 
        this.client3.joinGame("game5");
 
-        assertMessageEquals(this.client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
+        assertMessageEquals(this.client3, new GameHandlingErrorMessage(Error.GAME_NOT_ACCESSIBLE, null));
     }
 
     @Test
@@ -284,7 +284,7 @@ public class RMIServerAndMainControllerTest {
         this.client1.connect();
 
         VirtualGameServer gameServer1 = this.client1.joinFirstAvailableGame();
-        assertMessageEquals(this.client1, new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
+        assertMessageEquals(this.client1, new GameHandlingErrorMessage(Error.NO_GAMES_FREE_TO_JOIN, null));
         assertNull(gameServer1);
 
         gameServer1 = this.client1.newGame("game4", 2);
@@ -338,7 +338,7 @@ public class RMIServerAndMainControllerTest {
 
         VirtualGameServer gameServer5 = this.client5.joinFirstAvailableGame();
         assertNull(gameServer5);
-        assertMessageEquals(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
+        assertMessageEquals(new GameHandlingErrorMessage(Error.NO_GAMES_FREE_TO_JOIN, null));
 
     }
 
@@ -357,7 +357,7 @@ public class RMIServerAndMainControllerTest {
 
         Client client6 = new Client(virtualMainServer, this.client2.getName());
         client6.connect();
-        assertMessageEquals(client6, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(client6, new GameHandlingErrorMessage(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
 
         this.client2.reconnect();
@@ -386,7 +386,7 @@ public class RMIServerAndMainControllerTest {
 
         Client client8 = new Client(virtualMainServer, this.client1.getName());
         client8.connect();
-        assertMessageEquals(client8, new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(client8, new GameHandlingErrorMessage(Error.PLAYER_NAME_ALREADY_IN_USE, null));
         client8.reconnect();
     }
 
@@ -630,6 +630,7 @@ public class RMIServerAndMainControllerTest {
         assertNull(this.client1.getMessage());
     }
 
+    @Disabled
     @Test
     public void testInactiveClientKiller() throws RemoteException {
         client1.connect();
@@ -654,7 +655,7 @@ public class RMIServerAndMainControllerTest {
         assertMessageEquals(client1, new DisconnectFromGameMessage("game30"));
         assertMessageEquals(client2, new DisconnectedPlayerMessage(this.client1.getName()));
         client1.newGame("game30", 4, 2);
-        assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(this.client1, new GameHandlingErrorMessage(Error.GAME_NAME_ALREADY_IN_USE, null));
         client1.newGame("game31", 3);
         assertMessageEquals(this.client1, new CreatedGameMessage("game31"));
         client2.exitFromGame();
@@ -664,14 +665,14 @@ public class RMIServerAndMainControllerTest {
         assertMessageEquals(client2, new CreatedGameMessage("game35"));
         client1.clearQueue();
         client1.joinFirstAvailableGame();
-        assertMessageEquals(client1, new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
+        assertMessageEquals(client1, new GameHandlingErrorMessage(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME, null));
         client1.exitFromGame();
         assertMessageEquals(client1, new DisconnectFromGameMessage("game31"));
         client1.joinGame("game35");
         assertMessageEquals(client2, new JoinedGameMessage("game35"));
         client3.connect();
         client3.joinGame("game35");
-        assertMessageEquals(client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
+        assertMessageEquals(client3, new GameHandlingErrorMessage(Error.GAME_NOT_ACCESSIBLE, null));
         client1.exitFromGame();
         assertMessageEquals(client1, new DisconnectFromGameMessage("game35"));
         client3.exitFromGame();

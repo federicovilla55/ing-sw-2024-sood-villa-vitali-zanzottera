@@ -1,39 +1,5 @@
 package it.polimi.ingsw.gc19.View.ActionParser;
 
-import it.polimi.ingsw.gc19.Enums.*;
-import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Client.*;
-import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
-import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
-import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
-import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
-import it.polimi.ingsw.gc19.View.GameLocalView.ViewState;
-import org.junit.jupiter.api.*;
-
-import java.io.IOException;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.util.*;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /*public class ActionParserTest {

@@ -54,8 +54,8 @@ public class MainController {
                 return true;
             }
             else {
-                player.update(new GameHandlingError(Error.PLAYER_NAME_ALREADY_IN_USE,
-                                                    "Player " + player.getUsername() + " already in use!").setHeader(player.getUsername()));
+                player.update(new GameHandlingErrorMessage(Error.PLAYER_NAME_ALREADY_IN_USE,
+                                                           "Player " + player.getUsername() + " already in use!").setHeader(player.getUsername()));
                 return false;
             }
         }
@@ -151,8 +151,8 @@ public class MainController {
                     player.update(new DisconnectFromGameMessage(gameName).setHeader(player.getUsername()));
                 }
                 else{
-                    player.update(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                        "You are trying to exit a game that do not exists on server!")
+                    player.update(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                               "You are trying to exit a game that do not exists on server!")
                                           .setHeader(player.getName()));
                     return;
                 }
@@ -209,7 +209,7 @@ public class MainController {
     /**
      * This method creates a new game. First, it calls {@link MainController#checkPlayer(ClientHandler)} to test if player
      * can create a new game (not registered to other games).
-     * Then, it checks if {@param gameName} is already in use: if yes, then send to player {@link GameHandlingError}
+     * Then, it checks if {@param gameName} is already in use: if yes, then send to player {@link GameHandlingErrorMessage}
      * with <code>ErrorType.CANNOT_BUILD_GAME</code>.
      * If all is ok, it builds a new game along with its game controller, sends a {@link CreatedGameMessage} to player
      * and registers him to the game.
@@ -225,8 +225,8 @@ public class MainController {
             return false;
         }
         if(numPlayer < 2 || numPlayer > 4){
-            player.update(new GameHandlingError(Error.INCORRECT_NUMBER_OF_PLAYERS,
-                                                "Desired number of players is incorrect!")
+            player.update(new GameHandlingErrorMessage(Error.INCORRECT_NUMBER_OF_PLAYERS,
+                                                       "Desired number of players is incorrect!")
                                   .setHeader(player.getName()));
         }
         synchronized (this.gamesInfo) {
@@ -234,8 +234,8 @@ public class MainController {
                 try {
                     gameToBuild = new Game(numPlayer, gameName, randomSeed);
                 } catch (IOException exception) {
-                    player.update(new GameHandlingError(Error.CANNOT_BUILD_GAME,
-                                                        "Cannot build game because there is an IO Exception. Try later...")
+                    player.update(new GameHandlingErrorMessage(Error.CANNOT_BUILD_GAME,
+                                                               "Cannot build game because there is an IO Exception. Try later...")
                                           .setHeader(player.getUsername()));
                     return false;
                 }
@@ -246,8 +246,8 @@ public class MainController {
                 return true;
             }
             else {
-                player.update(new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE,
-                                                    "Game name " + gameName + " is already in use!")
+                player.update(new GameHandlingErrorMessage(Error.GAME_NAME_ALREADY_IN_USE,
+                                                           "Game name " + gameName + " is already in use!")
                                       .setHeader(player.getUsername()));
                 return false;
             }
@@ -279,8 +279,8 @@ public class MainController {
                 return false;
             }
             if (this.playerInfo.get(player.getUsername()).y() != null) {
-                player.update(new GameHandlingError(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME,
-                                                    "You can't join a new game because you are already registered to game " + this.playerInfo.get(player.getUsername()).y())
+                player.update(new GameHandlingErrorMessage(Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME,
+                                                           "You can't join a new game because you are already registered to game " + this.playerInfo.get(player.getUsername()).y())
                                       .setHeader(player.getUsername()));
                 return false;
             }
@@ -291,7 +291,7 @@ public class MainController {
     /**
      * This method registers a player to an available game: the first
      * of the <code>ArrayList<String></code> returned by {@link MainController#findAvailableGames()}
-     * It send to player {@link GameHandlingError} with error type <code>NO_GAMES_FREE_TO_JOIN</code> if no game is available.
+     * It send to player {@link GameHandlingErrorMessage} with error type <code>NO_GAMES_FREE_TO_JOIN</code> if no game is available.
      * @param player is the {@link ClientHandler} of the player to be registered
      * @return name of joined game if it exists, otherwise null.
      */
@@ -303,7 +303,7 @@ public class MainController {
                 return registerToGame(player, availableGames.getFirst());
             }
             else {
-                player.update(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, "Attention, there aren't games to join! Try later...").setHeader(player.getUsername()));
+                player.update(new GameHandlingErrorMessage(Error.NO_GAMES_FREE_TO_JOIN, "Attention, there aren't games to join! Try later...").setHeader(player.getUsername()));
                 return false;
             }
         }
@@ -327,15 +327,15 @@ public class MainController {
         }
         synchronized (this.gamesInfo) {
             if (!this.gamesInfo.containsKey(gameName)) {
-                player.update(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                    "Game " + gameName + "not found!")
+                player.update(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                           "Game " + gameName + "not found!")
                                       .setHeader(player.getUsername()));
                 return false;
             }
             if (this.gamesInfo.get(gameName).getGameAssociated().getNumPlayers() == this.gamesInfo.get(gameName).getGameAssociated().getNumJoinedPlayer() ||
                     this.gamesInfo.get(gameName).getGameAssociated().getGameState() != GameState.SETUP) {
-                player.update(new GameHandlingError(Error.GAME_NOT_ACCESSIBLE,
-                                                    "Game " + gameName + " is not accessible!")
+                player.update(new GameHandlingErrorMessage(Error.GAME_NOT_ACCESSIBLE,
+                                                           "Game " + gameName + " is not accessible!")
                                       .setHeader(player.getUsername()));
                 return false;
             }
@@ -395,8 +395,8 @@ public class MainController {
                 return false;
             }
             if (this.gamesInfo.get(gameName).getGameAssociated().getPlayers().stream().map(Player::getName).noneMatch(n -> n.equals(clientHandler.getUsername()))) {
-                clientHandler.update(new GameHandlingError(Error.PLAYER_NOT_IN_GAME,
-                                                           "You are not a player of the specified game!")
+                clientHandler.update(new GameHandlingErrorMessage(Error.PLAYER_NOT_IN_GAME,
+                                                                  "You are not a player of the specified game!")
                                              .setHeader(clientHandler.getUsername()));
                 return false;
             }
