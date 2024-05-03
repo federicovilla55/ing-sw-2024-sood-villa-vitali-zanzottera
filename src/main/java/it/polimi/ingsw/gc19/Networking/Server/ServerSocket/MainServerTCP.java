@@ -434,6 +434,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
                         //synchronized (connectedClients) {
                         connectedClients.get(clientSocket).x().pullClientHandlerSocketConfigIntoThis(clientBeforeToRemove.x());
+                        clientBeforeToRemove.x().interruptClientHandler();
                         connectedClients.put(clientSocket, new Triplet<>(connectedClients.get(clientSocket).x(), connectedClients.get(clientSocket).y(), clientBeforeToRemove.z()));
                         connectedClients.notifyAll();
 

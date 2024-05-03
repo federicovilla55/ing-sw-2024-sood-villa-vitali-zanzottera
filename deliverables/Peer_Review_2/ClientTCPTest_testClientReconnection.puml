@@ -1,0 +1,90 @@
+@startuml
+actor Actor #lightgreen
+participant ClientTCP #lightgreen
+participant ReconnectToServerMessage
+participant Socket #lightgreen
+participant ServerSocket #lightblue
+participant TCPConnectionAcceptor #lightblue
+participant MessageToServerDispatcher #lightblue
+participant ClientHandlerSocket #lightblue
+participant MainServerTCP #lightblue
+participant MainController #lightblue
+participant AvailableGamesMessage
+
+activate TCPConnectionAcceptor
+TCPConnectionAcceptor -> ServerSocket ++ : accept (waiting for connections)
+
+activate ClientTCP
+activate ClientTCP
+
+activate MessageToServerDispatcher
+activate ClientHandlerSocket
+
+Actor -> ClientTCP ++ : reconnect
+
+create Socket
+ClientTCP -> Socket ++ : new
+
+Socket <--> ServerSocket : **socket** (creation of TCP connection)
+
+ServerSocket --> TCPConnectionAcceptor -- : returns established Socket
+
+create MessageToServerDispatcher
+TCPConnectionAcceptor -> MessageToServerDispatcher ++ : new
+
+MessageToServerDispatcher --> TCPConnectionAcceptor --
+
+TCPConnectionAcceptor --> MessageToServerDispatcher ++ : start
+
+TCPConnectionAcceptor -> MainServerTCP ++ : registerSocket
+
+create ClientHandlerSocket
+MainServerTCP -> ClientHandlerSocket ++ : new
+
+ClientHandlerSocket --> MainServerTCP --
+
+MainServerTCP --> ClientHandlerSocket ++ : start
+
+MainServerTCP --> TCPConnectionAcceptor --
+
+TCPConnectionAcceptor -> ServerSocket ++ : accept (waiting for connections)
+
+Socket --> ClientTCP --
+
+create ReconnectToServerMessage
+ClientTCP -> ReconnectToServerMessage ++ : new
+ReconnectToServerMessage --> ClientTCP --
+
+ClientTCP -> ClientTCP : sendMessage(ReconnectToServerMessage)
+
+
+ClientTCP --> Actor --
+
+ClientTCP -> ClientTCP : sendMessageToServer(ReconnectToServerMessage)
+
+ClientTCP --> MessageToServerDispatcher : **socket** (sending ReconnectToServerMessage over the network)
+
+MessageToServerDispatcher -> MainServerTCP ++ : update(ReconnectToServerMessage)
+
+MainServerTCP --> MessageToServerDispatcher : interruptMessageDispatcher (old unused)
+deactivate MessageToServerDispatcher
+MainServerTCP --> ClientHandlerSocket : interruptClientHandler (old unused)
+deactivate ClientHandlerSocket
+
+MainServerTCP -> MainController ++ : reconnect
+
+create AvailableGamesMessage
+MainController  -> AvailableGamesMessage ++ : new
+AvailableGamesMessage --> MainController --
+
+MainController -> ClientHandlerSocket ++ : update(AvailableGamesMessage)
+ClientHandlerSocket --> MainController --
+
+MainController --> MainServerTCP --
+
+MainServerTCP --> MessageToServerDispatcher --
+
+ClientHandlerSocket -> ClientHandlerSocket : sendMessageToClient(AvailableGamesMessage)
+ClientHandlerSocket --> ClientTCP : **socket**  (sending AvailableGamesMessage over the network)
+
+@enduml
