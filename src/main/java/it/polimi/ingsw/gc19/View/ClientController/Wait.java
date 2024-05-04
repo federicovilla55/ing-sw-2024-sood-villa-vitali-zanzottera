@@ -30,7 +30,7 @@ class Wait extends ClientState {
 
     @Override
     public void nextState(CreatedPlayerMessage message) {
-        clientController.viewState = new NotGame(clientController, clientInterface);
+        clientController.setNextState(new NotGame(clientController, clientInterface));
     }
 
     @Override
@@ -103,4 +103,5 @@ class Wait extends ClientState {
     public ViewState getState() {
         return ViewState.WAIT;
     }
+
 }

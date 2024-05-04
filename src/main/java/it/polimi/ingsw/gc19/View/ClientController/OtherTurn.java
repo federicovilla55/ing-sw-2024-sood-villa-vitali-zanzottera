@@ -40,7 +40,7 @@ class OtherTurn extends ClientState {
     public void nextState(TurnStateMessage message) {
         if (message.getNick().equals(clientController.getNickname()) &&
                 message.getTurnState() == TurnState.PLACE) {
-            clientController.viewState = new Place(clientController, clientInterface);
+            clientController.setNextState(new Place(clientController, clientInterface));
         }
     }
 

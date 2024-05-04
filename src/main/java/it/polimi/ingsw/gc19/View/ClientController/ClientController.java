@@ -76,10 +76,6 @@ public class ClientController {
         this.viewState = new Disconnect(this, clientNetwork);
     }
 
-    public synchronized boolean isClientNetworkSet(){
-        return (this.clientNetwork==null);
-    }
-
     public synchronized boolean isDisconnected(){
         return this.viewState.getState() == ViewState.DISCONNECT;
     }

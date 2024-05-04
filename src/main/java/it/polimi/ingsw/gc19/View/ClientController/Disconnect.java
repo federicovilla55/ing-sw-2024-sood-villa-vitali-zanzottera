@@ -28,7 +28,7 @@ class Disconnect extends ClientState {
     public void nextState(JoinedGameMessage message) {
         reconnectScheduler.interrupt();
         super.clientInterface.startSendingHeartbeat();
-        clientController.viewState = new Wait(clientController, clientInterface);
+        clientController.setNextState(new Wait(clientController, clientInterface));
     }
 
     //When we receive correct message from server, we notify client to start sending heartbeat
@@ -36,20 +36,20 @@ class Disconnect extends ClientState {
     public void nextState(AvailableGamesMessage message) {
         reconnectScheduler.interrupt();
         super.clientInterface.startSendingHeartbeat();
-        clientController.viewState = new NotGame(clientController, clientInterface);
+        clientController.setNextState(new NotGame(clientController, clientInterface));
     }
 
     @Override
     public void nextState(GameHandlingErrorMessage message) {
         switch (message.getErrorType()) {
             case Error.PLAYER_NAME_ALREADY_IN_USE -> {
-                clientController.viewState = new NotPlayer(clientController, clientInterface);
+                clientController.setNextState(new NotPlayer(clientController, clientInterface));
             }
             case Error.PLAYER_NOT_IN_GAME -> {
-                clientController.viewState = new Disconnect(clientController, clientInterface);
+                clientController.setNextState(new Disconnect(clientController, clientInterface));
             }
             default -> {
-                clientController.viewState = new NotGame(clientController, clientInterface);
+                clientController.setNextState(new NotGame(clientController, clientInterface));
             }
 
         }
@@ -61,17 +61,14 @@ class Disconnect extends ClientState {
         clientController.handleError(message);
     }
 
-
     @Override
     public ViewState getState() {
         return ViewState.DISCONNECT;
     }
 
     public void startReconnecting(){
-        if (clientController.isClientNetworkSet()) {
-            reconnectScheduler = new Thread(this::reconnect);
-            reconnectScheduler.start();
-        }
+        reconnectScheduler = new Thread(this::reconnect);
+        reconnectScheduler.start();
     }
 
     public void reconnect() {
@@ -82,7 +79,7 @@ class Disconnect extends ClientState {
                 clientInterface.reconnect();
             } catch (IllegalStateException e) {
                 // Token file not found...
-                clientController.viewState = new NotPlayer(clientController, clientInterface);
+                clientController.setNextState(new NotPlayer(clientController, clientInterface));
                 reconnectScheduler.interrupt();
                 return;
             } catch (RuntimeException e) {
