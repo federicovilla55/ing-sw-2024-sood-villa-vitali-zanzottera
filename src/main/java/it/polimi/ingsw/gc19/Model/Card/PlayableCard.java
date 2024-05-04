@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.*;
 import it.polimi.ingsw.gc19.Enums.*;
 
 import it.polimi.ingsw.gc19.Model.Station.Station;
+import it.polimi.ingsw.gc19.View.TUI.TUIView;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * This class represents a single playable card
@@ -65,7 +67,7 @@ public class PlayableCard extends Card implements Serializable{
     private PlayableEffect playableEffect;
 
     @JsonCreator
-    PlayableCard(
+    public PlayableCard(
             @JsonProperty("code") String cardCode,
             @JsonProperty("playable_card_type") PlayableCardType cardType,
             @JsonProperty("front_grid") Corner[][] frontGridConfiguration,
@@ -177,8 +179,15 @@ public class PlayableCard extends Card implements Serializable{
 
     @Override
     public String getCardDescription(){
-        return "Playable card " + this.getCardCode() + ":\n" +
-                this.playableEffect.getEffectDescription() + "\n";
+        StringBuffer desc = new StringBuffer();
+
+        desc.append("Playable card ").append(this.getCardCode()).append(":\n");
+        if(!this.requiredSymbolToPlace.isEmpty())
+            desc.append("Required symbols to place: ").append(requiredSymbolToPlace.entrySet().stream().flatMap(entry -> Stream.generate(entry::getKey).limit(entry.getValue())).map(s -> s.stringEmoji()).reduce(String::concat).orElse("nothing")).append("\n");
+
+        desc.append(this.playableEffect.getEffectDescription()).append("\n");
+
+        return desc.toString();
     }
 
     /**
@@ -402,5 +411,9 @@ public class PlayableCard extends Card implements Serializable{
         return super.toString() +
                 "\n" +
                 "Card orientation: " + this.getCardOrientation();
+    }
+
+    public String[][] getEffectView(TUIView tuiView) {
+        return this.playableEffect.getEffectView(tuiView);
     }
 }

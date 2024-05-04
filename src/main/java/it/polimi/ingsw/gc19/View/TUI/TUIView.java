@@ -1,10 +1,7 @@
 package it.polimi.ingsw.gc19.View.TUI;
 
 import it.polimi.ingsw.gc19.Enums.*;
-import it.polimi.ingsw.gc19.Model.Card.Corner;
-import it.polimi.ingsw.gc19.Model.Card.GoalCard;
-import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Game.Player;
+import it.polimi.ingsw.gc19.Model.Card.*;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 
@@ -16,10 +13,10 @@ public class TUIView {
      * This method prints to terminal a matrix of strings, each string represents two UTF-8 wide character(s),
      * Making all lines aligned. Make sure to use monospace supported fonts, line Noto Sans Mono + Noto Color Emoji
      *
-     * @param cardTUIView the matrix of strings to print
+     * @param TUIView the matrix of strings to print
      */
-    public void printTUIView(String[][] cardTUIView) {
-        for (String[] strings : cardTUIView) {
+    public void printTUIView(String[][] TUIView) {
+        for (String[] strings : TUIView) {
             for (String string : strings) {
                 System.out.print(string);
             }
@@ -54,7 +51,7 @@ public class TUIView {
         }
 
         res[0][0] = "Available colors:";
-        for(int i = 1; i <= availableColors.size(); i++) {
+        for (int i = 1; i <= availableColors.size(); i++) {
             Color c = availableColors.get(i - 1);
             res[i][0] = i + ") " + c.stringColor() + c + c.colorReset();
         }
@@ -62,12 +59,20 @@ public class TUIView {
         return res;
     }
 
-    public void printCardDescriptionTUIView(GoalCard card) {
-        if(card != null) {
-            System.out.println(card.getCardDescription());
-
-
+    public String[][] availableGamesTUIView(List<String> availableGames) {
+        // create matrix of empty strings, each representing a single unicode character to display in console
+        String[][] res = new String[availableGames.size() + 2][1];
+        for (String[] strings : res) {
+            Arrays.fill(strings, "");
         }
+
+        res[0][0] = "Available games:";
+        for (int i = 1; i <= availableGames.size(); i++) {
+            String s = availableGames.get(i - 1);
+            res[i][0] = i + ") " + s;
+        }
+
+        return res;
     }
 
     public String[][] cardTUIView(PlayableCard card) {
@@ -208,6 +213,25 @@ public class TUIView {
             }
         }
         return res;
+    }
+
+    private PlayableCard dummyPlayableCard(Symbol symbol) {
+        return new PlayableCard(
+                "dummy",
+                PlayableCardType.RESOURCE,
+                new Corner[][]{
+                        {NotAvailableCorner.NOT_AVAILABLE, NotAvailableCorner.NOT_AVAILABLE},
+                        {NotAvailableCorner.NOT_AVAILABLE, NotAvailableCorner.NOT_AVAILABLE}
+                },
+                new HashMap<>(),
+                new Corner[][]{
+                        {NotAvailableCorner.NOT_AVAILABLE, NotAvailableCorner.NOT_AVAILABLE},
+                        {NotAvailableCorner.NOT_AVAILABLE, NotAvailableCorner.NOT_AVAILABLE}
+                },
+                new ArrayList<Symbol>(List.of(symbol)),
+                new NoConstraintEffect(0),
+                null
+        );
     }
 
     public String[][] playerAreaTUIView(List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
@@ -489,6 +513,69 @@ public class TUIView {
                 }
             }
         }
+
+        return res;
+    }
+
+    public String[][] goalCardEffectTUIView(GoalCard card) {
+        return card.getEffectView(this);
+    }
+
+    public String[][] playableCardEffectTUIView(PlayableCard card) {
+        return card.getEffectView(this);
+    }
+
+    public String[][] goalEffectView(PatternEffect patternEffect) {
+
+
+        List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence = new ArrayList<>();
+
+        Iterator<Tuple<Integer, Integer>> movesIterator = patternEffect.getMoves().iterator();
+        Iterator<Symbol> symbolIterator = patternEffect.getRequiredSymbol().iterator();
+
+        Symbol currentSymbol = symbolIterator.next();
+        Tuple<Integer, Integer> currentPosition = new Tuple<>(0, 0);
+
+        placedCardSequence.add(new Tuple<>(dummyPlayableCard(currentSymbol), currentPosition));
+
+        while (movesIterator.hasNext()) {
+            currentSymbol = symbolIterator.next();
+            Tuple<Integer, Integer> relativePosition = movesIterator.next();
+            currentPosition = new Tuple<>(currentPosition.x() + relativePosition.x(), currentPosition.y() + relativePosition.y());
+
+            placedCardSequence.add(new Tuple<>(dummyPlayableCard(currentSymbol), currentPosition));
+        }
+
+        String[][] playerAreaTuiView = this.playerAreaTUIView(placedCardSequence);
+
+        String[][] res = new String[playerAreaTuiView.length + 2][playerAreaTuiView[0].length];
+        res[0] = this.textTUIView("Pattern:");
+        res[1] = new String[]{};
+        for (int i = 0; i < playerAreaTuiView.length; i++) {
+            res[i + 2] = playerAreaTuiView[i];
+        }
+
+        return res;
+    }
+
+    public String[][] goalEffectView(SymbolEffect symbolEffect) {
+        String[][] requiredSymbolsTUIView = this.requiredSymbolsTUIView(symbolEffect.getRequiredSymbol());
+        return requiredSymbolsTUIView;
+    }
+
+    private String[][] requiredSymbolsTUIView(Map<Symbol, Integer> requiredSymbol) {
+        // create matrix of empty strings, each representing a single unicode character to display in console
+        String[][] res = new String[2 + requiredSymbol.size()][1];
+        for (String[] strings : res) {
+            Arrays.fill(strings, "");
+        }
+        res[0][0] = "\t┏━━━━━━━━━━┓\t";
+        int i = 1;
+        for (Symbol s : requiredSymbol.keySet()) {
+            res[i][0] = "\t┃ " + s.stringEmoji() + "\t" + String.format("%2d", requiredSymbol.get(s)) + " ┃\t";
+            i++;
+        }
+        res[i][0] = "\t┗━━━━━━━━━━┛\t";
 
         return res;
     }

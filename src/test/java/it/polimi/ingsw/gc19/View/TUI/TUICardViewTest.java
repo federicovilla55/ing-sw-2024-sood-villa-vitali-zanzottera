@@ -57,14 +57,43 @@ public class TUICardViewTest {
     }
 
     @Test
+    public void testAvailableGamesTUIView() {
+        String[][] availableGamesTUIView;
+
+        availableGamesTUIView = tuiView.availableGamesTUIView(
+                List.of(
+
+                )
+        );
+
+        tuiView.printTUIView(availableGamesTUIView);
+
+        availableGamesTUIView = tuiView.availableGamesTUIView(
+                List.of(
+                        "beautiful_game",
+                        "awesome_game",
+                        "marvellous_game",
+                        "superb_game",
+                        "incredible_game"
+                )
+        );
+
+        tuiView.printTUIView(availableGamesTUIView);
+
+
+    }
+
+    @Test
     public void testPlayableCardTUIView() {
         String[][] cardTUIView;
         PlayableCard card;
         for (String type : List.of("resource_", "gold_")) {
             for (Integer i = 1; i <= 40; i++) {
                 String cardString = type + new DecimalFormat("00").format(i);
+                System.out.println("-----------------------");
                 System.out.println(cardString + ":");
                 card = stringPlayableCardHashMap.get(cardString);
+                card.setCardState(CardOrientation.UP);
                 cardTUIView = tuiView.cardTUIView(card);
                 tuiView.printTUIView(cardTUIView);
                 card.swapCard();
@@ -74,12 +103,15 @@ public class TUICardViewTest {
                 System.out.println();
                 System.out.println(card.getCardDescription());
                 System.out.println();
+                tuiView.printTUIView(tuiView.playableCardEffectTUIView(card));
             }
         }
         for (Integer i = 1; i <= 6; i++) {
             String cardString = "initial_" + new DecimalFormat("00").format(i);
+            System.out.println("-----------------------");
             System.out.println(cardString + ":");
             card = stringPlayableCardHashMap.get(cardString);
+            card.setCardState(CardOrientation.UP);
             cardTUIView = tuiView.cardTUIView(card);
             tuiView.printTUIView(cardTUIView);
             card.swapCard();
@@ -87,6 +119,9 @@ public class TUICardViewTest {
             cardTUIView = tuiView.cardTUIView(card);
             tuiView.printTUIView(cardTUIView);
             System.out.println();
+            System.out.println(card.getCardDescription());
+            System.out.println();
+            tuiView.printTUIView(tuiView.playableCardEffectTUIView(card));
         }
     }
 
@@ -104,9 +139,12 @@ public class TUICardViewTest {
         GoalCard card;
         for (Integer i = 1; i <= 16; i++) {
             String cardString = "goal_" + new DecimalFormat("00").format(i);
-            System.out.println(cardString + ":");
             card = stringGoalCardHashMap.get(cardString);
+            String[][] goalCardTUIView = tuiView.goalCardEffectTUIView(card);
+            System.out.println("-----------------------");
             System.out.println(card.getCardDescription());
+            System.out.println();
+            tuiView.printTUIView(goalCardTUIView);
             System.out.println();
         }
     }

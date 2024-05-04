@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Model.Station.Station;
+import it.polimi.ingsw.gc19.View.TUI.TUIView;
 
 @JsonTypeName("corner")
 class CornerEffect implements PlayableEffect{
@@ -32,8 +33,13 @@ class CornerEffect implements PlayableEffect{
     }
 
     @Override
+    public String[][] getEffectView(TUIView tuiView) {
+        return new String[][]{{""}};
+    }
+
+    @Override
     public String getEffectDescription(){
-        return "Points per pattern: " + this.cardValue + "for every corner that this card hides";
+        return "Points per pattern: " + this.cardValue + "for every corner that this card covers";
     }
 
 }

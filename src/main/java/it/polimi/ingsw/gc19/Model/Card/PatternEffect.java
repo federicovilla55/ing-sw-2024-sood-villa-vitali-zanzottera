@@ -6,11 +6,13 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.TUI.TUIView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @JsonTypeName("pattern")
-class PatternEffect implements GoalEffect{
+public class PatternEffect implements GoalEffect{
 
     private final int cardValue;
     private final ArrayList<Tuple<Integer, Integer>> moves;
@@ -30,6 +32,18 @@ class PatternEffect implements GoalEffect{
         this.requiredSymbol = requiredSymbol;
     }
 
+    public int getCardValue() {
+        return cardValue;
+    }
+
+    public List<Tuple<Integer, Integer>> getMoves() {
+        return List.copyOf(moves);
+    }
+
+    public List<Symbol> getRequiredSymbol() {
+        return List.copyOf(requiredSymbol);
+    }
+
     @Override
     public int countPoints(Station station){
         return this.cardValue * station.countPattern(moves, requiredSymbol);
@@ -40,6 +54,11 @@ class PatternEffect implements GoalEffect{
         return "This card gives " + this.cardValue + " points for every occurrence of the pattern in the player area.\n" +
                "The pattern must exactly respect color and position as illustrated by the card.\n" +
                "Each card can be used only once per card effect (no overlap).";
+    }
+
+    @Override
+    public String[][] getEffectView(TUIView tuiView) {
+        return tuiView.goalEffectView(this);
     }
 
 }

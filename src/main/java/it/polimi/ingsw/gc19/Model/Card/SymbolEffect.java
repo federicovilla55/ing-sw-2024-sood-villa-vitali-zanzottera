@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Station.Station;
+import it.polimi.ingsw.gc19.View.TUI.TUIView;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @JsonTypeName("symbol")
-class SymbolEffect implements GoalEffect, PlayableEffect{
+public class SymbolEffect implements GoalEffect, PlayableEffect{
 
     private final HashMap<Symbol, Integer> requiredSymbol;
     private final int cardValue;
@@ -26,10 +28,19 @@ class SymbolEffect implements GoalEffect, PlayableEffect{
         this.cardValue = cardValue;
     }
 
+    public Map<Symbol, Integer> getRequiredSymbol() {
+        return Map.copyOf(requiredSymbol);
+    }
+
     @Override
     public String getEffectDescription(){
         return "This card gives " + this.cardValue + " points for every group of indicated symbols.\n" +
                "The symbols are the visible symbols in the player area.";
+    }
+
+    @Override
+    public String[][] getEffectView(TUIView tuiView) {
+        return tuiView.goalEffectView(this);
     }
 
     @Override
