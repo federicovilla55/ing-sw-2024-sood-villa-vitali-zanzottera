@@ -9,7 +9,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromServer;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromServerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
@@ -429,7 +429,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                         //if (clientBeforeToRemove != null) {
                         clientBeforeToRemove.y().removeObserver(MainServerTCP.this);
                         clientBeforeToRemove.y().removeObserver(clientBeforeToRemove.x());
-                        clientBeforeToRemove.y().interruptMessageDispatcher();
+                        clientBeforeToRemove.x().interruptClientHandler();
                         clientBeforeToRemove.y().interruptMessageDispatcher();
 
                         //synchronized (connectedClients) {
@@ -459,7 +459,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         /**
          * This method is used to handle {@link DisconnectMessage} received from player.
          * It calls {@link MainServerTCP#disconnectSocket(Socket)}. It also sends to
-         * the player a {@link DisconnectFromServer}.
+         * the player a {@link DisconnectFromServerMessage}.
          * @param message {@link DisconnectMessage} to handle
          */
         @Override
@@ -470,7 +470,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 clientToDisconnect = connectedClients.get(clientSocket);
             }
             if(clientToDisconnect != null){
-                clientToDisconnect.x().update(new DisconnectFromServer()
+                clientToDisconnect.x().update(new DisconnectFromServerMessage()
                                                       .setHeader(clientToDisconnect.x().getUsername()));
             }
 
