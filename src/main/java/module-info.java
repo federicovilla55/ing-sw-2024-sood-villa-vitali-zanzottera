@@ -60,5 +60,6 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.Networking.Client.NetworkManagement;
     opens it.polimi.ingsw.gc19.Networking.Client.Configuration;
     exports it.polimi.ingsw.gc19.Networking.Client.Configuration to com.fasterxml.jackson.databind;
+    exports it.polimi.ingsw.gc19.View.GUI;
 
 }
