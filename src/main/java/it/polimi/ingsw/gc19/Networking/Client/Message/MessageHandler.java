@@ -31,9 +31,9 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     private final LocalModel localModel;
     private final ClientController clientController;
 
-    public MessageHandler(ClientController clientController){
+    public MessageHandler(ClientController clientController, LocalModel localModel){
         this.messagesToHandle = new ArrayDeque<>();
-        this.localModel = new LocalModel(); //fix this
+        this.localModel = localModel;
         this.clientController = clientController;
     }
 

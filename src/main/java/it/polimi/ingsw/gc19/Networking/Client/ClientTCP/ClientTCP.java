@@ -74,6 +74,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
                 this.finalizeSending();
             }
             catch (IOException ioException) {
+                System.out.println("+++" + ioException.getMessage());
                 return false;
             }
         }
@@ -83,7 +84,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
     private void sendMessageToServer(){
         MessageToServer message;
 
-        while(!Thread.interrupted()) {
+        while(!Thread.currentThread().isInterrupted()) {
             if(!this.clientController.isDisconnected()) {
                 synchronized (this.messagesToSend) {
                     while (this.messagesToSend.isEmpty()) {
@@ -104,14 +105,6 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
                     this.clientController.disconnect();
                 }
             }
-            else{
-                try{
-                    TimeUnit.MILLISECONDS.sleep(1000);
-                }
-                catch (InterruptedException interruptedException){
-                    Thread.currentThread().interrupt();
-                }
-            }
         }
     }
 
@@ -129,12 +122,12 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
 
     public void receiveMessages(){
         MessageToClient incomingMessage = null;
-        while(!Thread.currentThread().isInterrupted()) {
+        while(!Thread.interrupted()) {
             try {
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
-                System.out.println(incomingMessage);
+                //System.out.println(incomingMessage);
             }
-            catch (ClassNotFoundException  | IOException ignored){ }
+            catch (ClassNotFoundException | IOException ignored){ }
 
             if(incomingMessage != null && (this.nickname == null || incomingMessage.getHeader() == null || incomingMessage.getHeader().contains(this.nickname))) {
                 if(incomingMessage instanceof ServerHeartBeatMessage){

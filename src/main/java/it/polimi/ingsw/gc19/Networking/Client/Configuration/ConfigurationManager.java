@@ -11,9 +11,15 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class ConfigurationManager {
+
     public static void saveConfiguration(Configuration configuration) throws RuntimeException{
-        File configFile;
+        File configFile, configFolder;
+
         try {
+            configFolder = new File(ClientSettings.CONFIG_FILE_PATH);
+            if(configFolder.exists()) configFolder.delete();
+            configFolder.mkdir();
+
             configFile = new File(ClientSettings.CONFIG_FILE_PATH + configuration.getNick() + ".json");
             if(configFile.createNewFile()){
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -26,6 +32,7 @@ public class ConfigurationManager {
         catch (IOException ioException){
             throw new RuntimeException("Could not create file!");
         };
+
     }
 
     public static Configuration retriveConfiguration(String nick) throws IllegalStateException, IOException {

@@ -54,15 +54,15 @@ public class ClientRMITest {
         ClientController clientController4 = new ClientController();
         ClientController clientController5 = new ClientController();
 
-        this.client1 = new TestClassClientRMI(new MessageHandler(clientController1), clientController1);
+        this.client1 = new TestClassClientRMI(new MessageHandler(clientController1, clientController1.getLocalModel()), clientController1);
         clientController1.setClientInterface(client1);
-        this.client2 = new TestClassClientRMI(new MessageHandler(clientController2), clientController2);
+        this.client2 = new TestClassClientRMI(new MessageHandler(clientController2, clientController2.getLocalModel()), clientController2);
         clientController2.setClientInterface(client2);
-        this.client3 = new TestClassClientRMI(new MessageHandler(clientController3), clientController3);
+        this.client3 = new TestClassClientRMI(new MessageHandler(clientController3, clientController3.getLocalModel()), clientController3);
         clientController3.setClientInterface(client3);
-        this.client4 = new TestClassClientRMI(new MessageHandler(clientController4), clientController4);
+        this.client4 = new TestClassClientRMI(new MessageHandler(clientController4, clientController4.getLocalModel()), clientController4);
         clientController4.setClientInterface(client4);
-        this.client5 = new TestClassClientRMI(new MessageHandler(clientController5), clientController5);
+        this.client5 = new TestClassClientRMI(new MessageHandler(clientController5, clientController5.getLocalModel()), clientController5);
         clientController5.setClientInterface(client5);
 
         clientsAnchors = new HashMap<>();
@@ -550,7 +550,7 @@ public class ClientRMITest {
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("client4"));
 
         ClientController clientController5 = new ClientController();
-        client5 = new TestClassClientRMI(new MessageHandler(clientController5), clientController5);
+        client5 = new TestClassClientRMI(new MessageHandler(clientController5, clientController5.getLocalModel()), clientController5);
         clientController5.setClientInterface(client5);
         this.client5.connect("client5");
         client5.waitForMessage(CreatedPlayerMessage.class);
@@ -596,7 +596,7 @@ public class ClientRMITest {
         }
 
         ClientController clientController6 = new ClientController();
-        TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(clientController6), clientController6);
+        TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(clientController6, clientController6.getLocalModel()), clientController6);
         clientController6.setClientInterface(client6);
         client6.connect("client2");
         assertMessageEquals(client6, new GameHandlingErrorMessage(Error.PLAYER_NAME_ALREADY_IN_USE, null));
@@ -632,7 +632,7 @@ public class ClientRMITest {
         }
 
         ClientController clientController8 = new ClientController();
-        TestClassClientRMI client8 = new TestClassClientRMI(new MessageHandler(clientController8), clientController8);
+        TestClassClientRMI client8 = new TestClassClientRMI(new MessageHandler(clientController8, clientController8.getLocalModel()), clientController8);
         clientController8.setClientInterface(client8);
         client8.connect("client8");
         client8.waitForMessage(CreatedPlayerMessage.class);
@@ -716,7 +716,7 @@ public class ClientRMITest {
         }
 
         ClientController clientController7 = new ClientController();
-        TestClassClientRMI client7 = new TestClassClientRMI(new MessageHandler(clientController7), clientController7);
+        TestClassClientRMI client7 = new TestClassClientRMI(new MessageHandler(clientController7, clientController7.getLocalModel()), clientController7);
         clientController7.setClientInterface(client7);
         client7.configure("client1", token1);
         client7.reconnect();
