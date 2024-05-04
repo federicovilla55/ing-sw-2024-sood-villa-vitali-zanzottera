@@ -47,17 +47,23 @@ public class ClientTCPRMITest {
         ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
         ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
 
-        ClientController clientController1 = new ClientController("client1");
-        ClientController clientController2 = new ClientController("client1");
-        ClientController clientController3 = new ClientController("client1");
-        ClientController clientController4 = new ClientController("client1");
-        ClientController clientController5 = new ClientController("client1");
+        ClientController clientController1 = new ClientController();
+        ClientController clientController2 = new ClientController();
+        ClientController clientController3 = new ClientController();
+        ClientController clientController4 = new ClientController();
+        ClientController clientController5 = new ClientController();
 
         this.client1 = new TestClassClientRMI(new MessageHandler(clientController1), clientController1);
-        this.client2 = new TestClassClientTCP(new MessageHandler(clientController1), clientController2);
+        clientController1.setClientInterface(client1);
+        this.client2 = new TestClassClientTCP(new MessageHandler(clientController2), clientController2);
+        clientController2.setClientInterface(client2);
         this.client3 = new TestClassClientRMI(new MessageHandler(clientController3), clientController3);
+        clientController3.setClientInterface(client3);
         this.client4 = new TestClassClientTCP(new MessageHandler(clientController4), clientController4);
+        clientController4.setClientInterface(client4);
         this.client5 = new TestClassClientRMI(new MessageHandler(clientController5), clientController5);
+        clientController5.setClientInterface(client5);
+
         clientsAnchors = new HashMap<>();
     }
 
@@ -207,12 +213,16 @@ public class ClientTCPRMITest {
 
     @Test
     public void testDisconnectionAndReconnection() throws IOException {
-        TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(new ClientController()), new ClientController());
+        ClientController clientController6 = new ClientController();
+        TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(clientController6), clientController6);
+        clientController6.setClientInterface(client6);
         client6.connect("client6");
         client6.startSendingHeartbeat();
         waitingThread(2500);
         client6.disconnect();
-        TestClassClientTCP client7 = new TestClassClientTCP(new MessageHandler(new ClientController()), new ClientController());
+        ClientController clientController7 = new ClientController();
+        TestClassClientRMI client7 = new TestClassClientRMI(new MessageHandler(clientController7), clientController7);
+        clientController7.setClientInterface(client6);
         client7.connect("client6");
         assertMessageEquals(client7, new CreatedPlayerMessage("client6"));
 
@@ -546,7 +556,9 @@ public class ClientTCPRMITest {
 
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage("client4"));
 
-        this.client5 = new TestClassClientRMI(new MessageHandler(new ClientController()), new ClientController());
+        ClientController clientController5 = new ClientController();
+        client5 = new TestClassClientRMI(new MessageHandler(clientController5), clientController5);
+        clientController5.setClientInterface(client5);
         this.client5.connect("client5");
         client5.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message5 = this.client5.getMessage();
@@ -587,7 +599,9 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(new ClientController()), new ClientController());
+        ClientController clientController6 = new ClientController();
+        TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(clientController6), clientController6);
+        clientController6.setClientInterface(client6);
         client6.connect("client2");
         assertMessageEquals(client6, new GameHandlingErrorMessage(Error.PLAYER_NAME_ALREADY_IN_USE, null));
 
@@ -621,7 +635,9 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client8 = new TestClassClientRMI(new MessageHandler(new ClientController()), new ClientController());
+        ClientController clientController8 = new ClientController();
+        TestClassClientRMI client8 = new TestClassClientRMI(new MessageHandler(clientController8), clientController8);
+        clientController8.setClientInterface(client8);
         client8.connect("client8");
         client8.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message8 = client8.getMessage();
@@ -675,7 +691,9 @@ public class ClientTCPRMITest {
         this.client2.stopSendingHeartbeat();
 
         //Situation: client 2 has disconnected from game
-        TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(new ClientController()), new ClientController());
+        ClientController clientController6 = new ClientController();
+        TestClassClientRMI client6 = new TestClassClientRMI(new MessageHandler(clientController6), clientController6);
+        clientController6.setClientInterface(client6);
         //Client6 tries to reconnect with no token
         client6.configure("client6", "fake token");
         client6.reconnect();
@@ -759,7 +777,9 @@ public class ClientTCPRMITest {
             throw new RuntimeException(e);
         }
 
-        TestClassClientRMI client7 = new TestClassClientRMI(new MessageHandler(new ClientController()), new ClientController());
+        ClientController clientController7 = new ClientController();
+        TestClassClientRMI client7 = new TestClassClientRMI(new MessageHandler(clientController7), clientController7);
+        clientController7.setClientInterface(client7);
         client7.configure("client1", token1);
         client7.reconnect();
 

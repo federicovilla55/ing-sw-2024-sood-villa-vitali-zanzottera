@@ -33,7 +33,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     public MessageHandler(ClientController clientController){
         this.messagesToHandle = new ArrayDeque<>();
-        this.localModel = new LocalModel();
+        this.localModel = new LocalModel(); //fix this
         this.clientController = clientController;
     }
 
@@ -124,7 +124,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
             this.localModel.placeInitialCardPersonalStation(message.getInitialCard());
         }
         else {
-            this.localModel.placeInitialCardOtherStation(message.getNick(), message.getInitialCard());
+            //this.localModel.placeInitialCardOtherStation(message.getNick(), message.getInitialCard());
         }
     }
 

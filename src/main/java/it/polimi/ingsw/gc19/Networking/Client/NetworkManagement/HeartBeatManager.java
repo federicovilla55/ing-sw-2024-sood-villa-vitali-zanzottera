@@ -47,7 +47,7 @@ public class HeartBeatManager{
             this.networkManagementInterface.sendHeartBeat();
         }
         catch (RuntimeException runtimeException){
-            this.stopHeartBeatManager();
+            this.stopHeartBeatManager(); //Maybe this could be a problem...
             this.networkManagementInterface.signalPossibleNetworkProblem();
         }
     }

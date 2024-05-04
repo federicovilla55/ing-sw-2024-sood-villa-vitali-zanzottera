@@ -40,24 +40,17 @@ public class ClientController {
 
     private final LocalModel localModel;
 
-    private final ClientInterface clientNetwork;
+    private ClientInterface clientNetwork;
 
-    //Quando viene parsata una richiesta di creazione del giocatore i chiama un metodo apposito del client controller che prova a fare la connect
-
-    public ClientController(ClientInterface clientInterface){
-        this.clientNetwork = clientInterface;
+    public ClientController(){
         this.localModel = new LocalModel();
+    }
+
+    public void setClientInterface(ClientInterface clientInterface){
+        this.clientNetwork = clientInterface;
         viewState = new NotPlayer(this, clientInterface);
         prevState = new NotPlayer(this, clientInterface);
     }
-
-    /*
-     * Public method used to forward a string containing an action to be performed
-     * to the methods that effectively performs those actions.
-     * @param action a string containing the actions to be done.
-    public void parseAction(String action) {
-        viewState.parseAction(commandParser(action));
-    }*/
 
     //Probabilmente, getNick e setNick verranno assorbite in qualche metodo...
     public String getNickname() {
@@ -70,10 +63,6 @@ public class ClientController {
 
     public synchronized ViewState getState(){
         return viewState.getState();
-    }
-
-    public synchronized LocalModel getLocalModel(){
-        return this.localModel;
     }
 
     /**
@@ -92,7 +81,7 @@ public class ClientController {
     }
 
     public synchronized boolean isDisconnected(){
-        return (this.viewState.getState() == ViewState.DISCONNECT);
+        return this.viewState.getState() == ViewState.DISCONNECT;
     }
 
     public synchronized void setNextState(ClientState clientState){
@@ -110,12 +99,10 @@ public class ClientController {
      * send_message(message_content, receiver1 {, receiver2, ...})
      */
     public synchronized void sendChatMessage(String message, List<String> users) {
-        if(viewState.getState() != ViewState.NOT_GAME || viewState.getState() != ViewState.NOT_PLAYER ||
-            viewState.getState() != ViewState.PAUSE || viewState.getState() != ViewState.DISCONNECT) {
+        if(viewState.getState() != ViewState.NOT_GAME || viewState.getState() != ViewState.NOT_PLAYER || viewState.getState() != ViewState.DISCONNECT) {
             //@TODO: notify view
             return;
         }
-
 
         if(users.size() > this.localModel.getNumPlayers()){
             //@TODO: view
@@ -172,6 +159,7 @@ public class ClientController {
             //@TODO: notify view
             return;
         }
+
         clientNetwork.pickCardFromTable(cardType, position);
 
         viewState = new Wait(this, clientNetwork);

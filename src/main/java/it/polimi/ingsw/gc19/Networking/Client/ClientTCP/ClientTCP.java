@@ -104,6 +104,14 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
                     this.clientController.disconnect();
                 }
             }
+            else{
+                try{
+                    TimeUnit.MILLISECONDS.sleep(1000);
+                }
+                catch (InterruptedException interruptedException){
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
     }
 
