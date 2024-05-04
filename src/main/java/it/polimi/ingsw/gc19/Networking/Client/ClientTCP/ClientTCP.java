@@ -17,7 +17,7 @@ import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.HeartBeatManager
 import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.NetworkManagementInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 
 import java.io.*;
 import java.net.Socket;
@@ -32,7 +32,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
 
     private String nickname;
     private final MessageHandler messageHandler;
-    private final ActionParser actionParser;
+    private final ClientController clientController;
 
     private final HeartBeatManager heartBeatManager;
 
@@ -41,9 +41,9 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
 
     private final Deque<MessageToServer> messagesToSend;
 
-    public ClientTCP(MessageHandler messageHandler, ActionParser actionParser) throws IOException{
+    public ClientTCP(MessageHandler messageHandler, ClientController clientController) throws IOException{
         this.messageHandler = messageHandler;
-        this.actionParser = actionParser;
+        this.clientController = clientController;
 
         try {
             this.socket = new Socket(ClientSettings.serverIP, ClientSettings.serverTCPPort);
@@ -84,7 +84,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
         MessageToServer message;
 
         while(!Thread.interrupted()) {
-            if(!this.actionParser.isDisconnected()) {
+            if(!this.clientController.isDisconnected()) {
                 synchronized (this.messagesToSend) {
                     while (this.messagesToSend.isEmpty()) {
                         try {
@@ -101,7 +101,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
                     synchronized (this.messagesToSend) {
                         this.messagesToSend.clear();
                     }
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         }
@@ -278,8 +278,8 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
 
     @Override
     public void signalPossibleNetworkProblem() {
-        if(!this.actionParser.isDisconnected()){
-            this.actionParser.disconnect();
+        if(!this.clientController.isDisconnected()){
+            this.clientController.disconnect();
         }
         this.heartBeatManager.stopHeartBeatManager();
     }

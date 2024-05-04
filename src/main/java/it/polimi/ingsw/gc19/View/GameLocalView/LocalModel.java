@@ -16,20 +16,14 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LocalModel {
-    private PersonalStation personalStation;
-    private ConcurrentHashMap<String, OtherStation> otherStations; // use station
-    private ConcurrentHashMap<String, State> otherPlayerState; // use personal too
-    private List<String> availableGames;
-    private String nickname; // use nickname for methods in hashmap
+    private final ConcurrentHashMap<String, LocalStationPlayer> playerStations;
+    private final ConcurrentHashMap<String, State> playerState;
+    private String nickname;
     private String gameName;
-
     private LocalTable table;
     private String firstPlayer;
     private final Object lockTable;
-    private final Object lockPersonal;
-    private final Object lockOther;
     private int numPlayers;
-
     private final ConcurrentHashMap<String, PlayableCard> previousPlayableCards;
     private final ConcurrentHashMap<String, GoalCard> previousGoalCards;
 
@@ -38,21 +32,17 @@ public class LocalModel {
     private final ArrayList<Message> messages;
 
     public LocalModel(){
-        personalStation = null;
-        otherStations = new ConcurrentHashMap<>();
-        otherPlayerState = new ConcurrentHashMap<>();
+        playerStations = new ConcurrentHashMap<>();
+        playerState = new ConcurrentHashMap<>();
         previousPlayableCards = new ConcurrentHashMap<>();
         previousGoalCards = new ConcurrentHashMap<>();
         lockTable = new Object();
-        lockPersonal = new Object();
-        lockOther = new Object();
-
         messages = new ArrayList<>();
     }
 
     public void setPersonalStation(PersonalStation localStation) {
-        synchronized (this.lockPersonal) {
-            this.personalStation = localStation;
+        synchronized (this.playerStations) {
+            this.playerStations.put(this.nickname, localStation);
         }
         synchronized (previousGoalCards){
             GoalCard goalCard = localStation.getPrivateGoalCardInStation();
@@ -84,91 +74,81 @@ public class LocalModel {
     }
 
     public PersonalStation getPersonalStation() {
-        synchronized (this.lockPersonal) {
-            return this.personalStation;
+        synchronized (playerStations) {
+            return (PersonalStation) this.playerStations.get(this.nickname);
         }
     }
 
     public void setOtherStations(String nickname, OtherStation otherStation) {
-        System.out.println("Nickname: " + nickname);
-        synchronized (this.lockOther) {
-            this.otherStations.put(nickname, otherStation);
+        synchronized (playerStations) {
+            this.playerStations.put(nickname, otherStation);
         }
-        synchronized (this.lockOther) {
-            this.otherPlayerState.put(nickname, State.ACTIVE);
+        synchronized (playerState) {
+            this.playerState.put(nickname, State.ACTIVE);
         }
     }
 
     public void setPlayerInactive(String nickname){
-        synchronized (this.lockOther) {
-            this.otherPlayerState.put(nickname, State.INACTIVE);
+        synchronized (playerState) {
+            this.playerState.put(nickname, State.INACTIVE);
         }
     }
 
     public void setPlayerActive(String nickname){
-        synchronized (this.lockOther) {
-            this.otherPlayerState.put(nickname, State.ACTIVE);
+        synchronized (playerState) {
+            this.playerState.put(nickname, State.ACTIVE);
         }
     }
 
     public void setPrivateGoal(GoalCard goalCard){
-        synchronized (this.lockPersonal){
-            this.personalStation.setPrivateGoalCard(goalCard);
+        synchronized (playerStations){
+            ((PersonalStation) this.playerStations.get(this.nickname)).setPrivateGoalCard(goalCard);
         }
     }
 
 
 
     public void setPrivateGoalCard(int cardIdx){
-        synchronized (this.lockPersonal){
-            this.personalStation.setPrivateGoalCard(cardIdx);
+        synchronized (playerStations){
+            ((PersonalStation) this.playerStations.get(this.nickname)).setPrivateGoalCard(cardIdx);
         }
     }
 
 
     public void setColor(Color color){
-        synchronized (this.lockPersonal) {
-            this.personalStation.setColor(color);
+        synchronized (playerStations) {
+            ((PersonalStation) this.playerStations.get(this.nickname)).setColor(color);
         }
     }
 
-    public void placeCardOtherStation(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction, CardOrientation orientation) {
-        synchronized (this.lockOther){
-            Tuple<Integer, Integer> coord = this.otherStations.get(nickname).getCoord(anchorCode);
-            System.out.println("Coord placeOtherStation: " + coord);
-            this.otherStations.get(nickname).placeCard(cardToPlace, new Tuple<>(
-                    coord.x() + direction.getX(), coord.y() + direction.getY()));
+    public void placeCard(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction, CardOrientation orientation) {
+        synchronized (playerStations){
+            Tuple<Integer, Integer> coords = this.playerStations.get(nickname).getCoord(anchorCode);
+            this.playerStations.get(nickname).placeCard(cardToPlace, new Tuple<>(
+                    coords.x() + direction.getX(), coords.y() + direction.getY()));
         }
-        synchronized (this.lockOther) {
-            this.otherPlayerState.put(nickname, State.ACTIVE);
-        }
-    }
-
-    public void placeInitialCardOtherStation(String nickname, PlayableCard initialCard){
-        synchronized (this.lockOther) {
-            System.out.println(nickname + otherStations.keySet());
-            if (!this.otherStations.containsKey(nickname))
-                System.out.println("Nome non contenuto nella mappa..." + nickname);
-            this.otherStations.get(nickname).placeInitialCard(initialCard);
-        }
-        synchronized (this.lockOther) {
-            this.otherPlayerState.put(nickname, State.ACTIVE);
+        synchronized (playerState) {
+            this.playerState.put(nickname, State.ACTIVE);
         }
     }
 
-    public boolean isCardPlaceableOtherStation(String nickname, PlayableCard anchor, PlayableCard cardToPlace, Direction direction){
-        synchronized (this.lockOther) {
-            return this.otherStations.get(nickname).cardIsPlaceable(anchor, cardToPlace, direction);
+    public void placeInitialCard(String nickname, PlayableCard initialCard){
+        synchronized (playerStations) {
+            this.playerStations.get(nickname).placeInitialCard(initialCard);
+        }
+        synchronized (playerState) {
+            this.playerState.put(nickname, State.ACTIVE);
+        }
+    }
+
+    public boolean isCardPlaceable(String nickname, PlayableCard anchor, PlayableCard cardToPlace, Direction direction){
+        synchronized (playerStations) {
+            return this.playerStations.get(nickname).cardIsPlaceable(anchor, cardToPlace, direction);
         }
     }
 
     public void placeCardPersonalStation(String anchorCode, PlayableCard cardToPlace, Direction direction, CardOrientation orientation){
-        synchronized (this.lockPersonal) {
-            Tuple<Integer, Integer> coord = this.personalStation.getCoord(anchorCode);
-            System.out.println("Coord placePersonalStation: " + coord);
-            this.personalStation.placeCard(cardToPlace, new Tuple<>(
-                    coord.x() + direction.getX(), coord.y() + direction.getY()));
-        }
+        placeCard(this.nickname, anchorCode, cardToPlace, direction, orientation);
     }
 
     public void setNickname(String nickname) {
@@ -180,20 +160,16 @@ public class LocalModel {
     }
 
     public void placeInitialCardPersonalStation(PlayableCard initialCard){
-        synchronized (this.lockPersonal) {
-            this.personalStation.placeInitialCard(initialCard);
-        }
+        placeInitialCard(this.nickname, initialCard);
     }
 
     public boolean isCardPlaceablePersonalStation(PlayableCard cardToPlace, PlayableCard anchor, Direction direction){
-        synchronized (this.lockPersonal) {
-            return this.personalStation.cardIsPlaceable(anchor, cardToPlace, direction);
-        }
+        return isCardPlaceable(this.nickname, anchor, cardToPlace, direction);
     }
 
     public void updateCardsInHand(PlayableCard playableCard){
-        synchronized (this.lockPersonal) {
-            this.personalStation.updateCardsInHand(playableCard);
+        synchronized (this.playerStations) {
+            ((PersonalStation) this.playerStations.get(this.nickname)).updateCardsInHand(playableCard);
         }
     }
 
@@ -220,9 +196,12 @@ public class LocalModel {
         }
     }
 
-    public ConcurrentHashMap<String, OtherStation> getOtherStations() {
-        synchronized (this.lockOther) {
-            return new ConcurrentHashMap<>(this.otherStations);
+    public ConcurrentHashMap<String, LocalStationPlayer> getOtherStations() {
+        synchronized (playerStations) {
+            ConcurrentHashMap<String, LocalStationPlayer> otherStations =
+                    new ConcurrentHashMap<>(this.playerStations);
+            playerStations.remove(this.nickname);
+            return otherStations;
         }
     }
 
@@ -270,14 +249,6 @@ public class LocalModel {
         return numPlayers;
     }
 
-    public void setAvailableGames(List<String> availableGames) {
-        this.availableGames = availableGames;
-    }
-
-    public List<String> getAvailableGames() {
-        return this.availableGames;
-    }
-
     public void setAvailableColors(List<Color> availableColors) {
         this.availableColors = availableColors;
     }
@@ -308,6 +279,12 @@ public class LocalModel {
         synchronized (this.previousPlayableCards){
             return previousPlayableCards.get(cardCode);
         }
+    }
+
+    public int getNumActivePlayers(){
+        return (int) playerState.values().stream()
+                .filter(e -> e==State.ACTIVE)
+                .count();
     }
 
     public void setGameName(String gameName) {

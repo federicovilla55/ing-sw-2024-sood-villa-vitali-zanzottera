@@ -1,5 +1,6 @@
-package it.polimi.ingsw.gc19.View.GameLocalView;
+package it.polimi.ingsw.gc19.View.ClientController;
 
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
@@ -13,6 +14,16 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import java.util.ArrayList;
 
 public abstract class ClientState {
+
+    protected ClientController clientController;
+
+    protected ClientInterface clientInterface;
+
+    protected ClientState(ClientController clientController, ClientInterface clientInterface){
+        this.clientController = clientController;
+        this.clientInterface = clientInterface;
+    }
+
     public void nextState(MessageToClient message) {}
     public void nextState(AcceptedChooseGoalCardMessage message) {}
     public void nextState(AcceptedColorMessage message) {}
@@ -34,13 +45,7 @@ public abstract class ClientState {
     public void nextState(RefusedActionMessage message) {}
     public void nextState(GameHandlingErrorMessage message){}
     public void nextState(NetworkHandlingErrorMessage message){}
-
     public void nextState(GameConfigurationMessage message){}
     public void nextState(AvailableGamesMessage message){}
-
     abstract ViewState getState();
-
-    // use boolean/string to return information on action
-    abstract void parseAction(ArrayList<String> command); // choose_color(RED)
-    // ...(
 }

@@ -6,14 +6,14 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 
 import java.io.IOException;
 
 public class TestClassClientTCP extends ClientTCP implements CommonClientMethodsForTests, ClientInterface{
 
-    public TestClassClientTCP(MessageHandler messageHandler, ActionParser actionParser) throws IOException{
-        super(messageHandler, actionParser);
+    public TestClassClientTCP(MessageHandler messageHandler, ClientController clientController) throws IOException{
+        super(messageHandler, clientController);
     }
 
     @Override

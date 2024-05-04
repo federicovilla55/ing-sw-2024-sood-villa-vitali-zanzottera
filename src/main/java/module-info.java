@@ -59,7 +59,11 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat;
     exports it.polimi.ingsw.gc19.Networking.Client.NetworkManagement;
     opens it.polimi.ingsw.gc19.Networking.Client.Configuration;
-    exports it.polimi.ingsw.gc19.Networking.Client.Configuration to com.fasterxml.jackson.databind;
     exports it.polimi.ingsw.gc19.View.GUI;
+    exports it.polimi.ingsw.gc19.View.ClientController;
+    opens it.polimi.ingsw.gc19.View.ClientController;
+    exports it.polimi.ingsw.gc19.View.Command;
+    opens it.polimi.ingsw.gc19.View.Command;
+    exports it.polimi.ingsw.gc19.Networking.Client.Configuration;
 
 }

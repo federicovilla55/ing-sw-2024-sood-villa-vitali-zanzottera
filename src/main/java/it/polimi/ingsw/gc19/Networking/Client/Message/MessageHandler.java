@@ -13,6 +13,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErr
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.*;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 
@@ -22,22 +23,22 @@ import java.util.ArrayDeque;
  * Handles incoming messages from the server to the client by implementing the AllMessageVisitor interface (design patter visitor).
  */
 public class MessageHandler extends Thread implements AllMessageVisitor{
+
     private final ArrayDeque<MessageToClient> messagesToHandle;
 
     private ClientInterface client;
 
-    private LocalModel localModel;
-    private ActionParser actionParser;
+    private final LocalModel localModel;
+    private final ClientController clientController;
 
-    public MessageHandler(ActionParser actionParser){
+    public MessageHandler(ClientController clientController){
         this.messagesToHandle = new ArrayDeque<>();
         this.localModel = new LocalModel();
-        this.actionParser = actionParser;
+        this.clientController = clientController;
     }
 
     public void setClient(ClientInterface client){
         this.client = client;
-        this.getActionParser().setClient(client);
     }
 
     public void update(MessageToClient message) {
@@ -45,10 +46,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
             this.messagesToHandle.add(message);
             this.messagesToHandle.notifyAll();
         }
-    }
-
-    public ActionParser getActionParser(){
-        return this.actionParser;
     }
 
     public ArrayDeque<MessageToClient> getMessagesToHandle(){
@@ -95,7 +92,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(OwnAcceptedPickCardFromDeckMessage message) {
         this.localModel.updateCardsInHand(message.getPickedCard());
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
@@ -109,7 +106,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         }
 
         this.localModel.updateCardsInTable(message.getCardToPutInSlot(), message.getDeckType(), message.getCoords());
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
@@ -117,17 +114,16 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         if(this.localModel.getNickname().equals(message.getNick())){
             this.localModel.placeCardPersonalStation(message.getAnchorCode(), message.getCardToPlace(),
                     message.getDirection(), message.getCardToPlace().getCardOrientation());
-            actionParser.viewState.nextState(message);
+            clientController.viewState.nextState(message);
         }
     }
 
     @Override
     public void visit(AcceptedPlaceInitialCard message) {
         if(message.getNick().equals(this.localModel.getNickname())){
-            System.out.println("Personal nickname: " + this.localModel.getNickname());
             this.localModel.placeInitialCardPersonalStation(message.getInitialCard());
-        }else {
-            System.out.println("Personal nickname: " + this.localModel.getNickname());
+        }
+        else {
             this.localModel.placeInitialCardOtherStation(message.getNick(), message.getInitialCard());
         }
     }
@@ -140,7 +136,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(NotifyChatMessage message) {
         this.localModel.updateMessages(message.getMessage(), message.getSender(), message.getHeader());
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
@@ -152,7 +148,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     public void visit(GameConfigurationMessage message) {
         this.localModel.setNumPlayers(message.getNumPlayers());
         this.localModel.setFirstPlayer(message.getFirstPlayer());
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
 
     }
 
@@ -186,18 +182,18 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(EndGameMessage message) {
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
 
     }
 
     @Override
     public void visit(GamePausedMessage message) {
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(GameResumedMessage message) {
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
@@ -208,74 +204,74 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(StartPlayingGameMessage message) {
         this.localModel.setFirstPlayer(message.getNickFirstPlayer());
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(CreatedGameMessage message) {
         this.localModel.setGameName(message.getGameName());
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(AvailableGamesMessage message) {
-        this.localModel.setAvailableGames(message.getAvailableGames());
+        //@TODO: handle available games
     }
 
     @Override
     public void visit(BeginFinalRoundMessage message) {
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(CreatedPlayerMessage message) {
         this.client.configure(message.getNick(), message.getToken());
         this.localModel.setNickname(message.getNick());
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(DisconnectedPlayerMessage message) {
         // @ todo: your own disconnection?
         this.localModel.setPlayerInactive(message.getRemovedNick());
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(JoinedGameMessage message) {
         this.localModel.setGameName(message.getGameName());
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(PlayerReconnectedToGameMessage message) {
         this.localModel.setPlayerActive(message.getPlayerName());
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(GameHandlingErrorMessage message) {
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(DisconnectFromGameMessage message) {
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(DisconnectFromServerMessage message) {
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(TurnStateMessage message) {
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
     @Override
     public void visit(NetworkHandlingErrorMessage message) {
-        actionParser.viewState.nextState(message);
+        clientController.viewState.nextState(message);
     }
 
 }

@@ -31,4 +31,5 @@ public class OtherStation extends LocalStationPlayer{
     public void setBackCardHand(ArrayList<PlayableCardType> backCardHand) {
         this.backCardHand = backCardHand;
     }
+
 }

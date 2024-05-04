@@ -11,7 +11,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatM
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
-import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 
 import java.io.*;
 import java.rmi.NoSuchObjectException;
@@ -40,10 +40,10 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     private String nickname;
 
     private final MessageHandler messageHandler;
-    private final ActionParser actionParser;
+    private final ClientController clientController;
     private final ExecutorService virtualServerMethodsInvoker;
 
-    public ClientRMI(MessageHandler messageHandler, ActionParser actionParser) throws RuntimeException, RemoteException{
+    public ClientRMI(MessageHandler messageHandler, ClientController clientController) throws RuntimeException, RemoteException{
         super();
 
         try {
@@ -63,7 +63,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
         this.virtualGameServerLock = new Object();
 
         this.messageHandler = messageHandler;
-        this.actionParser = actionParser;
+        this.clientController = clientController;
 
         this.virtualServerMethodsInvoker = Executors.newSingleThreadExecutor();
     }
@@ -71,7 +71,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void connect(String nickname){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             try{
@@ -79,7 +79,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                 this.heartBeatManager.startHeartBeatManager();
             }
             catch (RemoteException e) {
-                this.actionParser.disconnect();
+                this.clientController.disconnect();
             }
 
         });
@@ -88,13 +88,13 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void createGame(String gameName, int numPlayers){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             try {
                 this.virtualGameServer = this.virtualMainServer.createGame(this, gameName, this.nickname, numPlayers);
             } catch (RemoteException e) {
-                this.actionParser.disconnect();
+                this.clientController.disconnect();
             }
         });
     }
@@ -102,7 +102,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void createGame(String gameName, int numPlayers, int seed){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             synchronized (this.virtualGameServerLock) {
@@ -110,7 +110,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                     this.virtualGameServer = this.virtualMainServer.createGame(this, gameName, this.nickname, numPlayers, seed);
                 }
                 catch (RemoteException e) {
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         });
@@ -119,7 +119,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void joinGame(String gameName){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             synchronized (this.virtualGameServerLock) {
@@ -127,7 +127,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                     this.virtualGameServer = this.virtualMainServer.joinGame(this, gameName, this.nickname);
                 }
                 catch (RemoteException e) {
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         });
@@ -136,7 +136,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void joinFirstAvailableGame(){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             synchronized (this.virtualGameServerLock) {
@@ -144,7 +144,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                     this.virtualGameServer = this.virtualMainServer.joinFirstAvailableGame(this, this.nickname);
                 }
                 catch (RemoteException e) {
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         });
@@ -234,8 +234,8 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
 
     @Override
     public void signalPossibleNetworkProblem() {
-        if(!this.actionParser.isDisconnected()) {
-            this.actionParser.disconnect();
+        if(!this.clientController.isDisconnected()) {
+            this.clientController.disconnect();
         }
         this.heartBeatManager.stopHeartBeatManager();
     }
@@ -272,7 +272,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void placeCard(String cardToInsert, String anchorCard, Direction directionToInsert, CardOrientation orientation){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             synchronized (this.virtualGameServerLock) {
@@ -282,7 +282,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                     }
                 }
                 catch (RemoteException e) {
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         });
@@ -291,7 +291,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void sendChatMessage(ArrayList<String> UsersToSend, String messageToSend){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             synchronized (this.virtualGameServerLock) {
@@ -300,7 +300,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                         this.virtualGameServer.sendChatMessage(UsersToSend, messageToSend);
                     }
                 } catch (RemoteException e) {
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         });
@@ -309,7 +309,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void placeInitialCard(CardOrientation cardOrientation){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             synchronized (this.virtualGameServerLock) {
@@ -318,7 +318,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                         this.virtualGameServer.placeInitialCard(cardOrientation);
                     }
                 } catch (RemoteException e) {
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         });
@@ -327,7 +327,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void pickCardFromTable(PlayableCardType type, int position){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             synchronized (this.virtualGameServerLock) {
@@ -337,7 +337,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                     }
                 }
                 catch (RemoteException e) {
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         });
@@ -346,7 +346,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void pickCardFromDeck(PlayableCardType type){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             synchronized (this.virtualGameServerLock) {
@@ -356,7 +356,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                     }
                 }
                 catch (RemoteException e) {
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         });
@@ -365,7 +365,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void chooseColor(Color color){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             synchronized (this.virtualGameServerLock) {
@@ -375,7 +375,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                     }
                 }
                 catch (RemoteException e) {
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         });
@@ -384,7 +384,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void choosePrivateGoalCard(int cardIdx){
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             synchronized (this.virtualGameServerLock) {
@@ -394,7 +394,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                     }
                 }
                 catch (RemoteException e) {
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         });
@@ -403,7 +403,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
     @Override
     public void availableGames() {
         this.virtualServerMethodsInvoker.submit(() -> {
-            if(this.actionParser.isDisconnected()){
+            if(this.clientController.isDisconnected()){
                 return;
             }
             synchronized (this.virtualGameServerLock) {
@@ -411,7 +411,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Con
                     this.virtualMainServer.requestAvailableGames(this, this.nickname);
                 }
                 catch (RemoteException e) {
-                    this.actionParser.disconnect();
+                    this.clientController.disconnect();
                 }
             }
         });

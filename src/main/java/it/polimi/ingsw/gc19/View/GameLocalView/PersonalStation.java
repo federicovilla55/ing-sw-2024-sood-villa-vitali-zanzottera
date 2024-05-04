@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 public class PersonalStation extends LocalStationPlayer {
+
     private final ArrayList<PlayableCard> cardsInHand;
-    private Integer privateGoalCardIdx;
     private GoalCard privateGoalCardInStation;
     private final GoalCard[] privateGoalCardsInStation;
 
