@@ -264,7 +264,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     @Override
-    public void visit(DisconnectFromServer message) {
+    public void visit(DisconnectFromServerMessage message) {
         actionParser.viewState.nextState(message);
     }
 

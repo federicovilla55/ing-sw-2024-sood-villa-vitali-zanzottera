@@ -223,7 +223,6 @@ public class ClientTCPRMITest {
 
     @Test
     public void testFirePlayersAndGames(){
-
         this.client1.connect("client1");
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message1 = this.client1.getMessage();
@@ -248,19 +247,18 @@ public class ClientTCPRMITest {
         String token4 = ((CreatedPlayerMessage) message4).getToken();
         this.client4.configure("client4", token4);
 
-        this.client1.createGame("game13", 4, 1);
-        this.client2.joinGame("game13");
-        this.client3.joinGame("game13");
-        this.client4.joinGame("game13");
-
-        assertMessageEquals(this.client2, new JoinedGameMessage("game13"));
-        assertMessageEquals(this.client3, new JoinedGameMessage("game13"));
-        assertMessageEquals(this.client4, new JoinedGameMessage("game13"));
+        this.client1.createGame("game2", 4, 1);
+        assertMessageEquals(client1, new CreatedGameMessage("game2"));
+        assertMessageEquals(client1, new JoinedGameMessage("game2"));
+        this.client2.joinGame("game2");
+        assertMessageEquals(client2, new JoinedGameMessage("game2"));
+        this.client3.joinGame("game2");
+        assertMessageEquals(client3, new JoinedGameMessage("game2"));
+        this.client4.joinGame("game2");
+        assertMessageEquals(client4, new JoinedGameMessage("game2"));
 
         allPlayersChooseColor(client1, client2, client3, client4);
-
         allPlayersChoosePrivateGoal(client1, client2, client3, client4);
-
         allPlayersPlacedInitialCard(client1, client2, client3, client4);
 
         assertMessageWithHeaderEquals(this.client1, new StartPlayingGameMessage(this.client1.getNickname()), "client1", "client2", "client3", "client4");
@@ -284,91 +282,91 @@ public class ClientTCPRMITest {
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_39", "resource_01", Direction.UP_LEFT, CardOrientation.DOWN);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_23", "resource_23", Direction.UP_RIGHT, CardOrientation.UP);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_40", "gold_23", Direction.UP_LEFT, CardOrientation.DOWN);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_05", "gold_39", Direction.UP_RIGHT, CardOrientation.DOWN);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_03", "resource_05", Direction.UP_RIGHT, CardOrientation.DOWN);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_06", "resource_05", Direction.DOWN_RIGHT, CardOrientation.UP);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_20", "gold_23", Direction.DOWN_RIGHT, CardOrientation.DOWN);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_08", "gold_20", Direction.DOWN_RIGHT, CardOrientation.DOWN);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 1);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_21", "gold_20", Direction.UP_RIGHT, CardOrientation.DOWN);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("gold_28", "resource_08", Direction.DOWN_RIGHT, CardOrientation.UP);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 0);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_30", "gold_28", Direction.UP_RIGHT, CardOrientation.UP);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 0);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
         client1.placeCard("resource_39", "resource_21", Direction.UP_RIGHT, CardOrientation.UP);
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.GOLD, 1);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         //assertFalse(gameController.getGameAssociated().getFinalCondition());
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.PLACE), "client1", "client2");
@@ -381,7 +379,7 @@ public class ClientTCPRMITest {
 
         //assertTrue(gameController.getGameAssociated().getFinalCondition());
         //assertFalse(gameController.getGameAssociated().isFinalRound());
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         // now it should be the final round:
         //assertTrue(gameController.getGameAssociated().getFinalCondition());
@@ -392,17 +390,11 @@ public class ClientTCPRMITest {
         assertMessageWithHeaderEquals(List.of(this.client1), new TurnStateMessage(this.client1.getNickname(), TurnState.DRAW), "client1", "client2");
         client1.pickCardFromTable(PlayableCardType.RESOURCE, 1);
 
-        dummyTurn(client2, client2,PlayableCardType.RESOURCE);
-
-        // game should end and declare client1 the winner
-        //assertEquals(GameState.END, gameController.getGameAssociated().getGameState());
-        //assertEquals(client1, gameController.getGameAssociated().getWinnerPlayers().getFirst().getNickname());
-        //assertEquals(1, gameController.getGameAssociated().getWinnerPlayers().size());
-
+        dummyTurn(client2, client2, PlayableCardType.RESOURCE);
 
         waitingThread(4000);
 
-        assertMessageEquals(List.of(this.client1, this.client2), new DisconnectFromGameMessage("game13"));
+        assertMessageEquals(List.of(this.client2, this.client1), new DisconnectFromGameMessage("game2"));
 
         this.client1.disconnect();
         this.client2.disconnect();

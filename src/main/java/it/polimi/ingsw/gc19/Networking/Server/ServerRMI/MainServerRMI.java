@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.Networking.Server.ServerRMI;
 import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromServer;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromServerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
@@ -327,7 +327,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
      * This method disconnects one client from the RMI server. Client must explicitly tell to server that
      * he wants to be disconnected. It removes {@param clientRMI} from both <code>connectedClients</code>
      * and <code>lastHeartBeatOfClients</code>. Finally, it tells to {@link MainController} to disconnect
-     * the player and send to player a {@link DisconnectFromServer}.
+     * the player and send to player a {@link DisconnectFromServerMessage}.
      * @param clientRMI virtual client of the player who wants to be disconnected
      * @throws RemoteException exception thrown if something goes wrong
      */
@@ -343,7 +343,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
             }
             else{
                 var clientToDisconnect = this.connectedClients.remove(clientRMI);
-                clientToDisconnect.x().sendMessageToClient(new DisconnectFromServer().setHeader(nickName));
+                clientToDisconnect.x().sendMessageToClient(new DisconnectFromServerMessage().setHeader(nickName));
                 clientToDisconnect.x().interrupt();
 
                 try{
