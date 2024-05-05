@@ -45,13 +45,13 @@ public class ClientTCPTest {
         ClientController clientController3 = new ClientController();
         ClientController clientController4 = new ClientController();
 
-        this.client1 = new TestClassClientTCP(new MessageHandler(clientController1, clientController1.getLocalModel()), clientController1);
+        this.client1 = new TestClassClientTCP(new MessageHandler(clientController1), clientController1);
         clientController1.setClientInterface(client1);
-        this.client2 = new TestClassClientTCP(new MessageHandler(clientController2, clientController2.getLocalModel()), clientController2);
+        this.client2 = new TestClassClientTCP(new MessageHandler(clientController2), clientController2);
         clientController2.setClientInterface(client2);
-        this.client3 = new TestClassClientTCP(new MessageHandler(clientController3, clientController3.getLocalModel()), clientController3);
+        this.client3 = new TestClassClientTCP(new MessageHandler(clientController3), clientController3);
         clientController3.setClientInterface(client3);
-        this.client4 = new TestClassClientTCP(new MessageHandler(clientController4, clientController4.getLocalModel()), clientController4);
+        this.client4 = new TestClassClientTCP(new MessageHandler(clientController4), clientController4);
         clientController4.setClientInterface(client4);
 
         clientsAnchors = new HashMap<>();
@@ -190,7 +190,7 @@ public class ClientTCPTest {
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage(this.client4.getNickname()));
 
         ClientController clientController5 = new ClientController();
-        TestClassClientTCP client5 = new TestClassClientTCP(new MessageHandler(clientController5, clientController5.getLocalModel()), clientController5);
+        TestClassClientTCP client5 = new TestClassClientTCP(new MessageHandler(clientController5), clientController5);
         clientController5.setClientInterface(client5);
         client5.connect("client5");
 
@@ -447,7 +447,7 @@ public class ClientTCPTest {
     @Test
     public void testCreateClientAfterDisconnection() throws IOException {
         ClientController clientController7 = new ClientController();
-        TestClassClientTCP client7 = new TestClassClientTCP(new MessageHandler(clientController7, clientController7.getLocalModel()), clientController7);
+        TestClassClientTCP client7 = new TestClassClientTCP(new MessageHandler(clientController7), clientController7);
         clientController7.setClientInterface(client7);
         client7.connect("client7");
         client7.waitForMessage(CreatedPlayerMessage.class);
@@ -461,7 +461,7 @@ public class ClientTCPTest {
         client7.disconnect();
 
         ClientController clientController8 = new ClientController();
-        TestClassClientTCP client8 = new TestClassClientTCP(new MessageHandler(clientController8, clientController8.getLocalModel()), clientController8);
+        TestClassClientTCP client8 = new TestClassClientTCP(new MessageHandler(clientController8), clientController8);
         clientController8.setClientInterface(client8);
         client8.connect(client7.getNickname());
         client8.waitForMessage(CreatedPlayerMessage.class);
@@ -763,7 +763,7 @@ public class ClientTCPTest {
         waitingThread(5000);
 
         ClientController clientController7 = new ClientController();
-        TestClassClientTCP client7 = new TestClassClientTCP(new MessageHandler(clientController7, clientController7.getLocalModel()), clientController7);
+        TestClassClientTCP client7 = new TestClassClientTCP(new MessageHandler(clientController7), clientController7);
         clientController7.setClientInterface(client7);
         client7.configure("client1", token1);
         client7.reconnect();

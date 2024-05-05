@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Represents a client using RMI for communication with the server.
  */
-public class ClientRMI extends UnicastRemoteObject implements VirtualClient, ConfigurableClient, NetworkManagementInterface, GameManagementInterface {
+public class ClientRMI extends UnicastRemoteObject implements VirtualClient, ClientInterface {
 
     private final Registry registry;
     private VirtualMainServer virtualMainServer;

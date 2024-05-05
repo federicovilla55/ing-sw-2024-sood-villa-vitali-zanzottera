@@ -29,6 +29,7 @@ class Wait extends ClientState {
 
     @Override
     public void nextState(CreatedPlayerMessage message) {
+        System.out.println("ok");
         clientController.setNextState(new NotGame(clientController, clientInterface));
     }
 
@@ -56,15 +57,17 @@ class Wait extends ClientState {
     @Override
     public void nextState(JoinedGameMessage message) {
         LocalModel localModel = new LocalModel();
+        localModel.setNickname(this.clientInterface.getNickname());
         this.clientController.setLocalModel(localModel);
         this.clientInterface.getMessageHandler().setLocalModel(localModel);
-        
+
         clientController.setNextState(new Setup(clientController, clientInterface));
     }
 
     @Override
     public void nextState(CreatedGameMessage message) {
         LocalModel localModel = new LocalModel();
+        localModel.setNickname(this.clientInterface.getNickname());
         this.clientController.setLocalModel(localModel);
         this.clientInterface.getMessageHandler().setLocalModel(localModel);
 

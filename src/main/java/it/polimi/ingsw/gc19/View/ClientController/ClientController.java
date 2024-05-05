@@ -99,10 +99,6 @@ public class ClientController {
         return this.prevState;
     }
 
-    public synchronized LocalModel getLocalModel(){
-        return this.localModel;
-    }
-
     /**
      * To send a message in the chat.
      * send_message(message_content, receiver1 {, receiver2, ...})

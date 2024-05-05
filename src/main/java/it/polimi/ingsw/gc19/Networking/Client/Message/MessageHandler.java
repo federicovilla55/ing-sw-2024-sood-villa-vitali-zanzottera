@@ -31,9 +31,8 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     private LocalModel localModel;
     private final ClientController clientController;
 
-    public MessageHandler(ClientController clientController, LocalModel localModel){
+    public MessageHandler(ClientController clientController){
         this.messagesToHandle = new ArrayDeque<>();
-        this.localModel = localModel;
         this.clientController = clientController;
     }
 
@@ -65,7 +64,9 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     public ArrayDeque<MessageToClient> getMessagesToHandle(){
-        return this.messagesToHandle;
+        synchronized (this.messagesToHandle) {
+            return this.messagesToHandle;
+        }
     }
 
     @Override
@@ -249,9 +250,9 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(CreatedPlayerMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.client.configure(message.getNick(), message.getToken());
-        this.localModel.setNickname(message.getNick());
+        //this.localModel.setNickname(message.getNick());
         clientController.getCurrentState().nextState(message);
     }
 
