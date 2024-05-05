@@ -50,6 +50,10 @@ public class ClientController {
         prevState = new NotPlayer(this, clientInterface);
     }
 
+    public LocalModel getLocalModel() {
+        return localModel;
+    }
+
     //Probabilmente, getNick e setNick verranno assorbite in qualche metodo...
     public String getNickname() {
         return nickname;
