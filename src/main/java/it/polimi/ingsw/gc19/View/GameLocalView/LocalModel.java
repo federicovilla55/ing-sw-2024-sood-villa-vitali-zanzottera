@@ -102,22 +102,20 @@ public class LocalModel {
 
     public void setPrivateGoal(GoalCard goalCard){
         synchronized (playerStations){
-            ((PersonalStation) this.playerStations.get(this.nickname)).setPrivateGoalCard(goalCard);
+            this.playerStations.get(this.nickname).setPrivateGoalCard(goalCard);
         }
     }
-
 
 
     public void setPrivateGoalCard(int cardIdx){
         synchronized (playerStations){
-            ((PersonalStation) this.playerStations.get(this.nickname)).setPrivateGoalCard(cardIdx);
+            this.playerStations.get(this.nickname).setPrivateGoalCard(cardIdx);
         }
     }
 
-
     public void setColor(Color color){
         synchronized (playerStations) {
-            ((PersonalStation) this.playerStations.get(this.nickname)).setColor(color);
+            this.playerStations.get(this.nickname).setChosenColor(color);
         }
     }
 

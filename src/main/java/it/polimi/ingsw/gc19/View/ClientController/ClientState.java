@@ -41,6 +41,7 @@ public abstract class ClientState {
     public void nextState(EndGameMessage message) {}
     public void nextState(PlayerReconnectedToGameMessage message) {}
     public void nextState(DisconnectFromGameMessage message) {}
+    public void nextState(DisconnectFromServerMessage message) {}
     public void nextState(TurnStateMessage message) {}
     public void nextState(RefusedActionMessage message) {}
     public void nextState(GameHandlingErrorMessage message){}

@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.View.GameLocalView;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 
@@ -26,6 +27,16 @@ public class OtherStation extends LocalStationPlayer{
         synchronized (this.backCardHand){
             backCardHand.add(cardToAdd);
         }
+    }
+
+    @Override
+    public void setPrivateGoalCard(GoalCard goalCard) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setPrivateGoalCard(int cardIdx) {
+        throw new UnsupportedOperationException();
     }
 
     public void setBackCardHand(ArrayList<PlayableCardType> backCardHand) {

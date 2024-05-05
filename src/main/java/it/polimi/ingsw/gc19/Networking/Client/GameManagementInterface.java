@@ -4,6 +4,7 @@ import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 
 import java.util.ArrayList;
 
@@ -104,4 +105,6 @@ public interface GameManagementInterface {
      * To explicitly disconnect and log out of the game.
      */
     void logoutFromGame();
+
+    MessageHandler getMessageHandler();
 }

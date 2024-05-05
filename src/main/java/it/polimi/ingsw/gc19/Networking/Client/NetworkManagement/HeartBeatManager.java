@@ -48,7 +48,6 @@ public class HeartBeatManager{
         }
         catch (RuntimeException runtimeException){
             this.stopHeartBeatManager(); //Maybe this could be a problem...
-            System.out.println("here");
             this.networkManagementInterface.signalPossibleNetworkProblem();
         }
     }

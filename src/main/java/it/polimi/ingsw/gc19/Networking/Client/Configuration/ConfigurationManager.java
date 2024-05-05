@@ -95,7 +95,7 @@ public class ConfigurationManager {
         }
         else{
             if(configFile.delete()){
-                System.err.println("[CONFIG]: config file correctly created");
+                System.err.println("[CONFIG]: config file correctly deleted.");
             }
         }
     }
@@ -108,5 +108,6 @@ public class ConfigurationManager {
             System.err.println("[CONFIG]: config file correctly created");
         }
     }
+
 
 }

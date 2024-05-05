@@ -28,7 +28,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     private ClientInterface client;
 
-    private final LocalModel localModel;
+    private LocalModel localModel;
     private final ClientController clientController;
 
     public MessageHandler(ClientController clientController, LocalModel localModel){
@@ -45,6 +45,22 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         synchronized (this.messagesToHandle){
             this.messagesToHandle.add(message);
             this.messagesToHandle.notifyAll();
+        }
+    }
+
+    public synchronized void setLocalModel(LocalModel model){
+        this.localModel = model;
+        this.notifyAll();
+    }
+
+    private synchronized void waitForLocalModel(){
+        while(this.localModel == null){
+            try{
+                this.wait();
+            }
+            catch (InterruptedException interruptedException){
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -81,62 +97,64 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(AcceptedChooseGoalCardMessage message) {
+        waitForLocalModel();
         this.localModel.setPrivateGoal(message.getGoalCard());
     }
 
     @Override
     public void visit(AcceptedColorMessage message) {
+        waitForLocalModel();
         this.localModel.setColor(message.getChosenColor());
     }
 
     @Override
     public void visit(OwnAcceptedPickCardFromDeckMessage message) {
+        waitForLocalModel();
         this.localModel.updateCardsInHand(message.getPickedCard());
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(OtherAcceptedPickCardFromDeckMessage message) {
+        //????????????????
     }
 
     @Override
     public void visit(AcceptedPickCardFromTable message) {
-        if(message.getNick().equals(localModel.getNickname())){
-            this.localModel.updateCardsInHand(message.getPickedCard());
-        }
-
+        waitForLocalModel();
+        this.localModel.updateCardsInHand(message.getPickedCard());
         this.localModel.updateCardsInTable(message.getCardToPutInSlot(), message.getDeckType(), message.getCoords());
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(AcceptedPlacePlayableCardMessage message) {
+        waitForLocalModel();
         if(this.localModel.getNickname().equals(message.getNick())){
             this.localModel.placeCardPersonalStation(message.getAnchorCode(), message.getCardToPlace(),
                     message.getDirection(), message.getCardToPlace().getCardOrientation());
-            clientController.viewState.nextState(message);
+            clientController.getCurrentState().nextState(message);
         }
     }
 
     @Override
     public void visit(AcceptedPlaceInitialCard message) {
+        waitForLocalModel();
         if(message.getNick().equals(this.localModel.getNickname())){
             this.localModel.placeInitialCardPersonalStation(message.getInitialCard());
-        }
-        else {
-            //this.localModel.placeInitialCardOtherStation(message.getNick(), message.getInitialCard());
         }
     }
 
     @Override
-    public void visit(RefusedActionMessage visitor) {
-
+    public void visit(RefusedActionMessage message) {
+        this.clientController.handleError(message);
     }
 
     @Override
     public void visit(NotifyChatMessage message) {
+        waitForLocalModel();
         this.localModel.updateMessages(message.getMessage(), message.getSender(), message.getHeader());
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
@@ -146,14 +164,15 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(GameConfigurationMessage message) {
+        waitForLocalModel();
         this.localModel.setNumPlayers(message.getNumPlayers());
         this.localModel.setFirstPlayer(message.getFirstPlayer());
-        clientController.viewState.nextState(message);
-
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(OtherStationConfigurationMessage message) {
+        waitForLocalModel();
         this.localModel.setOtherStations(message.getNick(),
                 new OtherStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
                         message.getNumPoints(), message.getPlacedCardSequence()));
@@ -161,117 +180,125 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(OwnStationConfigurationMessage message) {
+        waitForLocalModel();
         this.localModel.setPersonalStation(new PersonalStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
-                message.getNumPoints(), message.getPlacedCardSequence(), message.getPrivateGoalCard(),
-                message.getGoalCard1(), message.getGoalCard2()));
+                                                               message.getNumPoints(), message.getPlacedCardSequence(), message.getPrivateGoalCard(),
+                                                               message.getGoalCard1(), message.getGoalCard2()));
     }
 
     @Override
 
     public void visit(TableConfigurationMessage message) {
+        waitForLocalModel();
         this.localModel.setTable(new LocalTable(message.getSxResource(), message.getDxResource(),
-                        message.getSxGold(), message.getDxGold(), message.getSxPublicGoal(),
-                        message.getDxPublicGoal(), message.getNextSeedOfResourceDeck(),
-                        message.getNextSeedOfGoldDeck()));
+                                                message.getSxGold(), message.getDxGold(), message.getSxPublicGoal(),
+                                                message.getDxPublicGoal(), message.getNextSeedOfResourceDeck(),
+                                                message.getNextSeedOfGoldDeck()));
     }
 
     @Override
     public void visit(AvailableColorsMessage message) {
+        waitForLocalModel();
         this.localModel.setAvailableColors(message.getAvailableColors());
     }
 
     @Override
     public void visit(EndGameMessage message) {
-        clientController.viewState.nextState(message);
-
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(GamePausedMessage message) {
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(GameResumedMessage message) {
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(NewPlayerConnectedToGameMessage message) {
+        waitForLocalModel();
         this.localModel.setPlayerActive(message.getPlayerName());
     }
 
     @Override
     public void visit(StartPlayingGameMessage message) {
+        waitForLocalModel();
         this.localModel.setFirstPlayer(message.getNickFirstPlayer());
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(CreatedGameMessage message) {
+        waitForLocalModel();
         this.localModel.setGameName(message.getGameName());
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(AvailableGamesMessage message) {
-        //@TODO: handle available games
+        //@TODO: handle available games: simply notify view about available games
     }
 
     @Override
     public void visit(BeginFinalRoundMessage message) {
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(CreatedPlayerMessage message) {
+        waitForLocalModel();
         this.client.configure(message.getNick(), message.getToken());
         this.localModel.setNickname(message.getNick());
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(DisconnectedPlayerMessage message) {
-        // @ todo: your own disconnection?
+        waitForLocalModel();
         this.localModel.setPlayerInactive(message.getRemovedNick());
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(JoinedGameMessage message) {
+        waitForLocalModel();
         this.localModel.setGameName(message.getGameName());
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
-    public void visit(PlayerReconnectedToGameMessage message) {
+    public  void visit(PlayerReconnectedToGameMessage message) {
+        waitForLocalModel();
         this.localModel.setPlayerActive(message.getPlayerName());
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(GameHandlingErrorMessage message) {
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(DisconnectFromGameMessage message) {
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(DisconnectFromServerMessage message) {
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(TurnStateMessage message) {
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(NetworkHandlingErrorMessage message) {
-        clientController.viewState.nextState(message);
+        clientController.getCurrentState().nextState(message);
     }
 
 }

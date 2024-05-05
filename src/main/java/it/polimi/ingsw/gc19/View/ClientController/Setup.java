@@ -18,6 +18,8 @@ import java.util.ArrayList;
  */
 class Setup extends ClientState {
 
+    //Attenzione che quando costruisco un nuovo oggetto Setup, l'info sui booleani si perde
+
     private boolean colorChosen;
     private boolean goalChosen;
     private boolean initialCardPlaced;
@@ -37,18 +39,26 @@ class Setup extends ClientState {
     @Override
     public void nextState(AcceptedColorMessage message) {
         this.colorChosen = true;
+        if(this.goalChosen && this.initialCardPlaced){
+            clientController.setNextState(new Wait(clientController, clientInterface));
+        }
     }
 
     @Override
     public void nextState(AcceptedPlaceInitialCard message) {
         this.initialCardPlaced = true;
+        if(this.goalChosen && this.colorChosen){
+            clientController.setNextState(new Wait(clientController, clientInterface));
+        }
     }
 
     @Override
     public void nextState(AcceptedChooseGoalCardMessage message) {
         this.goalChosen = true;
+        if(this.colorChosen && this.initialCardPlaced) {
+            clientController.setNextState(new Wait(clientController, clientInterface));
+        }
     }
-
 
     @Override
     public void nextState(StartPlayingGameMessage message) {
@@ -90,20 +100,11 @@ class Setup extends ClientState {
     public boolean isGoalChosen() {
         return goalChosen;
     }
-    public void setGoalChosen() {
-        this.goalChosen = true;
-    }
     public boolean isColorChosen() {
         return colorChosen;
     }
-    public void setColorChosen() {
-        this.colorChosen = true;
-    }
     public boolean isInitialCardPlaced() {
         return initialCardPlaced;
-    }
-    public void setInitialCardPlaced() {
-        this.initialCardPlaced = true;
     }
     // Basically after the clientApp understand which of the three actions
     // the user requested, se must ask the Setup state if the command

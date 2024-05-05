@@ -47,10 +47,6 @@ public class PersonalStation extends LocalStationPlayer {
         cardSchema[position.x()][position.y()] = placedCard;
     }
 
-    public void setColor(Color color){
-        this.chosenColor = color;
-    }
-
     public ArrayList<PlayableCard> getCardsInHand() {
         return cardsInHand;
     }
@@ -96,7 +92,7 @@ public class PersonalStation extends LocalStationPlayer {
         if(goalCard == null) return; // obtained a new personal station but the card was not chosen.
         if(privateGoalCardsInStation[0] == null || privateGoalCardsInStation[1] == null){
             // obtained a personal station and the private goal was already chosen
-            setPrivateGoalCard(goalCard);
+            setPrivateGoalCard(goalCard); //???????????????????????????????????????????
         }else {
             // choosing the private goal card
             int cardIdx = goalCard.equals(privateGoalCardsInStation[0]) ? 0 : 1;

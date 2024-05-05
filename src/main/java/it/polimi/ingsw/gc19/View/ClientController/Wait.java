@@ -8,12 +8,11 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.Refus
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.EndGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GamePausedMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
+import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 
 import java.util.ArrayList;
 
@@ -56,11 +55,19 @@ class Wait extends ClientState {
 
     @Override
     public void nextState(JoinedGameMessage message) {
+        LocalModel localModel = new LocalModel();
+        this.clientController.setLocalModel(localModel);
+        this.clientInterface.getMessageHandler().setLocalModel(localModel);
+        
         clientController.setNextState(new Setup(clientController, clientInterface));
     }
 
     @Override
     public void nextState(CreatedGameMessage message) {
+        LocalModel localModel = new LocalModel();
+        this.clientController.setLocalModel(localModel);
+        this.clientInterface.getMessageHandler().setLocalModel(localModel);
+
         clientController.setNextState(new Setup(clientController, clientInterface));
     }
 
@@ -97,6 +104,17 @@ class Wait extends ClientState {
                 clientController.setNextState(new OtherTurn(clientController, clientInterface));
             }
         }
+    }
+
+    @Override
+    public void nextState(DisconnectFromGameMessage disconnect){
+        this.clientController.setNextState(new NotGame(clientController, clientInterface));
+    }
+
+    @Override
+    public void nextState(DisconnectFromServerMessage disconnect){
+        this.clientInterface.getMessageHandler().interruptMessageHandler();
+        this.clientInterface.stopClient();
     }
 
     @Override

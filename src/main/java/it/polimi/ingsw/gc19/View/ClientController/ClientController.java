@@ -3,18 +3,18 @@ package it.polimi.ingsw.gc19.View.ClientController;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
+import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
-import it.polimi.ingsw.gc19.View.Command.CommandType;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
-import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * The class is used to forward the actions given by the user to the client network interface.
@@ -29,7 +29,7 @@ public class ClientController {
      * The attribute represent the current state of the client.
      * Depending on its value only certain actions can be performed.
      */
-    public ClientState viewState;
+    private ClientState viewState;
 
     /**
      * The attribute represent the previous state of the client.
@@ -38,13 +38,11 @@ public class ClientController {
      */
     private ClientState prevState;
 
-    private final LocalModel localModel;
+    private LocalModel localModel;
 
     private ClientInterface clientNetwork;
 
-    public ClientController(){
-        this.localModel = new LocalModel();
-    }
+    public ClientController() { }
 
     public void setClientInterface(ClientInterface clientInterface){
         this.clientNetwork = clientInterface;
@@ -70,19 +68,30 @@ public class ClientController {
      * The client state is changed in Disconnect and a new thread tries to
      * reconnect the client sending requests at a fixed rate.
      */
-    public synchronized void disconnect(){
+    public synchronized void signalPossibleNetworkProblem(){
         if(this.viewState.getState() == ViewState.DISCONNECT) return;
         this.prevState = viewState;
         this.viewState = new Disconnect(this, clientNetwork);
     }
 
+    public synchronized void setLocalModel(LocalModel localModel){
+        this.localModel = localModel;
+    }
+
     public synchronized boolean isDisconnected(){
-        return this.viewState.getState() == ViewState.DISCONNECT;
+        if(this.viewState != null) {
+            return this.viewState.getState() == ViewState.DISCONNECT;
+        }
+        return false;
     }
 
     public synchronized void setNextState(ClientState clientState){
         this.prevState = viewState;
         this.viewState = clientState;
+    }
+
+    public synchronized ClientState getCurrentState(){
+        return this.viewState;
     }
 
     public synchronized ClientState getPrevState(){
@@ -124,7 +133,7 @@ public class ClientController {
      * create_player(nickname)
      */
     public synchronized void createPlayer(String nick){
-        if(viewState.getState() == ViewState.NOT_PLAYER){
+        if(viewState.getState() != ViewState.NOT_PLAYER){
             //@TODO: notify view
             return;
         }
@@ -269,7 +278,7 @@ public class ClientController {
         }
         else {
             clientNetwork.chooseColor(color);
-            ((Setup) viewState).setColorChosen();
+            //((Setup) viewState).setColorChosen();
         }
     }
 
@@ -286,7 +295,6 @@ public class ClientController {
         }
         if((cardIdx >= 0) && (cardIdx < 2)) {
             clientNetwork.choosePrivateGoalCard(cardIdx);
-            ((Setup) viewState).setGoalChosen();
         }
         else{
             //@TODO: notify view
@@ -298,12 +306,12 @@ public class ClientController {
      * place_initial_card(orientation)
      */
     public synchronized void placeInitialCard(CardOrientation cardOrientation) {
+        //Insert if to check that user hasn't chosen hi cardorientation
         if(viewState.getState() != ViewState.SETUP){
             //@TODO: notify view
             return;
         }
         clientNetwork.placeInitialCard(cardOrientation);
-        ((Setup) viewState).setInitialCardPlaced();
     }
 
     /**
@@ -367,12 +375,65 @@ public class ClientController {
         }
     }
 
-    /**
-     * To parse a string containing the command we want to execute.
-     * @return an arraylist that contains at the first position the command
-     * name and in the following positions there are the parameters.
-     * Ex. create_game(game1, 2, 4) => {create_game, game1, 2, 4}
-     * Ex. available_games() => {available_games}
-     */
+    public synchronized void logoutFromGame(){
+        int numOfTry = 0;
+
+        while(numOfTry < 10){
+            try {
+                this.clientNetwork.logoutFromGame();
+
+
+
+                this.viewState = new Wait(this, clientNetwork);
+                this.localModel = null;
+            }
+            catch (RuntimeException runtimeException){
+                numOfTry++;
+
+                try{
+                    TimeUnit.MILLISECONDS.sleep(250);
+                }
+                catch (InterruptedException interruptedException){
+                    Thread.currentThread().interrupt();
+                }
+
+            }
+        }
+    }
+
+    public synchronized void disconnect(){
+        int numOfTry = 0;
+
+        while (numOfTry < 10){
+            try{
+                ConfigurationManager.deleteConfiguration(this.nickname);
+
+                this.clientNetwork.disconnect();
+
+                this.viewState = new Wait(this, this.clientNetwork);
+
+                this.localModel = null;
+
+                ScheduledExecutorService clientKiller = new ScheduledThreadPoolExecutor(1);
+                clientKiller.schedule(() -> {
+                    this.clientNetwork.stopClient();
+                    this.clientNetwork.getMessageHandler().interruptMessageHandler();
+                }, 2500, TimeUnit.MILLISECONDS);
+
+            }
+            catch (RuntimeException runtimeException){
+
+                numOfTry++;
+
+                try{
+                    TimeUnit.MILLISECONDS.sleep(250);
+                }
+                catch (InterruptedException interruptedException){
+                    Thread.currentThread().interrupt();
+                }
+
+            }
+        }
+    }
 
 }

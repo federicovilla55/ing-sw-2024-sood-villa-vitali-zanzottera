@@ -24,7 +24,8 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class ClientTCP implements ConfigurableClient, NetworkManagementInterface, GameManagementInterface {
+public class ClientTCP implements ClientInterface {
+
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
@@ -74,7 +75,6 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
                 this.finalizeSending();
             }
             catch (IOException ioException) {
-                System.out.println("+++" + ioException.getMessage());
                 return false;
             }
         }
@@ -102,7 +102,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
                     synchronized (this.messagesToSend) {
                         this.messagesToSend.clear();
                     }
-                    this.clientController.disconnect();
+                    this.clientController.signalPossibleNetworkProblem();
                 }
             }
         }
@@ -125,7 +125,9 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
         while(!Thread.interrupted()) {
             try {
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
-                //System.out.println(incomingMessage);
+                if(!(incomingMessage instanceof ServerHeartBeatMessage)){
+                    System.out.println(incomingMessage);
+                }
             }
             catch (ClassNotFoundException | IOException ignored){ }
 
@@ -207,6 +209,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
         if(!this.send(new RequestGameExitMessage(this.nickname))){
             throw new RuntimeException("Message could not be sent to server!");
         }
+
         synchronized (this.messagesToSend){
             this.messagesToSend.clear();
         }
@@ -280,7 +283,7 @@ public class ClientTCP implements ConfigurableClient, NetworkManagementInterface
     @Override
     public void signalPossibleNetworkProblem() {
         if(!this.clientController.isDisconnected()){
-            this.clientController.disconnect();
+            this.clientController.signalPossibleNetworkProblem();
         }
         this.heartBeatManager.stopHeartBeatManager();
     }

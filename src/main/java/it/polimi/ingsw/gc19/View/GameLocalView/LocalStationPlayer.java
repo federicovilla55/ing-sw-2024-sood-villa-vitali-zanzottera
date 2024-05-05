@@ -67,6 +67,14 @@ public abstract class LocalStationPlayer {
         }
     }
 
+    public void setChosenColor(Color chosenColor){
+        this.chosenColor = chosenColor;
+    }
+
+    public abstract void setPrivateGoalCard(int cardIdx);
+
+    public abstract void setPrivateGoalCard(GoalCard goalCard);
+
     public String getOwnerPlayer() {
         return ownerPlayer;
     }
