@@ -134,8 +134,9 @@ public class ClientController {
             return;
         }
 
-        setNickname(nick);
+        this.nickname = nick;
         viewState = new Wait(this, clientNetwork);
+        System.out.println("setted");
         prevState = new NotPlayer(this, clientNetwork);
         clientNetwork.connect(nick);
     }

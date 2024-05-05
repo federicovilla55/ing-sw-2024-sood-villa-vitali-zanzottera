@@ -70,8 +70,8 @@ public class LocalStateManagementTests {
     @Test
     public void testCreateClient(){
         assertEquals(clientController1.getState(), ViewState.NOT_PLAYER);
-        clientInterface1.connect("client1");
-        waitingThread(500);
+        clientController1.createPlayer("client1");
+        waitingThread(50);
         assertEquals(ViewState.NOT_GAME, clientController1.getState());
     }
 
