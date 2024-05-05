@@ -109,6 +109,12 @@ class Wait extends ClientState {
     }
 
     @Override
+    public void nextState(DisconnectFromServerMessage message){
+        this.clientInterface.getMessageHandler().interruptMessageHandler();
+        this.clientInterface.stopClient();
+    }
+
+    @Override
     public void nextState(DisconnectFromGameMessage message) {
         this.clientController.setLocalModel(null);
         this.clientInterface.getMessageHandler().setLocalModel(null);

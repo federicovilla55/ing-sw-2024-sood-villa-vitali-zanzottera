@@ -29,13 +29,6 @@ class Place extends ClientState {
     }
 
     @Override
-    public void nextState(DisconnectFromGameMessage message) {
-        this.clientController.setLocalModel(null);
-        this.clientInterface.getMessageHandler().setLocalModel(null);
-        this.clientController.setNextState(new NotGame(clientController, clientInterface));
-    }
-
-    @Override
     public void nextState(GameHandlingErrorMessage message) {
         clientController.handleError(message);
     }
