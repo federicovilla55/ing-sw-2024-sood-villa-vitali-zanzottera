@@ -4,7 +4,7 @@ target/
 !**/src/test/**/target/
 
 ### Ignore Tocken Files ###
-src/main/java/it/polimi/ingsw/gc19/Networking/Client/*.
+src/main/java/it/polimi/ingsw/gc19/Networking/Client/Configuration/Local Config/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
