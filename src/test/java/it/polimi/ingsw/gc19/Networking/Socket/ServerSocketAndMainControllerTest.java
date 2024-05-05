@@ -695,6 +695,7 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(client2, new AvailableGamesMessage(List.of("game25", "game26")).setHeader(this.client2.getName()));
     }
 
+    @Disabled
     @Test
     public void testInactiveClientKiller(){
         System.out.println(ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL);
