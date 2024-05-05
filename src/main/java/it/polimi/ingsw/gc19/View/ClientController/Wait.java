@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * This can be because of a place/draw he just made or because it's someone
  * else's turn.
  */
-class Wait extends ClientState {
+public class Wait extends ClientState {
 
     public Wait(ClientController clientController, ClientInterface clientInterface) {
         super(clientController, clientInterface);
