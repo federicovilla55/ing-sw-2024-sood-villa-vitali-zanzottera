@@ -29,7 +29,6 @@ class Wait extends ClientState {
 
     @Override
     public void nextState(CreatedPlayerMessage message) {
-        System.out.println("ok");
         clientController.setNextState(new NotGame(clientController, clientInterface));
     }
 
@@ -110,14 +109,10 @@ class Wait extends ClientState {
     }
 
     @Override
-    public void nextState(DisconnectFromGameMessage disconnect){
+    public void nextState(DisconnectFromGameMessage message) {
+        this.clientController.setLocalModel(null);
+        this.clientInterface.getMessageHandler().setLocalModel(null);
         this.clientController.setNextState(new NotGame(clientController, clientInterface));
-    }
-
-    @Override
-    public void nextState(DisconnectFromServerMessage disconnect){
-        this.clientInterface.getMessageHandler().interruptMessageHandler();
-        this.clientInterface.stopClient();
     }
 
     @Override

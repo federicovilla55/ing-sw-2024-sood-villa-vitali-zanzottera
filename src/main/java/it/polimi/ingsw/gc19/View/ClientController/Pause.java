@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.View.ClientController;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GameResumedMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 
@@ -26,6 +27,13 @@ class Pause extends ClientState {
     @Override
     public void nextState(NetworkHandlingErrorMessage message) {
         clientController.handleError(message);
+    }
+
+    @Override
+    public void nextState(DisconnectFromGameMessage message) {
+        this.clientController.setLocalModel(null);
+        this.clientInterface.getMessageHandler().setLocalModel(null);
+        this.clientController.setNextState(new NotGame(clientController, clientInterface));
     }
 
     @Override

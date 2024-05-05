@@ -8,6 +8,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.Error
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GamePausedMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 
@@ -37,23 +38,12 @@ class Setup extends ClientState {
         }
     }
 
-    /*
-    This methods are useless: it is all done by client controller
     @Override
-    public void nextState(GameHandlingErrorMessage message) {
-        clientController.handleError(message);
+    public void nextState(DisconnectFromGameMessage message) {
+        this.clientController.setLocalModel(null);
+        this.clientInterface.getMessageHandler().setLocalModel(null);
+        this.clientController.setNextState(new NotGame(clientController, clientInterface));
     }
-
-    @Override
-    public void nextState(NetworkHandlingErrorMessage message) {
-        clientController.handleError(message);
-    }
-
-    @Override
-    public void nextState(RefusedActionMessage message) {
-        clientController.handleError(message);
-    }
-    */
 
     @Override
     public ViewState getState() {

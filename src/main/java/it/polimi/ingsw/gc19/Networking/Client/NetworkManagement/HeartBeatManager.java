@@ -35,20 +35,23 @@ public class HeartBeatManager{
     }
 
     private void runHeartBeatTesterForServer(){
-        synchronized (this.lastHeartBeatLock){
-            if(new Date().getTime() - lastHeartBeatFromServer > 30 * 1000){
-                networkManagementInterface.signalPossibleNetworkProblem();
+        if(!Thread.currentThread().isInterrupted()) {
+            synchronized (this.lastHeartBeatLock) {
+                if (new Date().getTime() - lastHeartBeatFromServer > 30 * 1000) {
+                    networkManagementInterface.signalPossibleNetworkProblem();
+                }
             }
         }
     }
 
     private void sendHeartBeat(){
-        try{
-            this.networkManagementInterface.sendHeartBeat();
-        }
-        catch (RuntimeException runtimeException){
-            this.stopHeartBeatManager(); //Maybe this could be a problem...
-            this.networkManagementInterface.signalPossibleNetworkProblem();
+        if(!Thread.currentThread().isInterrupted()) {
+            try {
+                this.networkManagementInterface.sendHeartBeat();
+            } catch (RuntimeException runtimeException) {
+                this.stopHeartBeatManager(); //Maybe this could be a problem...
+                this.networkManagementInterface.signalPossibleNetworkProblem();
+            }
         }
     }
 

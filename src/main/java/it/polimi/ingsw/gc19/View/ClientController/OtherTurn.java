@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.EndGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GamePausedMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
@@ -52,6 +53,13 @@ class OtherTurn extends ClientState {
     @Override
     public ViewState getState() {
         return ViewState.OTHER_TURN;
+    }
+
+    @Override
+    public void nextState(DisconnectFromGameMessage message) {
+        this.clientController.setLocalModel(null);
+        this.clientInterface.getMessageHandler().setLocalModel(null);
+        this.clientController.setNextState(new NotGame(clientController, clientInterface));
     }
 
 }

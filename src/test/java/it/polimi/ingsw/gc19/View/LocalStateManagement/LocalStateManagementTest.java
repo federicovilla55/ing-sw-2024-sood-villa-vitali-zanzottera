@@ -5,31 +5,25 @@ import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
-import it.polimi.ingsw.gc19.Networking.Client.CommonClientMethodsForTests;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public class LocalStateManagementTests {
+public class LocalStateManagementTest {
 
     private ClientInterface clientInterface1, clientInterface2, clientInterface3, clientInterface4;
     private ClientController clientController1, clientController2, clientController3, clientController4;
@@ -218,7 +212,93 @@ public class LocalStateManagementTests {
 
     @Test
     public void testGameSetup(){
+        clientController1.createPlayer("client1");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController1.getState());
 
+        clientController1.createGame("game1", 2);
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController1.getState());
+
+        clientController2.createPlayer("client2");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController2.getState());
+
+        clientController2.joinFirstAvailableGame();
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController2.getState());
+
+        clientController1.chooseColor(Color.BLUE);
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController1.getState());
+
+        clientController2.chooseColor(Color.RED);
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController2.getState());
+
+        clientController1.chooseGoal(1);
+        clientController2.chooseGoal(0);
+
+        clientController1.placeInitialCard(CardOrientation.UP);
+        clientController2.placeInitialCard(CardOrientation.UP);
+
+        waitingThread(500);
+
+        assertNotEquals(ViewState.SETUP, clientController2.getState());
+        assertNotEquals(ViewState.SETUP, clientController1.getState());
+    }
+
+    @Test
+    public void testGamePause(){
+        clientController1.createPlayer("client1");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController1.getState());
+
+        clientController1.createGame("game1", 2);
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController1.getState());
+
+        clientController2.createPlayer("client2");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController2.getState());
+
+        clientController2.joinFirstAvailableGame();
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController2.getState());
+
+        clientController1.chooseColor(Color.BLUE);
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController1.getState());
+
+        clientController2.chooseColor(Color.RED);
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController2.getState());
+
+        clientController1.chooseGoal(1);
+        clientController2.chooseGoal(0);
+
+        clientController1.placeInitialCard(CardOrientation.UP);
+        clientController2.placeInitialCard(CardOrientation.UP);
+
+        waitingThread(500);
+
+        clientController1.logoutFromGame();
+
+        waitingThread(500);
+        assertEquals(ViewState.PAUSE, clientController2.getState());
+    }
+
+    @Test
+    public void testReconnection(){
+        clientController1.createPlayer("client1");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController1.getState());
+
+        ServerApp.stopTCP();
+
+        waitingThread(32500);
+
+        assertEquals(ViewState.DISCONNECT, clientController1.getState());
     }
 
     private void waitingThread(long millis){

@@ -379,10 +379,10 @@ public class ClientController {
             try {
                 this.clientNetwork.logoutFromGame();
 
-
-
                 this.viewState = new Wait(this, clientNetwork);
                 this.localModel = null;
+
+                return; //@TODO: better way to do this? What happens if logout does not raise exception but message do not arrive to server?
             }
             catch (RuntimeException runtimeException){
                 numOfTry++;
