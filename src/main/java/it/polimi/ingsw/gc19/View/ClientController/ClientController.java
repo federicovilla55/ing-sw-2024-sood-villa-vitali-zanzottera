@@ -136,7 +136,6 @@ public class ClientController {
 
         this.nickname = nick;
         viewState = new Wait(this, clientNetwork);
-        System.out.println("setted");
         prevState = new NotPlayer(this, clientNetwork);
         clientNetwork.connect(nick);
     }
@@ -211,6 +210,7 @@ public class ClientController {
      * @param message RefusedActionMessage to analyze
      */
     public synchronized void handleError(RefusedActionMessage message){
+        //@TODO: decide what type of messages broadast to view
         switch (message.getErrorType()){
             case ErrorType.INVALID_CARD_ERROR, ErrorType.INVALID_ANCHOR_ERROR -> {
                 viewState = new Place(this, clientNetwork);

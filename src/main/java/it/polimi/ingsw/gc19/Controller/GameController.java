@@ -200,6 +200,10 @@ public class GameController{
             this.gameAssociated.getPlayerByName(nickname).setColor(color);
             this.messageFactory.sendMessageToAllGamePlayersExcept(new AvailableColorsMessage(new ArrayList<>(this.gameAssociated.getAvailableColors())), nickname);
         }
+        else{
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.COLOR_ALREADY_CHOSEN, "You have already chosen your color!"));
+        }
+
         if(this.gameAssociated.allPlayersChooseInitialGoalColor()){
             this.gameAssociated.startGame();
         }
@@ -227,6 +231,10 @@ public class GameController{
         if(this.gameAssociated.getPlayerByName(nickname).getStation().getPrivateGoalCard()==null) {
             this.gameAssociated.getPlayerByName(nickname).getStation().setPrivateGoalCard(cardIdx);
         }
+        else{
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.GOAL_CARD_ALREADY_CHOSEN, "You have already chosen you private goal card!"));
+        }
+
         if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
             this.gameAssociated.startGame();
         }
@@ -249,6 +257,10 @@ public class GameController{
         if(!this.gameAssociated.getPlayerByName(nickname).getStation().getInitialCardIsPlaced()) {
             this.gameAssociated.getPlayerByName(nickname).getStation().placeInitialCard(cardOrientation);
         }
+        else{
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.GENERIC, "You have already chosen initial card orientation!"));
+        }
+
         if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
             this.gameAssociated.startGame();
         }

@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.View.LocalStateManagement;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
+import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.CommonClientMethodsForTests;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
@@ -14,13 +15,16 @@ import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -67,12 +71,154 @@ public class LocalStateManagementTests {
         messageHandler4.start();
     }
 
+    @AfterEach
+    public void tearDown(){
+        File configFile = new File(ClientSettings.CONFIG_FILE_PATH);
+        for(File f : Objects.requireNonNull(configFile.listFiles())){
+            f.delete();
+        }
+
+        ServerApp.stopTCP();
+        ServerApp.stopRMI();
+
+        clientInterface1.stopClient();
+        messageHandler1.interruptMessageHandler();
+        clientInterface2.stopClient();
+        messageHandler2.interruptMessageHandler();
+        clientInterface3.stopClient();
+        messageHandler3.interruptMessageHandler();
+        clientInterface4.stopClient();
+        messageHandler4.interruptMessageHandler();
+    }
+
     @Test
-    public void testCreateClient(){
+    public void testCreateClient() throws IOException {
         assertEquals(clientController1.getState(), ViewState.NOT_PLAYER);
         clientController1.createPlayer("client1");
-        waitingThread(50);
+        waitingThread(500);
         assertEquals(ViewState.NOT_GAME, clientController1.getState());
+
+        assertEquals(clientController2.getState(), ViewState.NOT_PLAYER);
+        clientController2.createPlayer("client2");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController2.getState());
+
+        ClientController clientController5 = new ClientController();
+        MessageHandler messageHandler5 = new MessageHandler(clientController5);
+        ClientInterface clientInterface5 = new ClientTCP(messageHandler5, clientController5);
+        clientController5.setClientInterface(clientInterface5);
+        messageHandler5.setClient(clientInterface5);
+        messageHandler5.start();
+
+        clientController5.createPlayer("client1");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_PLAYER, clientController5.getState());
+
+        clientInterface5.stopClient();
+        messageHandler5.interruptMessageHandler();
+    }
+
+    @Test
+    public void testCreateGame(){
+        assertEquals(clientController1.getState(), ViewState.NOT_PLAYER);
+        clientController1.createGame("game1", 3);
+        assertEquals(clientController1.getState(), ViewState.NOT_PLAYER);
+
+        assertEquals(clientController1.getState(), ViewState.NOT_PLAYER);
+        clientController1.createPlayer("client1");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController1.getState());
+
+        clientController1.createGame("game1", 3);
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController1.getState());
+
+        clientController1.createGame("game3", 2);
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController1.getState());
+    }
+
+    @Test
+    public void testJoinGame(){
+        assertEquals(clientController1.getState(), ViewState.NOT_PLAYER);
+        clientController1.createPlayer("client1");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController1.getState());
+
+        clientController1.createGame("game1", 3);
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController1.getState());
+
+        assertEquals(clientController2.getState(), ViewState.NOT_PLAYER);
+        clientController2.createPlayer("client2");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController2.getState());
+
+        clientController2.joinGame("game1");
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController2.getState());
+
+        assertEquals(clientController3.getState(), ViewState.NOT_PLAYER);
+        clientController3.createPlayer("client3");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController3.getState());
+
+        clientController3.joinGame("game1");
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController3.getState());
+
+        assertEquals(clientController4.getState(), ViewState.NOT_PLAYER);
+        clientController4.createPlayer("client4");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController4.getState());
+
+        clientController4.joinGame("game1");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController4.getState());
+    }
+
+    @Test
+    public void testJoinFirstAvailableGame(){
+        assertEquals(clientController1.getState(), ViewState.NOT_PLAYER);
+        clientController1.createPlayer("client1");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController1.getState());
+
+        clientController1.createGame("game1", 3);
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController1.getState());
+
+        assertEquals(clientController2.getState(), ViewState.NOT_PLAYER);
+        clientController2.createPlayer("client2");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController2.getState());
+
+        clientController2.joinFirstAvailableGame();
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController2.getState());
+
+        assertEquals(clientController3.getState(), ViewState.NOT_PLAYER);
+        clientController3.createPlayer("client3");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController3.getState());
+
+        clientController3.joinFirstAvailableGame();
+        waitingThread(500);
+        assertEquals(ViewState.SETUP, clientController3.getState());
+
+        assertEquals(clientController4.getState(), ViewState.NOT_PLAYER);
+        clientController4.createPlayer("client4");
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController4.getState());
+
+        clientController4.joinFirstAvailableGame();
+        waitingThread(500);
+        assertEquals(ViewState.NOT_GAME, clientController4.getState());
+    }
+
+    @Test
+    public void testGameSetup(){
+
     }
 
     private void waitingThread(long millis){
