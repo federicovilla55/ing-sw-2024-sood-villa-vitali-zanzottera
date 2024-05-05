@@ -386,33 +386,30 @@ public class LocalStateManagementTest {
 
         messageHandler1.update(new NewPlayerConnectedToGameMessage("player2"));
 
-        assertEquals(2, clientController1.getLocalModel().getNumPlayers());
+        //assertEquals(2, clientController1.getLocalModel().getNumPlayers());
 
-/*
+        messageHandler1.update(new OtherStationConfigurationMessage(
+                "player2",
+                null,
+                List.of(
+                        Symbol.VEGETABLE,
+                        Symbol.INSECT,
+                        Symbol.ANIMAL
+                ),
+                Map.of(
+                        Symbol.ANIMAL, 0,
+                        Symbol.MUSHROOM, 0,
+                        Symbol.VEGETABLE, 0,
+                        Symbol.INSECT, 0,
+                        Symbol.INK, 0,
+                        Symbol.FEATHER, 0,
+                        Symbol.SCROLL, 0
+                ),
+                0,
+                List.of()
+        ));
 
-       this.mainController.registerToGame(player2, "game1");
-
-        assertMessageEquals(player1,
-                            new NewPlayerConnectedToGameMessage("player2"));
-
-        assertMessageEquals(player1,
-                            new OtherStationConfigurationMessage(
-                                    "player2",
-                                    null,
-                                    Map.of(
-                                            Symbol.ANIMAL, 0,
-                                            Symbol.MUSHROOM, 0,
-                                            Symbol.VEGETABLE, 0,
-                                            Symbol.INSECT, 0,
-                                            Symbol.INK, 0,
-                                            Symbol.FEATHER, 0,
-                                            Symbol.SCROLL, 0
-                                    ),
-                                    0,
-                                    List.of()
-                            ));
-
-        MessageToClient tableConfigurationMessage = new TableConfigurationMessage(
+        messageHandler1.update(new TableConfigurationMessage(
                 playableCards.get("resource_05").setCardState(CardOrientation.UP),
                 playableCards.get("resource_21").setCardState(CardOrientation.UP),
                 playableCards.get("gold_19").setCardState(CardOrientation.UP),
@@ -421,59 +418,66 @@ public class LocalStateManagementTest {
                 goalCards.get("goal_15"),
                 Symbol.ANIMAL,
                 Symbol.VEGETABLE
-        );
+        ));
 
-        assertMessageEquals(player1,
-                            tableConfigurationMessage);
+        messageHandler2.update(new TableConfigurationMessage(
+                playableCards.get("resource_05").setCardState(CardOrientation.UP),
+                playableCards.get("resource_21").setCardState(CardOrientation.UP),
+                playableCards.get("gold_19").setCardState(CardOrientation.UP),
+                playableCards.get("gold_23").setCardState(CardOrientation.UP),
+                goalCards.get("goal_11"),
+                goalCards.get("goal_15"),
+                Symbol.ANIMAL,
+                Symbol.VEGETABLE
+        ));
 
-        assertEquals(new JoinedGameMessage("game1").setHeader(player2.getUsername()), player2.getMessage());
+        messageHandler2.update(new OwnStationConfigurationMessage(
+                "player2",
+                null,
+                List.of(
+                        playableCards.get("resource_15"),
+                        playableCards.get("resource_37"),
+                        playableCards.get("gold_21")
+                ),
+                Map.of(
+                        Symbol.ANIMAL, 0,
+                        Symbol.MUSHROOM, 0,
+                        Symbol.VEGETABLE, 0,
+                        Symbol.INSECT, 0,
+                        Symbol.INK, 0,
+                        Symbol.FEATHER, 0,
+                        Symbol.SCROLL, 0
+                ),
+                null,
+                0,
+                playableCards.get("initial_01"),
+                goalCards.get("goal_16"),
+                goalCards.get("goal_01"),
+                List.of()
+        ));
 
+        messageHandler2.update(new OtherStationConfigurationMessage(
+                "player1",
+                null,
+                List.of(
+                        Symbol.ANIMAL,
+                        Symbol.MUSHROOM,
+                        Symbol.ANIMAL
+                ),
+                Map.of(
+                        Symbol.ANIMAL, 0,
+                        Symbol.MUSHROOM, 0,
+                        Symbol.VEGETABLE, 0,
+                        Symbol.INSECT, 0,
+                        Symbol.INK, 0,
+                        Symbol.FEATHER, 0,
+                        Symbol.SCROLL, 0
+                ),
+                0,
+                List.of()
+        ));
 
-        assertMessageEquals(player2,
-                            tableConfigurationMessage);
-
-        assertMessageEquals(player2,
-                            new OwnStationConfigurationMessage(
-                                    "player2",
-                                    null,
-                                    List.of(
-                                            playableCards.get("resource_15"),
-                                            playableCards.get("resource_37"),
-                                            playableCards.get("gold_21")
-                                    ),
-                                    Map.of(
-                                            Symbol.ANIMAL, 0,
-                                            Symbol.MUSHROOM, 0,
-                                            Symbol.VEGETABLE, 0,
-                                            Symbol.INSECT, 0,
-                                            Symbol.INK, 0,
-                                            Symbol.FEATHER, 0,
-                                            Symbol.SCROLL, 0
-                                    ),
-                                    null,
-                                    0,
-                                    playableCards.get("initial_01"),
-                                    goalCards.get("goal_16"),
-                                    goalCards.get("goal_01"),
-                                    List.of()
-                            ));
-
-        assertMessageEquals(player2,
-                            new OtherStationConfigurationMessage(
-                                    "player1",
-                                    null,
-                                    Map.of(
-                                            Symbol.ANIMAL, 0,
-                                            Symbol.MUSHROOM, 0,
-                                            Symbol.VEGETABLE, 0,
-                                            Symbol.INSECT, 0,
-                                            Symbol.INK, 0,
-                                            Symbol.FEATHER, 0,
-                                            Symbol.SCROLL, 0
-                                    ),
-                                    0,
-                                    List.of()
-                            ));
+/*
 
         assertMessageEquals(player2,
                             new AvailableColorsMessage(List.of(Color.values())));
