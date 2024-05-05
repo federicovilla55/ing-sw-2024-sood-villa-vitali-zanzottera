@@ -384,7 +384,7 @@ public class MessagesTest{
 
         //if the card is already placed by a player and tries to be replaced, no message should be sent
         this.player1.placeInitialCard(CardOrientation.UP);
-        assertNull(player1.getMessage());
+        assertMessageEquals(player1, new RefusedActionMessage(ErrorType.GENERIC, "You have already chosen initial card orientation!"));
 
         this.player2.placeInitialCard(CardOrientation.DOWN);
 
