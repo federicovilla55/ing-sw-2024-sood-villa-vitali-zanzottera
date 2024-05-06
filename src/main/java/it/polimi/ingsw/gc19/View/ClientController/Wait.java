@@ -57,6 +57,7 @@ public class Wait extends ClientState {
     public void nextState(JoinedGameMessage message) {
         LocalModel localModel = new LocalModel();
         localModel.setNickname(this.clientInterface.getNickname());
+        localModel.setGameName(message.getGameName());
         this.clientController.setLocalModel(localModel);
         this.clientInterface.getMessageHandler().setLocalModel(localModel);
 
@@ -67,6 +68,7 @@ public class Wait extends ClientState {
     public void nextState(CreatedGameMessage message) {
         LocalModel localModel = new LocalModel();
         localModel.setNickname(this.clientInterface.getNickname());
+        localModel.setGameName(message.getGameName());
         this.clientController.setLocalModel(localModel);
         this.clientInterface.getMessageHandler().setLocalModel(localModel);
 

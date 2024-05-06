@@ -132,19 +132,19 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(AcceptedPlacePlayableCardMessage message) {
         waitForLocalModel();
-        if(this.localModel.getNickname().equals(message.getNick())){
-            this.localModel.placeCardPersonalStation(message.getAnchorCode(), message.getCardToPlace(),
-                    message.getDirection(), message.getCardToPlace().getCardOrientation());
-            clientController.getCurrentState().nextState(message);
-        }
+
+        this.localModel.placeCard(message.getNick(), message.getAnchorCode(),
+                message.getCardToPlace(), message.getDirection());
+
+        this.localModel.setNumPoints(message.getNick(), message.getNumPoints());
+        this.localModel.setVisibleSymbols(message.getNick(), message.getVisibleSymbols());
     }
 
     @Override
     public void visit(AcceptedPlaceInitialCard message) {
         waitForLocalModel();
-        if(message.getNick().equals(this.localModel.getNickname())){
-            this.localModel.placeInitialCardPersonalStation(message.getInitialCard());
-        }
+        this.localModel.placeInitialCard(message.getNick(), message.getInitialCard());
+        this.localModel.setVisibleSymbols(message.getNick(), message.getVisibleSymbols());
     }
 
     @Override

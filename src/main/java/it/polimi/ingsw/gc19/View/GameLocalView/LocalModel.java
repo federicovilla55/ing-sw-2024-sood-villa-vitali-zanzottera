@@ -9,7 +9,9 @@ import it.polimi.ingsw.gc19.Utils.Tuple;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LocalModel {
@@ -23,11 +25,8 @@ public class LocalModel {
     private int numPlayers;
     private final ConcurrentHashMap<String, PlayableCard> previousPlayableCards;
     private final ConcurrentHashMap<String, GoalCard> previousGoalCards;
-
     private List<Color> availableColors;
-
     private final ArrayList<Message> messages;
-
     private PropertyChangeSupport propertyChanger = new PropertyChangeSupport(this);
 
     public LocalModel(){
@@ -66,32 +65,16 @@ public class LocalModel {
         propertyChanger.addPropertyChangeListener("chat", listener);
     }
 
-    public void removeChatListener(PropertyChangeListener listener) {
-        propertyChanger.removePropertyChangeListener("chat", listener);
-    }
-
     public void addPersonalStationPropertyChangeListener(PropertyChangeListener listener) {
         propertyChanger.addPropertyChangeListener("personalStation", listener);
-    }
-
-    public void removePersonalStationListener(PropertyChangeListener listener) {
-        propertyChanger.removePropertyChangeListener("personalStation", listener);
     }
 
     public void addTablePropertyChangeListener(PropertyChangeListener listener) {
         propertyChanger.addPropertyChangeListener("table", listener);
     }
 
-    public void removeTableListener(PropertyChangeListener listener) {
-        propertyChanger.removePropertyChangeListener("table", listener);
-    }
-
     public void addOtherStationsPropertyChangeListener(PropertyChangeListener listener) {
         propertyChanger.addPropertyChangeListener("otherStations", listener);
-    }
-
-    public void removeOtherStationsListener(PropertyChangeListener listener) {
-        propertyChanger.removePropertyChangeListener("otherStations", listener);
     }
 
     private void fireChatPropertyChange() {
@@ -129,6 +112,10 @@ public class LocalModel {
             for(PlayableCard card : localStation.getCardsInHand()){
                 previousPlayableCards.put(card.getCardCode(), card);
             }
+        }
+
+        synchronized (this.playerState){
+            this.playerState.put(localStation.ownerPlayer, State.ACTIVE);
         }
         this.addCardsFromStationToMap(localStation);
 
@@ -189,21 +176,21 @@ public class LocalModel {
     }
 
     public void setColor(Color color){
-        synchronized (playerStations) {
+        synchronized (this.playerStations) {
             this.playerStations.get(this.nickname).setChosenColor(color);
         }
         this.updatePersonalStation();
     }
 
-    public void placeCard(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction, CardOrientation orientation) {
-        synchronized (playerStations){
+    public void placeCard(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction) {
+        synchronized (this.playerStations) {
             Tuple<Integer, Integer> coords = this.playerStations.get(nickname).getCoord(anchorCode);
-            this.playerStations.get(nickname).placeCard(cardToPlace, new Tuple<>(
-                    coords.x() + direction.getX(), coords.y() + direction.getY()));
+            this.playerStations.get(nickname).placeCard(cardToPlace, anchorCode, direction);
         }
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
+
         if(this.nickname.equals(nickname)) {
             this.updatePersonalStation();
         } else {
@@ -225,15 +212,6 @@ public class LocalModel {
         }
     }
 
-    public boolean isCardPlaceable(String nickname, PlayableCard anchor, PlayableCard cardToPlace, Direction direction){
-        synchronized (playerStations) {
-            return this.playerStations.get(nickname).cardIsPlaceable(anchor, cardToPlace, direction);
-        }
-    }
-
-    public void placeCardPersonalStation(String anchorCode, PlayableCard cardToPlace, Direction direction, CardOrientation orientation){
-        placeCard(this.nickname, anchorCode, cardToPlace, direction, orientation);
-    }
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
@@ -243,12 +221,8 @@ public class LocalModel {
         return this.nickname;
     }
 
-    public void placeInitialCardPersonalStation(PlayableCard initialCard){
-        placeInitialCard(this.nickname, initialCard);
-    }
-
     public boolean isCardPlaceablePersonalStation(PlayableCard cardToPlace, PlayableCard anchor, Direction direction){
-        return isCardPlaceable(this.nickname, anchor, cardToPlace, direction);
+        return this.playerStations.get(this.nickname).cardIsPlaceable(anchor, cardToPlace, direction);
     }
 
     public void updateCardsInHand(PlayableCard playableCard){
@@ -391,6 +365,24 @@ public class LocalModel {
         return (int) playerState.values().stream()
                 .filter(e -> e==State.ACTIVE)
                 .count();
+    }
+
+    public void setNumPoints(String nickname, int numPoints){
+        synchronized (this.playerStations){
+            this.playerStations.get(nickname).setNumPoints(numPoints);
+        }
+    }
+
+    public void setVisibleSymbols(String nickname, Map<Symbol, Integer> visibleSymbols){
+        synchronized (this.playerStations){
+            this.playerStations.get(nickname).setVisibleSymbols(new HashMap<>(visibleSymbols));
+        }
+    }
+
+    public State getPlayerState(String nickname){
+        synchronized (this.playerState){
+            return playerState.get(nickname);
+        }
     }
 
     public void setGameName(String gameName) {

@@ -17,24 +17,6 @@ public class PersonalStation extends LocalStationPlayer {
     private GoalCard privateGoalCardInStation;
     private final GoalCard[] privateGoalCardsInStation;
 
-    public PersonalStation(String nicknameOwner, GoalCard privateGoalCardInStation1, GoalCard privateGoalCardInStation2){
-        super(nicknameOwner);
-        cardsInHand = new ArrayList<>();
-
-        privateGoalCardsInStation = new GoalCard[]{privateGoalCardInStation1, privateGoalCardInStation2};
-        privateGoalCardInStation = null;
-    }
-
-    public PersonalStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols, int numPoints,
-                           List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence,
-                           GoalCard privateGoalCard, GoalCard privateGoalCardInStation1, GoalCard privateGoalCardInStation2) {
-        super(nicknameOwner, chosenColor, visibleSymbols, numPoints, placedCardSequence);
-        cardsInHand = new ArrayList<>();
-
-        privateGoalCardsInStation = new GoalCard[]{privateGoalCardInStation1, privateGoalCardInStation2};
-        setPrivateGoalCard(privateGoalCard);
-    }
-
     public PersonalStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols, int numPoints,
                            List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence,
                            GoalCard privateGoalCard, GoalCard privateGoalCardInStation1, GoalCard privateGoalCardInStation2,
@@ -47,21 +29,11 @@ public class PersonalStation extends LocalStationPlayer {
         setPrivateGoalCard(privateGoalCard);
     }
 
-    public void updateCardsInHand(PlayableCard cardToAdd){
+    public  void updateCardsInHand(PlayableCard cardToAdd){
         cardsInHand.add(cardToAdd);
     }
 
     @Override
-    public void placeCard(PlayableCard placedCard, Tuple<Integer, Integer> position) {
-        cardsInHand.remove(placedCard);
-        placedCardSequence.add(new Tuple<>(placedCard, position));
-        cardSchema[position.x()][position.y()] = placedCard;
-    }
-
-    public ArrayList<PlayableCard> getCardsInHand() {
-        return cardsInHand;
-    }
-
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) {
         // checks if the card to place is contained in the player's hand
         if(!this.getCardsInHand().contains(toPlace)){
@@ -99,19 +71,31 @@ public class PersonalStation extends LocalStationPlayer {
         return true;
     }
 
+    public ArrayList<PlayableCard> getCardsInHand() {
+        return cardsInHand;
+    }
+
     public void setPrivateGoalCard(GoalCard goalCard) {
         if(goalCard == null) return; // obtained a new personal station but the card was not chosen.
-        if(privateGoalCardsInStation[0] == null || privateGoalCardsInStation[1] == null){
-            // obtained a personal station and the private goal was already chosen
-            setPrivateGoalCard(goalCard); //???????????????????????????????????????????
-        }else {
+        if (privateGoalCardsInStation[0] != null && privateGoalCardsInStation[1] != null) {
             // choosing the private goal card
             int cardIdx = goalCard.equals(privateGoalCardsInStation[0]) ? 0 : 1;
             setPrivateGoalCard(cardIdx);
         }
     }
 
-    public void setPrivateGoalCard(int cardIdx) {
+    public void placeCard(PlayableCard cardToPlace, String anchorCardCode, Direction direction){
+        Tuple<Integer, Integer> coord = getCoord(anchorCardCode);
+        coord = new Tuple<>(direction.getX() + coord.x(), direction.getY() + coord.y());
+
+        this.cardsInHand.remove(cardToPlace);
+
+        placedCardSequence.add(new Tuple<>(cardToPlace, coord));
+        cardSchema[coord.x()][coord.y()] = cardToPlace;
+
+    }
+
+    public  void setPrivateGoalCard(int cardIdx) {
         this.privateGoalCardInStation = privateGoalCardsInStation[cardIdx];
     }
 
