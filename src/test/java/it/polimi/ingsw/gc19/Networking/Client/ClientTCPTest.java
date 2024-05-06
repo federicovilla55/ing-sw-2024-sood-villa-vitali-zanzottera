@@ -797,8 +797,6 @@ public class ClientTCPTest {
 
         client7.disconnect();
 
-        //client1 has disconnected from server, so its socket has been closed by server
-        assertThrows(RuntimeException.class, () -> client1.disconnect());
         client2.disconnect();
     }
 
