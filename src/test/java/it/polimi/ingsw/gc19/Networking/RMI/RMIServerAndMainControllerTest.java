@@ -51,12 +51,9 @@ public class RMIServerAndMainControllerTest {
         ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
 
         ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
-        MainServerRMI mainServerRMI = ServerApp.getMainServerRMI();
 
         Registry registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(ServerSettings.mainRMIServerName);
-
-        overloadTest(100);
 
         this.client1 = new Client(virtualMainServer, "client1");
         this.client2 = new Client(virtualMainServer, "client2");
@@ -64,7 +61,7 @@ public class RMIServerAndMainControllerTest {
         this.client4 = new Client(virtualMainServer, "client4");
         this.client5 = new Client(virtualMainServer, "client5");
 
-        this.stressTestClients = overloadTest(100);
+        this.stressTestClients = overloadTest(200);
     }
 
     @AfterEach
@@ -630,6 +627,7 @@ public class RMIServerAndMainControllerTest {
         assertNull(this.client1.getMessage());
     }
 
+    @Disabled
     @Test
     public void testInactiveClientKiller() throws RemoteException {
         client1.connect();

@@ -51,12 +51,10 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
             }
             catch (InterruptedException interruptedException){
                 synchronized (this.messageQueue){
-                    if(!this.messageQueue.isEmpty()){
-                        while(!this.messageQueue.isEmpty()){
-                            var messageToSend = this.messageQueue.remove();
-                            if(messageToSend.getHeader() == null || messageToSend.getHeader().contains(username)) {
-                                this.sendMessageToClient(messageToSend);
-                            }
+                    while(!this.messageQueue.isEmpty()){
+                        var messageToSend = this.messageQueue.remove();
+                        if(messageToSend.getHeader() == null || messageToSend.getHeader().contains(username)) {
+                            this.sendMessageToClient(messageToSend);
                         }
                     }
                 }
@@ -158,6 +156,9 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
      * This method is used to interrupt the instance of client handler
      */
     public void interruptClientHandler(){
+        synchronized (this.messageQueue){
+            this.messageQueue.clear();
+        }
         this.interrupt();
     }
 
