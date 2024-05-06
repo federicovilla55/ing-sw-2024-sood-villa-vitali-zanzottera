@@ -345,6 +345,8 @@ public class LocalStateManagementTest {
 
         assertNotNull(clientController1.getLocalModel());
 
+        assertEquals("player1", this.clientController1.getLocalModel().getNickname());
+
         messageHandler1.update(new TableConfigurationMessage(
                 playableCards.get("resource_05").setCardState(CardOrientation.UP),
                 playableCards.get("resource_21").setCardState(CardOrientation.UP),
@@ -355,6 +357,10 @@ public class LocalStateManagementTest {
                 Symbol.VEGETABLE,
                 Symbol.ANIMAL
         ));
+
+        waitingThread(500);
+
+        assertEquals(goalCards.get("goal_11"), clientController1.getLocalModel().getTable().getPublicGoal1());
 
         messageHandler1.update(new OwnStationConfigurationMessage(
                 "player1",
@@ -380,6 +386,10 @@ public class LocalStateManagementTest {
                 goalCards.get("goal_14"),
                 List.of()
         ));
+
+        waitingThread(500);
+        assertNotNull(clientController1.getLocalModel().getPersonalStation());
+        assertEquals(List.of(goalCards.get("goal_09"), goalCards.get("goal_14")), List.of(clientController1.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()));
 
         clientController2.setNextState(new Wait(clientController2, clientInterface2));
         this.messageHandler2.update(new JoinedGameMessage("game1"));
