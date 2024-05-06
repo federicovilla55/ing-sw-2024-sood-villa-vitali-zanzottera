@@ -3,11 +3,21 @@ package it.polimi.ingsw.gc19.View.TUI;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.*;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.Command.CommandParser;
+import it.polimi.ingsw.gc19.View.Command.CommandType;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TUIView {
+
+    private final CommandParser commandParser;
+
+    public TUIView(CommandParser commandParser){
+        this.commandParser = commandParser;
+    }
 
     /**
      * This method prints to terminal a matrix of strings, each string represents two UTF-8 wide character(s),
@@ -559,8 +569,7 @@ public class TUIView {
     }
 
     public String[][] goalEffectView(SymbolEffect symbolEffect) {
-        String[][] requiredSymbolsTUIView = this.requiredSymbolsTUIView(symbolEffect.getRequiredSymbol());
-        return requiredSymbolsTUIView;
+        return this.requiredSymbolsTUIView(symbolEffect.getRequiredSymbol());
     }
 
     private String[][] requiredSymbolsTUIView(Map<Symbol, Integer> requiredSymbol) {
@@ -578,5 +587,43 @@ public class TUIView {
         res[i][0] = "\t┗━━━━━━━━━━┛\t";
 
         return res;
+    }
+
+    private void parseCommand(String command){
+        Pattern pattern = Pattern.compile("^(.*?)\\(([^)]*)\\)$");
+        Matcher matcher = pattern.matcher(command);
+
+        if(matcher.matches()){
+            CommandType commandType;
+            try{
+                commandType = CommandType.valueOf(matcher.group(1));
+            }
+            catch (IllegalArgumentException illegalArgumentException){
+                //@TODO: view
+                return;
+            }
+
+            String args = matcher.group(2);
+
+            switch (commandType){
+                case CommandType.CREATE_PLAYER -> commandParser.createPlayer(args);
+                case CommandType.CREATE_GAME -> commandParser.createGame(args);
+                case CommandType.AVAILABLE_GAMES -> commandParser.availableGames(args);
+                case CommandType.JOIN_GAME -> commandParser.joinGame(args);
+                case CommandType.JOIN_FIRST_GAME -> commandParser.joinFirstAvailableGame(args);
+                case CommandType.CHOOSE_COLOR -> commandParser.chooseColor(args);
+                case CommandType.CHOOSE_PRIVATE_GOAL_CARD -> commandParser.chooseGoal(args);
+                case CommandType.PLACE_INITIAL_CARD -> commandParser.placeInitialCard(args);
+                case CommandType.PICK_CARD_DECK -> commandParser.pickCardFromDeck(args);
+                case CommandType.PICK_CARD_TABLE -> commandParser.pickCardFromTable(args);
+                case CommandType.PLACE_CARD -> commandParser.placeCard(args);
+                case CommandType.SEND_CHAT_MESSAGE -> commandParser.sendChatMessage(args);
+                case CommandType.LOGOUT_FROM_GAME -> commandParser.logoutFromGame(args);
+                case CommandType.DISCONNECT -> commandParser.disconnect(args);
+            }
+        }
+        else{
+            //@TODO: view: command format not correct!
+        }
     }
 }

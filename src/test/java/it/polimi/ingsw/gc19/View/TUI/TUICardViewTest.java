@@ -7,6 +7,8 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
+import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,7 +23,7 @@ public class TUICardViewTest {
 
     private final static HashMap<String, PlayableCard> stringPlayableCardHashMap = new HashMap<>();
     private final static HashMap<String, GoalCard> stringGoalCardHashMap = new HashMap<>();
-    private final static TUIView tuiView = new TUIView();
+    private final static TUIView tuiView = new TUIView(new CommandParser(new ClientController()));
 
 
     @BeforeAll

@@ -9,6 +9,7 @@ import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -291,6 +292,55 @@ public class CommandParser{
         }
     }
 
-    //disconnect...?
+    public void placeInitialCard(String commandArgs){
+        String[] parsedArguments;
+
+        try{
+            parsedArguments = parseArguments(commandArgs);
+        }
+        catch (IllegalArgumentException illegalArgumentException){
+            //@TODO: notify for errors
+            return;
+        }
+
+        if(parsedArguments.length >= CommandType.PLACE_INITIAL_CARD.getNumArgs()){
+            try {
+                clientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0]));
+            }
+            catch (IllegalArgumentException illegalArgumentException){
+                //@TODO: view
+            }
+        }
+        else{
+            //@TODO: notify view
+        }
+    }
+
+    public void availableGames(String args){
+        if(Objects.equals(args, "()")){
+            this.clientController.availableGames();
+        }
+        else{
+            //@TODO: view
+        }
+    }
+
+    public void logoutFromGame(String args){
+        if(Objects.equals(args, "()")){
+            this.clientController.logoutFromGame();
+        }
+        else{
+            //@TODO: view
+        }
+    }
+
+    public void disconnect(String args){
+        if(Objects.equals(args, "()")){
+            this.clientController.disconnect();
+        }
+        else{
+            //@TODO: view
+        }
+    }
 
 }

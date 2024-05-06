@@ -188,7 +188,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     @Override
-
     public void visit(TableConfigurationMessage message) {
         waitForLocalModel();
         this.localModel.setTable(new LocalTable(message.getSxResource(), message.getDxResource(),
