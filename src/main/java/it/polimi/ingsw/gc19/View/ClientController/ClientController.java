@@ -50,6 +50,10 @@ public class ClientController {
         prevState = new NotPlayer(this, clientInterface);
     }
 
+    public LocalModel getLocalModel() {
+        return localModel;
+    }
+
     //Probabilmente, getNick e setNick verranno assorbite in qualche metodo...
     public String getNickname() {
         return nickname;
@@ -99,10 +103,6 @@ public class ClientController {
         return this.prevState;
     }
 
-    public synchronized LocalModel getLocalModel(){
-        return this.localModel;
-    }
-
     /**
      * To send a message in the chat.
      * send_message(message_content, receiver1 {, receiver2, ...})
@@ -138,7 +138,7 @@ public class ClientController {
             return;
         }
 
-        setNickname(nick);
+        this.nickname = nick;
         viewState = new Wait(this, clientNetwork);
         prevState = new NotPlayer(this, clientNetwork);
         clientNetwork.connect(nick);
@@ -214,6 +214,7 @@ public class ClientController {
      * @param message RefusedActionMessage to analyze
      */
     public synchronized void handleError(RefusedActionMessage message){
+        //@TODO: decide what type of messages broadast to view
         switch (message.getErrorType()){
             case ErrorType.INVALID_CARD_ERROR, ErrorType.INVALID_ANCHOR_ERROR -> {
                 viewState = new Place(this, clientNetwork);
@@ -382,10 +383,10 @@ public class ClientController {
             try {
                 this.clientNetwork.logoutFromGame();
 
-
-
                 this.viewState = new Wait(this, clientNetwork);
                 this.localModel = null;
+
+                return; //@TODO: better way to do this? What happens if logout does not raise exception but message do not arrive to server?
             }
             catch (RuntimeException runtimeException){
                 numOfTry++;

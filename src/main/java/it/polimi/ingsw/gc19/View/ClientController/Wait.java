@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * This can be because of a place/draw he just made or because it's someone
  * else's turn.
  */
-class Wait extends ClientState {
+public class Wait extends ClientState {
 
     public Wait(ClientController clientController, ClientInterface clientInterface) {
         super(clientController, clientInterface);
@@ -56,15 +56,17 @@ class Wait extends ClientState {
     @Override
     public void nextState(JoinedGameMessage message) {
         LocalModel localModel = new LocalModel();
+        localModel.setNickname(this.clientInterface.getNickname());
         this.clientController.setLocalModel(localModel);
         this.clientInterface.getMessageHandler().setLocalModel(localModel);
-        
+
         clientController.setNextState(new Setup(clientController, clientInterface));
     }
 
     @Override
     public void nextState(CreatedGameMessage message) {
         LocalModel localModel = new LocalModel();
+        localModel.setNickname(this.clientInterface.getNickname());
         this.clientController.setLocalModel(localModel);
         this.clientInterface.getMessageHandler().setLocalModel(localModel);
 
@@ -107,14 +109,16 @@ class Wait extends ClientState {
     }
 
     @Override
-    public void nextState(DisconnectFromGameMessage disconnect){
-        this.clientController.setNextState(new NotGame(clientController, clientInterface));
+    public void nextState(DisconnectFromServerMessage message){
+        this.clientInterface.getMessageHandler().interruptMessageHandler();
+        this.clientInterface.stopClient();
     }
 
     @Override
-    public void nextState(DisconnectFromServerMessage disconnect){
-        this.clientInterface.getMessageHandler().interruptMessageHandler();
-        this.clientInterface.stopClient();
+    public void nextState(DisconnectFromGameMessage message) {
+        this.clientController.setLocalModel(null);
+        this.clientInterface.getMessageHandler().setLocalModel(null);
+        this.clientController.setNextState(new NotGame(clientController, clientInterface));
     }
 
     @Override

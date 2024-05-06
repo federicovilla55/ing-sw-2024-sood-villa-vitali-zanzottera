@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.Model.Card;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.gc19.Model.Station.Station;
+import it.polimi.ingsw.gc19.View.TUI.TUIView;
 
 import java.io.Serializable;
 
@@ -27,4 +28,5 @@ interface GoalEffect extends Serializable{
      */
     String getEffectDescription();
 
+    String[][] getEffectView(TUIView tuiView);
 }

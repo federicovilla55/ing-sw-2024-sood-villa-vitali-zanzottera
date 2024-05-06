@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.Model.Card;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.gc19.Model.Station.Station;
+import it.polimi.ingsw.gc19.View.TUI.TUIView;
 
 import java.io.Serializable;
 
@@ -32,4 +33,5 @@ interface PlayableEffect extends Serializable{
      */
     int countPoints(Station station);
 
+    String[][] getEffectView(TUIView tuiView);
 }

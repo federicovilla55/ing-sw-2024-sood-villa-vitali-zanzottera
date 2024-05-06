@@ -11,13 +11,13 @@ import java.util.Optional;
  */
 @JsonTypeName("symbol")
 public enum Symbol implements Corner {
-    ANIMAL ("\u001b[46;1m", "\uD83D\uDC3A"),
-    VEGETABLE ("\u001b[42;1m", "\uD83C\uDF31"),
-    INSECT ("\u001b[45;1m", "\uD83E\uDD8B"),
-    MUSHROOM ("\u001b[41;1m", "\uD83C\uDF44"),
-    INK ("", "✒ "),
-    FEATHER ("", "\uD83E\uDD9C"),
-    SCROLL ("", "\uD83D\uDCDC");
+    MUSHROOM("\u001b[41;1m", "\uD83C\uDF44"),
+    VEGETABLE("\u001b[42;1m", "\uD83C\uDF31"),
+    ANIMAL("\u001b[46;1m", "\uD83D\uDC3A"),
+    INSECT("\u001b[45;1m", "\uD83E\uDD8B"),
+    INK("", String.format("%-" + inkSpacing() + "." + inkSpacing() + "s", "✒\uFE0F     ")),
+    FEATHER("", "\uD83E\uDEB6"),
+    SCROLL("", "\uD83D\uDCDC");
 
     private final String stringColor;
     private final String stringEmoji;
@@ -46,4 +46,13 @@ public enum Symbol implements Corner {
         return stringColor;
     }
 
+    private static int inkSpacing() {
+        String osName = System.getProperty("os.name");
+
+        if (osName.toLowerCase().contains("windows")) {
+            return 2;
+        } else {
+            return 3;
+        }
+    }
 }

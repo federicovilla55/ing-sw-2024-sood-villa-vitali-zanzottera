@@ -338,6 +338,7 @@ public class Game extends Publisher{
         this.getMessageFactory().sendMessageToAllGamePlayersExcept(new OtherStationConfigurationMessage(
                 player.getName(),
                 player.getColor(),
+                player.getStation().getCardsInHand().stream().map(PlayableCard::getSeed).toList(),
                 player.getStation().getVisibleSymbolsInStation(),
                 player.getStation().getNumPoints(),
                 player.getStation().getPlacedCardSequence()
@@ -402,6 +403,7 @@ public class Game extends Publisher{
                 this.getMessageFactory().sendMessageToPlayer(receiver, new OtherStationConfigurationMessage(
                         nickname,
                         getPlayerByName(nickname).getColor(),
+                        getPlayerByName(nickname).getStation().getCardsInHand().stream().map(PlayableCard::getSeed).toList(),
                         getPlayerByName(nickname).getStation().getVisibleSymbolsInStation(),
                         getPlayerByName(nickname).getStation().getNumPoints(),
                         getPlayerByName(nickname).getStation().getPlacedCardSequence()

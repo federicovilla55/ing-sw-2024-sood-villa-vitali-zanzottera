@@ -269,13 +269,16 @@ public class MainController {
     /**
      * This method checks if a player can be registered to some games.
      * Player must not have the same name of other registered players and must not be in
-     * other active games.
+     * other active games. It must be, also, active.
      * @param player {@link ClientHandler} of the player to check
      * @return true if a player can be registered to a game
      */
     private boolean checkPlayer(ClientHandler player){
         synchronized (this.playerInfo) {
             if (!this.playerInfo.containsKey(player.getUsername())) {
+                return false;
+            }
+            if(this.playerInfo.get(player.getUsername()).x() == State.INACTIVE){
                 return false;
             }
             if (this.playerInfo.get(player.getUsername()).y() != null) {
