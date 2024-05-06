@@ -52,7 +52,6 @@ class Disconnect extends ClientState {
             default -> {
                 clientController.setNextState(new NotGame(clientController, clientInterface));
             }
-
         }
     }
 
@@ -77,20 +76,21 @@ class Disconnect extends ClientState {
 
         while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING && !Thread.currentThread().isInterrupted()) {
             try {
+                System.out.println("trying reconnect from " + clientController.getNickname());
                 clientInterface.reconnect();
             } catch (IllegalStateException e) {
                 // Token file not found...
                 clientController.setNextState(new NotPlayer(clientController, clientInterface));
-                reconnectScheduler.interrupt();
+                Thread.currentThread().interrupt();
                 return;
             } catch (RuntimeException e) {
                 numReconnect++;
             }
 
             try {
-                TimeUnit.MILLISECONDS.sleep(ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION * 1000);
+                TimeUnit.MILLISECONDS.sleep(ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION * 2000);
             } catch (InterruptedException e) {
-                reconnectScheduler.interrupt();
+                Thread.currentThread().interrupt();
                 return;
             }
         }

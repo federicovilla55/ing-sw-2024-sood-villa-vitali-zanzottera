@@ -421,6 +421,7 @@ public class ClientController {
                     this.clientNetwork.getMessageHandler().interruptMessageHandler();
                 }, 2500, TimeUnit.MILLISECONDS);
 
+                return;
             }
             catch (RuntimeException runtimeException){
 

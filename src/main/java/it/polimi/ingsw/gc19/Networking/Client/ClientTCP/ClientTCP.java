@@ -282,6 +282,7 @@ public class ClientTCP implements ClientInterface {
 
     @Override
     public void signalPossibleNetworkProblem() {
+        System.out.println("signal from " + nickname);
         if(!this.clientController.isDisconnected()){
             this.clientController.signalPossibleNetworkProblem();
         }

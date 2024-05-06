@@ -38,6 +38,7 @@ public class HeartBeatManager{
         if(!Thread.currentThread().isInterrupted()) {
             synchronized (this.lastHeartBeatLock) {
                 if (new Date().getTime() - lastHeartBeatFromServer > 30 * 1000) {
+                    stopHeartBeatManager();
                     networkManagementInterface.signalPossibleNetworkProblem();
                 }
             }
@@ -49,7 +50,7 @@ public class HeartBeatManager{
             try {
                 this.networkManagementInterface.sendHeartBeat();
             } catch (RuntimeException runtimeException) {
-                this.stopHeartBeatManager(); //Maybe this could be a problem...
+                this.stopHeartBeatManager();
                 this.networkManagementInterface.signalPossibleNetworkProblem();
             }
         }
@@ -70,9 +71,11 @@ public class HeartBeatManager{
     public void stopHeartBeatManager(){
         if(!this.heartBeatSenderScheduler.isShutdown()){
             this.heartBeatSenderScheduler.shutdownNow();
+            System.out.println("shutted down");
         }
         if(!this.heartBeatChecker.isShutdown()){
             this.heartBeatChecker.shutdownNow();
+            System.out.println("shut down");
         }
     }
 
