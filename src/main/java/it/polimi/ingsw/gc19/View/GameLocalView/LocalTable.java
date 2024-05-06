@@ -66,4 +66,11 @@ public class LocalTable {
         this.resource2 = resource2;
     }
 
+    public Symbol getNextSeedOfResourceDeck() {
+        return nextSeedOfResourceDeck;
+    }
+
+    public Symbol getNextSeedOfGoldDeck() {
+        return nextSeedOfGoldDeck;
+    }
 }
