@@ -26,6 +26,7 @@ import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import org.junit.jupiter.api.*;
 
+import java.beans.PropertyChangeListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,14 +37,20 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ClientRMITest {
-    private static VirtualMainServer virtualMainServer;
 
     // Hashmap to save the get the anchor for the placeCard.
     private HashMap<ClientInterface, PlayableCard> clientsAnchors;
     private TestClassClientRMI client1, client2, client3, client4, client5;
+    private long prevHeartBeatSetting, maxTimeBeforeReEnteringLobby, maxTimeBeforeDisconnection;
 
     @BeforeEach
     public void setUpTest() throws RemoteException{
+        maxTimeBeforeDisconnection = ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION;
+        prevHeartBeatSetting = ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS;
+        maxTimeBeforeReEnteringLobby = ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION;
+
+        ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS = 1;
+        ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 3;
         ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
 
         ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
@@ -75,7 +82,12 @@ public class ClientRMITest {
         this.client3.disconnect();
         this.client4.disconnect();
         this.client5.disconnect();
+
         ServerApp.stopRMI();
+
+        ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS = prevHeartBeatSetting;
+        ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = maxTimeBeforeReEnteringLobby;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = maxTimeBeforeDisconnection;
     }
 
     @Test

@@ -104,7 +104,7 @@ public class ServerApp {
         try {
             registry = LocateRegistry.createRegistry(RMIPort);
             VirtualMainServer stub = (VirtualMainServer) UnicastRemoteObject.exportObject(mainServerRMI, 0);
-            registry.rebind(ServerSettings.mainRMIServerName, stub);
+            registry.rebind(ServerSettings.MAIN_RMI_SERVER_NAME, stub);
         }
         catch (RemoteException remoteException){
             System.out.println("[EXCEPTION] RemoteException occurred while trying to start RMI Server. Quitting...");

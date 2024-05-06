@@ -35,9 +35,18 @@ public class ClientTCPTest {
 
     private TestClassClientTCP client1, client2, client3, client4;
     private HashMap<TestClassClientTCP, PlayableCard> clientsAnchors;
+    private long prevHeartBeatSetting, maxTimeBeforeReEnteringLobby, maxTimeBeforeDisconnection;
 
     @BeforeEach
     public void setUp() throws IOException {
+        maxTimeBeforeDisconnection = ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION;
+        prevHeartBeatSetting = ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS;
+        maxTimeBeforeReEnteringLobby = ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION;
+
+        ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS = 1;
+        ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 3;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
+
         ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
 
         ClientController clientController1 = new ClientController();
@@ -63,7 +72,12 @@ public class ClientTCPTest {
         this.client2.stopClient();
         this.client3.stopClient();
         this.client4.stopClient();
+
         ServerApp.stopTCP();
+
+        ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS = prevHeartBeatSetting;
+        ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = maxTimeBeforeReEnteringLobby;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = maxTimeBeforeDisconnection;
     }
 
 

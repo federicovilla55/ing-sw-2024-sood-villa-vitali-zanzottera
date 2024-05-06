@@ -22,7 +22,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
@@ -45,15 +44,22 @@ public class RMIServerAndMainControllerTest {
     private static VirtualMainServer virtualMainServer;
     private Client client1, client2, client3, client4, client5;
     private ArrayList<Client> stressTestClients;
+    private long maxTimeBeforeDisconnection, maxTimeBeforeReEnteringLobby, prevHeartBeatSetting;
 
     @BeforeEach
     public void setUpTest() throws RemoteException, NotBoundException {
+        maxTimeBeforeDisconnection = ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION;
+        prevHeartBeatSetting = ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS;
+        maxTimeBeforeReEnteringLobby = ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION;
+
+        ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS = 1;
+        ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 3;
         ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
 
         ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
 
         Registry registry = LocateRegistry.getRegistry("localhost");
-        virtualMainServer = (VirtualMainServer) registry.lookup(ServerSettings.mainRMIServerName);
+        virtualMainServer = (VirtualMainServer) registry.lookup(ServerSettings.MAIN_RMI_SERVER_NAME);
 
         this.client1 = new Client(virtualMainServer, "client1");
         this.client2 = new Client(virtualMainServer, "client2");
@@ -81,7 +87,9 @@ public class RMIServerAndMainControllerTest {
 
         ServerApp.stopRMI();
 
-        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 60 * 20;
+        ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS = prevHeartBeatSetting;
+        ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = maxTimeBeforeReEnteringLobby;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = maxTimeBeforeDisconnection;
     }
 
     private static ArrayList<Client> overloadTest(int numberOfClients) throws RemoteException {

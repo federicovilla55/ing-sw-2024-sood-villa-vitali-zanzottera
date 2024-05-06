@@ -38,15 +38,25 @@ public class ServerSocketAndMainControllerTest {
 
     private Client client1, client2, client3, client4;
     private ArrayList<Client> stressTestClient;
+    private long prevHeartBeatSetting, maxTimeBeforeDisconnection, maxTimeBeforeReEnteringLobby;
 
     @BeforeEach
     public void setUp(){
+        maxTimeBeforeDisconnection = ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION;
+        prevHeartBeatSetting = ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS;
+        maxTimeBeforeReEnteringLobby = ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION;
+
+        ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS = 1;
+        ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 3;
         ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
+
         ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
+
         this.client1 = new Client("client1");
         this.client2 = new Client("client2");
         this.client3 = new Client("client3");
         this.client4 = new Client("client4");
+
         this.stressTestClient = overloadTest(5);
     }
 
@@ -68,7 +78,9 @@ public class ServerSocketAndMainControllerTest {
 
         ServerApp.stopTCP();
 
-        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 60 * 20;
+        ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS = prevHeartBeatSetting;
+        ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = maxTimeBeforeReEnteringLobby;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = maxTimeBeforeDisconnection;
     }
 
     private static ArrayList<Client> overloadTest(int numberOfClients){
