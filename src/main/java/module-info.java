@@ -8,6 +8,7 @@ module it.polimi.ingsw.gc19 {
     requires com.fasterxml.jackson.databind;
     requires java.rmi;
     requires org.jetbrains.annotations;
+    requires java.desktop;
 
     opens it.polimi.ingsw.gc19 to javafx.fxml;
     exports it.polimi.ingsw.gc19;
