@@ -174,4 +174,3 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
     }
 
 }
-

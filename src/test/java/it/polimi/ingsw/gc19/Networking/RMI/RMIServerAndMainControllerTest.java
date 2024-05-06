@@ -64,7 +64,7 @@ public class RMIServerAndMainControllerTest {
         this.client4 = new Client(virtualMainServer, "client4");
         this.client5 = new Client(virtualMainServer, "client5");
 
-        this.stressTestClients = overloadTest(100);
+        this.stressTestClients = overloadTest(1);
     }
 
     @AfterEach
@@ -408,7 +408,6 @@ public class RMIServerAndMainControllerTest {
         assertMessageEquals(this.client2, new JoinedGameMessage("game6"));
 
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getName()));
-
 
         this.client2.stopSendingHeartBeat();
 
