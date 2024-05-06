@@ -4,16 +4,11 @@ import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Chat.Message;
-import it.polimi.ingsw.gc19.Model.Game.Player;
-import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
-import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
-import it.polimi.ingsw.gc19.Model.Station.Station;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -60,11 +55,18 @@ public class LocalModel {
         fireTablePropertyChange();
     }
 
+    public void addAllPropertyChangeListener(PropertyChangeListener listener){
+        addTablePropertyChangeListener(listener);
+        addOtherStationsPropertyChangeListener(listener);
+        addChatPropertyChangeListener(listener);
+        addPersonalStationPropertyChangeListener(listener);
+    }
+
     public void addChatPropertyChangeListener(PropertyChangeListener listener) {
         propertyChanger.addPropertyChangeListener("chat", listener);
     }
 
-    public void removeChatPropertyChangeListener(PropertyChangeListener listener) {
+    public void removeChatListener(PropertyChangeListener listener) {
         propertyChanger.removePropertyChangeListener("chat", listener);
     }
 
@@ -72,7 +74,7 @@ public class LocalModel {
         propertyChanger.addPropertyChangeListener("personalStation", listener);
     }
 
-    public void removePersonalStationPropertyChangeListener(PropertyChangeListener listener) {
+    public void removePersonalStationListener(PropertyChangeListener listener) {
         propertyChanger.removePropertyChangeListener("personalStation", listener);
     }
 
@@ -80,7 +82,7 @@ public class LocalModel {
         propertyChanger.addPropertyChangeListener("table", listener);
     }
 
-    public void removeTablePropertyChangeListener(PropertyChangeListener listener) {
+    public void removeTableListener(PropertyChangeListener listener) {
         propertyChanger.removePropertyChangeListener("table", listener);
     }
 
@@ -88,7 +90,7 @@ public class LocalModel {
         propertyChanger.addPropertyChangeListener("otherStations", listener);
     }
 
-    public void removeOtherStationsPropertyChangeListener(PropertyChangeListener listener) {
+    public void removeOtherStationsListener(PropertyChangeListener listener) {
         propertyChanger.removePropertyChangeListener("otherStations", listener);
     }
 
@@ -107,10 +109,6 @@ public class LocalModel {
     private void fireOtherStationsPropertyChange() {
         propertyChanger.firePropertyChange("otherStations", null, this.getOtherStations());
     }
-
-
-
-
 
     public void setPersonalStation(PersonalStation localStation) {
         synchronized (this.playerStations) {
@@ -285,13 +283,17 @@ public class LocalModel {
         this.updateTable();
     }
 
-    public ConcurrentHashMap<String, LocalStationPlayer> getOtherStations() {
+    public ConcurrentHashMap<String, OtherStation> getOtherStations() {
+        ConcurrentHashMap<String, OtherStation> otherStations =
+                new ConcurrentHashMap<>();
         synchronized (playerStations) {
-            ConcurrentHashMap<String, LocalStationPlayer> otherStations =
-                    new ConcurrentHashMap<>(this.playerStations);
-            playerStations.remove(this.nickname);
-            return otherStations;
+            for(LocalStationPlayer station : playerStations.values()){
+                if(!station.getOwnerPlayer().equals(this.nickname)){
+                    otherStations.put(station.getOwnerPlayer(), (OtherStation) station);
+                }
+            }
         }
+        return otherStations;
     }
 
     public void setTable(LocalTable table) {
@@ -324,6 +326,8 @@ public class LocalModel {
     }
 
     public void setFirstPlayer(String firstPlayer) {
+        if(firstPlayer == null) return;
+
         this.firstPlayer = firstPlayer;
 
         // I suppose that there is an element in the GUI/TUI
@@ -362,6 +366,7 @@ public class LocalModel {
         synchronized (this.messages){
             messages.add(new Message(messageContent, sender, String.valueOf(receivers)));
         }
+        updateChat();
     }
 
     public ArrayList<Message> getMessages() {
@@ -395,4 +400,5 @@ public class LocalModel {
     public String getGameName() {
         return gameName;
     }
+
 }

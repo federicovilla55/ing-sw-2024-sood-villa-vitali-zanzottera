@@ -12,19 +12,24 @@ import java.util.List;
 import java.util.Map;
 
 public class OtherStation extends LocalStationPlayer{
-    ArrayList<PlayableCardType> backCardHand;
-    public OtherStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols, int numPoints, List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
+    private final Object backHandLock;
+    List<PlayableCardType> backCardHand;
+    public OtherStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols,
+                        int numPoints, List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
         super(nicknameOwner, chosenColor, visibleSymbols, numPoints, placedCardSequence);
+
+        backHandLock = new Object();
+        backCardHand = new ArrayList<>();
     }
 
-    public ArrayList<PlayableCardType> getBackCardHand() {
-        synchronized (this.backCardHand) {
+    public List<PlayableCardType> getBackCardHand() {
+        synchronized (backHandLock) {
             return backCardHand;
         }
     }
 
     public void addBackCard(PlayableCardType cardToAdd){
-        synchronized (this.backCardHand){
+        synchronized (backHandLock){
             backCardHand.add(cardToAdd);
         }
     }

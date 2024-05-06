@@ -3,12 +3,14 @@ package it.polimi.ingsw.gc19.View.GameLocalView;
 import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +21,7 @@ public abstract class LocalStationPlayer {
     protected final PlayableCard[][] cardSchema;
     protected Map<Symbol, Integer> visibleSymbols;
 
-    protected final List<Tuple<PlayableCard, Tuple<Integer,Integer>>> placedCardSequence;
-
+    protected List<Tuple<PlayableCard, Tuple<Integer,Integer>>> placedCardSequence;
     protected Color chosenColor;
 
     public LocalStationPlayer(String nicknameOwner){
@@ -42,7 +43,7 @@ public abstract class LocalStationPlayer {
         this.chosenColor = chosenColor;
         this.visibleSymbols = visibleSymbols;
         this.numPoints = numPoints;
-        this.placedCardSequence = placedCardSequence;
+        this.placedCardSequence = new ArrayList<>(placedCardSequence);
 
         reconstructSchema();
     }

@@ -117,7 +117,8 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(OtherAcceptedPickCardFromDeckMessage message) {
-        //????????????????
+        waitForLocalModel();
+        this.localModel.getOtherStations().get(message.getNick()).addBackCard(message.getDeckType());
     }
 
     @Override
@@ -184,7 +185,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         waitForLocalModel();
         this.localModel.setPersonalStation(new PersonalStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
                                                                message.getNumPoints(), message.getPlacedCardSequence(), message.getPrivateGoalCard(),
-                                                               message.getGoalCard1(), message.getGoalCard2()));
+                                                               message.getGoalCard1(), message.getGoalCard2(), message.getCardsInHand()));
     }
 
     @Override
