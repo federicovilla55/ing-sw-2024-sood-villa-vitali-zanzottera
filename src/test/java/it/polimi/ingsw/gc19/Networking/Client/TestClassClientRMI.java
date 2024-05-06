@@ -42,9 +42,4 @@ public class TestClassClientRMI extends ClientRMI implements CommonClientMethods
         return null;
     }
 
-    @Override
-    public String getNickname() {
-        return super.getNickname();
-    }
-
 }

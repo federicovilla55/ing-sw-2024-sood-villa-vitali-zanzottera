@@ -1,6 +1,8 @@
 package it.polimi.ingsw.gc19.Networking.Client.NetworkManagement;
 
+import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.NetworkManagementInterface;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -19,9 +21,9 @@ public class HeartBeatManager{
         this.networkManagementInterface = networkManagementInterface;
 
         this.heartBeatSenderScheduler = Executors.newSingleThreadScheduledExecutor();
-        this.heartBeatSenderScheduler.scheduleAtFixedRate(this::sendHeartBeat, 0, 400, TimeUnit.MILLISECONDS);
+        this.heartBeatSenderScheduler.scheduleAtFixedRate(this::sendHeartBeat, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
         this.heartBeatChecker = Executors.newSingleThreadScheduledExecutor();
-        this.heartBeatChecker.scheduleAtFixedRate(this::runHeartBeatTesterForServer, 0, 400, TimeUnit.MILLISECONDS);
+        this.heartBeatChecker.scheduleAtFixedRate(this::runHeartBeatTesterForServer, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
 
         this.lastHeartBeatFromServer = new Date().getTime();
 
@@ -37,7 +39,7 @@ public class HeartBeatManager{
     private void runHeartBeatTesterForServer(){
         if(!Thread.currentThread().isInterrupted()) {
             synchronized (this.lastHeartBeatLock) {
-                if (new Date().getTime() - lastHeartBeatFromServer > 30 * 1000) {
+                if (new Date().getTime() - lastHeartBeatFromServer > 1000 * ClientSettings.MAX_TIME_BETWEEN_SERVER_HEARTBEAT_BEFORE_SIGNALING_NETWORK_PROBLEMS) {
                     stopHeartBeatManager();
                     networkManagementInterface.signalPossibleNetworkProblem();
                 }
@@ -59,11 +61,11 @@ public class HeartBeatManager{
     public void startHeartBeatManager(){
         if(this.heartBeatSenderScheduler.isShutdown()){
             this.heartBeatSenderScheduler = Executors.newSingleThreadScheduledExecutor();
-            this.heartBeatSenderScheduler.scheduleAtFixedRate(this::sendHeartBeat, 0, 400, TimeUnit.MILLISECONDS);
+            this.heartBeatSenderScheduler.scheduleAtFixedRate(this::sendHeartBeat, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
         }
         if(this.heartBeatChecker.isShutdown()){
             this.heartBeatChecker = Executors.newSingleThreadScheduledExecutor();
-            this.heartBeatChecker.scheduleAtFixedRate(this::runHeartBeatTesterForServer, 0, 400, TimeUnit.MILLISECONDS);
+            this.heartBeatChecker.scheduleAtFixedRate(this::runHeartBeatTesterForServer, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
         }
 
     }
@@ -71,11 +73,9 @@ public class HeartBeatManager{
     public void stopHeartBeatManager(){
         if(!this.heartBeatSenderScheduler.isShutdown()){
             this.heartBeatSenderScheduler.shutdownNow();
-            System.out.println("shutted down");
         }
         if(!this.heartBeatChecker.isShutdown()){
             this.heartBeatChecker.shutdownNow();
-            System.out.println("shut down");
         }
     }
 

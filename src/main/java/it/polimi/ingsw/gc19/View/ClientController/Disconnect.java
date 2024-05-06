@@ -3,13 +3,11 @@ package it.polimi.ingsw.gc19.View.ClientController;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,7 +30,6 @@ class Disconnect extends ClientState {
         clientController.setNextState(new Wait(clientController, clientInterface));
     }
 
-    //When we receive correct message from server, we notify client to start sending heartbeat
     @Override
     public void nextState(AvailableGamesMessage message) {
         reconnectScheduler.interrupt();
@@ -75,21 +72,24 @@ class Disconnect extends ClientState {
         int numReconnect = 0;
 
         while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING && !Thread.currentThread().isInterrupted()) {
+
             try {
-                System.out.println("trying reconnect from " + clientController.getNickname());
                 clientInterface.reconnect();
-            } catch (IllegalStateException e) {
-                // Token file not found...
+            }
+            catch (IllegalStateException e) {
+                //@TODO: view
                 clientController.setNextState(new NotPlayer(clientController, clientInterface));
                 Thread.currentThread().interrupt();
                 return;
-            } catch (RuntimeException e) {
+            }
+            catch (RuntimeException e) {
                 numReconnect++;
             }
 
             try {
-                TimeUnit.MILLISECONDS.sleep(ClientSettings.MAX_TRY_TIME_BEFORE_SIGNAL_DISCONNECTION * 2000);
-            } catch (InterruptedException e) {
+                TimeUnit.MILLISECONDS.sleep(1000 * ClientSettings.WAIT_BETWEEN_RECONNECTION_TRY_IN_CASE_OF_EXPLICIT_NETWORK_ERROR);
+            }
+            catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;
             }

@@ -4,7 +4,6 @@ import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Networking.Client.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.HeartBeatManager;
-import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.NetworkManagementInterface;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.Configuration;
 import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
@@ -48,7 +47,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
         try {
             this.registry = LocateRegistry.getRegistry("localhost");
-            virtualMainServer = (VirtualMainServer) registry.lookup(ClientSettings.serverRMIName);
+            virtualMainServer = (VirtualMainServer) registry.lookup(ClientSettings.MAIN_SERVER_RMI_NAME);
         }
         catch (RemoteException remoteException){
             throw new RuntimeException("[Remote Exception]: could not locate registry.");
@@ -162,12 +161,12 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
             throw new IllegalStateException("[EXCEPTION]: could not reconnect due to: " + e);
         }
 
-        int numOfTry = 0;
+        //int numOfTry = 0;
 
         try {
-            virtualMainServer = (VirtualMainServer) this.registry.lookup(ClientSettings.serverRMIName);
+            virtualMainServer = (VirtualMainServer) this.registry.lookup(ClientSettings.MAIN_SERVER_RMI_NAME);
 
-            while(!Thread.currentThread().isInterrupted() && numOfTry < 10) {
+            /*while(!Thread.currentThread().isInterrupted() && numOfTry < 10) {
                 if(this.nickname != null){
                     nick = this.nickname;
                 }
@@ -177,7 +176,6 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
                 try {
                     this.virtualGameServer = this.virtualMainServer.reconnect(this, nick, clientConfig.getToken());
-                    //@TODO: when correct message is arrived call startSendingHeartBeat
                     return;
                 }
                 catch (RemoteException remoteException){
@@ -191,17 +189,28 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                         return;
                     }
                 }
+            }*/
+
+            if(this.nickname != null){
+                nick = this.nickname;
+            }
+            else{
+                nick = clientConfig.getNick();
             }
 
-            if(numOfTry == 10){
-                throw new RuntimeException("[Remote Exception]: could not invoke remote method of RMI Server.");
+            try {
+                this.virtualGameServer = this.virtualMainServer.reconnect(this, nick, clientConfig.getToken());
             }
+            catch (RemoteException remoteException){
+                throw new RuntimeException("[Remote Exception]: could not invoke remote method of RMI server.");
+            }
+
         }
         catch (NotBoundException e) {
-            throw new RuntimeException("[Not Bound Exception]: could not invoke remote method of RMI Server.");
+            throw new RuntimeException("[Not Bound Exception]: could not lookup on RMI registry.");
         }
         catch (RemoteException remoteException){
-            throw new RuntimeException("[Remote Exception]: could not invoke remote method of RMI Server.");
+            throw new RuntimeException("[Remote Exception]: could not lookup on RMI registry.");
         }
     }
 
@@ -427,7 +436,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
 
     @Override
     public void pushUpdate(MessageToClient message) throws RemoteException {
-        if(message instanceof ServerHeartBeatMessage){ //How to not use instance of? MessageHandler has to open the message
+        if(message instanceof ServerHeartBeatMessage){
             this.heartBeatManager.heartBeat();
         }
         else{

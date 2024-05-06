@@ -14,7 +14,6 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.ClientHeartBeatM
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.HeartBeatManager;
-import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.NetworkManagementInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
@@ -47,12 +46,11 @@ public class ClientTCP implements ClientInterface {
         this.clientController = clientController;
 
         try {
-            this.socket = new Socket(ClientSettings.serverIP, ClientSettings.serverTCPPort);
+            this.socket = new Socket(ClientSettings.DEFAULT_SERVER_IP, ClientSettings.DEFAULT_TCP_SERVER_PORT);
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.inputStream = new ObjectInputStream(socket.getInputStream());
         }
         catch (IOException e) {
-            //Method throws IOException to notify Action Parsers that connection establishing have gone wrong
             throw new IOException();
         }
 
@@ -226,18 +224,16 @@ public class ClientTCP implements ClientInterface {
             throw new IllegalStateException("[EXCEPTION]: could not reconnect due to: " + e);
         }
 
-        int numOfTry = 0;
-
         try{
             this.socket.close();
 
-            this.socket = new Socket(ClientSettings.serverIP, ClientSettings.serverTCPPort);
+            this.socket = new Socket(ClientSettings.DEFAULT_SERVER_IP, ClientSettings.DEFAULT_TCP_SERVER_PORT);
             synchronized (this.outputStreamLock) {
                 this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             }
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
 
-            while(!Thread.currentThread().isInterrupted() && numOfTry < 10){
+            /*while(!Thread.currentThread().isInterrupted() && numOfTry < 10){
                 if(this.nickname != null){
                     nick = this.nickname;
                 }
@@ -253,15 +249,21 @@ public class ClientTCP implements ClientInterface {
                         Thread.currentThread().interrupt();
                         return;
                     }
-                    //@TODO: when correct message is arrived call startSendingHeartBeat
                 }
                 else{
                     return;
                 }
+            }*/
+
+            if(this.nickname != null){
+                nick = this.nickname;
+            }
+            else{
+                nick = configuration.getNick();
             }
 
-            if(numOfTry == 10){
-                throw new RuntimeException("Could not send reconnection message to server!");
+            if(!this.send(new ReconnectToServerMessage(nick, configuration.getToken()))){
+                throw new RuntimeException("Could not send message to server!");
             }
         }
         catch (IOException ioException){
@@ -282,7 +284,6 @@ public class ClientTCP implements ClientInterface {
 
     @Override
     public void signalPossibleNetworkProblem() {
-        System.out.println("signal from " + nickname);
         if(!this.clientController.isDisconnected()){
             this.clientController.signalPossibleNetworkProblem();
         }
