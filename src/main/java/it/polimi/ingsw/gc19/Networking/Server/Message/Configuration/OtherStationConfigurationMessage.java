@@ -22,7 +22,8 @@ public class OtherStationConfigurationMessage extends ConfigurationMessage {
     private final int numPoints;
     private final List<Tuple<PlayableCard, Tuple<Integer,Integer>>> placedCardSequence;
 
-    public OtherStationConfigurationMessage(String nick, Color color, List<Symbol> cardsInHand, Map<Symbol, Integer> visibleSymbols, int numPoints, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
+    public OtherStationConfigurationMessage(String nick, Color color, List<Symbol> cardsInHand, Map<Symbol, Integer> visibleSymbols,
+                                            int numPoints, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
         this.nick = nick;
         this.color = color;
         this.cardsInHand = cardsInHand;
