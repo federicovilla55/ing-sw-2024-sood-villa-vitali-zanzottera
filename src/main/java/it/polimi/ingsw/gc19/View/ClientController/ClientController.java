@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.View.ClientController;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
+import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -279,7 +280,6 @@ public class ClientController {
         }
         else {
             clientNetwork.chooseColor(color);
-            //((Setup) viewState).setColorChosen();
         }
     }
 
@@ -307,7 +307,6 @@ public class ClientController {
      * place_initial_card(orientation)
      */
     public synchronized void placeInitialCard(CardOrientation cardOrientation) {
-        //Insert if to check that user hasn't chosen hi cardorientation
         if(viewState.getState() != ViewState.SETUP){
             //@TODO: notify view
             return;
@@ -379,20 +378,20 @@ public class ClientController {
     public synchronized void logoutFromGame(){
         int numOfTry = 0;
 
-        while(numOfTry < 10){
+        while(!Thread.currentThread().isInterrupted() && numOfTry < ClientSettings.MAX_LOGOUT_TRY_IN_CASE_OF_ERROR_BEFORE_ABORTING){
             try {
                 this.clientNetwork.logoutFromGame();
 
                 this.viewState = new Wait(this, clientNetwork);
                 this.localModel = null;
 
-                return; //@TODO: better way to do this? What happens if logout does not raise exception but message do not arrive to server?
+                return;
             }
             catch (RuntimeException runtimeException){
                 numOfTry++;
 
                 try{
-                    TimeUnit.MILLISECONDS.sleep(250);
+                    TimeUnit.MILLISECONDS.sleep(ClientSettings.DELTA_TIME_BETWEEN_LOGOUT_TRY_IN_CASE_OF_ERROR);
                 }
                 catch (InterruptedException interruptedException){
                     Thread.currentThread().interrupt();
@@ -405,7 +404,7 @@ public class ClientController {
     public synchronized void disconnect(){
         int numOfTry = 0;
 
-        while (numOfTry < 10){
+        while (!Thread.currentThread().isInterrupted() && numOfTry < ClientSettings.MAX_DISCONNECTION_TRY_IN_CASE_OF_ERROR_BEFORE_ABORTING){
             try{
                 ConfigurationManager.deleteConfiguration(this.nickname);
 
@@ -428,7 +427,7 @@ public class ClientController {
                 numOfTry++;
 
                 try{
-                    TimeUnit.MILLISECONDS.sleep(250);
+                    TimeUnit.MILLISECONDS.sleep(ClientSettings.DELTA_TIME_BETWEEN_DISCONNECTION_TRY_IN_CASE_OF_ERROR);
                 }
                 catch (InterruptedException interruptedException){
                     Thread.currentThread().interrupt();
