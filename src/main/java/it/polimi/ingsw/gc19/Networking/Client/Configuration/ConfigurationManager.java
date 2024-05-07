@@ -70,7 +70,7 @@ public class ConfigurationManager {
             }
             else{
                 ObjectMapper objectMapper = new ObjectMapper();
-                configuration = objectMapper.readValue(configFile, Configuration.class);
+                configuration = objectMapper.readValue(Objects.requireNonNull(configFile.listFiles())[0], Configuration.class);
             }
         }
         catch (StreamReadException | DatabindException e) {

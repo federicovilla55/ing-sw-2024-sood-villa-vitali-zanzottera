@@ -66,22 +66,22 @@ public class LocalStateManagementTest {
         messageHandler3 = new MessageHandler(clientController3);
         messageHandler4 = new MessageHandler(clientController4);
 
-        clientInterface1 = new ClientTCP(messageHandler1, clientController1);
+        clientInterface1 = new ClientTCP(messageHandler1);
         clientController1.setClientInterface(clientInterface1);
         messageHandler1.setClient(clientInterface1);
         messageHandler1.start();
 
-        clientInterface2 = new ClientRMI(messageHandler2, clientController2);
+        clientInterface2 = new ClientRMI(messageHandler2);
         clientController2.setClientInterface(clientInterface2);
         messageHandler2.setClient(clientInterface2);
         messageHandler2.start();
 
-        clientInterface3 = new ClientRMI(messageHandler3, clientController3);
+        clientInterface3 = new ClientRMI(messageHandler3);
         clientController3.setClientInterface(clientInterface3);
         messageHandler3.setClient(clientInterface3);
         messageHandler3.start();
 
-        clientInterface4 = new ClientTCP(messageHandler4, clientController4);
+        clientInterface4 = new ClientTCP(messageHandler4);
         clientController4.setClientInterface(clientInterface4);
         messageHandler4.setClient(clientInterface4);
         messageHandler4.start();
@@ -121,7 +121,7 @@ public class LocalStateManagementTest {
 
         ClientController clientController5 = new ClientController();
         MessageHandler messageHandler5 = new MessageHandler(clientController5);
-        ClientInterface clientInterface5 = new ClientTCP(messageHandler5, clientController5);
+        ClientInterface clientInterface5 = new ClientTCP(messageHandler5);
         clientController5.setClientInterface(clientInterface5);
         messageHandler5.setClient(clientInterface5);
         messageHandler5.start();

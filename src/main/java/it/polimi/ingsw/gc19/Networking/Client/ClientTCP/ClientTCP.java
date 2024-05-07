@@ -22,7 +22,6 @@ import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class ClientTCP implements ClientInterface {
 
@@ -42,9 +41,9 @@ public class ClientTCP implements ClientInterface {
 
     private final Deque<MessageToServer> messagesToSend;
 
-    public ClientTCP(MessageHandler messageHandler, ClientController clientController) throws IOException{
+    public ClientTCP(MessageHandler messageHandler) throws IOException{
         this.messageHandler = messageHandler;
-        this.clientController = clientController;
+        this.clientController = messageHandler.getClientController();
 
         try {
             this.socket = new Socket(ClientSettings.DEFAULT_SERVER_IP, ClientSettings.DEFAULT_TCP_SERVER_PORT);
