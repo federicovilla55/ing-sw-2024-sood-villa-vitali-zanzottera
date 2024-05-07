@@ -5,9 +5,7 @@ import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Action.PickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPlacePlayableCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OtherAcceptedPickCardFromDeckMessage;
@@ -16,12 +14,8 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OtherStation
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.GameLocalView.*;
@@ -30,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,7 +46,7 @@ public class LocalModelTest {
             e.printStackTrace();
         }
 
-        ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
+        ServerApp.startTCP();
         clientController = new ClientController();
         messageHandler = new MessageHandler(clientController);
         clientTCP = new ClientTCP(messageHandler, clientController);

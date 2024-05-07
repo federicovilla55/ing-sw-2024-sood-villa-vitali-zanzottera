@@ -1,7 +1,6 @@
 package it.polimi.ingsw.gc19.View.LocalStateManagement;
 
 import it.polimi.ingsw.gc19.Controller.JSONParser;
-import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
@@ -11,24 +10,19 @@ import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OtherStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.ClientController.Wait;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -59,8 +53,8 @@ public class LocalStateManagementTest {
             e.printStackTrace();
         }
 
-        ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
-        ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
+        ServerApp.startRMI();
+        ServerApp.startTCP();
 
         clientController1 = new ClientController();
         clientController2 = new ClientController();

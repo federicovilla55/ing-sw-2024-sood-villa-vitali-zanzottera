@@ -47,7 +47,7 @@ public class ClientTCPTest {
         ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 3;
         ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
 
-        ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
+        ServerApp.startTCP();
 
         ClientController clientController1 = new ClientController();
         ClientController clientController2 = new ClientController();

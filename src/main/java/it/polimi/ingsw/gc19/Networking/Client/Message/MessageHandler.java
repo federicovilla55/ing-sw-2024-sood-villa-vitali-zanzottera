@@ -251,7 +251,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         //waitForLocalModel();
         this.client.configure(message.getNick(), message.getToken());
         //this.localModel.setNickname(message.getNick());
-        System.out.println(clientController.getCurrentState());
         clientController.getCurrentState().nextState(message);
     }
 

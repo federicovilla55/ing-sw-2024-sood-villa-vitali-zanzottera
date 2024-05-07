@@ -53,8 +53,8 @@ public class ClientTCPRMITest {
         ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 3;
         ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
 
-        ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
-        ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
+        ServerApp.startRMI();
+        ServerApp.startTCP();
 
         ClientController clientController1 = new ClientController();
         ClientController clientController2 = new ClientController();

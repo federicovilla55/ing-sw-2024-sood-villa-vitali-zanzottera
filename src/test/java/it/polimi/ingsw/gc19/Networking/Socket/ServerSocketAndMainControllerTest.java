@@ -50,7 +50,7 @@ public class ServerSocketAndMainControllerTest {
         ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 3;
         ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
 
-        ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
+        ServerApp.startTCP();
 
         this.client1 = new Client("client1");
         this.client2 = new Client("client2");
@@ -889,7 +889,7 @@ class Client{
 
     public Client(String name){
         try{
-            this.socket = new Socket(ServerSettings.DEFAULT_SERVER_IP, ServerSettings.DEFAULT_TCP_SERVER_PORT);
+            this.socket = new Socket(ServerSettings.MAIN_TCP_SERVER_IP, ServerSettings.DEFAULT_TCP_SERVER_PORT);
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         } catch (IOException e) {

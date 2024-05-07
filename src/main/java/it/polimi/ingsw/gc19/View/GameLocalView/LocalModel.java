@@ -28,15 +28,19 @@ public class LocalModel {
 
     private final ArrayList<Message> messages;
 
-    private PropertyChangeSupport propertyChanger = new PropertyChangeSupport(this);
+    private final PropertyChangeSupport propertyChanger;
 
     public LocalModel(){
         playerStations = new ConcurrentHashMap<>();
         playerState = new ConcurrentHashMap<>();
+
         previousPlayableCards = new ConcurrentHashMap<>();
         previousGoalCards = new ConcurrentHashMap<>();
+
         lockTable = new Object();
         messages = new ArrayList<>();
+
+        propertyChanger = new PropertyChangeSupport(this);
     }
 
     public void updateChat() {
@@ -176,14 +180,6 @@ public class LocalModel {
     public void setPrivateGoal(GoalCard goalCard){
         synchronized (playerStations){
             this.playerStations.get(this.nickname).setPrivateGoalCard(goalCard);
-        }
-        this.updatePersonalStation();
-    }
-
-
-    public void setPrivateGoalCard(int cardIdx){
-        synchronized (playerStations){
-            this.playerStations.get(this.nickname).setPrivateGoalCard(cardIdx);
         }
         this.updatePersonalStation();
     }
