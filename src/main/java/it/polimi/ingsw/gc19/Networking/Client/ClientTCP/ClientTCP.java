@@ -46,7 +46,7 @@ public class ClientTCP implements ClientInterface {
         this.clientController = messageHandler.getClientController();
 
         try {
-            this.socket = new Socket(ClientSettings.DEFAULT_SERVER_IP, ClientSettings.DEFAULT_TCP_SERVER_PORT);
+            this.socket = new Socket(ClientSettings.TCP_SERVER_IP, ClientSettings.SERVER_TCP_PORT);
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.inputStream = new ObjectInputStream(socket.getInputStream());
         }
@@ -227,7 +227,7 @@ public class ClientTCP implements ClientInterface {
         try{
             this.socket.close();
 
-            this.socket = new Socket(ClientSettings.DEFAULT_SERVER_IP, ClientSettings.DEFAULT_TCP_SERVER_PORT);
+            this.socket = new Socket(ClientSettings.TCP_SERVER_IP, ClientSettings.SERVER_TCP_PORT);
             synchronized (this.outputStreamLock) {
                 this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             }

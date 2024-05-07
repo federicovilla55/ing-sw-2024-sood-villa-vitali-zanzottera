@@ -49,7 +49,7 @@ public class LocalModelTest {
         ServerApp.startTCP();
         clientController = new ClientController();
         messageHandler = new MessageHandler(clientController);
-        clientTCP = new ClientTCP(messageHandler, clientController);
+        clientTCP = new ClientTCP(messageHandler);
         clientController.setClientInterface(clientTCP);
         messageHandler.setClient(clientTCP);
         messageHandler.start();

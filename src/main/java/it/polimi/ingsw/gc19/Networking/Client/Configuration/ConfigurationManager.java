@@ -105,7 +105,7 @@ public class ConfigurationManager {
 
         configFile = new File(ClientSettings.CONFIG_FILE_PATH + nick + ".json");
         if(configFile.delete()){
-            System.err.println("[CONFIG]: config file correctly created");
+            System.err.println("[CONFIG]: config file correctly deleted.");
         }
     }
 

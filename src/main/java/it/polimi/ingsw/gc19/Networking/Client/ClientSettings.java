@@ -15,12 +15,10 @@ public class ClientSettings {
 
     public static String TCP_SERVER_IP = ServerSettings.DEFAULT_SERVER_IP;
     public static String RMI_SERVER_IP = ServerSettings.DEFAULT_SERVER_IP;
-    public static int SERVER_RMI_PORT = ClientSettings.DEFAULT_RMI_SERVER_PORT;
-    public static int SERVER_TCP_PORT = ClientSettings.DEFAULT_TCP_SERVER_PORT;
+    public static int SERVER_RMI_PORT = ServerSettings.DEFAULT_RMI_SERVER_PORT;
+    public static int SERVER_TCP_PORT = ServerSettings.DEFAULT_TCP_SERVER_PORT;
 
     public static String DEFAULT_RMI_SERVER_NAME = ServerSettings.DEFAULT_RMI_SERVER_NAME;
-    public static int DEFAULT_TCP_SERVER_PORT = ServerSettings.DEFAULT_TCP_SERVER_PORT;
-    public static int DEFAULT_RMI_SERVER_PORT = ServerSettings.DEFAULT_RMI_SERVER_PORT;
 
     public static final String MAIN_SERVER_RMI_NAME = ClientSettings.DEFAULT_RMI_SERVER_NAME;
 

@@ -45,7 +45,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         super();
 
         try {
-            this.registry = LocateRegistry.getRegistry(ClientSettings.DEFAULT_SERVER_IP, ClientSettings.DEFAULT_RMI_SERVER_PORT);
+            this.registry = LocateRegistry.getRegistry(ClientSettings.RMI_SERVER_IP, ClientSettings.SERVER_RMI_PORT);
             virtualMainServer = (VirtualMainServer) registry.lookup(ClientSettings.MAIN_SERVER_RMI_NAME);
         }
         catch (RemoteException remoteException){
