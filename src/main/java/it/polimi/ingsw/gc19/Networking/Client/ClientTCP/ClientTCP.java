@@ -16,6 +16,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.HeartBeatManager;
 import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 
 import java.io.*;
@@ -232,28 +233,6 @@ public class ClientTCP implements ClientInterface {
                 this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             }
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
-
-            /*while(!Thread.currentThread().isInterrupted() && numOfTry < 10){
-                if(this.nickname != null){
-                    nick = this.nickname;
-                }
-                else{
-                    nick = configuration.getNick();
-                }
-                if(!this.send(new ReconnectToServerMessage(nick, configuration.getToken()))){
-                    numOfTry++;
-                    try{
-                        TimeUnit.MILLISECONDS.sleep(250);
-                    }
-                    catch (InterruptedException interruptedException){
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
-                }
-                else{
-                    return;
-                }
-            }*/
 
             if(this.nickname != null){
                 nick = this.nickname;

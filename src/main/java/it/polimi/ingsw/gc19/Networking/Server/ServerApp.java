@@ -30,8 +30,6 @@ public class ServerApp {
 
     public static void main(String[] args){
         boolean valid = false;
-        int RMIPort = ServerSettings.DEFAULT_RMI_SERVER_PORT;
-        int TCPPort = ServerSettings.DEFAULT_TCP_SERVER_PORT;
 
         Scanner scanner = new Scanner(System.in);
 
