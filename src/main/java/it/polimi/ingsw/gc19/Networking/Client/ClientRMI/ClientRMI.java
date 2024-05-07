@@ -22,7 +22,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a client using RMI for communication with the server.
@@ -42,11 +41,11 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     private final ClientController clientController;
     private final ExecutorService virtualServerMethodsInvoker;
 
-    public ClientRMI(MessageHandler messageHandler, ClientController clientController) throws RuntimeException, RemoteException{
+    public ClientRMI(MessageHandler messageHandler) throws RuntimeException, RemoteException{
         super();
 
         try {
-            this.registry = LocateRegistry.getRegistry("localhost");
+            this.registry = LocateRegistry.getRegistry(ClientSettings.DEFAULT_SERVER_IP, ClientSettings.DEFAULT_RMI_SERVER_PORT);
             virtualMainServer = (VirtualMainServer) registry.lookup(ClientSettings.MAIN_SERVER_RMI_NAME);
         }
         catch (RemoteException remoteException){
@@ -62,7 +61,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         this.virtualGameServerLock = new Object();
 
         this.messageHandler = messageHandler;
-        this.clientController = clientController;
+        this.clientController = messageHandler.getClientController();
 
         this.virtualServerMethodsInvoker = Executors.newSingleThreadExecutor();
     }
