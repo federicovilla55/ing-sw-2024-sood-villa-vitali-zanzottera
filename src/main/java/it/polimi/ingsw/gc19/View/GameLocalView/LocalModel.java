@@ -5,6 +5,8 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.Listeners.GenericObserver;
+import it.polimi.ingsw.gc19.View.Listeners.Observable;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -12,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LocalModel {
+public class LocalModel implements Observable {
     private final ConcurrentHashMap<String, LocalStationPlayer> playerStations;
     private final ConcurrentHashMap<String, State> playerState;
     private String nickname;
@@ -30,6 +32,8 @@ public class LocalModel {
 
     private final PropertyChangeSupport propertyChanger;
 
+    private final ArrayList<GenericObserver> genericListeners;
+
     public LocalModel(){
         playerStations = new ConcurrentHashMap<>();
         playerState = new ConcurrentHashMap<>();
@@ -41,77 +45,22 @@ public class LocalModel {
         messages = new ArrayList<>();
 
         propertyChanger = new PropertyChangeSupport(this);
+
+        genericListeners = new ArrayList<>();
     }
 
-    public void updateChat() {
-        fireChatPropertyChange();
+    @Override
+    public void attachObserver(GenericObserver genericObserver) {
+        synchronized (this.genericListeners){
+            this.genericListeners.add(genericObserver);
+        }
     }
 
-    public void updatePersonalStation() {
-        firePersonalStationPropertyChange();
-    }
-
-    public void updateOtherStations() {
-        fireOtherStationsPropertyChange();
-    }
-
-    public void updateTable() {
-        fireTablePropertyChange();
-    }
-
-    public void addAllPropertyChangeListener(PropertyChangeListener listener){
-        addTablePropertyChangeListener(listener);
-        addOtherStationsPropertyChangeListener(listener);
-        addChatPropertyChangeListener(listener);
-        addPersonalStationPropertyChangeListener(listener);
-    }
-
-    public void addChatPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("chat", listener);
-    }
-
-    public void removeChatListener(PropertyChangeListener listener) {
-        propertyChanger.removePropertyChangeListener("chat", listener);
-    }
-
-    public void addPersonalStationPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("personalStation", listener);
-    }
-
-    public void removePersonalStationListener(PropertyChangeListener listener) {
-        propertyChanger.removePropertyChangeListener("personalStation", listener);
-    }
-
-    public void addTablePropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("table", listener);
-    }
-
-    public void removeTableListener(PropertyChangeListener listener) {
-        propertyChanger.removePropertyChangeListener("table", listener);
-    }
-
-    public void addOtherStationsPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("otherStations", listener);
-    }
-
-    public void removeOtherStationsListener(PropertyChangeListener listener) {
-        propertyChanger.removePropertyChangeListener("otherStations", listener);
-    }
-
-    private void fireChatPropertyChange() {
-        propertyChanger.firePropertyChange("chat", null, this.getMessages());
-    }
-
-    private void firePersonalStationPropertyChange() {
-        propertyChanger.firePropertyChange("personalStation", null, this.getPersonalStation());
-    }
-
-    private void fireTablePropertyChange() {
-        propertyChanger.firePropertyChange("table", null, this.getTable());
-    }
-
-    private void fireOtherStationsPropertyChange() {
-        propertyChanger.firePropertyChange("otherStations", null, this.getOtherStations());
+    @Override
+    public void removeObserver(GenericObserver genericObserver) {
+        synchronized (this.genericListeners){
+            this.genericListeners.remove(genericObserver);
+        }
     }
 
     public void setPersonalStation(PersonalStation localStation) {
@@ -136,10 +85,14 @@ public class LocalModel {
         }
         this.addCardsFromStationToMap(localStation);
 
-        this.updatePersonalStation();
+        synchronized (this.genericListeners){
+            for(GenericObserver g : this.genericListeners){
+                g.notifyEvent(localStation);
+            }
+        }
     }
 
-    public void addCardsFromStationToMap(LocalStationPlayer station){
+    private void addCardsFromStationToMap(LocalStationPlayer station){
         synchronized (previousPlayableCards){
             for(Tuple<PlayableCard, Tuple<Integer, Integer>> cardAndPos : station.getPlacedCardSequence()){
                 PlayableCard card = cardAndPos.x();
@@ -162,7 +115,12 @@ public class LocalModel {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        this.updateOtherStations();
+
+        synchronized (this.genericListeners){
+            for(GenericObserver g : this.genericListeners){
+                g.notifyEvent(otherStation);
+            }
+        }
     }
 
     public void setPlayerInactive(String nickname){
@@ -181,17 +139,27 @@ public class LocalModel {
         synchronized (playerStations){
             this.playerStations.get(this.nickname).setPrivateGoalCard(goalCard);
         }
-        this.updatePersonalStation();
+
+        synchronized (this.genericListeners){
+            for(GenericObserver g : this.genericListeners){
+                g.notifyEvent(this.playerStations.get(this.nickname));
+            }
+        }
+
     }
 
     public void setColor(Color color){
         synchronized (playerStations) {
             this.playerStations.get(this.nickname).setChosenColor(color);
         }
-        this.updatePersonalStation();
+        synchronized (this.genericListeners){
+            for (GenericObserver g : this.genericListeners){
+                g.notifyEvent(this.playerStations.get(this.nickname));
+            }
+        }
     }
 
-    public void placeCard(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction, CardOrientation orientation) {
+    public void placeCard(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction) {
         synchronized (playerStations){
             Tuple<Integer, Integer> coords = this.playerStations.get(nickname).getCoord(anchorCode);
             this.playerStations.get(nickname).placeCard(cardToPlace, new Tuple<>(
@@ -200,10 +168,11 @@ public class LocalModel {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        if(this.nickname.equals(nickname)) {
-            this.updatePersonalStation();
-        } else {
-            this.updateOtherStations();
+
+        synchronized (this.genericListeners){
+            for(GenericObserver g : this.genericListeners){
+                g.notifyEvent(this.playerStations.get(nickname));
+            }
         }
     }
 
@@ -214,10 +183,11 @@ public class LocalModel {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        if(this.nickname.equals(nickname)) {
-            this.updatePersonalStation();
-        } else {
-            this.updateOtherStations();
+
+        synchronized (this.genericListeners){
+            for(GenericObserver g : this.genericListeners){
+                g.notifyInitialCard(initialCard.getCardOrientation()); //@TODO: add nickname + different behaviour for TUI / GUI
+            }
         }
     }
 
@@ -228,7 +198,7 @@ public class LocalModel {
     }
 
     public void placeCardPersonalStation(String anchorCode, PlayableCard cardToPlace, Direction direction, CardOrientation orientation){
-        placeCard(this.nickname, anchorCode, cardToPlace, direction, orientation);
+        placeCard(this.nickname, anchorCode, cardToPlace, direction);
     }
 
     public void setNickname(String nickname) {

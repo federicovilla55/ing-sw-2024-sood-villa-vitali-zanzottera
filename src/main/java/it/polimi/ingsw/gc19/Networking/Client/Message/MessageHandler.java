@@ -123,7 +123,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(OtherAcceptedPickCardFromDeckMessage message) {
         waitForLocalModel();
-        this.localModel.getOtherStations().get(message.getNick()).addBackCard(message.getDeckType());
+        this.localModel.getOtherStations().get(message.getNick()).addBackCard(message.getSymbol(), message.getDeckType());
     }
 
     @Override

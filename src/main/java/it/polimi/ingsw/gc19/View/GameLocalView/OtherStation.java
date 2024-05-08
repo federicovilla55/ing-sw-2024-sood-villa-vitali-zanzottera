@@ -13,7 +13,8 @@ import java.util.Map;
 
 public class OtherStation extends LocalStationPlayer{
     private final Object backHandLock;
-    List<PlayableCardType> backCardHand;
+    private final List<Tuple<Symbol, PlayableCardType>> backCardHand;
+
     public OtherStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols,
                         int numPoints, List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
         super(nicknameOwner, chosenColor, visibleSymbols, numPoints, placedCardSequence);
@@ -22,15 +23,15 @@ public class OtherStation extends LocalStationPlayer{
         backCardHand = new ArrayList<>();
     }
 
-    public List<PlayableCardType> getBackCardHand() {
+    public List<Tuple<Symbol, PlayableCardType>> getBackCardHand() {
         synchronized (backHandLock) {
             return backCardHand;
         }
     }
 
-    public void addBackCard(PlayableCardType cardToAdd){
+    public void addBackCard(Symbol symbol, PlayableCardType playableCardType){
         synchronized (backHandLock){
-            backCardHand.add(cardToAdd);
+            backCardHand.add(new Tuple<>(symbol, playableCardType));
         }
     }
 
@@ -42,10 +43,6 @@ public class OtherStation extends LocalStationPlayer{
     @Override
     public void setPrivateGoalCard(int cardIdx) {
         throw new UnsupportedOperationException();
-    }
-
-    public void setBackCardHand(ArrayList<PlayableCardType> backCardHand) {
-        this.backCardHand = backCardHand;
     }
 
 }

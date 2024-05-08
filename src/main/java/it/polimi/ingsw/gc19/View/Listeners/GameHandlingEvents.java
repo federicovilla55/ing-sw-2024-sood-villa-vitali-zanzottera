@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.View.Listeners.GameHandlingEventsListeners;
+package it.polimi.ingsw.gc19.View.Listeners;
 
 public enum GameHandlingEvents{
     CREATED_GAME,

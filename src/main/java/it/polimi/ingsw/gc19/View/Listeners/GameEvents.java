@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.View.Listeners.GameStateEventsListeners;
+package it.polimi.ingsw.gc19.View.Listeners;
 
 public enum GameEvents {
     BEGIN_FINAL_ROUND,
