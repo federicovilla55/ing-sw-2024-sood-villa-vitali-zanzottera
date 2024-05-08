@@ -13,8 +13,11 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHa
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
+import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The client is waiting for a message from the server to continue playing.
@@ -29,7 +32,9 @@ public class Wait extends ClientState {
 
     @Override
     public void nextState(CreatedPlayerMessage message) {
+        super.nextState(message);
         clientController.setNextState(new NotGame(clientController, clientInterface));
+        super.nextState(message);
     }
 
     @Override
@@ -46,6 +51,8 @@ public class Wait extends ClientState {
     @Override
     public void nextState(EndGameMessage message) {
         clientController.setNextState(new End(clientController, clientInterface));
+        //@TODO: PUNTEGGI E TUTTO IL RESTO!!!!!!!!!
+        super.nextState(message);
     }
 
     @Override
@@ -55,9 +62,14 @@ public class Wait extends ClientState {
 
     @Override
     public void nextState(JoinedGameMessage message) {
+        buildGame(message.getGameName());
+        super.nextState(message);
+    }
+
+    private void buildGame(String gameName) {
         LocalModel localModel = new LocalModel();
         localModel.setNickname(this.clientInterface.getNickname());
-        localModel.setGameName(message.getGameName());
+        localModel.setGameName(gameName);
         this.clientController.setLocalModel(localModel);
         this.clientInterface.getMessageHandler().setLocalModel(localModel);
 
@@ -66,33 +78,14 @@ public class Wait extends ClientState {
 
     @Override
     public void nextState(CreatedGameMessage message) {
-        LocalModel localModel = new LocalModel();
-        localModel.setNickname(this.clientInterface.getNickname());
-        localModel.setGameName(message.getGameName());
-        this.clientController.setLocalModel(localModel);
-        this.clientInterface.getMessageHandler().setLocalModel(localModel);
-
-        clientController.setNextState(new Setup(clientController, clientInterface));
-    }
-
-    @Override
-    public void nextState(GameHandlingErrorMessage message) {
-        clientController.handleError(message);
-    }
-
-    @Override
-    public void nextState(NetworkHandlingErrorMessage message) {
-        clientController.handleError(message);
-    }
-
-    @Override
-    public void nextState(RefusedActionMessage message) {
-        clientController.handleError(message);
+        buildGame(message.getGameName());
+        super.nextState(message);
     }
 
     @Override
     public void nextState(GamePausedMessage message) {
         clientController.setNextState(new Pause(clientController, clientInterface));
+        super.nextState(message);
     }
 
     @Override
@@ -112,12 +105,14 @@ public class Wait extends ClientState {
 
     @Override
     public void nextState(DisconnectFromServerMessage message){
+        super.nextState(message);
         this.clientInterface.getMessageHandler().interruptMessageHandler();
         this.clientInterface.stopClient();
     }
 
     @Override
     public void nextState(DisconnectFromGameMessage message) {
+        super.nextState(message);
         this.clientController.setLocalModel(null);
         this.clientInterface.getMessageHandler().setLocalModel(null);
         this.clientController.setNextState(new NotGame(clientController, clientInterface));

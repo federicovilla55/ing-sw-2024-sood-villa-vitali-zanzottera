@@ -16,6 +16,8 @@ import it.polimi.ingsw.gc19.View.GameLocalView.*;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.GameEvents;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
 import java.util.ArrayDeque;
 
@@ -31,6 +33,8 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     private LocalModel localModel;
     private final ClientController clientController;
 
+    private ListenersManager listenersManager;
+
 
     public ClientController getClientController() {
         return clientController;
@@ -39,6 +43,10 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     public MessageHandler(ClientController clientController){
         this.messagesToHandle = new ArrayDeque<>();
         this.clientController = clientController;
+    }
+
+    public void setListenersManager(ListenersManager listenersManager){
+        this.listenersManager = listenersManager;
     }
 
     public void setClient(ClientInterface client){
@@ -153,7 +161,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(RefusedActionMessage message) {
-        this.clientController.handleError(message);
+        this.clientController.getCurrentState().nextState(message);
     }
 
     @Override
@@ -247,14 +255,13 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(BeginFinalRoundMessage message) {
-        clientController.getCurrentState().nextState(message);
+        this.listenersManager.notify(GameEvents.BEGIN_FINAL_ROUND);
+        //clientController.getCurrentState().nextState(message); ?????????????????
     }
 
     @Override
     public void visit(CreatedPlayerMessage message) {
-        //waitForLocalModel();
         this.client.configure(message.getNick(), message.getToken());
-        //this.localModel.setNickname(message.getNick());
         clientController.getCurrentState().nextState(message);
     }
 

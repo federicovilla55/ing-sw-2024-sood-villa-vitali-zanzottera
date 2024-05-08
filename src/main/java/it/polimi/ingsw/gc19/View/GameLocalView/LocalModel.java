@@ -5,9 +5,9 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.GameEvents;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +27,8 @@ public class LocalModel {
     private final ConcurrentHashMap<String, GoalCard> previousGoalCards;
     private List<Color> availableColors;
     private final ArrayList<Message> messages;
-    private PropertyChangeSupport propertyChanger = new PropertyChangeSupport(this);
+
+    private ListenersManager listenersManager;
 
     public LocalModel(){
         playerStations = new ConcurrentHashMap<>();
@@ -38,59 +39,8 @@ public class LocalModel {
         messages = new ArrayList<>();
     }
 
-    public void updateChat() {
-        fireChatPropertyChange();
-    }
-
-    public void updatePersonalStation() {
-        firePersonalStationPropertyChange();
-    }
-
-    public void updateOtherStations() {
-        fireOtherStationsPropertyChange();
-    }
-
-    public void updateTable() {
-        fireTablePropertyChange();
-    }
-
-    public void addAllPropertyChangeListener(PropertyChangeListener listener){
-        addTablePropertyChangeListener(listener);
-        addOtherStationsPropertyChangeListener(listener);
-        addChatPropertyChangeListener(listener);
-        addPersonalStationPropertyChangeListener(listener);
-    }
-
-    public void addChatPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("chat", listener);
-    }
-
-    public void addPersonalStationPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("personalStation", listener);
-    }
-
-    public void addTablePropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("table", listener);
-    }
-
-    public void addOtherStationsPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("otherStations", listener);
-    }
-
-    private void fireChatPropertyChange() {
-        propertyChanger.firePropertyChange("chat", null, this.getMessages());
-    }
-
-    private void firePersonalStationPropertyChange() {
-        propertyChanger.firePropertyChange("personalStation", null, this.getPersonalStation());
-    }
-
-    private void fireTablePropertyChange() {
-        propertyChanger.firePropertyChange("table", null, this.getTable());
-    }
-
-    private void fireOtherStationsPropertyChange() {
-        propertyChanger.firePropertyChange("otherStations", null, this.getOtherStations());
+    public void setListenersManager(ListenersManager listenersManager){
+        this.listenersManager = listenersManager;
     }
 
     public void setPersonalStation(PersonalStation localStation) {
@@ -119,10 +69,10 @@ public class LocalModel {
         }
         this.addCardsFromStationToMap(localStation);
 
-        this.updatePersonalStation();
+        this.listenersManager.notify(GameEvents.CREATED_STATION, localStation);
     }
 
-    public void addCardsFromStationToMap(LocalStationPlayer station){
+    private void addCardsFromStationToMap(LocalStationPlayer station){
         synchronized (previousPlayableCards){
             for(Tuple<PlayableCard, Tuple<Integer, Integer>> cardAndPos : station.getPlacedCardSequence()){
                 PlayableCard card = cardAndPos.x();
@@ -145,7 +95,7 @@ public class LocalModel {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        this.updateOtherStations();
+        this.listenersManager.notify(GameEvents.CREATED_STATION, otherStation);
     }
 
     public void setPlayerInactive(String nickname){
@@ -160,31 +110,22 @@ public class LocalModel {
         }
     }
 
-    public void setPrivateGoal(GoalCard goalCard){
-        synchronized (playerStations){
+    public void setPrivateGoal(GoalCard goalCard) {
+        synchronized (playerStations) {
             this.playerStations.get(this.nickname).setPrivateGoalCard(goalCard);
         }
-        this.updatePersonalStation();
-    }
-
-
-    public void setPrivateGoalCard(int cardIdx){
-        synchronized (playerStations){
-            this.playerStations.get(this.nickname).setPrivateGoalCard(cardIdx);
-        }
-        this.updatePersonalStation();
+        this.listenersManager.notify(goalCard);
     }
 
     public void setColor(Color color){
         synchronized (this.playerStations) {
             this.playerStations.get(this.nickname).setChosenColor(color);
         }
-        this.updatePersonalStation();
+        this.listenersManager.notify(color);
     }
 
     public void placeCard(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction) {
         synchronized (this.playerStations) {
-            Tuple<Integer, Integer> coords = this.playerStations.get(nickname).getCoord(anchorCode);
             this.playerStations.get(nickname).placeCard(cardToPlace, anchorCode, direction);
         }
         synchronized (playerState) {
@@ -192,9 +133,10 @@ public class LocalModel {
         }
 
         if(this.nickname.equals(nickname)) {
-            this.updatePersonalStation();
-        } else {
-            this.updateOtherStations();
+            this.listenersManager.notify(GameEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(nickname));
+        }
+        else {
+            this.listenersManager.notify(GameEvents.UPDATE_STATION, (OtherStation) this.playerStations.get(nickname));
         }
     }
 
@@ -205,11 +147,11 @@ public class LocalModel {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        if(this.nickname.equals(nickname)) {
-            this.updatePersonalStation();
-        } else {
-            this.updateOtherStations();
-        }
+
+        this.listenersManager.notify(initialCard.getCardOrientation());
+
+        //Quasi quasi farei in modo che per il setup ci siano dei listeners appositi
+        //quando il setup è finito dico alla view di aggiornarsi
     }
 
 
@@ -229,7 +171,7 @@ public class LocalModel {
         synchronized (this.playerStations) {
             ((PersonalStation) this.playerStations.get(this.nickname)).updateCardsInHand(playableCard);
         }
-        this.updatePersonalStation();
+        this.listenersManager.notify(GameEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(this.nickname));
     }
 
     public void updateCardsInTable(PlayableCard playableCard, PlayableCardType playableCardType, int position){
@@ -254,7 +196,7 @@ public class LocalModel {
             previousPlayableCards.put(playableCard.getCardCode(), playableCard);
         }
         
-        this.updateTable();
+        this.listenersManager.notify(GameEvents.UPDATE_TABLE, table);
     }
 
     public ConcurrentHashMap<String, OtherStation> getOtherStations() {
@@ -290,7 +232,7 @@ public class LocalModel {
             }
         }
 
-        this.updateTable();
+        this.listenersManager.notify(GameEvents.UPDATE_TABLE, table);
     }
 
     public LocalTable getTable() {
@@ -300,20 +242,9 @@ public class LocalModel {
     }
 
     public void setFirstPlayer(String firstPlayer) {
-        if(firstPlayer == null) return;
-
         this.firstPlayer = firstPlayer;
 
-        // I suppose that there is an element in the GUI/TUI
-        // that will contain the black pawn if the player
-        // is the first one. Because I don't know if it
-        // is the personal station or not I have to decide
-        // at run time.
-        if(this.firstPlayer.equals(this.nickname)){
-            this.updatePersonalStation();
-        } else {
-            this.updateOtherStations();
-        }
+        this.listenersManager.notify(firstPlayer);
     }
 
     public String getFirstPlayer() {
@@ -340,7 +271,7 @@ public class LocalModel {
         synchronized (this.messages){
             messages.add(new Message(messageContent, sender, String.valueOf(receivers)));
         }
-        updateChat();
+        this.listenersManager.notify(messages);
     }
 
     public ArrayList<Message> getMessages() {
