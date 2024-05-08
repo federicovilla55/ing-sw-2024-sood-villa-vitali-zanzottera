@@ -2,21 +2,56 @@ package it.polimi.ingsw.gc19.View.TUI;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.*;
+import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.Command.CommandType;
-import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
+import it.polimi.ingsw.gc19.View.GameLocalView.*;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TUIView {
+public class TUIView implements PropertyChangeListener {
 
+    private LocalModel localModel;
     private final CommandParser commandParser;
 
     public TUIView(CommandParser commandParser){
         this.commandParser = commandParser;
+        this.localModel = null;
+    }
+
+    public void setLocalModel(LocalModel localModel){
+        this.localModel = localModel;
+        localModel.addAllPropertyChangeListener(this);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+        String propertyChanged = event.getPropertyName();
+
+        switch (propertyChanged) {
+            case "chat":
+                ArrayList<Message> newMessages = (ArrayList<Message>) event.getNewValue();
+                System.out.println("Aggiornamento chat");
+                break;
+            case "personalStation":
+                PersonalStation newPersonalStation = (PersonalStation) event.getNewValue();
+                System.out.println("Aggiornamento stazione personale");
+                break;
+            case "otherStations":
+                ConcurrentHashMap<String, OtherStation> otherStations = (ConcurrentHashMap<String, OtherStation>) event.getNewValue();
+                System.out.println("Aggiornamento altre stazioni");
+                break;
+            case "table":
+                LocalTable table = (LocalTable) event.getNewValue();
+                System.out.println("Aggiornamento tavolo");
+                break;
+        }
     }
 
     /**
@@ -626,6 +661,5 @@ public class TUIView {
             //@TODO: view: command format not correct!
         }
     }
-
 
 }

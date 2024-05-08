@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.View.GameLocalView;
 
 import it.polimi.ingsw.gc19.Enums.Color;
+import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
@@ -13,26 +14,46 @@ import java.util.Map;
 
 public class OtherStation extends LocalStationPlayer{
     private final Object backHandLock;
-    private final List<Tuple<Symbol, PlayableCardType>> backCardHand;
+    List<PlayableCardType> backCardHand;
 
     public OtherStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols,
                         int numPoints, List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
         super(nicknameOwner, chosenColor, visibleSymbols, numPoints, placedCardSequence);
 
-        backHandLock = new Object();
-        backCardHand = new ArrayList<>();
+        this.backHandLock = new Object();
+        this.backCardHand = new ArrayList<>();
     }
 
-    public List<Tuple<Symbol, PlayableCardType>> getBackCardHand() {
+    public OtherStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols,
+                        int numPoints, List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence,
+                        List<PlayableCardType> backCardHand) {
+        super(nicknameOwner, chosenColor, visibleSymbols, numPoints, placedCardSequence);
+
+        this.backHandLock = new Object();
+        this.backCardHand = new ArrayList<>(backCardHand);
+    }
+
+    public List<PlayableCardType> getBackCardHand() {
         synchronized (backHandLock) {
             return backCardHand;
         }
     }
 
-    public void addBackCard(Symbol symbol, PlayableCardType playableCardType){
+    public void addBackCard(PlayableCardType cardToAdd){
         synchronized (backHandLock){
-            backCardHand.add(new Tuple<>(symbol, playableCardType));
+            backCardHand.add(cardToAdd);
         }
+    }
+
+    public void placeCard(PlayableCard cardToPlace, String anchorCardCode, Direction direction){
+        Tuple<Integer, Integer> coord = getCoord(anchorCardCode);
+        coord = new Tuple<>(direction.getX() + coord.x(), direction.getY() + coord.y());
+
+        this.backCardHand.remove(cardToPlace.getCardType());
+
+        placedCardSequence.add(new Tuple<>(cardToPlace, coord));
+        cardSchema[coord.x()][coord.y()] = cardToPlace;
+
     }
 
     @Override
@@ -43,6 +64,10 @@ public class OtherStation extends LocalStationPlayer{
     @Override
     public void setPrivateGoalCard(int cardIdx) {
         throw new UnsupportedOperationException();
+    }
+
+    public void setBackCardHand(ArrayList<PlayableCardType> backCardHand) {
+        this.backCardHand = new ArrayList<>(backCardHand);
     }
 
 }

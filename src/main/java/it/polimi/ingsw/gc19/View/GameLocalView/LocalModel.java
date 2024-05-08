@@ -5,16 +5,16 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Utils.Tuple;
-import it.polimi.ingsw.gc19.View.Listeners.GenericObserver;
-import it.polimi.ingsw.gc19.View.Listeners.Observable;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LocalModel implements Observable {
+public class LocalModel {
     private final ConcurrentHashMap<String, LocalStationPlayer> playerStations;
     private final ConcurrentHashMap<String, State> playerState;
     private String nickname;
@@ -25,42 +25,72 @@ public class LocalModel implements Observable {
     private int numPlayers;
     private final ConcurrentHashMap<String, PlayableCard> previousPlayableCards;
     private final ConcurrentHashMap<String, GoalCard> previousGoalCards;
-
     private List<Color> availableColors;
-
     private final ArrayList<Message> messages;
-
-    private final PropertyChangeSupport propertyChanger;
-
-    private final ArrayList<GenericObserver> genericListeners;
+    private PropertyChangeSupport propertyChanger = new PropertyChangeSupport(this);
 
     public LocalModel(){
         playerStations = new ConcurrentHashMap<>();
         playerState = new ConcurrentHashMap<>();
-
         previousPlayableCards = new ConcurrentHashMap<>();
         previousGoalCards = new ConcurrentHashMap<>();
-
         lockTable = new Object();
         messages = new ArrayList<>();
-
-        propertyChanger = new PropertyChangeSupport(this);
-
-        genericListeners = new ArrayList<>();
     }
 
-    @Override
-    public void attachObserver(GenericObserver genericObserver) {
-        synchronized (this.genericListeners){
-            this.genericListeners.add(genericObserver);
-        }
+    public void updateChat() {
+        fireChatPropertyChange();
     }
 
-    @Override
-    public void removeObserver(GenericObserver genericObserver) {
-        synchronized (this.genericListeners){
-            this.genericListeners.remove(genericObserver);
-        }
+    public void updatePersonalStation() {
+        firePersonalStationPropertyChange();
+    }
+
+    public void updateOtherStations() {
+        fireOtherStationsPropertyChange();
+    }
+
+    public void updateTable() {
+        fireTablePropertyChange();
+    }
+
+    public void addAllPropertyChangeListener(PropertyChangeListener listener){
+        addTablePropertyChangeListener(listener);
+        addOtherStationsPropertyChangeListener(listener);
+        addChatPropertyChangeListener(listener);
+        addPersonalStationPropertyChangeListener(listener);
+    }
+
+    public void addChatPropertyChangeListener(PropertyChangeListener listener) {
+        propertyChanger.addPropertyChangeListener("chat", listener);
+    }
+
+    public void addPersonalStationPropertyChangeListener(PropertyChangeListener listener) {
+        propertyChanger.addPropertyChangeListener("personalStation", listener);
+    }
+
+    public void addTablePropertyChangeListener(PropertyChangeListener listener) {
+        propertyChanger.addPropertyChangeListener("table", listener);
+    }
+
+    public void addOtherStationsPropertyChangeListener(PropertyChangeListener listener) {
+        propertyChanger.addPropertyChangeListener("otherStations", listener);
+    }
+
+    private void fireChatPropertyChange() {
+        propertyChanger.firePropertyChange("chat", null, this.getMessages());
+    }
+
+    private void firePersonalStationPropertyChange() {
+        propertyChanger.firePropertyChange("personalStation", null, this.getPersonalStation());
+    }
+
+    private void fireTablePropertyChange() {
+        propertyChanger.firePropertyChange("table", null, this.getTable());
+    }
+
+    private void fireOtherStationsPropertyChange() {
+        propertyChanger.firePropertyChange("otherStations", null, this.getOtherStations());
     }
 
     public void setPersonalStation(PersonalStation localStation) {
@@ -83,16 +113,16 @@ public class LocalModel implements Observable {
                 previousPlayableCards.put(card.getCardCode(), card);
             }
         }
+
+        synchronized (this.playerState){
+            this.playerState.put(localStation.ownerPlayer, State.ACTIVE);
+        }
         this.addCardsFromStationToMap(localStation);
 
-        synchronized (this.genericListeners){
-            for(GenericObserver g : this.genericListeners){
-                g.notifyEvent(localStation);
-            }
-        }
+        this.updatePersonalStation();
     }
 
-    private void addCardsFromStationToMap(LocalStationPlayer station){
+    public void addCardsFromStationToMap(LocalStationPlayer station){
         synchronized (previousPlayableCards){
             for(Tuple<PlayableCard, Tuple<Integer, Integer>> cardAndPos : station.getPlacedCardSequence()){
                 PlayableCard card = cardAndPos.x();
@@ -115,12 +145,7 @@ public class LocalModel implements Observable {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-
-        synchronized (this.genericListeners){
-            for(GenericObserver g : this.genericListeners){
-                g.notifyEvent(otherStation);
-            }
-        }
+        this.updateOtherStations();
     }
 
     public void setPlayerInactive(String nickname){
@@ -139,40 +164,37 @@ public class LocalModel implements Observable {
         synchronized (playerStations){
             this.playerStations.get(this.nickname).setPrivateGoalCard(goalCard);
         }
+        this.updatePersonalStation();
+    }
 
-        synchronized (this.genericListeners){
-            for(GenericObserver g : this.genericListeners){
-                g.notifyEvent(this.playerStations.get(this.nickname));
-            }
+
+    public void setPrivateGoalCard(int cardIdx){
+        synchronized (playerStations){
+            this.playerStations.get(this.nickname).setPrivateGoalCard(cardIdx);
         }
-
+        this.updatePersonalStation();
     }
 
     public void setColor(Color color){
-        synchronized (playerStations) {
+        synchronized (this.playerStations) {
             this.playerStations.get(this.nickname).setChosenColor(color);
         }
-        synchronized (this.genericListeners){
-            for (GenericObserver g : this.genericListeners){
-                g.notifyEvent(this.playerStations.get(this.nickname));
-            }
-        }
+        this.updatePersonalStation();
     }
 
     public void placeCard(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction) {
-        synchronized (playerStations){
+        synchronized (this.playerStations) {
             Tuple<Integer, Integer> coords = this.playerStations.get(nickname).getCoord(anchorCode);
-            this.playerStations.get(nickname).placeCard(cardToPlace, new Tuple<>(
-                    coords.x() + direction.getX(), coords.y() + direction.getY()));
+            this.playerStations.get(nickname).placeCard(cardToPlace, anchorCode, direction);
         }
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
 
-        synchronized (this.genericListeners){
-            for(GenericObserver g : this.genericListeners){
-                g.notifyEvent(this.playerStations.get(nickname));
-            }
+        if(this.nickname.equals(nickname)) {
+            this.updatePersonalStation();
+        } else {
+            this.updateOtherStations();
         }
     }
 
@@ -183,23 +205,13 @@ public class LocalModel implements Observable {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-
-        synchronized (this.genericListeners){
-            for(GenericObserver g : this.genericListeners){
-                g.notifyInitialCard(initialCard.getCardOrientation()); //@TODO: add nickname + different behaviour for TUI / GUI
-            }
+        if(this.nickname.equals(nickname)) {
+            this.updatePersonalStation();
+        } else {
+            this.updateOtherStations();
         }
     }
 
-    public boolean isCardPlaceable(String nickname, PlayableCard anchor, PlayableCard cardToPlace, Direction direction){
-        synchronized (playerStations) {
-            return this.playerStations.get(nickname).cardIsPlaceable(anchor, cardToPlace, direction);
-        }
-    }
-
-    public void placeCardPersonalStation(String anchorCode, PlayableCard cardToPlace, Direction direction, CardOrientation orientation){
-        placeCard(this.nickname, anchorCode, cardToPlace, direction);
-    }
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
@@ -209,12 +221,8 @@ public class LocalModel implements Observable {
         return this.nickname;
     }
 
-    public void placeInitialCardPersonalStation(PlayableCard initialCard){
-        placeInitialCard(this.nickname, initialCard);
-    }
-
     public boolean isCardPlaceablePersonalStation(PlayableCard cardToPlace, PlayableCard anchor, Direction direction){
-        return isCardPlaceable(this.nickname, anchor, cardToPlace, direction);
+        return this.playerStations.get(this.nickname).cardIsPlaceable(anchor, cardToPlace, direction);
     }
 
     public void updateCardsInHand(PlayableCard playableCard){
@@ -357,6 +365,24 @@ public class LocalModel implements Observable {
         return (int) playerState.values().stream()
                 .filter(e -> e==State.ACTIVE)
                 .count();
+    }
+
+    public void setNumPoints(String nickname, int numPoints){
+        synchronized (this.playerStations){
+            this.playerStations.get(nickname).setNumPoints(numPoints);
+        }
+    }
+
+    public void setVisibleSymbols(String nickname, Map<Symbol, Integer> visibleSymbols){
+        synchronized (this.playerStations){
+            this.playerStations.get(nickname).setVisibleSymbols(new HashMap<>(visibleSymbols));
+        }
+    }
+
+    public State getPlayerState(String nickname){
+        synchronized (this.playerState){
+            return playerState.get(nickname);
+        }
     }
 
     public void setGameName(String gameName) {

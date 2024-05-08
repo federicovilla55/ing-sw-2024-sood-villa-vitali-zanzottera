@@ -24,17 +24,6 @@ public abstract class LocalStationPlayer {
     protected List<Tuple<PlayableCard, Tuple<Integer,Integer>>> placedCardSequence;
     protected Color chosenColor;
 
-    public LocalStationPlayer(String nicknameOwner){
-        this.ownerPlayer = nicknameOwner;
-        this.cardSchema = new PlayableCard[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
-        this.chosenColor = null;
-        this.visibleSymbols = new HashMap<>();
-        this.numPoints = 0;
-        this.placedCardSequence = null;
-
-        reconstructSchema();
-    }
-
     public LocalStationPlayer(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols,
                               int numPoints, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
         this.cardSchema = new PlayableCard[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
@@ -84,7 +73,7 @@ public abstract class LocalStationPlayer {
         return numPoints;
     }
 
-    public Map<Symbol, Integer> getVisibleSymbols() {
+    public  Map<Symbol, Integer> getVisibleSymbols() {
         return visibleSymbols;
     }
 
@@ -100,12 +89,7 @@ public abstract class LocalStationPlayer {
          this.visibleSymbols = new HashMap<>(visibleSymbols);
     }
 
-    public void placeCard(PlayableCard placedCard, Tuple<Integer, Integer> position){
-        // up or down is decided by the placedCard.cardState attribute.
-        placedCardSequence.add(new Tuple<>(placedCard, position));
-
-        cardSchema[position.x()][position.y()] = placedCard;
-    }
+    public abstract void placeCard(PlayableCard cardToPlace, String anchorCardCode, Direction direction);
 
     public void placeInitialCard(PlayableCard initialCard){
         this.placedCardSequence.add(new Tuple<>(initialCard, new Tuple<>((ImportantConstants.gridDimension / 2), (ImportantConstants.gridDimension / 2))));
@@ -126,7 +110,7 @@ public abstract class LocalStationPlayer {
         return this.placedCardSequence;
     }
 
-    public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard cardToPlace, Direction direction){
+    public boolean cardIsPlaceable(PlayableCard cardToPlace, PlayableCard anchor, Direction direction){
         return true;
     }
 }
