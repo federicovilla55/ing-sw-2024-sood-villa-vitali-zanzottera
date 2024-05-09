@@ -2,12 +2,9 @@ package it.polimi.ingsw.gc19.View.ClientController;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GameResumedMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
-
-import java.util.ArrayList;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
 /**
  * Because all the other players in the game left, the game is in pause
@@ -15,8 +12,8 @@ import java.util.ArrayList;
  */
 class Pause extends ClientState {
 
-    public Pause(ClientController clientController, ClientInterface clientInterface) {
-        super(clientController, clientInterface);
+    public Pause(ClientController clientController, ClientInterface clientInterface, ListenersManager listenersManager) {
+        super(clientController, clientInterface, listenersManager);
     }
 
     @Override

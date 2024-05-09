@@ -1,13 +1,7 @@
 package it.polimi.ingsw.gc19.View.ClientController;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
-
-import java.util.ArrayList;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
 /**
  * The game ended. The client can still write in chat or try to connect
@@ -15,8 +9,8 @@ import java.util.ArrayList;
  */
 class End extends ClientState {
 
-    public End(ClientController clientController, ClientInterface clientInterface) {
-        super(clientController, clientInterface);
+    public End(ClientController clientController, ClientInterface clientInterface, ListenersManager listenersManager) {
+        super(clientController, clientInterface, listenersManager);
     }
 
     @Override

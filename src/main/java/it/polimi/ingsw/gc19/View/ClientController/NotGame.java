@@ -1,8 +1,7 @@
 package it.polimi.ingsw.gc19.View.ClientController;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
-
-import java.util.ArrayList;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
 /**
  * The client is connected to the server, but it is in no game.
@@ -10,8 +9,8 @@ import java.util.ArrayList;
  */
 class NotGame extends ClientState {
 
-    public NotGame(ClientController clientController, ClientInterface clientInterface) {
-        super(clientController, clientInterface);
+    public NotGame(ClientController clientController, ClientInterface clientInterface, ListenersManager listenersManager) {
+        super(clientController, clientInterface, listenersManager);
     }
 
     @Override

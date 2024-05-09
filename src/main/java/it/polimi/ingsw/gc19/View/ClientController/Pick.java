@@ -1,13 +1,7 @@
 package it.polimi.ingsw.gc19.View.ClientController;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GamePausedMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
-
-import java.util.ArrayList;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
 /**
  * The client can pick a card from one of the two decks or from
@@ -15,8 +9,8 @@ import java.util.ArrayList;
  */
 class Pick extends ClientState {
 
-    public Pick(ClientController clientController, ClientInterface clientInterface) {
-        super(clientController, clientInterface);
+    public Pick(ClientController clientController, ClientInterface clientInterface, ListenersManager listenersManager) {
+        super(clientController, clientInterface, listenersManager);
     }
 
     @Override

@@ -2,20 +2,17 @@ package it.polimi.ingsw.gc19.View.ClientController;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GamePausedMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
-
-import java.util.ArrayList;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
 /**
  * The clients can place a card in its station.
  */
 class Place extends ClientState {
 
-    public Place(ClientController clientController, ClientInterface clientInterface) {
-        super(clientController, clientInterface);
+    public Place(ClientController clientController, ClientInterface clientInterface, ListenersManager listenersManager) {
+        super(clientController, clientInterface, listenersManager);
     }
 
     @Override

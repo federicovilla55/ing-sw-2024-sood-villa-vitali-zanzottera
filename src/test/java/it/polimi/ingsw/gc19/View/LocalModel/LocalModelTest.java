@@ -49,10 +49,10 @@ public class LocalModelTest {
             e.printStackTrace();
         }
 
-        ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
+        ServerApp.startTCP();
         clientController = new ClientController();
         messageHandler = new MessageHandler(clientController);
-        clientTCP = new ClientTCP(messageHandler, clientController);
+        clientTCP = new ClientTCP(messageHandler);
         clientController.setClientInterface(clientTCP);
         messageHandler.setClient(clientTCP);
         messageHandler.start();

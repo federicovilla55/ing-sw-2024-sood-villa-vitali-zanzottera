@@ -32,6 +32,25 @@ public class ListenersManager {
         this.attachedListeners = new ConcurrentHashMap<>();
     }
 
+    public void attachListener(ListenerType type, Listener listener){
+        if(this.attachedListeners.containsKey(type)){
+            this.attachedListeners.get(type).add(listener);
+        }
+        else{
+            this.attachedListeners.put(type, List.of(listener));
+        }
+    }
+
+    public void removeListener(ListenerType type, Listener listener){
+        this.attachedListeners.get(type).remove(listener);
+    }
+
+    public void removeListener(Listener listener){
+        for(ListenerType l : this.attachedListeners.keySet()){
+            this.attachedListeners.get(l).remove(listener);
+        }
+    }
+
     public void notifyChatListener(ArrayList<Message> messages){
         ((ChatListener) this.attachedListeners.get(ListenerType.CHAT_LISTENER)).notify(messages);
     }

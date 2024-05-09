@@ -13,7 +13,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErr
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.GameEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
-import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
 import java.util.List;
@@ -23,15 +22,11 @@ public abstract class ClientState {
     protected ClientController clientController;
 
     protected ClientInterface clientInterface;
-
     protected ListenersManager listenersManager;
 
-    protected ClientState(ClientController clientController, ClientInterface clientInterface){
+    protected ClientState(ClientController clientController, ClientInterface clientInterface, ListenersManager listenersManager){
         this.clientController = clientController;
         this.clientInterface = clientInterface;
-    }
-
-    public void setListenersManager(ListenersManager listenersManager){
         this.listenersManager = listenersManager;
     }
 
@@ -65,7 +60,7 @@ public abstract class ClientState {
     };
 
     public void nextState(GamePausedMessage message) {
-        clientController.setNextState(new Pause(clientController, clientInterface));
+        clientController.setNextState(new Pause(clientController, clientInterface, listenersManager));
         this.listenersManager.notifyGameEventsListener(GameEvents.GAME_PAUSED, List.of());
     }
 

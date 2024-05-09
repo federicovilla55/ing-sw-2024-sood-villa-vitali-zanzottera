@@ -7,6 +7,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,10 +17,11 @@ import java.util.concurrent.TimeUnit;
  * established, the client changes its state.
  */
 class Disconnect extends ClientState {
+
     Thread reconnectScheduler;
 
-    public Disconnect(ClientController clientController, ClientInterface clientInterface) {
-        super(clientController, clientInterface);
+    public Disconnect(ClientController clientController, ClientInterface clientInterface, ListenersManager listenersManager) {
+        super(clientController, clientInterface, listenersManager);
         startReconnecting();
     }
 
@@ -27,14 +29,14 @@ class Disconnect extends ClientState {
     public void nextState(JoinedGameMessage message) {
         reconnectScheduler.interrupt();
         super.clientInterface.startSendingHeartbeat();
-        clientController.setNextState(new Wait(clientController, clientInterface));
+        clientController.setNextState(new Wait(clientController, clientInterface, listenersManager));
     }
 
     @Override
     public void nextState(AvailableGamesMessage message) {
         reconnectScheduler.interrupt();
         super.clientInterface.startSendingHeartbeat();
-        clientController.setNextState(new NotGame(clientController, clientInterface));
+        clientController.setNextState(new NotGame(clientController, clientInterface, listenersManager));
         super.nextState(message);
     }
 
@@ -42,13 +44,13 @@ class Disconnect extends ClientState {
     public void nextState(GameHandlingErrorMessage message) {
         switch (message.getErrorType()) {
             case Error.PLAYER_NAME_ALREADY_IN_USE -> {
-                clientController.setNextState(new NotPlayer(clientController, clientInterface));
+                clientController.setNextState(new NotPlayer(clientController, clientInterface, listenersManager));
             }
             case Error.PLAYER_NOT_IN_GAME -> {
-                clientController.setNextState(new Disconnect(clientController, clientInterface));
+                clientController.setNextState(new Disconnect(clientController, clientInterface, listenersManager));
             }
             default -> {
-                clientController.setNextState(new NotGame(clientController, clientInterface));
+                clientController.setNextState(new NotGame(clientController, clientInterface, listenersManager));
             }
         }
     }
@@ -79,7 +81,7 @@ class Disconnect extends ClientState {
             }
             catch (IllegalStateException e) {
                 //@TODO: view
-                clientController.setNextState(new NotPlayer(clientController, clientInterface));
+                clientController.setNextState(new NotPlayer(clientController, clientInterface, listenersManager));
                 Thread.currentThread().interrupt();
                 return;
             }

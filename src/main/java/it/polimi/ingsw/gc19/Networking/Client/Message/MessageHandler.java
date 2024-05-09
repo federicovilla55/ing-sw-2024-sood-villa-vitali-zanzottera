@@ -33,9 +33,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     private LocalModel localModel;
     private final ClientController clientController;
 
-    private ListenersManager listenersManager;
-
-
     public ClientController getClientController() {
         return clientController;
     }
@@ -43,10 +40,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     public MessageHandler(ClientController clientController){
         this.messagesToHandle = new ArrayDeque<>();
         this.clientController = clientController;
-    }
-
-    public void setListenersManager(ListenersManager listenersManager){
-        this.listenersManager = listenersManager;
     }
 
     public void setClient(ClientInterface client){
