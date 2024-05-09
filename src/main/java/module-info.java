@@ -67,5 +67,9 @@ module it.polimi.ingsw.gc19 {
     opens it.polimi.ingsw.gc19.View.Command;
     exports it.polimi.ingsw.gc19.Networking.Client.Configuration;
     exports it.polimi.ingsw.gc19.View.Listeners;
+    exports it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners;
+    exports it.polimi.ingsw.gc19.View.Listeners.SetupListeners;
+    exports it.polimi.ingsw.gc19.View.Listeners.StateListener;
+    exports it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners;
 
 }

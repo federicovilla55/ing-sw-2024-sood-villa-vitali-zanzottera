@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LocalModelTest {
+
     private ClientController clientController;
     private MessageHandler messageHandler;
     private ClientTCP clientTCP;
@@ -145,7 +146,7 @@ public class LocalModelTest {
                         Map.of( Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
                         0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25, 25))),
                         null, goalCards.get("goal_03"), goalCards.get("goal_04"),
-                        List.of(playableCards.get("resource_03"), playableCards.get("resource_04"))));
+                        List.of(playableCards.get("resource_03"), playableCards.get("resource_04")), playableCards.get("initial_01")));
 
         // ------------------
         // Selecting color
@@ -187,7 +188,7 @@ public class LocalModelTest {
                         0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25, 25)),
                         new Tuple<>(playableCards.get("resource_03"), new Tuple<>(26, 26))),
                         null, goalCards.get("goal_03"), goalCards.get("goal_04"),
-                        List.of(playableCards.get("resource_04"), playableCards.get("resource_10"))));
+                        List.of(playableCards.get("resource_04"), playableCards.get("resource_10")), playableCards.get("initial_01")));
 
         // ------------------
         // Other player's picking up cards
@@ -230,7 +231,7 @@ public class LocalModelTest {
                         new Tuple<>(playableCards.get("resource_03"), new Tuple<>(26, 26)),
                         new Tuple<>(playableCards.get("resource_01"), new Tuple<>(24, 26))),
                         null, goalCards.get("goal_03"), goalCards.get("goal_04"),
-                        List.of(playableCards.get("resource_04"), playableCards.get("resource_10"))));
+                        List.of(playableCards.get("resource_04"), playableCards.get("resource_10")), playableCards.get("initial_01")));
 
         // ------------------
         // Choosing goal card
@@ -243,7 +244,7 @@ public class LocalModelTest {
                         new Tuple<>(playableCards.get("resource_03"), new Tuple<>(26, 26)),
                         new Tuple<>(playableCards.get("resource_01"), new Tuple<>(24, 26))),
                         goalCards.get("goal_03"), goalCards.get("goal_03"), goalCards.get("goal_04"),
-                        List.of(playableCards.get("resource_04"), playableCards.get("resource_10"))));
+                        List.of(playableCards.get("resource_04"), playableCards.get("resource_10")), playableCards.get("initial_01")));
 
         // ---------------------------
         // Other player placing a card
@@ -306,7 +307,7 @@ public class LocalModelTest {
                 new PersonalStation("player1", null,
                         Map.of(), 0, List.of(),
                         null, goalCards.get("goal_03"), goalCards.get("goal_04"),
-                        List.of(playableCards.get("resource_03"), playableCards.get("resource_04"))));
+                        List.of(playableCards.get("resource_03"), playableCards.get("resource_04")), playableCards.get("initial_01")));
 
 
         messageHandler.update(new OtherStationConfigurationMessage(
@@ -328,7 +329,7 @@ public class LocalModelTest {
                         Map.of(Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
                         0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25, 25))),
                         null, goalCards.get("goal_03"), goalCards.get("goal_04"),
-                        List.of(playableCards.get("resource_03"), playableCards.get("resource_04"))));
+                        List.of(playableCards.get("resource_03"), playableCards.get("resource_04")), playableCards.get("initial_01")));
 
 
         messageHandler.update(new AcceptedPlaceInitialCard("player2", playableCards.get("initial_02"),

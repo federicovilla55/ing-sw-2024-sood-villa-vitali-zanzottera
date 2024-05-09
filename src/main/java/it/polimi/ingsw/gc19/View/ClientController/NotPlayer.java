@@ -13,11 +13,6 @@ public class NotPlayer extends ClientState {
     }
 
     @Override
-    public void nextState(NetworkHandlingErrorMessage message) {
-        clientController.handleError(message);
-    }
-
-    @Override
     public ViewState getState() {
         return ViewState.NOT_PLAYER;
     }

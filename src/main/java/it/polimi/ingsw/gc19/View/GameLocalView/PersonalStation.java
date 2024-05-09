@@ -16,14 +16,16 @@ public class PersonalStation extends LocalStationPlayer {
     private final ArrayList<PlayableCard> cardsInHand;
     private GoalCard privateGoalCardInStation;
     private final GoalCard[] privateGoalCardsInStation;
+    private final PlayableCard initialCard;
 
     public PersonalStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols, int numPoints,
                            List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence,
                            GoalCard privateGoalCard, GoalCard privateGoalCardInStation1, GoalCard privateGoalCardInStation2,
-                           List<PlayableCard> cardsInHand) {
+                           List<PlayableCard> cardsInHand, PlayableCard initialcard) {
         super(nicknameOwner, chosenColor, visibleSymbols, numPoints, placedCardSequence);
 
         this.cardsInHand = new ArrayList<>(cardsInHand);
+        this.initialCard = initialcard;
 
         privateGoalCardsInStation = new GoalCard[]{privateGoalCardInStation1, privateGoalCardInStation2};
         setPrivateGoalCard(privateGoalCard);
@@ -91,7 +93,10 @@ public class PersonalStation extends LocalStationPlayer {
 
         placedCardSequence.add(new Tuple<>(cardToPlace, coord));
         cardSchema[coord.x()][coord.y()] = cardToPlace;
+    }
 
+    public PlayableCard getInitialCard() {
+        return initialCard;
     }
 
     public  void setPrivateGoalCard(int cardIdx) {

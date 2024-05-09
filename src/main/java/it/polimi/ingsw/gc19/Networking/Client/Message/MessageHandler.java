@@ -188,7 +188,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         waitForLocalModel();
         this.localModel.setPersonalStation(new PersonalStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
                                                                message.getNumPoints(), message.getPlacedCardSequence(), message.getPrivateGoalCard(),
-                                                               message.getGoalCard1(), message.getGoalCard2(), message.getCardsInHand()));
+                                                               message.getGoalCard1(), message.getGoalCard2(), message.getCardsInHand(), message.getInitialCard()));
     }
 
     @Override
@@ -208,6 +208,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(EndGameMessage message) {
+        localModel.setWinners(message.getWinnerNicks());
         clientController.getCurrentState().nextState(message);
     }
 

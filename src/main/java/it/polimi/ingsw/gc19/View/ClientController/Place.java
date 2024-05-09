@@ -19,19 +19,4 @@ class Place extends ClientState {
         return ViewState.PLACE;
     }
 
-    @Override
-    public void nextState(GameHandlingErrorMessage message) {
-        clientController.handleError(message);
-    }
-
-    @Override
-    public void nextState(NetworkHandlingErrorMessage message) {
-        clientController.handleError(message);
-    }
-
-    @Override
-    public void nextState(RefusedActionMessage message) {
-        clientController.handleError(message);
-    }
-
 }

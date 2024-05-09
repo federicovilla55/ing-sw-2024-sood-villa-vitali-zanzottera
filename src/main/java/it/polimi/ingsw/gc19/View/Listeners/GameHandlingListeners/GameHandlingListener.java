@@ -8,8 +8,6 @@ public interface GameHandlingListener extends Listener{
 
     void notify(GameHandlingEvents type, List<String> varArgs);
 
-    void notify(List<String> gameNames);
-
     void notify(String errorDescription);
 
 }

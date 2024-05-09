@@ -11,7 +11,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHa
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
-import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.GameStateEvents;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
@@ -44,7 +44,7 @@ public abstract class ClientState {
     }
 
     public void nextState(JoinedGameMessage message){
-        this.listenersManager.notifyGameHandlingListener(GameHandlingEvents.JOINED_GAME, List.of(message.getGameName()));
+        this.listenersManager.notifyGameHandlingListener(GameHandlingEvents.JOINED_GAMES, List.of(message.getGameName()));
     }
 
     public void nextState(EndGameMessage message){
@@ -52,38 +52,38 @@ public abstract class ClientState {
             this.clientController.getLocalModel().getStations().get(s).setNumPoints(message.getUpdatedPoints().get(s));
         }
 
-        this.listenersManager.notifyGameStateListener(GameStateEvents.END_GAME, message.getWinnerNicks());
+        this.listenersManager.notifyStateListener(ViewState.END);
     }
 
     public void nextState(BeginFinalRoundMessage message){
-        this.listenersManager.notifyGameStateListener(GameStateEvents.BEGIN_FINAL_ROUND, List.of());
+        this.clientController.getView().notify("Final round begins!");
     };
 
     public void nextState(GamePausedMessage message) {
         clientController.setNextState(new Pause(clientController));
-        this.listenersManager.notifyGameStateListener(GameStateEvents.GAME_PAUSED, List.of());
+        this.listenersManager.notifyStateListener(ViewState.PAUSE);
     }
 
     public void nextState(GameResumedMessage message) {
         clientController.setNextState(clientController.getPrevState());
-        this.listenersManager.notifyGameStateListener(GameStateEvents.GAME_RESUMED, List.of());
+        this.listenersManager.notifyStateListener(clientController.getState());
     }
 
     public void nextState(StartPlayingGameMessage message) {
-        this.listenersManager.notifyGameStateListener(GameStateEvents.START_PLAYING_GAME, List.of());
+        this.clientController.getView().notify("Game is starting!");
         this.listenersManager.notifyTurnStateListener(message.getNickFirstPlayer(), TurnState.DRAW);
     }
 
     public void nextState(PlayerReconnectedToGameMessage message) {
-        this.listenersManager.notifyGameStateListener(GameStateEvents.RECONNECTED_PLAYER, List.of(message.getPlayerName()));
+        this.listenersManager.notifyLocalModelListener(LocalModelEvents.RECONNECTED_PLAYER, clientController.getLocalModel(), message.getPlayerName());
     }
 
     public void nextState(DisconnectFromGameMessage message) {
-        this.listenersManager.notifyDisconnectionListener(message.getGameName());
+        this.clientController.getView().notify("You leave the game!");
     }
 
     public void nextState(DisconnectFromServerMessage message){
-        this.listenersManager.notifyDisconnectionListener();
+        this.clientController.getView().notify("You leave the server!");
     };
 
     public void nextState(TurnStateMessage message) {
@@ -105,7 +105,7 @@ public abstract class ClientState {
     public void nextState(GameConfigurationMessage message){}
 
     public void nextState(AvailableGamesMessage message){
-        this.listenersManager.notifyGameHandlingListener(message.getAvailableGames().stream().toList());
+        this.listenersManager.notifyGameHandlingListener(GameHandlingEvents.AVAILABLE_GAMES, message.getAvailableGames().stream().toList());
     }
 
     abstract ViewState getState();

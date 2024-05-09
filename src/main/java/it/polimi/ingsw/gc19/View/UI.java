@@ -8,4 +8,6 @@ public interface UI{
 
     void notifyGenericError(String errorDescription);
 
+    void notify(String message);
+
 }

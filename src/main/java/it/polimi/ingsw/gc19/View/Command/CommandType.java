@@ -16,7 +16,10 @@ public enum CommandType {
     CHOOSE_COLOR("choose_color", 1),
     CHOOSE_PRIVATE_GOAL_CARD("choose_goal", 1),
     LOGOUT_FROM_GAME("logout_from_game", 0),
-    DISCONNECT("disconnect", 0);
+    DISCONNECT("disconnect", 0),
+    SHOW_STATION("show_station", 1),
+    SHOW_PERSONAL_STATION("show_personal_station", 0),
+    SHOW_CHAT("show_chat", 0);
 
     private final String commandName;
 

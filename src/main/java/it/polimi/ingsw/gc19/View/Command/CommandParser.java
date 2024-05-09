@@ -9,20 +9,11 @@ import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class CommandParser{
+public record CommandParser(ClientController clientController) {
 
-    private final ClientController clientController;
-
-    public CommandParser(ClientController clientController){
-        this.clientController = clientController;
-    }
-
-    private static String[] parseArguments(String args) throws IllegalArgumentException{
-        if(args == null) throw new IllegalArgumentException();
+    private static String[] parseArguments(String args) throws IllegalArgumentException {
+        if (args == null) throw new IllegalArgumentException();
 
         args = args.replaceAll("\\s", "");
 
@@ -39,278 +30,255 @@ public class CommandParser{
     public void chooseColor(String commandArgs) {
         String[] parsedArguments;
 
-        try{
+        try {
             parsedArguments = parseArguments(commandArgs);
-        }
-        catch (IllegalArgumentException illegalArgumentException){
+        } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
-        if(parsedArguments.length == CommandType.CHOOSE_COLOR.getNumArgs()){
+        if (parsedArguments.length == CommandType.CHOOSE_COLOR.getNumArgs()) {
             try {
                 clientController.chooseColor(Color.valueOf(parsedArguments[0]));
-            }
-            catch (IllegalArgumentException illegalArgumentException) {
-                //@TODO: notify for errors
+            } catch (IllegalArgumentException illegalArgumentException) {
+                this.clientController.getView().notifyGenericError("Command format not known!");
             }
         }
-        else{
-            //@TODO: notify view
+        else {
+            this.clientController.getView().notifyGenericError("Command format not known!");
         }
     }
 
-    public void chooseGoal(String commandArgs){
+    public void chooseGoal(String commandArgs) {
         String[] parsedArguments;
 
-        try{
+        try {
             parsedArguments = parseArguments(commandArgs);
-        }
-        catch (IllegalArgumentException illegalArgumentException){
-            //@TODO: notify for errors
+        } catch (IllegalArgumentException illegalArgumentException) {
+            this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
-        if(parsedArguments.length == CommandType.CHOOSE_PRIVATE_GOAL_CARD.getNumArgs()){
+        if (parsedArguments.length == CommandType.CHOOSE_PRIVATE_GOAL_CARD.getNumArgs()) {
             try {
                 clientController.chooseGoal(Integer.parseInt(parsedArguments[0]));
-            }
-            catch (IllegalArgumentException illegalArgumentException){
-                //@TODO: notify for errors
+            } catch (IllegalArgumentException illegalArgumentException) {
+                this.clientController.getView().notifyGenericError("Command format not known!");
             }
         }
-        else{
-            //@TODO: notify view
+        else {
+            this.clientController.getView().notifyGenericError("Command format not known!");
         }
     }
 
-    public void createGame(String commandArgs){
+    public void createGame(String commandArgs) {
         String[] parsedArguments;
 
-        try{
+        try {
             parsedArguments = parseArguments(commandArgs);
-        }
-        catch (IllegalArgumentException illegalArgumentException){
-            //@TODO: notify for errors
+        } catch (IllegalArgumentException illegalArgumentException) {
+            this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
-        if(parsedArguments.length == CommandType.CREATE_GAME.getNumArgs()){
+        if (parsedArguments.length == CommandType.CREATE_GAME.getNumArgs()) {
             try {
                 clientController.createGame(parsedArguments[0],
                                             Integer.parseInt(parsedArguments[1]));
-            }
-            catch (IllegalArgumentException illegalArgumentException){
-                //@TODO: notify for errors
+            } catch (IllegalArgumentException illegalArgumentException) {
+                this.clientController.getView().notifyGenericError("Command format not known!");
             }
         }
-        else{
-            //@TODO: notify view
+        else {
+            this.clientController.getView().notifyGenericError("Command format not known!");
         }
     }
 
-    public void joinGame(String commandArgs){
+    public void joinGame(String commandArgs) {
         String[] parsedArguments;
 
-        try{
+        try {
             parsedArguments = parseArguments(commandArgs);
-        }
-        catch (IllegalArgumentException illegalArgumentException){
-            //@TODO: notify for errors
+        } catch (IllegalArgumentException illegalArgumentException) {
+            this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
-        if(parsedArguments.length == CommandType.JOIN_GAME.getNumArgs()){
+        if (parsedArguments.length == CommandType.JOIN_GAME.getNumArgs()) {
             clientController.joinGame(parsedArguments[0]);
         }
-        else{
-            //@TODO: notify view
+        else {
+            this.clientController.getView().notifyGenericError("Command format not known!");
         }
     }
 
-    public void joinFirstAvailableGame(String commandArgs){
+    public void joinFirstAvailableGame(String commandArgs) {
         String[] parsedArguments;
 
-        try{
+        try {
             parsedArguments = parseArguments(commandArgs);
-        }
-        catch (IllegalArgumentException illegalArgumentException){
-            //@TODO: notify for errors
+        } catch (IllegalArgumentException illegalArgumentException) {
+            this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
-        if(parsedArguments.length == CommandType.PLACE_INITIAL_CARD.getNumArgs()) {
+        if (parsedArguments.length == CommandType.PLACE_INITIAL_CARD.getNumArgs()) {
             try {
                 clientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0]));
             } catch (IllegalArgumentException illegalArgumentException) {
-                //@TODO: notify for errors
+                this.clientController.getView().notifyGenericError("Command format not known!");
             }
         }
-        else{
-            //@TODO: notify view
+        else {
+            this.clientController.getView().notifyGenericError("Command format not known!");
         }
     }
 
-    public void placeCard(String commandArgs){
+    public void placeCard(String commandArgs) {
         String[] parsedArguments;
 
-        try{
+        try {
             parsedArguments = parseArguments(commandArgs);
-        }
-        catch (IllegalArgumentException illegalArgumentException){
-            //@TODO: notify for errors
+        } catch (IllegalArgumentException illegalArgumentException) {
+            this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
-        if(parsedArguments.length == CommandType.PLACE_CARD.getNumArgs()){
+        if (parsedArguments.length == CommandType.PLACE_CARD.getNumArgs()) {
             Direction direction;
             CardOrientation cardOrientation;
 
-            try{
+            try {
                 direction = Direction.valueOf(parsedArguments[2]);
-            }
-            catch (IllegalArgumentException illegalArgumentException){
-                //@TODO: notify view
+            } catch (IllegalArgumentException illegalArgumentException) {
+                this.clientController.getView().notifyGenericError("Command format not known!");
                 return;
             }
 
-            try{
+            try {
                 cardOrientation = CardOrientation.valueOf(parsedArguments[3]);
-            }
-            catch (IllegalArgumentException illegalArgumentException){
-                //@TODO: notify view
+            } catch (IllegalArgumentException illegalArgumentException) {
+                this.clientController.getView().notifyGenericError("Command format not known!");
                 return;
             }
 
             clientController.placeCard(parsedArguments[0], parsedArguments[1], direction, cardOrientation);
         }
-        else{
-            //@TODO: notify view
+        else {
+            this.clientController.getView().notifyGenericError("Command format not known!");
         }
     }
 
-    public void pickCardFromTable(String commandArgs){
+    public void pickCardFromTable(String commandArgs) {
         String[] parsedArguments;
 
-        try{
+        try {
             parsedArguments = parseArguments(commandArgs);
-        }
-        catch (IllegalArgumentException illegalArgumentException){
-            //@TODO: notify for errors
+        } catch (IllegalArgumentException illegalArgumentException) {
+            this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
-        if(parsedArguments.length == CommandType.PICK_CARD_TABLE.getNumArgs()){
+        if (parsedArguments.length == CommandType.PICK_CARD_TABLE.getNumArgs()) {
             PlayableCardType cardType;
             int position;
 
-            try{
+            try {
                 cardType = PlayableCardType.valueOf(parsedArguments[0]);
-            }
-            catch (IllegalArgumentException illegalArgumentException){
-                //@TODO: view
+            } catch (IllegalArgumentException illegalArgumentException) {
+                this.clientController.getView().notifyGenericError("Command format not known!");
                 return;
             }
 
-            try{
+            try {
                 position = Integer.parseInt(parsedArguments[1]);
-            }
-            catch (IllegalArgumentException illegalArgumentException){
-                //@TODO: view
+            } catch (IllegalArgumentException illegalArgumentException) {
+                this.clientController.getView().notifyGenericError("Command format not known!");
                 return;
             }
 
             clientController.pickCardFromTable(cardType, position);
         }
-        else{
-            //@TODO:...
+        else {
+            this.clientController.getView().notifyGenericError("Command format not known!");
         }
     }
 
-    public void pickCardFromDeck(String commandArgs){
+    public void pickCardFromDeck(String commandArgs) {
         String[] parsedArguments;
 
-        try{
+        try {
             parsedArguments = parseArguments(commandArgs);
-        }
-        catch (IllegalArgumentException illegalArgumentException){
-            //@TODO: notify for errors
+        } catch (IllegalArgumentException illegalArgumentException) {
+            this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
-        if(parsedArguments.length == CommandType.PICK_CARD_DECK.getNumArgs()){
-            try{
+        if (parsedArguments.length == CommandType.PICK_CARD_DECK.getNumArgs()) {
+            try {
                 clientController.pickCardFromDeck(PlayableCardType.valueOf(parsedArguments[0]));
-            }
-            catch (IllegalArgumentException illegalArgumentException){
-                //@TODO: view
+            } catch (IllegalArgumentException illegalArgumentException) {
+                this.clientController.getView().notifyGenericError("Command format not known!");
             }
         }
-        else{
-            //@TODO: view
+        else {
+            this.clientController.getView().notifyGenericError("Command format not known!");
         }
     }
 
-    public void createPlayer(String commandArgs){
+    public void createPlayer(String commandArgs) {
         String[] parsedArguments;
 
-        try{
+        try {
             parsedArguments = parseArguments(commandArgs);
-        }
-        catch (IllegalArgumentException illegalArgumentException){
-            //@TODO: notify for errors
+        } catch (IllegalArgumentException illegalArgumentException) {
+            this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
-        if(parsedArguments.length == CommandType.CREATE_PLAYER.getNumArgs()){
+        if (parsedArguments.length == CommandType.CREATE_PLAYER.getNumArgs()) {
             clientController.createPlayer(parsedArguments[0]);
         }
     }
 
-    public void sendChatMessage(String commandArgs){
+    public void sendChatMessage(String commandArgs) {
         String[] parsedArguments;
 
-        try{
+        try {
             parsedArguments = parseArguments(commandArgs);
-        }
-        catch (IllegalArgumentException illegalArgumentException){
-            //@TODO: notify for errors
+        } catch (IllegalArgumentException illegalArgumentException) {
+            this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
-        if(parsedArguments.length >= CommandType.SEND_CHAT_MESSAGE.getNumArgs()){
+        if (parsedArguments.length >= CommandType.SEND_CHAT_MESSAGE.getNumArgs()) {
             clientController.sendChatMessage(parsedArguments[0], new ArrayList<>(List.of(parsedArguments)).subList(1, parsedArguments.length));
         }
-        else{
-            //@TODO: notify view
+        else {
+            this.clientController.getView().notifyGenericError("Command format not known!");
         }
     }
 
-    public void placeInitialCard(String commandArgs){
+    public void placeInitialCard(String commandArgs) {
         String[] parsedArguments;
 
-        try{
+        try {
             parsedArguments = parseArguments(commandArgs);
-        }
-        catch (IllegalArgumentException illegalArgumentException){
-            //@TODO: notify for errors
+        } catch (IllegalArgumentException illegalArgumentException) {
+            this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
-        if(parsedArguments.length >= CommandType.PLACE_INITIAL_CARD.getNumArgs()){
+        if (parsedArguments.length >= CommandType.PLACE_INITIAL_CARD.getNumArgs()) {
             try {
                 clientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0]));
-            }
-            catch (IllegalArgumentException illegalArgumentException){
-                //@TODO: view
+            } catch (IllegalArgumentException illegalArgumentException) {
+                this.clientController.getView().notifyGenericError("Command format not known!");
             }
         }
-        else{
-            //@TODO: notify view
+        else {
+            this.clientController.getView().notifyGenericError("Command format not known!");
         }
     }
 
-    public ClientController getClientController() {
-        return clientController;
-    }
 }

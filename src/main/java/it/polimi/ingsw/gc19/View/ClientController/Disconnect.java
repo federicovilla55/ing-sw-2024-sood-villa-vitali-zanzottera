@@ -6,7 +6,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
-import it.polimi.ingsw.gc19.View.Listeners.StateListeners.State;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +28,7 @@ public class Disconnect extends ClientState {
         super.clientInterface.startSendingHeartbeat();
         clientController.setNextState(new Wait(clientController));
 
-        this.listenersManager.notifyStateListener(State.RECONNECTED);
+        this.clientController.getView().notify("Network problems solved. You are reconnected to server!");
     }
 
     @Override
@@ -38,7 +37,7 @@ public class Disconnect extends ClientState {
         super.clientInterface.startSendingHeartbeat();
         clientController.setNextState(new NotGame(clientController));
 
-        this.listenersManager.notifyStateListener(State.RECONNECTED);
+        this.clientController.getView().notify("Network problems solved. You are reconnected to server!");
 
         super.nextState(message);
     }
@@ -48,8 +47,8 @@ public class Disconnect extends ClientState {
         switch (message.getErrorType()) {
             case Error.PLAYER_NAME_ALREADY_IN_USE -> {
                 clientController.setNextState(new NotPlayer(clientController));
+
                 this.listenersManager.notifyErrorPlayerCreationListener("Player name is already in use!");
-                this.listenersManager.notifyStateListener(State.NOT_PLAYER);
             }
             case Error.PLAYER_NOT_IN_GAME, Error.GAME_NOT_FOUND -> {
                 this.listenersManager.notifyErrorPlayerCreationListener("You are not in a game! ");
@@ -86,7 +85,7 @@ public class Disconnect extends ClientState {
                 clientInterface.reconnect();
             }
             catch (IllegalStateException e) {
-                clientController.getView().notifyGenericError();
+                clientController.getView().notifyGenericError("Could not reconnect, returning to the lobby");
                 clientController.setNextState(new NotPlayer(clientController));
                 Thread.currentThread().interrupt();
                 return;

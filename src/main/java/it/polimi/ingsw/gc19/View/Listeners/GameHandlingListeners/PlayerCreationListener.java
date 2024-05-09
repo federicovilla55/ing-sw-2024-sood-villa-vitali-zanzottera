@@ -6,6 +6,6 @@ public interface PlayerCreationListener extends Listener {
 
     void notify(String name);
 
-    void notifyError(String error);
+    void notifyPlayerCreationError(String error);
 
 }

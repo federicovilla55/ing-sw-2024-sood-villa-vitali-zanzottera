@@ -62,8 +62,11 @@ public class Wait extends ClientState {
         localModel.setListenersManager(listenersManager);
         localModel.setNickname(this.clientInterface.getNickname());
         localModel.setGameName(gameName);
+
         this.clientController.setLocalModel(localModel);
         this.clientInterface.getMessageHandler().setLocalModel(localModel);
+
+        this.clientController.getView().setLocalModel(localModel);
 
         clientController.setNextState(new Setup(clientController));
     }

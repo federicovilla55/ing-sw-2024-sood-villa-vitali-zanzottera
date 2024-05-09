@@ -15,21 +15,6 @@ class Pause extends ClientState {
     }
 
     @Override
-    public void nextState(GameHandlingErrorMessage message) {
-        clientController.handleError(message);
-    }
-
-    @Override
-    public void nextState(NetworkHandlingErrorMessage message) {
-        clientController.handleError(message);
-    }
-
-    @Override
-    public void nextState(RefusedActionMessage message) {
-        clientController.handleError(message);
-    }
-
-    @Override
     public ViewState getState() {
         return ViewState.PAUSE;
     }

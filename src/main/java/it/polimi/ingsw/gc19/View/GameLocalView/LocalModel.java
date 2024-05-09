@@ -5,8 +5,9 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Utils.Tuple;
-import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.GameStateEvents;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
+import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,8 +28,8 @@ public class LocalModel {
     private final ConcurrentHashMap<String, GoalCard> previousGoalCards;
     private List<Color> availableColors;
     private final ArrayList<Message> messages;
-
     private ListenersManager listenersManager;
+    private ArrayList<String> winners;
 
     public LocalModel(){
         playerStations = new ConcurrentHashMap<>();
@@ -37,6 +38,7 @@ public class LocalModel {
         previousGoalCards = new ConcurrentHashMap<>();
         lockTable = new Object();
         messages = new ArrayList<>();
+        winners = new ArrayList<>();
     }
 
     public void setListenersManager(ListenersManager listenersManager){
@@ -69,7 +71,7 @@ public class LocalModel {
         }
         this.addCardsFromStationToMap(localStation);
 
-        this.listenersManager.notifyStationListener(GameStateEvents.UPDATE_STATION, localStation);
+        this.listenersManager.notifyStationListener(localStation);
     }
 
     private void addCardsFromStationToMap(LocalStationPlayer station){
@@ -95,35 +97,51 @@ public class LocalModel {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        this.listenersManager.notifyStationListener(GameStateEvents.UPDATE_STATION, otherStation);
+        this.listenersManager.notifyStationListener(otherStation);
     }
 
     public void setPlayerInactive(String nickname){
         synchronized (playerState) {
             this.playerState.put(nickname, State.INACTIVE);
         }
-        this.listenersManager.notifyGameStateListener(GameStateEvents.DISCONNECTED_PLAYER, List.of(nickname));
+        this.listenersManager.notifyLocalModelListener(LocalModelEvents.DISCONNECTED_PLAYER, this, nickname);
     }
 
     public void setPlayerActive(String nickname){
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        this.listenersManager.notifyGameStateListener(GameStateEvents.RECONNECTED_PLAYER, List.of(nickname));
+        this.listenersManager.notifyLocalModelListener(LocalModelEvents.RECONNECTED_PLAYER, this, nickname);
     }
 
     public void setPrivateGoal(GoalCard goalCard) {
         synchronized (playerStations) {
             this.playerStations.get(this.nickname).setPrivateGoalCard(goalCard);
         }
-        this.listenersManager.notifySetupListener(goalCard);
+
+        this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_PRIVATE_GOAL_CARD);
+
+        if(finishedLocalSetup()){
+            this.listenersManager.notifySetupListener(SetupEvent.COMPLETED);
+        }
     }
 
     public void setColor(Color color){
         synchronized (this.playerStations) {
             this.playerStations.get(this.nickname).setChosenColor(color);
         }
-        this.listenersManager.notifySetupListener(color);
+
+        this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_COLOR);
+
+        if(finishedLocalSetup()){
+            this.listenersManager.notifySetupListener(SetupEvent.COMPLETED);
+        }
+    }
+
+    public boolean isColorChosen(){
+        synchronized (this.playerStations){
+            return (this.playerStations.get(this.nickname).getChosenColor() != null);
+        }
     }
 
     public void placeCard(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction) {
@@ -135,10 +153,10 @@ public class LocalModel {
         }
 
         if(this.nickname.equals(nickname)) {
-            this.listenersManager.notifyStationListener(GameStateEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(nickname));
+            this.listenersManager.notifyStationListener((PersonalStation) this.playerStations.get(nickname));
         }
         else {
-            this.listenersManager.notifyStationListener(GameStateEvents.UPDATE_STATION, (OtherStation) this.playerStations.get(nickname));
+            this.listenersManager.notifyStationListener((OtherStation) this.playerStations.get(nickname));
         }
     }
 
@@ -150,9 +168,16 @@ public class LocalModel {
             this.playerState.put(nickname, State.ACTIVE);
         }
 
-        this.listenersManager.notifySetupListener(initialCard);
+        this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_INITIAL_CARD);
+
+        if(finishedLocalSetup()){
+            this.listenersManager.notifySetupListener(SetupEvent.COMPLETED);
+        }
     }
 
+    private boolean finishedLocalSetup(){
+        return this.getPersonalStation().getChosenColor() != null && this.getPersonalStation().getPrivateGoalCardInStation() != null && !this.getPersonalStation().getPlacedCardSequence().isEmpty();
+    }
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
@@ -170,7 +195,7 @@ public class LocalModel {
         synchronized (this.playerStations) {
             ((PersonalStation) this.playerStations.get(this.nickname)).updateCardsInHand(playableCard);
         }
-        this.listenersManager.notifyStationListener(GameStateEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(this.nickname));
+        this.listenersManager.notifyStationListener((PersonalStation) this.playerStations.get(this.nickname));
     }
 
     public void updateCardsInTable(PlayableCard playableCard, PlayableCardType playableCardType, int position){
@@ -195,7 +220,7 @@ public class LocalModel {
             previousPlayableCards.put(playableCard.getCardCode(), playableCard);
         }
         
-        this.listenersManager.notifyGameEventsListener(GameStateEvents.UPDATE_TABLE, table);
+        this.listenersManager.notifyTableListener(table);
     }
 
     public ConcurrentHashMap<String, OtherStation> getStations() {
@@ -231,7 +256,7 @@ public class LocalModel {
             }
         }
 
-        this.listenersManager.notifyGameEventsListener(GameStateEvents.UPDATE_TABLE, table);
+        this.listenersManager.notifyTableListener(table);
     }
 
     public LocalTable getTable() {
@@ -259,7 +284,7 @@ public class LocalModel {
 
     public void setAvailableColors(List<Color> availableColors) {
         this.availableColors = availableColors;
-        this.listenersManager.notifySetupListener(availableColors);
+        this.listenersManager.notifySetupListener(SetupEvent.AVAILABLE_COLOR);
     }
 
     public List<Color> getAvailableColors() {
@@ -323,4 +348,11 @@ public class LocalModel {
         return gameName;
     }
 
+    public void setWinners(List<String> winners) {
+        this.winners = new ArrayList<>(winners);
+    }
+
+    public ArrayList<String> getWinners() {
+        return winners;
+    }
 }

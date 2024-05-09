@@ -289,6 +289,8 @@ public class GameController{
         }
 
         if(!this.gameAssociated.getActivePlayer().getName().equals(nickname)){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.NOT_YOUR_TURN,
+                                                                                       "You cannot place a card when is " + this.gameAssociated.getActivePlayer().getName() + " state!"));
             return;
         }
 
@@ -414,6 +416,8 @@ public class GameController{
         }
 
         if(!this.gameAssociated.getActivePlayer().getName().equals(nickname)){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.NOT_YOUR_TURN,
+                                                                                       "You cannot place a card when is " + this.gameAssociated.getActivePlayer().getName() + " state!"));
             return true;
         }
         return false;
