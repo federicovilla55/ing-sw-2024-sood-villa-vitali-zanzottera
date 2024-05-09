@@ -21,6 +21,7 @@ import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.ClientController.Wait;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -325,14 +326,14 @@ public class LocalStateManagementTest {
 
     @Test
     public void testSetup(){
-        clientController1.setNextState(new Wait(clientController1, clientInterface1, ));
+        clientController1.setNextState(new Wait(clientController1, clientInterface1, new ListenersManager()));
         this.messageHandler1.update(new CreatedPlayerMessage("player1"));
-        clientController2.setNextState(new Wait(clientController2, clientInterface2, ));
+        clientController2.setNextState(new Wait(clientController2, clientInterface2, new ListenersManager()));
         this.messageHandler2.update(new CreatedPlayerMessage("player2"));
 
         waitingThread(500);
 
-        clientController1.setNextState(new Wait(clientController1, clientInterface1, ));
+        clientController1.setNextState(new Wait(clientController1, clientInterface1, new ListenersManager()));
         this.messageHandler1.update(new CreatedGameMessage("game1"));
 
         waitingThread(500);
@@ -385,7 +386,7 @@ public class LocalStateManagementTest {
         assertNotNull(clientController1.getLocalModel().getPersonalStation());
         assertEquals(List.of(goalCards.get("goal_09"), goalCards.get("goal_14")), List.of(clientController1.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()));
 
-        clientController2.setNextState(new Wait(clientController2, clientInterface2, ));
+        clientController2.setNextState(new Wait(clientController2, clientInterface2, new ListenersManager()));
         this.messageHandler2.update(new JoinedGameMessage("game1"));
 
         messageHandler1.update(new NewPlayerConnectedToGameMessage("player2"));
