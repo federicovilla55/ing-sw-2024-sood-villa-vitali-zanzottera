@@ -647,6 +647,11 @@ public class TUIView implements UI, PlayerCreationListener, GameHandlingListener
     }
 
     @Override
+    public void notifyError(String error) {
+        System.out.println(error);
+    }
+
+    @Override
     public void notify(GameHandlingEvents type, List<String> varArgs) {
         switch (type){
             case GameHandlingEvents.CREATED_GAME -> System.out.println("The requested game '" + varArgs.getFirst() + "' has been correctly created.");
