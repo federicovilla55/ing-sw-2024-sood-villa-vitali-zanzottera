@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Chat.Message;
+import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
@@ -19,7 +20,6 @@ import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingLis
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationListener;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListsners.SetupListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TurnStateListener;
-import it.polimi.ingsw.gc19.View.Listeners.StateListeners.State;
 import it.polimi.ingsw.gc19.View.Listeners.StateListeners.StateListener;
 
 import java.util.ArrayList;
@@ -181,7 +181,7 @@ public class ListenersManager {
         }
     }
 
-    public void notifyStateListener(State state){
+    public void notifyStateListener(ViewState state){
         for(Listener l : this.attachedListeners.get(ListenerType.STATE_LISTENER)){
             ((StateListener) this.attachedListeners.get(ListenerType.STATE_LISTENER)).notify(state);
         }

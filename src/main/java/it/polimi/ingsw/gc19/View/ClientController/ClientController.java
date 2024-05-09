@@ -73,6 +73,7 @@ public class ClientController {
         this.clientNetwork = clientInterface;
         viewState = new NotPlayer(this);
         prevState = new NotPlayer(this);
+        this.listenersManager.notifyStateListener(viewState.getState());
     }
 
     public LocalModel getLocalModel() {
@@ -100,6 +101,7 @@ public class ClientController {
         if(this.viewState.getState() == ViewState.DISCONNECT) return;
         this.prevState = viewState;
         this.viewState = new Disconnect(this);
+        this.listenersManager.notifyStateListener(viewState.getState());
     }
 
     public synchronized void setLocalModel(LocalModel localModel){
@@ -116,6 +118,7 @@ public class ClientController {
     public synchronized void setNextState(ClientState clientState){
         this.prevState = viewState;
         this.viewState = clientState;
+        this.listenersManager.notifyStateListener(viewState.getState());
     }
 
     public synchronized ClientState getCurrentState(){
@@ -123,7 +126,6 @@ public class ClientController {
     }
 
     public synchronized ClientState getPrevState(){
-        //@TODO: add here the logic for updating prvState according to nextSate
         return this.prevState;
     }
 
@@ -158,7 +160,7 @@ public class ClientController {
      */
     public synchronized void createPlayer(String nick){
         if(viewState.getState() != ViewState.NOT_PLAYER){
-            //@TODO: notify view
+            this.listenersManager.notifyStateError("You are already in a player!");
             return;
         }
 
@@ -229,7 +231,7 @@ public class ClientController {
      * @param message RefusedActionMessage to analyze
      */
     public synchronized void handleError(RefusedActionMessage message){
-        //@TODO: decide what type of messages broadast to view
+        //@TODO: decide what type of messages broadcast to view
         switch (message.getErrorType()){
             case ErrorType.INVALID_CARD_ERROR, ErrorType.INVALID_ANCHOR_ERROR -> {
                 viewState = new Place(this);
@@ -286,7 +288,7 @@ public class ClientController {
      */
     public synchronized void chooseColor(Color color) {
         if(viewState.getState() != ViewState.SETUP){
-            //@TODO: how to notify view?
+            this.listenersManager.notifyErrorSetupListener("You cannot choose a color!");
             return;
         }
         if(!localModel.getAvailableColors().contains(color)){
@@ -305,7 +307,7 @@ public class ClientController {
      */
     public synchronized void chooseGoal(int cardIdx) {
         if(viewState.getState() != ViewState.SETUP){
-            //@TODO: notify view
+            this.listenersManager.notifyErrorSetupListener("You cannot choose a goal!");
             return;
         }
         if((cardIdx >= 0) && (cardIdx < 2)) {
@@ -322,7 +324,7 @@ public class ClientController {
      */
     public synchronized void placeInitialCard(CardOrientation cardOrientation) {
         if(viewState.getState() != ViewState.SETUP) {
-            //@TODO: notify view
+            this.listenersManager.notifyErrorSetupListener("You cannot place initial card!");
             return;
         }
         clientNetwork.placeInitialCard(cardOrientation);
@@ -334,7 +336,7 @@ public class ClientController {
      */
     public synchronized void availableGames() {
         if(viewState.getState() != ViewState.NOT_GAME){
-            //@TODO: notify view
+            this.listenersManager.notifyStateError("You can not choose a game to play!");
             return;
         }
        clientNetwork.availableGames();
@@ -346,7 +348,7 @@ public class ClientController {
      */
     public synchronized void joinFirstAvailableGame() {
         if(viewState.getState() != ViewState.NOT_GAME){
-            //@TODO: notify view
+            this.listenersManager.notifyStateError("You can not join a game to play!");
             return;
         }
         clientNetwork.joinFirstAvailableGame();
@@ -361,8 +363,8 @@ public class ClientController {
      */
     public synchronized void joinGame(String gameName) {
         if(viewState.getState() != ViewState.NOT_GAME){
-            //@TODO: notify view
-            return;
+        this.listenersManager.notifyStateError("You can not join a game to play!");
+        return;
         }
         clientNetwork.joinGame(gameName);
         prevState = new NotGame(this);
@@ -376,7 +378,7 @@ public class ClientController {
     //Maybe returning something?
     public synchronized void createGame(String gameName, int numPlayers) {
         if(viewState.getState() != ViewState.NOT_GAME){
-            //@TODO: notify view
+            this.listenersManager.notifyStateError("You can not create a game!");
             return;
         }
         if(numPlayers > 1 && numPlayers < 5){
@@ -397,6 +399,7 @@ public class ClientController {
                 this.clientNetwork.logoutFromGame();
 
                 this.viewState = new Wait(this);
+                this.listenersManager.notifyStateListener(viewState.getState());
                 this.localModel = null;
 
                 return;
@@ -425,6 +428,7 @@ public class ClientController {
                 this.clientNetwork.disconnect();
 
                 this.viewState = new Wait(this);
+                this.listenersManager.notifyStateListener(viewState.getState());
 
                 this.localModel = null;
 
