@@ -702,7 +702,6 @@ public class TUIView implements UI, PlayerCreationListener, GameHandlingListener
         Pattern pattern = Pattern.compile("^(.*?)\\(([^)]*)\\)$");
         Matcher matcher = pattern.matcher(command);
 
-
         if (matcher.matches()) {
             CommandType commandType;
             try {
@@ -717,9 +716,9 @@ public class TUIView implements UI, PlayerCreationListener, GameHandlingListener
             switch (commandType) {
                 case CommandType.CREATE_PLAYER -> commandParser.createPlayer(args);
                 case CommandType.CREATE_GAME -> commandParser.createGame(args);
-                case CommandType.AVAILABLE_GAMES -> commandParser.availableGames(args);
+                case CommandType.AVAILABLE_GAMES -> clientController.availableGames();
                 case CommandType.JOIN_GAME -> commandParser.joinGame(args);
-                case CommandType.JOIN_FIRST_GAME -> commandParser.joinFirstAvailableGame(args);
+                case CommandType.JOIN_FIRST_GAME -> clientController.joinFirstAvailableGame();
                 case CommandType.CHOOSE_COLOR -> commandParser.chooseColor(args);
                 case CommandType.CHOOSE_PRIVATE_GOAL_CARD -> commandParser.chooseGoal(args);
                 case CommandType.PLACE_INITIAL_CARD -> commandParser.placeInitialCard(args);
@@ -727,8 +726,8 @@ public class TUIView implements UI, PlayerCreationListener, GameHandlingListener
                 case CommandType.PICK_CARD_TABLE -> commandParser.pickCardFromTable(args);
                 case CommandType.PLACE_CARD -> commandParser.placeCard(args);
                 case CommandType.SEND_CHAT_MESSAGE -> commandParser.sendChatMessage(args);
-                case CommandType.LOGOUT_FROM_GAME -> commandParser.logoutFromGame(args);
-                case CommandType.DISCONNECT -> commandParser.disconnect(args);
+                case CommandType.LOGOUT_FROM_GAME -> clientController.logoutFromGame();
+                case CommandType.DISCONNECT -> clientController.disconnect();
             }
         } else {
             //@TODO: view: command format not correct!

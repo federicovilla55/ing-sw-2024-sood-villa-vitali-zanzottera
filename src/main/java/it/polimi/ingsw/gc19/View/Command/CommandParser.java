@@ -25,23 +25,15 @@ public class CommandParser{
         if(args == null) throw new IllegalArgumentException();
 
         args = args.replaceAll("\\s", "");
-        Pattern pattern = Pattern.compile("\\(*?\\)");
-        Matcher matcher = pattern.matcher(args);
 
-        if (matcher.matches()) {
-            String[] arguments = matcher.group(1).split(",\\s*");
+        String[] arguments = args.split(",\\s*");
 
-            Arrays.stream(arguments)
-                  .filter(String::isEmpty)
-                  .findAny()
-                  .ifPresent(s -> {throw new IllegalArgumentException();});
+        Arrays.stream(arguments)
+              .filter(String::isEmpty)
+              .findAny()
+              .ifPresent(s -> {throw new IllegalArgumentException();});
 
-            return arguments;
-        }
-
-        System.out.println("noooooooooooooooo");
-
-        throw new IllegalArgumentException();
+        return arguments;
     }
 
     public void chooseColor(String commandArgs) {
@@ -93,7 +85,6 @@ public class CommandParser{
     }
 
     public void createGame(String commandArgs){
-        System.out.println("okkkkkkkkkkkkkkkkkkkk");
         String[] parsedArguments;
 
         try{
@@ -114,7 +105,6 @@ public class CommandParser{
             }
         }
         else{
-            System.out.println("nooooooooooooooooooooooooooooo");
             //@TODO: notify view
         }
     }
@@ -317,33 +307,6 @@ public class CommandParser{
         }
         else{
             //@TODO: notify view
-        }
-    }
-
-    public void availableGames(String args){
-        if(Objects.equals(args, "()")){
-            this.clientController.availableGames();
-        }
-        else{
-            //@TODO: view
-        }
-    }
-
-    public void logoutFromGame(String args){
-        if(Objects.equals(args, "()")){
-            this.clientController.logoutFromGame();
-        }
-        else{
-            //@TODO: view
-        }
-    }
-
-    public void disconnect(String args){
-        if(Objects.equals(args, "()")){
-            this.clientController.disconnect();
-        }
-        else{
-            //@TODO: view
         }
     }
 
