@@ -11,16 +11,6 @@ import java.util.List;
 
 public interface SetupListener extends Listener {
 
-    void notify(Color color);
-
-    void notify(GoalCard goalCard);
-
-    void notify(PlayableCard initialCard);
-
-    void notify(List<Color> colors);
-
-    void notify(GoalCard goalCard1, GoalCard goalCard2);
-
-    void notify(String error);
+    void notify(SetupEvents type);
 
 }

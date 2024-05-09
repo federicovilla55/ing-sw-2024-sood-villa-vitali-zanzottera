@@ -6,9 +6,9 @@ import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 
 public interface StationListener {
 
-    void notify(GameEvents type, PersonalStation localStationPlayer);
+    void notify(PersonalStation localStationPlayer);
 
-    void notify(GameEvents type, OtherStation otherStation);
+    void notify(OtherStation otherStation);
 
     void notify(String ... varArgs);
 

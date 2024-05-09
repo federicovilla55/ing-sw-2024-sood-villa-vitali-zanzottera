@@ -94,7 +94,6 @@ public abstract class LocalStationPlayer {
     public void placeInitialCard(PlayableCard initialCard){
         this.placedCardSequence.add(new Tuple<>(initialCard, new Tuple<>((ImportantConstants.gridDimension / 2), (ImportantConstants.gridDimension / 2))));
         this.cardSchema[ImportantConstants.gridDimension / 2][ImportantConstants.gridDimension / 2] = initialCard;
-        System.out.println(new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2));
     }
 
     public Tuple<Integer, Integer> getCoord(String cardCode){

@@ -40,7 +40,6 @@ public class PersonalStation extends LocalStationPlayer {
             throw new RuntimeException();
         }
 
-
         if(!toPlace.enoughResourceToBePlaced(this.getVisibleSymbols())){
             return false;
         }

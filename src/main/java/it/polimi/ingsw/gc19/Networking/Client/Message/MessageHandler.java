@@ -16,8 +16,6 @@ import it.polimi.ingsw.gc19.View.GameLocalView.*;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
-import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.GameEvents;
-import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
 import java.util.ArrayDeque;
 

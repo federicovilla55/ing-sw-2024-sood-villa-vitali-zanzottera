@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface TableListener extends Listener {
 
-    void notify(GameEvents type, LocalTable localTable);
+    void notify(LocalTable localTable);
 
     void notify(String ... error);
 

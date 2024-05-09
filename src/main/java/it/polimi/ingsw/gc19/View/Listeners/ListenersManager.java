@@ -8,12 +8,11 @@ import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
-import it.polimi.ingsw.gc19.View.Listeners.ChatListeners.ChatListener;
-import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.GameEvents;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.ChatListener;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.GameStateEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.GameStateListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
-import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.DisconnectionListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationListener;
@@ -73,15 +72,15 @@ public class ListenersManager {
         }
     }
 
-    public void notifyGameStateListener(GameEvents gameEvents, List<String> varArgs){
+    public void notifyGameStateListener(GameStateEvents gameStateEvents, List<String> varArgs){
         for(Listener c : this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)) {
-            ((GameStateListener) c).notify(gameEvents, varArgs);
+            ((GameStateListener) c).notify(gameStateEvents, varArgs);
         }
     }
 
-    public void notifyStationListener(GameEvents gameEvents, PersonalStation personalStation){
+    public void notifyStationListener(GameStateEvents gameStateEvents, PersonalStation personalStation){
         for(Listener c : this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)) {
-            ((StationListener) c).notify(gameEvents, personalStation);
+            ((StationListener) c).notify(gameStateEvents, personalStation);
         }
     }
 
@@ -91,9 +90,9 @@ public class ListenersManager {
         }
     }
 
-    public void notifyStationListener(GameEvents gameEvents, OtherStation otherStation){
+    public void notifyStationListener(GameStateEvents gameStateEvents, OtherStation otherStation){
         for(Listener c : this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)) {
-            ((StationListener) c).notify(gameEvents, otherStation);
+            ((StationListener) c).notify(gameStateEvents, otherStation);
         }
     }
 
@@ -127,9 +126,9 @@ public class ListenersManager {
         }
     }
 
-    public void notifyGameEventsListener(GameEvents gameEvents, LocalTable localTable){
+    public void notifyGameEventsListener(GameStateEvents gameStateEvents, LocalTable localTable){
         for(Listener c : this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)) {
-            ((TableListener) c).notify(gameEvents, localTable);
+            ((TableListener) c).notify(gameStateEvents, localTable);
         }
     }
 
@@ -169,9 +168,9 @@ public class ListenersManager {
         }
     }
 
-    public void notifyDisconnectionListener(String ... varArgs){
-        for(Listener c : this.attachedListeners.get(ListenerType.DISCONNECTION_LISTENER)) {
-            ((DisconnectionListener) c).notify(varArgs);
+    public void notifyErrorPlayerCreationListener(String error){
+        for(Listener c : this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER)) {
+            ((PlayerCreationListener) c).notifyError(error);
         }
     }
 
