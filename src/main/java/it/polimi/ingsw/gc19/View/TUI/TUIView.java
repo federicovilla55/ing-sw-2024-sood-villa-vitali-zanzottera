@@ -15,6 +15,7 @@ import it.polimi.ingsw.gc19.View.GameLocalView.*;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationListener;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 import it.polimi.ingsw.gc19.View.UI;
 
 import java.io.IOException;
@@ -29,10 +30,7 @@ public class TUIView extends Thread implements UI, PlayerCreationListener, GameH
 
     private LocalModel localModel;
     private final CommandParser commandParser;
-
     private final ClientController clientController;
-
-    private ClientInterface client;
 
     private static Configuration.ConnectionType chooseClientType() {
         String connectionType;
@@ -52,6 +50,7 @@ public class TUIView extends Thread implements UI, PlayerCreationListener, GameH
         Configuration.ConnectionType connectionType;
         String reconnectChoice;
 
+        ClientInterface client;
         try {
             config = ConfigurationManager.retriveConfiguration();
             connectionType = config.getConnectionType();
@@ -101,6 +100,7 @@ public class TUIView extends Thread implements UI, PlayerCreationListener, GameH
     public TUIView(CommandParser commandParser) {
         this.commandParser = commandParser;
         this.clientController = commandParser.getClientController();
+        this.clientController.getListenersManager().attacheListener(this);
         this.localModel = null;
     }
 

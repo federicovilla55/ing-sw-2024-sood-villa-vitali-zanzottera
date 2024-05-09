@@ -22,6 +22,7 @@ import it.polimi.ingsw.gc19.View.Listeners.TurnStateListeners.TurnStateListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ListenersManager {
@@ -41,6 +42,14 @@ public class ListenersManager {
         }
     }
 
+    public void attacheListener(Listener listener){
+        for(ListenerType l : ListenerType.values()){
+            ArrayList<Listener> prev = new ArrayList<>(this.attachedListeners.getOrDefault(l, List.of()));
+            prev.add(listener);
+            this.attachedListeners.put(l, prev);
+        }
+    }
+
     public void removeListener(ListenerType type, Listener listener){
         this.attachedListeners.get(type).remove(listener);
     }
@@ -52,83 +61,124 @@ public class ListenersManager {
     }
 
     public void notifyChatListener(ArrayList<Message> messages){
-        ((ChatListener) this.attachedListeners.get(ListenerType.CHAT_LISTENER)).notify(messages);
+        for(Listener c : this.attachedListeners.get(ListenerType.CHAT_LISTENER)) {
+            ((ChatListener) c).notify(messages);
+        }
     }
 
     public void notifyErrorChatListener(String description){
-        ((ChatListener) this.attachedListeners.get(ListenerType.CHAT_LISTENER)).notify(description);
+        for(Listener c : this.attachedListeners.get(ListenerType.CHAT_LISTENER)) {
+            ((ChatListener) c).notify(description);
+        }
     }
 
     public void notifyGameStateListener(GameEvents gameEvents, List<String> varArgs){
-        ((GameStateListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(gameEvents, varArgs);
+        for(Listener c : this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)) {
+            ((GameStateListener) c).notify(gameEvents, varArgs);
+        }
     }
 
     public void notifyStationListener(GameEvents gameEvents, PersonalStation personalStation){
-        ((StationListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(gameEvents, personalStation);
+        for(Listener c : this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)) {
+            ((StationListener) c).notify(gameEvents, personalStation);
+        }
     }
 
     public void notifyErrorTableListener(String ... error){
-        ((TableListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(error);
+        for(Listener c : this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)) {
+            ((TableListener) c).notify(error);
+        }
     }
 
     public void notifyStationListener(GameEvents gameEvents, OtherStation otherStation){
-        ((StationListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(gameEvents, otherStation);
+        for(Listener c : this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)) {
+            ((StationListener) c).notify(gameEvents, otherStation);
+        }
     }
 
     public void notifyErrorStationListener(String ... args){
-        ((StationListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(args);
+        for(Listener c : this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)) {
+            ((StationListener) c).notify(args);
+        }
     }
 
     public void notifySetupListener(Color color){
-        ((SetupListener) this.attachedListeners.get(ListenerType.SETUP_LISTENER)).notify(color);
+        for(Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
+            ((SetupListener) c).notify(color);
+        }
     }
 
     public void notifySetupListener(GoalCard goalCard){
-        ((SetupListener) this.attachedListeners.get(ListenerType.SETUP_LISTENER)).notify(goalCard);
+        for(Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
+            ((SetupListener) c).notify(goalCard);
+        }
     }
 
     public void notifySetupListener(PlayableCard initialCard){
-        ((SetupListener) this.attachedListeners.get(ListenerType.SETUP_LISTENER)).notify(initialCard);
+        for(Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
+            ((SetupListener) c).notify(initialCard);
+        }
     }
 
     public void notifyErrorSetupListener(String error){
-        ((SetupListener) this.attachedListeners.get(ListenerType.SETUP_LISTENER)).notify(error);
+        for(Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
+            ((SetupListener) c).notify(error);
+        }
     }
 
     public void notifyGameEventsListener(GameEvents gameEvents, LocalTable localTable){
-        ((TableListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(gameEvents, localTable);
+        for(Listener c : this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)) {
+            ((TableListener) c).notify(gameEvents, localTable);
+        }
     }
 
     public void notifyErrorTurnStateListener(String error){
-        ((TurnStateListener) this.attachedListeners.get(ListenerType.TURN_LISTENER)).notify(error);
+        for(Listener c : this.attachedListeners.get(ListenerType.TURN_LISTENER)) {
+            ((TurnStateListener) c).notify(error);
+        }
     }
 
     public void notifyTurnStateListener(String nick, TurnState turnState){
-        ((TurnStateListener) this.attachedListeners.get(ListenerType.TURN_LISTENER)).notify(nick, turnState);
+        for(Listener c : this.attachedListeners.get(ListenerType.TURN_LISTENER)) {
+            ((TurnStateListener) c).notify(nick, turnState);
+        }
     }
 
     public void notifyGameHandlingListener(List<String> availableGames){
-        ((GameHandlingListener) this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)).notify(availableGames);
+        for(Listener c : this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)) {
+            ((GameHandlingListener) c).notify(availableGames);
+        }
     }
 
     public void notifyGameHandlingListener(GameHandlingEvents type, List<String> varArgs){
-        ((GameHandlingListener) this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)).notify(type, varArgs);
+        for(Listener c : this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)) {
+            ((GameHandlingListener) c).notify(type, varArgs);
+        }
     }
 
     public void notifyErrorGameHandlingListener(String errorDescription){
-        ((GameHandlingListener) this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)).notify(errorDescription);
+        for(Listener c : this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)) {
+            ((GameHandlingListener) c).notify(errorDescription);
+        }
     }
 
     public void notifyPlayerCreationListener(String name){
-        ((PlayerCreationListener) this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER)).notify(name);
+        for(Listener c : this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER)) {
+            ((PlayerCreationListener) c).notify(name);
+        }
     }
 
     public void notifyDisconnectionListener(String ... varArgs){
+        for(Listener c : this.attachedListeners.get(ListenerType.DISCONNECTION_LISTENER)) {
+            ((DisconnectionListener) c).notify(varArgs);
+        }
         ((DisconnectionListener) this.attachedListeners.get(ListenerType.DISCONNECTION_LISTENER)).notify(varArgs);
     }
 
     public void notifySetupListener(List<Color> availableColors){
-        ((SetupListener) this.attachedListeners.get(ListenerType.SETUP_LISTENER)).notify(availableColors);
+        for(Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
+            ((SetupListener) c).notify(availableColors);
+        }
     }
 
 }

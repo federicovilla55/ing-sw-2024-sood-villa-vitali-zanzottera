@@ -123,9 +123,6 @@ public class ClientTCP implements ClientInterface {
         while(!Thread.interrupted()) {
             try {
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
-                if(!(incomingMessage instanceof ServerHeartBeatMessage)){
-                    System.out.println(incomingMessage);
-                }
             }
             catch (ClassNotFoundException | IOException ignored){ }
 

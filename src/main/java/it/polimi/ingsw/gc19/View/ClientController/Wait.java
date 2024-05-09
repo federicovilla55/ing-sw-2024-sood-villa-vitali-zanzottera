@@ -25,7 +25,6 @@ public class Wait extends ClientState {
     public void nextState(CreatedPlayerMessage message) {
         super.nextState(message);
         clientController.setNextState(new NotGame(clientController));
-        super.nextState(message);
     }
 
     @Override
