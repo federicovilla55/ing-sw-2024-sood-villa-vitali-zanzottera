@@ -24,10 +24,10 @@ public abstract class ClientState {
     protected ClientInterface clientInterface;
     protected ListenersManager listenersManager;
 
-    protected ClientState(ClientController clientController, ClientInterface clientInterface, ListenersManager listenersManager){
+    protected ClientState(ClientController clientController){
         this.clientController = clientController;
-        this.clientInterface = clientInterface;
-        this.listenersManager = listenersManager;
+        this.clientInterface = clientController.getClientInterface();
+        this.listenersManager = clientController.getListenersManager();
     }
 
     public void nextState(MessageToClient message) {}
@@ -60,7 +60,7 @@ public abstract class ClientState {
     };
 
     public void nextState(GamePausedMessage message) {
-        clientController.setNextState(new Pause(clientController, clientInterface, listenersManager));
+        clientController.setNextState(new Pause(clientController));
         this.listenersManager.notifyGameStateListener(GameEvents.GAME_PAUSED, List.of());
     }
 

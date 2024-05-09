@@ -8,7 +8,12 @@ import java.rmi.RemoteException;
 
 public class ClientRMIFactory implements ClientFactory {
     @Override
-    public ClientInterface createClient() throws RemoteException {
-        return new ClientRMI(new MessageHandler(new ClientController()));
+    public ClientInterface createClient(ClientController clientController) throws RemoteException {
+        MessageHandler messageHandler = new MessageHandler(clientController);
+        ClientInterface clientInterface =  new ClientRMI(messageHandler);
+        messageHandler.setClient(clientInterface);
+        messageHandler.start();
+
+        return clientInterface;
     }
 }

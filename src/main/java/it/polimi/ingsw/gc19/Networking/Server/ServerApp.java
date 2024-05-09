@@ -38,7 +38,7 @@ public class ServerApp {
 
         System.out.println("Default RMI server name is : " + ServerSettings.DEFAULT_RMI_SERVER_NAME + ". Insert name for RMI server (or 'default'): ");
         String rmiName = scanner.nextLine();
-        if(rmiName.equals("default")){
+        if(!rmiName.equals("default")){
             ServerSettings.MAIN_RMI_SERVER_NAME = rmiName;
         }
 

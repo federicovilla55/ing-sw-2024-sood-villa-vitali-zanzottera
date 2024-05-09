@@ -343,4 +343,7 @@ public class CommandParser{
         }
     }
 
+    public ClientController getClientController() {
+        return clientController;
+    }
 }

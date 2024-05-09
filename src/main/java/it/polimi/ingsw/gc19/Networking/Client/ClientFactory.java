@@ -1,8 +1,9 @@
 package it.polimi.ingsw.gc19.Networking.Client;
 
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
+
 import java.io.IOException;
-import java.rmi.RemoteException;
 
 public interface ClientFactory {
-    ClientInterface createClient() throws IOException;
+    ClientInterface createClient(ClientController clientController) throws IOException;
 }

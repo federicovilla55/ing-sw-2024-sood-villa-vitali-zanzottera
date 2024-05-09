@@ -2,14 +2,13 @@ package it.polimi.ingsw.gc19.View.ClientController;
 
 import it.polimi.ingsw.gc19.Enums.GameState;
 import it.polimi.ingsw.gc19.Enums.TurnState;
-import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.EndGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
-import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
+
 
 /**
  * The client is waiting for a message from the server to continue playing.
@@ -18,25 +17,25 @@ import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
  */
 public class Wait extends ClientState {
 
-    public Wait(ClientController clientController, ClientInterface clientInterface, ListenersManager listenersManager) {
-        super(clientController, clientInterface, listenersManager);
+    public Wait(ClientController clientController) {
+        super(clientController);
     }
 
     @Override
     public void nextState(CreatedPlayerMessage message) {
         super.nextState(message);
-        clientController.setNextState(new NotGame(clientController, clientInterface, listenersManager));
+        clientController.setNextState(new NotGame(clientController));
         super.nextState(message);
     }
 
     @Override
     public void nextState(TurnStateMessage message) {
         if (message.getNick().equals(clientController.getNickname()) && message.getTurnState() == TurnState.DRAW) {
-            clientController.setNextState(new Pick(clientController, clientInterface, listenersManager));
+            clientController.setNextState(new Pick(clientController));
         }
         else {
             if (!message.getNick().equals(clientController.getNickname())) {
-                clientController.setNextState(new OtherTurn(clientController, clientInterface, listenersManager));
+                clientController.setNextState(new OtherTurn(clientController));
             }
         }
         this.listenersManager.notifyTurnStateListener(message.getNick(), message.getTurnState());
@@ -44,13 +43,13 @@ public class Wait extends ClientState {
 
     @Override
     public void nextState(EndGameMessage message) {
-        clientController.setNextState(new End(clientController, clientInterface, listenersManager));
+        clientController.setNextState(new End(clientController));
         super.nextState(message);
     }
 
     @Override
     public void nextState(OwnAcceptedPickCardFromDeckMessage message) {
-        clientController.setNextState(new OtherTurn(clientController, clientInterface, listenersManager));
+        clientController.setNextState(new OtherTurn(clientController));
     }
 
     @Override
@@ -67,7 +66,7 @@ public class Wait extends ClientState {
         this.clientController.setLocalModel(localModel);
         this.clientInterface.getMessageHandler().setLocalModel(localModel);
 
-        clientController.setNextState(new Setup(clientController, clientInterface, listenersManager));
+        clientController.setNextState(new Setup(clientController));
     }
 
     @Override
@@ -79,14 +78,14 @@ public class Wait extends ClientState {
     @Override
     public void nextState(GameConfigurationMessage message) {
         if (message.getGameState() == GameState.SETUP) {
-            clientController.setNextState(new Setup(clientController, clientInterface, listenersManager));
+            clientController.setNextState(new Setup(clientController));
         }
         else {
             if(message.getActivePlayer().equals(clientInterface.getNickname())){
-                clientController.setNextState(new Place(clientController, clientInterface, listenersManager));
+                clientController.setNextState(new Place(clientController));
             }
             else{
-                clientController.setNextState(new OtherTurn(clientController, clientInterface, listenersManager));
+                clientController.setNextState(new OtherTurn(clientController));
             }
         }
     }
@@ -103,7 +102,7 @@ public class Wait extends ClientState {
         super.nextState(message);
         this.clientController.setLocalModel(null);
         this.clientInterface.getMessageHandler().setLocalModel(null);
-        this.clientController.setNextState(new NotGame(clientController, clientInterface, listenersManager));
+        this.clientController.setNextState(new NotGame(clientController));
     }
 
     @Override

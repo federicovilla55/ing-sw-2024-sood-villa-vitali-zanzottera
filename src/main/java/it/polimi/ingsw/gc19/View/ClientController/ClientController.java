@@ -65,10 +65,14 @@ public class ClientController {
         this.view = view;
     }
 
+    public ClientInterface getClientInterface() {
+        return clientNetwork;
+    }
+
     public void setClientInterface(ClientInterface clientInterface){
         this.clientNetwork = clientInterface;
-        viewState = new NotPlayer(this, clientInterface, listenersManager);
-        prevState = new NotPlayer(this, clientInterface, listenersManager);
+        viewState = new NotPlayer(this);
+        prevState = new NotPlayer(this);
     }
 
     public LocalModel getLocalModel() {
@@ -95,7 +99,7 @@ public class ClientController {
     public synchronized void signalPossibleNetworkProblem(){
         if(this.viewState.getState() == ViewState.DISCONNECT) return;
         this.prevState = viewState;
-        this.viewState = new Disconnect(this, clientNetwork, listenersManager);
+        this.viewState = new Disconnect(this);
     }
 
     public synchronized void setLocalModel(LocalModel localModel){
@@ -159,8 +163,8 @@ public class ClientController {
         }
 
         this.nickname = nick;
-        viewState = new Wait(this, clientNetwork, listenersManager);
-        prevState = new NotPlayer(this, clientNetwork, listenersManager);
+        viewState = new Wait(this);
+        prevState = new NotPlayer(this);
         clientNetwork.connect(nick);
     }
 
@@ -174,8 +178,8 @@ public class ClientController {
             return;
         }
 
-        viewState = new Wait(this, clientNetwork, listenersManager);
-        prevState = new Pick(this, clientNetwork, listenersManager);
+        viewState = new Wait(this);
+        prevState = new Pick(this);
         clientNetwork.pickCardFromDeck(cardType);
     }
 
@@ -191,8 +195,8 @@ public class ClientController {
 
         clientNetwork.pickCardFromTable(cardType, position);
 
-        viewState = new Wait(this, clientNetwork, listenersManager);
-        prevState = new Pick(this, clientNetwork, listenersManager);
+        viewState = new Wait(this);
+        prevState = new Pick(this);
     }
 
     /**
@@ -215,8 +219,8 @@ public class ClientController {
 
         clientNetwork.placeCard(cardToInsert, anchor, direction, cardOrientation);
 
-        viewState = new Wait(this, clientNetwork, listenersManager);
-        prevState = new Place(this, clientNetwork, listenersManager);
+        viewState = new Wait(this);
+        prevState = new Place(this);
     }
 
     /**
@@ -228,7 +232,7 @@ public class ClientController {
         //@TODO: decide what type of messages broadast to view
         switch (message.getErrorType()){
             case ErrorType.INVALID_CARD_ERROR, ErrorType.INVALID_ANCHOR_ERROR -> {
-                viewState = new Place(this, clientNetwork, listenersManager);
+                viewState = new Place(this);
             }
             case ErrorType.GENERIC, ErrorType.INVALID_TURN_STATE, ErrorType.INVALID_GAME_STATE -> {
                 if(viewState.getState() == ViewState.WAIT){
@@ -236,10 +240,10 @@ public class ClientController {
                 }
             }
             case ErrorType.EMPTY_DECK, ErrorType.EMPTY_TABLE_SLOT -> {
-                viewState = new Pick(this, clientNetwork, listenersManager);
+                viewState = new Pick(this);
             }
             case ErrorType.INVALID_GOAL_CARD_ERROR, ErrorType.COLOR_ALREADY_CHOSEN -> {
-                viewState = new Setup(this, clientNetwork, listenersManager);
+                viewState = new Setup(this);
             }
         }
     }
@@ -253,7 +257,7 @@ public class ClientController {
         if(message.getError() == NetworkError.COULD_NOT_RECONNECT){
             disconnect();
         }else if (message.getError() == NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER){
-            viewState = new NotPlayer(this, clientNetwork, listenersManager);
+            viewState = new NotPlayer(this);
         }
     }
 
@@ -265,13 +269,13 @@ public class ClientController {
     public synchronized void handleError(GameHandlingErrorMessage message){
         switch (message.getErrorType()){
             case Error.PLAYER_NAME_ALREADY_IN_USE -> {
-                viewState = new NotPlayer(this, clientNetwork, listenersManager);
+                viewState = new NotPlayer(this);
             }
             case Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME -> {
-                viewState = new Disconnect(this, clientNetwork, listenersManager);
+                viewState = new Disconnect(this);
             }
             default -> {
-                viewState = new NotGame(this, clientNetwork, listenersManager);
+                viewState = new NotGame(this);
             }
         }
     }
@@ -317,7 +321,7 @@ public class ClientController {
      * place_initial_card(orientation)
      */
     public synchronized void placeInitialCard(CardOrientation cardOrientation) {
-        if(viewState.getState() != ViewState.SETUP){
+        if(viewState.getState() != ViewState.SETUP) {
             //@TODO: notify view
             return;
         }
@@ -346,8 +350,8 @@ public class ClientController {
             return;
         }
         clientNetwork.joinFirstAvailableGame();
-        prevState = new NotGame(this, clientNetwork, listenersManager);
-        viewState = new Wait(this, clientNetwork, listenersManager);
+        prevState = new NotGame(this);
+        viewState = new Wait(this);
     }
 
     /**
@@ -361,8 +365,8 @@ public class ClientController {
             return;
         }
         clientNetwork.joinGame(gameName);
-        prevState = new NotGame(this, clientNetwork, listenersManager);
-        viewState = new Wait(this, clientNetwork, listenersManager);
+        prevState = new NotGame(this);
+        viewState = new Wait(this);
     }
 
     /**
@@ -377,8 +381,8 @@ public class ClientController {
         }
         if(numPlayers > 1 && numPlayers < 5){
             clientNetwork.createGame(gameName, numPlayers);
-            prevState = new NotGame(this, clientNetwork, listenersManager);
-            viewState = new Wait(this, clientNetwork, listenersManager);
+            prevState = new NotGame(this);
+            viewState = new Wait(this);
         }
         else{
             this.listenersManager.notifyErrorGameHandlingListener("Games cannot have " + numPlayers + " players! Retry...");
@@ -392,7 +396,7 @@ public class ClientController {
             try {
                 this.clientNetwork.logoutFromGame();
 
-                this.viewState = new Wait(this, clientNetwork, listenersManager);
+                this.viewState = new Wait(this);
                 this.localModel = null;
 
                 return;
@@ -420,7 +424,7 @@ public class ClientController {
 
                 this.clientNetwork.disconnect();
 
-                this.viewState = new Wait(this, this.clientNetwork, listenersManager);
+                this.viewState = new Wait(this);
 
                 this.localModel = null;
 

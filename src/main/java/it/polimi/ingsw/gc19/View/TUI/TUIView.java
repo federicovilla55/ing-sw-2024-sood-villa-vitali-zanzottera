@@ -2,8 +2,13 @@ package it.polimi.ingsw.gc19.View.TUI;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.*;
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
+import it.polimi.ingsw.gc19.Networking.Client.Configuration.Configuration;
+import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.ClientController.*;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.Command.CommandType;
 import it.polimi.ingsw.gc19.View.GameLocalView.*;
@@ -12,6 +17,7 @@ import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingLis
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationListener;
 import it.polimi.ingsw.gc19.View.UI;
 
+import java.io.IOException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.*;
@@ -19,13 +25,82 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TUIView implements UI, PlayerCreationListener, GameHandlingListener {
+public class TUIView extends Thread implements UI, PlayerCreationListener, GameHandlingListener {
 
     private LocalModel localModel;
     private final CommandParser commandParser;
 
-    public TUIView(CommandParser commandParser){
+    private final ClientController clientController;
+
+    private ClientInterface client;
+
+    private static Configuration.ConnectionType chooseClientType() {
+        String connectionType;
+        do {
+            System.out.println("Please enter what type of connection you want to use to connect to game server: ");
+            System.out.println("- RMI");
+            System.out.println("- TCP");
+            Scanner scanner = new Scanner(System.in);
+            connectionType = scanner.nextLine();
+        } while (!connectionType.equalsIgnoreCase("rmi") && !connectionType.equalsIgnoreCase("tcp"));
+
+        return Configuration.ConnectionType.valueOf(connectionType.toUpperCase());
+    }
+
+    public void run() {
+        Configuration config;
+        Configuration.ConnectionType connectionType;
+        String reconnectChoice;
+
+        try {
+            config = ConfigurationManager.retriveConfiguration();
+            connectionType = config.getConnectionType();
+
+            do {
+                System.out.println("Configuration found, do you want to try to reconnect? (s/n)");
+                Scanner scanner = new Scanner(System.in);
+                reconnectChoice = scanner.nextLine();
+            } while(!reconnectChoice.equalsIgnoreCase("s")&&!reconnectChoice.equalsIgnoreCase("n"));
+
+            if(reconnectChoice.equalsIgnoreCase("s")) {
+                client = connectionType.getClientFactory().createClient(clientController);
+                client.configure(config.getNick(), config.getToken());
+                clientController.setNickname(config.getNick());
+                clientController.setClientInterface(client);
+                clientController.setNextState(new Disconnect(clientController));
+            }
+
+        } catch (RuntimeException e) {
+            System.out.println("No valid configuration found... creating new client");
+            reconnectChoice = "n";
+        } catch (IOException e) {
+            System.out.println("Error while creating client... aborting");
+            System.exit(1);
+            return;
+        }
+
+        if(reconnectChoice.equalsIgnoreCase("n")) {
+            connectionType = chooseClientType();
+            try {
+                client = connectionType.getClientFactory().createClient(clientController);
+            } catch (IOException e) {
+                System.out.println("Error while creating client... aborting");
+                System.exit(1);
+                return;
+            }
+            clientController.setClientInterface(client);
+            clientController.setNextState(new NotPlayer(clientController));
+            System.out.println("Successfully connected to the server");
+            System.out.println("Please enter a nickname: ");
+            Scanner scanner = new Scanner(System.in);
+            String nickname = scanner.nextLine();
+            clientController.createPlayer(nickname);
+        }
+    }
+
+    public TUIView(CommandParser commandParser) {
         this.commandParser = commandParser;
+        this.clientController = commandParser.getClientController();
         this.localModel = null;
     }
 
@@ -603,23 +678,22 @@ public class TUIView implements UI, PlayerCreationListener, GameHandlingListener
         return res;
     }
 
-    private void parseCommand(String command){
+    private void parseCommand(String command) {
         Pattern pattern = Pattern.compile("^(.*?)\\(([^)]*)\\)$");
         Matcher matcher = pattern.matcher(command);
 
-        if(matcher.matches()){
+        if (matcher.matches()) {
             CommandType commandType;
-            try{
+            try {
                 commandType = CommandType.valueOf(matcher.group(1));
-            }
-            catch (IllegalArgumentException illegalArgumentException){
+            } catch (IllegalArgumentException illegalArgumentException) {
                 //@TODO: view
                 return;
             }
 
             String args = matcher.group(2);
 
-            switch (commandType){
+            switch (commandType) {
                 case CommandType.CREATE_PLAYER -> commandParser.createPlayer(args);
                 case CommandType.CREATE_GAME -> commandParser.createGame(args);
                 case CommandType.AVAILABLE_GAMES -> commandParser.availableGames(args);
@@ -635,8 +709,7 @@ public class TUIView implements UI, PlayerCreationListener, GameHandlingListener
                 case CommandType.LOGOUT_FROM_GAME -> commandParser.logoutFromGame(args);
                 case CommandType.DISCONNECT -> commandParser.disconnect(args);
             }
-        }
-        else{
+        } else {
             //@TODO: view: command format not correct!
         }
     }
