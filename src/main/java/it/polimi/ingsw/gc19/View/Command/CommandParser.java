@@ -25,7 +25,7 @@ public class CommandParser{
         if(args == null) throw new IllegalArgumentException();
 
         args = args.replaceAll("\\s", "");
-        Pattern pattern = Pattern.compile("\\((.*?)\\)");
+        Pattern pattern = Pattern.compile("\\(*?\\)");
         Matcher matcher = pattern.matcher(args);
 
         if (matcher.matches()) {
@@ -38,6 +38,8 @@ public class CommandParser{
 
             return arguments;
         }
+
+        System.out.println("noooooooooooooooo");
 
         throw new IllegalArgumentException();
     }
@@ -91,6 +93,7 @@ public class CommandParser{
     }
 
     public void createGame(String commandArgs){
+        System.out.println("okkkkkkkkkkkkkkkkkkkk");
         String[] parsedArguments;
 
         try{
@@ -111,6 +114,7 @@ public class CommandParser{
             }
         }
         else{
+            System.out.println("nooooooooooooooooooooooooooooo");
             //@TODO: notify view
         }
     }

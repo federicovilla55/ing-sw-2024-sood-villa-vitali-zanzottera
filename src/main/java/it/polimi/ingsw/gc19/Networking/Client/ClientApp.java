@@ -31,7 +31,7 @@ public class ClientApp {
 
         switch (uiType.toLowerCase()) {
             case "tui" -> {
-                new TUIView(new CommandParser(new ClientController())).start();
+                new TUIView(new CommandParser(new ClientController()));
             }
             case "gui" -> Application.launch(GUIView.class);
         }

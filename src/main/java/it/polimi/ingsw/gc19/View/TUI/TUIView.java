@@ -26,11 +26,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TUIView extends Thread implements UI, PlayerCreationListener, GameHandlingListener {
+public class TUIView implements UI, PlayerCreationListener, GameHandlingListener {
 
     private LocalModel localModel;
     private final CommandParser commandParser;
     private final ClientController clientController;
+
+    private final Thread readerThread;
 
     private static Configuration.ConnectionType chooseClientType() {
         String connectionType;
@@ -45,7 +47,7 @@ public class TUIView extends Thread implements UI, PlayerCreationListener, GameH
         return Configuration.ConnectionType.valueOf(connectionType.toUpperCase());
     }
 
-    public void run() {
+    private void runTUI() {
         Configuration config;
         Configuration.ConnectionType connectionType;
         String reconnectChoice;
@@ -59,7 +61,7 @@ public class TUIView extends Thread implements UI, PlayerCreationListener, GameH
                 System.out.println("Configuration found, do you want to try to reconnect? (s/n)");
                 Scanner scanner = new Scanner(System.in);
                 reconnectChoice = scanner.nextLine();
-            } while(!reconnectChoice.equalsIgnoreCase("s")&&!reconnectChoice.equalsIgnoreCase("n"));
+            } while(!reconnectChoice.equalsIgnoreCase("s") && !reconnectChoice.equalsIgnoreCase("n"));
 
             if(reconnectChoice.equalsIgnoreCase("s")) {
                 client = connectionType.getClientFactory().createClient(clientController);
@@ -67,6 +69,9 @@ public class TUIView extends Thread implements UI, PlayerCreationListener, GameH
                 clientController.setNickname(config.getNick());
                 clientController.setClientInterface(client);
                 clientController.setNextState(new Disconnect(clientController));
+            }
+            else{
+                ConfigurationManager.deleteConfiguration();
             }
 
         } catch (RuntimeException e) {
@@ -88,12 +93,23 @@ public class TUIView extends Thread implements UI, PlayerCreationListener, GameH
                 return;
             }
             clientController.setClientInterface(client);
+            System.out.println("Successfully connected to the server!");
+            System.out.print("> ");
             clientController.setNextState(new NotPlayer(clientController));
-            System.out.println("Successfully connected to the server");
+            /*System.out.println("Successfully connected to the server");
             System.out.println("Please enter a nickname: ");
             Scanner scanner = new Scanner(System.in);
             String nickname = scanner.nextLine();
             clientController.createPlayer(nickname);
+            scanner.close();*/
+        }
+
+        Scanner scanner = new Scanner(System.in);
+
+        while (!Thread.currentThread().isInterrupted()){
+            String command = scanner.nextLine();
+
+            this.parseCommand(command);
         }
     }
 
@@ -101,7 +117,11 @@ public class TUIView extends Thread implements UI, PlayerCreationListener, GameH
         this.commandParser = commandParser;
         this.clientController = commandParser.getClientController();
         this.clientController.getListenersManager().attacheListener(this);
+
         this.localModel = null;
+
+        this.readerThread = new Thread(this::runTUI);
+        this.readerThread.start();
     }
 
     public void setLocalModel(LocalModel localModel){
@@ -682,10 +702,11 @@ public class TUIView extends Thread implements UI, PlayerCreationListener, GameH
         Pattern pattern = Pattern.compile("^(.*?)\\(([^)]*)\\)$");
         Matcher matcher = pattern.matcher(command);
 
+
         if (matcher.matches()) {
             CommandType commandType;
             try {
-                commandType = CommandType.valueOf(matcher.group(1));
+                commandType = CommandType.valueOf(matcher.group(1).toUpperCase());
             } catch (IllegalArgumentException illegalArgumentException) {
                 //@TODO: view
                 return;
@@ -717,6 +738,7 @@ public class TUIView extends Thread implements UI, PlayerCreationListener, GameH
     @Override
     public void notify(String name) {
         System.out.println("Your player has been correctly created. Your username is: " + name);
+        System.out.print(">");
     }
 
     @Override
