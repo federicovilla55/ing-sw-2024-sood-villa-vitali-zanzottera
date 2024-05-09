@@ -10,4 +10,6 @@ public interface StationListener {
 
     void notify(GameEvents type, OtherStation otherStation);
 
+    void notify(String ... varArgs);
+
 }

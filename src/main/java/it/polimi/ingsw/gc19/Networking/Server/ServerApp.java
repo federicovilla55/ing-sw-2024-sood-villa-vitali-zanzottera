@@ -23,6 +23,7 @@ import java.util.Scanner;
  * is 127.0.0.1.
  */
 public class ServerApp {
+
     private static TCPConnectionAcceptor TCPConnectionAcceptor;
     private static MainServerTCP mainServerTCP;
     private static MainServerRMI mainServerRMI;

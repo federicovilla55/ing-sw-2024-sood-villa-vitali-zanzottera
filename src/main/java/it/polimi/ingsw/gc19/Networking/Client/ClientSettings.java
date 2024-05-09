@@ -19,7 +19,6 @@ public class ClientSettings {
     public static int SERVER_TCP_PORT = ServerSettings.DEFAULT_TCP_SERVER_PORT;
 
     public static String DEFAULT_RMI_SERVER_NAME = ServerSettings.DEFAULT_RMI_SERVER_NAME;
-
     public static final String MAIN_SERVER_RMI_NAME = ClientSettings.DEFAULT_RMI_SERVER_NAME;
 
     public static final String CONFIG_FILE_PATH = "src/main/java/it/polimi/ingsw/gc19/Networking/Client/Configuration/Local Config/";

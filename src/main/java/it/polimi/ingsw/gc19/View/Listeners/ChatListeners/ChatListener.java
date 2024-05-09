@@ -9,4 +9,6 @@ public interface ChatListener extends Listener {
 
     void notify(ArrayList<Message> msg);
 
+    void notify(String errorDescription);
+
 }

@@ -69,7 +69,7 @@ public class LocalModel {
         }
         this.addCardsFromStationToMap(localStation);
 
-        this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_STATION, localStation);
+        this.listenersManager.notifyStationListener(GameEvents.UPDATE_STATION, localStation);
     }
 
     private void addCardsFromStationToMap(LocalStationPlayer station){
@@ -95,21 +95,21 @@ public class LocalModel {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_STATION, otherStation);
+        this.listenersManager.notifyStationListener(GameEvents.UPDATE_STATION, otherStation);
     }
 
     public void setPlayerInactive(String nickname){
         synchronized (playerState) {
             this.playerState.put(nickname, State.INACTIVE);
         }
-        this.listenersManager.notifyGameEventsListener(GameEvents.DISCONNECTED_PLAYER, List.of(nickname));
+        this.listenersManager.notifyGameStateListener(GameEvents.DISCONNECTED_PLAYER, List.of(nickname));
     }
 
     public void setPlayerActive(String nickname){
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        this.listenersManager.notifyGameEventsListener(GameEvents.RECONNECTED_PLAYER, List.of(nickname));
+        this.listenersManager.notifyGameStateListener(GameEvents.RECONNECTED_PLAYER, List.of(nickname));
     }
 
     public void setPrivateGoal(GoalCard goalCard) {
@@ -136,10 +136,10 @@ public class LocalModel {
         }
 
         if(this.nickname.equals(nickname)) {
-            this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(nickname));
+            this.listenersManager.notifyStationListener(GameEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(nickname));
         }
         else {
-            this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_STATION, (OtherStation) this.playerStations.get(nickname));
+            this.listenersManager.notifyStationListener(GameEvents.UPDATE_STATION, (OtherStation) this.playerStations.get(nickname));
         }
     }
 
@@ -171,7 +171,7 @@ public class LocalModel {
         synchronized (this.playerStations) {
             ((PersonalStation) this.playerStations.get(this.nickname)).updateCardsInHand(playableCard);
         }
-        this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(this.nickname));
+        this.listenersManager.notifyStationListener(GameEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(this.nickname));
     }
 
     public void updateCardsInTable(PlayableCard playableCard, PlayableCardType playableCardType, int position){

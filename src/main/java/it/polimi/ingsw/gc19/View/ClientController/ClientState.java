@@ -52,30 +52,30 @@ public abstract class ClientState {
             this.clientController.getLocalModel().getStations().get(s).setNumPoints(message.getUpdatedPoints().get(s));
         }
 
-        this.listenersManager.notifyGameEventsListener(GameEvents.END_GAME, message.getWinnerNicks());
+        this.listenersManager.notifyGameStateListener(GameEvents.END_GAME, message.getWinnerNicks());
     }
 
     public void nextState(BeginFinalRoundMessage message){
-        this.listenersManager.notifyGameEventsListener(GameEvents.BEGIN_FINAL_ROUND, List.of());
+        this.listenersManager.notifyGameStateListener(GameEvents.BEGIN_FINAL_ROUND, List.of());
     };
 
     public void nextState(GamePausedMessage message) {
         clientController.setNextState(new Pause(clientController, clientInterface, listenersManager));
-        this.listenersManager.notifyGameEventsListener(GameEvents.GAME_PAUSED, List.of());
+        this.listenersManager.notifyGameStateListener(GameEvents.GAME_PAUSED, List.of());
     }
 
     public void nextState(GameResumedMessage message) {
         clientController.setNextState(clientController.getPrevState());
-        this.listenersManager.notifyGameEventsListener(GameEvents.GAME_RESUMED, List.of());
+        this.listenersManager.notifyGameStateListener(GameEvents.GAME_RESUMED, List.of());
     }
 
     public void nextState(StartPlayingGameMessage message) {
-        this.listenersManager.notifyGameEventsListener(GameEvents.START_PLAYING_GAME, List.of());
+        this.listenersManager.notifyGameStateListener(GameEvents.START_PLAYING_GAME, List.of());
         this.listenersManager.notifyTurnStateListener(message.getNickFirstPlayer(), TurnState.DRAW);
     }
 
     public void nextState(PlayerReconnectedToGameMessage message) {
-        this.listenersManager.notifyGameEventsListener(GameEvents.RECONNECTED_PLAYER, List.of(message.getPlayerName()));
+        this.listenersManager.notifyGameStateListener(GameEvents.RECONNECTED_PLAYER, List.of(message.getPlayerName()));
     }
 
     public void nextState(DisconnectFromGameMessage message) {

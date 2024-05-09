@@ -7,4 +7,6 @@ public interface TurnStateListener extends Listener {
 
     void notify(String nick, TurnState turnState);
 
+    void notify(String error);
+
 }

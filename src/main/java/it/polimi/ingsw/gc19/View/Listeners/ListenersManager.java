@@ -55,16 +55,28 @@ public class ListenersManager {
         ((ChatListener) this.attachedListeners.get(ListenerType.CHAT_LISTENER)).notify(messages);
     }
 
-    public void notifyGameEventsListener(GameEvents gameEvents, List<String> varArgs){
+    public void notifyErrorChatListener(String description){
+        ((ChatListener) this.attachedListeners.get(ListenerType.CHAT_LISTENER)).notify(description);
+    }
+
+    public void notifyGameStateListener(GameEvents gameEvents, List<String> varArgs){
         ((GameStateListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(gameEvents, varArgs);
     }
 
-    public void notifyGameEventsListener(GameEvents gameEvents, PersonalStation personalStation){
+    public void notifyStationListener(GameEvents gameEvents, PersonalStation personalStation){
         ((StationListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(gameEvents, personalStation);
     }
 
-    public void notifyGameEventsListener(GameEvents gameEvents, OtherStation otherStation){
+    public void notifyErrorTableListener(String ... error){
+        ((TableListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(error);
+    }
+
+    public void notifyStationListener(GameEvents gameEvents, OtherStation otherStation){
         ((StationListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(gameEvents, otherStation);
+    }
+
+    public void notifyErrorStationListener(String ... args){
+        ((StationListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(args);
     }
 
     public void notifySetupListener(Color color){
@@ -79,8 +91,16 @@ public class ListenersManager {
         ((SetupListener) this.attachedListeners.get(ListenerType.SETUP_LISTENER)).notify(initialCard);
     }
 
+    public void notifyErrorSetupListener(String error){
+        ((SetupListener) this.attachedListeners.get(ListenerType.SETUP_LISTENER)).notify(error);
+    }
+
     public void notifyGameEventsListener(GameEvents gameEvents, LocalTable localTable){
         ((TableListener) this.attachedListeners.get(ListenerType.GAME_EVENTS_LISTENER)).notify(gameEvents, localTable);
+    }
+
+    public void notifyErrorTurnStateListener(String error){
+        ((TurnStateListener) this.attachedListeners.get(ListenerType.TURN_LISTENER)).notify(error);
     }
 
     public void notifyTurnStateListener(String nick, TurnState turnState){
@@ -93,6 +113,10 @@ public class ListenersManager {
 
     public void notifyGameHandlingListener(GameHandlingEvents type, List<String> varArgs){
         ((GameHandlingListener) this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)).notify(type, varArgs);
+    }
+
+    public void notifyErrorGameHandlingListener(String errorDescription){
+        ((GameHandlingListener) this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)).notify(errorDescription);
     }
 
     public void notifyPlayerCreationListener(String name){

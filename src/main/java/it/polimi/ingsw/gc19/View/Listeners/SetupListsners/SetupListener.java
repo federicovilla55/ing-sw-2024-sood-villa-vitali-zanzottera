@@ -21,4 +21,6 @@ public interface SetupListener extends Listener {
 
     void notify(GoalCard goalCard1, GoalCard goalCard2);
 
+    void notify(String error);
+
 }

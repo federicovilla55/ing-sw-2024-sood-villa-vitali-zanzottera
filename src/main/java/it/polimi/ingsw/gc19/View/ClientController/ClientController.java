@@ -128,18 +128,18 @@ public class ClientController {
      * send_message(message_content, receiver1 {, receiver2, ...})
      */
     public synchronized void sendChatMessage(String message, List<String> users) {
-        if(viewState.getState() != ViewState.NOT_GAME || viewState.getState() != ViewState.NOT_PLAYER || viewState.getState() != ViewState.DISCONNECT) {
-            //@TODO: notify view
+        if(viewState.getState() == ViewState.NOT_GAME || viewState.getState() == ViewState.NOT_PLAYER || viewState.getState() == ViewState.DISCONNECT) {
+            this.listenersManager.notifyErrorGameHandlingListener("You cannot send a chat message when you are disconnected or not registered to a game!");
             return;
         }
 
         if(users.size() > this.localModel.getNumPlayers()){
-            //@TODO: view
+            this.listenersManager.notifyErrorChatListener("Number of players is incorrect!");
         }
         else{
             for(String u : users){
                 if(!this.localModel.getStations().containsKey(u)){
-                    //@TODO: view
+                    this.listenersManager.notifyErrorChatListener("You are trying to send a message to user " + u + " that does not exists in game!");
                     return;
                 }
             }
@@ -170,7 +170,7 @@ public class ClientController {
      */
     public synchronized void pickCardFromDeck(PlayableCardType cardType){
         if(viewState.getState() != ViewState.PICK){
-            //@TODO: notify view
+            this.listenersManager.notifyErrorTableListener("You cannot pick card from deck of type " + cardType + "!");
             return;
         }
 
@@ -185,7 +185,7 @@ public class ClientController {
      */
     public synchronized void pickCardFromTable(PlayableCardType cardType, int position) {
         if(viewState.getState() != ViewState.PICK){
-            //@TODO: notify view
+            this.listenersManager.notifyErrorTableListener("You cannot pick card from table of type " + cardType + " and position " + position + "!");
             return;
         }
 
@@ -201,24 +201,15 @@ public class ClientController {
      */
     public synchronized void placeCard(String cardToInsert, String anchor, Direction direction, CardOrientation cardOrientation) {
         if(viewState.getState() != ViewState.PLACE){
-            //@TODO: notify view
+            this.listenersManager.notifyErrorTurnStateListener("Cannot place card!");
             return;
         }
 
         PlayableCard cardToPlace = localModel.getPlayableCard(cardToInsert);
         PlayableCard anchorCard = localModel.getPlayableCard(anchor);
 
-        if(cardToPlace == null){
-            //@TODO: notify view
-            return;
-        }
-        if(anchorCard == null){
-            //TODO: notify view
-            return;
-        }
-
         if(!localModel.isCardPlaceablePersonalStation(cardToPlace, anchorCard, direction)){
-            //@TODO: notify view
+            this.listenersManager.notifyErrorStationListener(cardToPlace.getCardCode(), anchorCard.getCardCode());
             return;
         }
 
@@ -291,11 +282,11 @@ public class ClientController {
      */
     public synchronized void chooseColor(Color color) {
         if(viewState.getState() != ViewState.SETUP){
-            //@TODO: notify view
+            //@TODO: how to notify view?
             return;
         }
         if(!localModel.getAvailableColors().contains(color)){
-            //@TODO: notify the observer that the color selected is not available
+            this.listenersManager.notifyErrorSetupListener("The requested color is not available!");
         }
         else {
             clientNetwork.chooseColor(color);
@@ -317,7 +308,7 @@ public class ClientController {
             clientNetwork.choosePrivateGoalCard(cardIdx);
         }
         else{
-            //@TODO: notify view
+            this.listenersManager.notifyErrorSetupListener("The requested position for goal card is not correct!");
         }
     }
 
@@ -390,7 +381,7 @@ public class ClientController {
             viewState = new Wait(this, clientNetwork, listenersManager);
         }
         else{
-            //@TODO: notify view
+            this.listenersManager.notifyErrorGameHandlingListener("Games cannot have " + numPlayers + " players! Retry...");
         }
     }
 
