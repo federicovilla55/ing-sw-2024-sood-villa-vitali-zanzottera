@@ -13,6 +13,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
+import it.polimi.ingsw.gc19.View.UI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +45,24 @@ public class ClientController {
 
     private ClientInterface clientNetwork;
 
-    private ListenersManager listenersManager;
+    private final ListenersManager listenersManager;
 
-    public ClientController() { }
+    private UI view;
 
-    public void setListenerManager(ListenersManager listenersManager){
-        this.listenersManager = listenersManager;
+    public ClientController() {
+        this.listenersManager = new ListenersManager();
+    }
+
+    public ListenersManager getListenersManager(){
+        return this.listenersManager;
+    }
+
+    public UI getView() {
+        return view;
+    }
+
+    public void setView(UI view){
+        this.view = view;
     }
 
     public void setClientInterface(ClientInterface clientInterface){
@@ -62,7 +75,6 @@ public class ClientController {
         return localModel;
     }
 
-    //Probabilmente, getNick e setNick verranno assorbite in qualche metodo...
     public String getNickname() {
         return nickname;
     }

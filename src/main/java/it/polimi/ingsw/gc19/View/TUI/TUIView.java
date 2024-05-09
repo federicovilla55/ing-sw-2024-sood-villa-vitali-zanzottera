@@ -7,6 +7,10 @@ import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.Command.CommandType;
 import it.polimi.ingsw.gc19.View.GameLocalView.*;
+import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
+import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
+import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationListener;
+import it.polimi.ingsw.gc19.View.UI;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -15,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TUIView{
+public class TUIView implements UI, PlayerCreationListener, GameHandlingListener {
 
     private LocalModel localModel;
     private final CommandParser commandParser;
@@ -28,7 +32,6 @@ public class TUIView{
     public void setLocalModel(LocalModel localModel){
         this.localModel = localModel;
     }
-
 
     /**
      * This method prints to terminal a matrix of strings, each string represents two UTF-8 wide character(s),
@@ -635,6 +638,28 @@ public class TUIView{
         }
         else{
             //@TODO: view: command format not correct!
+        }
+    }
+
+    @Override
+    public void notify(String name) {
+        System.out.println("Your player has been correctly created. Your username is: " + name);
+    }
+
+    @Override
+    public void notify(GameHandlingEvents type, List<String> varArgs) {
+        switch (type){
+            case GameHandlingEvents.CREATED_GAME -> System.out.println("The requested game '" + varArgs.getFirst() + "' has been correctly created.");
+            case GameHandlingEvents.JOINED_GAME -> System.out.println("You have correctly logged in game named '" + varArgs.getFirst() + "'.");
+        }
+    }
+
+    @Override
+    public void notify(List<String> gameNames) {
+        System.out.println("There are the following available games:");
+
+        for(String g : gameNames){
+            System.out.println("-> " + g);
         }
     }
 

@@ -61,6 +61,7 @@ public class Wait extends ClientState {
 
     private void buildGame(String gameName) {
         LocalModel localModel = new LocalModel();
+        localModel.setListenersManager(listenersManager);
         localModel.setNickname(this.clientInterface.getNickname());
         localModel.setGameName(gameName);
         this.clientController.setLocalModel(localModel);
