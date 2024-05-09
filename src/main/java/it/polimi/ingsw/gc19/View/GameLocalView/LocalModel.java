@@ -69,7 +69,7 @@ public class LocalModel {
         }
         this.addCardsFromStationToMap(localStation);
 
-        this.listenersManager.notify(GameEvents.CREATED_STATION, localStation);
+        this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_STATION, localStation);
     }
 
     private void addCardsFromStationToMap(LocalStationPlayer station){
@@ -95,35 +95,38 @@ public class LocalModel {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        this.listenersManager.notify(GameEvents.CREATED_STATION, otherStation);
+        this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_STATION, otherStation);
     }
 
     public void setPlayerInactive(String nickname){
         synchronized (playerState) {
             this.playerState.put(nickname, State.INACTIVE);
         }
+        this.listenersManager.notifyGameEventsListener(GameEvents.DISCONNECTED_PLAYER, List.of(nickname));
     }
 
     public void setPlayerActive(String nickname){
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
+        this.listenersManager.notifyGameEventsListener(GameEvents.RECONNECTED_PLAYER, List.of(nickname));
     }
 
     public void setPrivateGoal(GoalCard goalCard) {
         synchronized (playerStations) {
             this.playerStations.get(this.nickname).setPrivateGoalCard(goalCard);
         }
-        this.listenersManager.notify(goalCard);
+        this.listenersManager.notifySetupListener(goalCard);
     }
 
     public void setColor(Color color){
         synchronized (this.playerStations) {
             this.playerStations.get(this.nickname).setChosenColor(color);
         }
-        this.listenersManager.notify(color);
+        this.listenersManager.notifySetupListener(color);
     }
 
+    //@TODO: ABOUT UPDATES OF POINTS AFTER PLACING CARD
     public void placeCard(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction) {
         synchronized (this.playerStations) {
             this.playerStations.get(nickname).placeCard(cardToPlace, anchorCode, direction);
@@ -133,10 +136,10 @@ public class LocalModel {
         }
 
         if(this.nickname.equals(nickname)) {
-            this.listenersManager.notify(GameEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(nickname));
+            this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(nickname));
         }
         else {
-            this.listenersManager.notify(GameEvents.UPDATE_STATION, (OtherStation) this.playerStations.get(nickname));
+            this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_STATION, (OtherStation) this.playerStations.get(nickname));
         }
     }
 
@@ -148,10 +151,7 @@ public class LocalModel {
             this.playerState.put(nickname, State.ACTIVE);
         }
 
-        this.listenersManager.notify(initialCard.getCardOrientation());
-
-        //Quasi quasi farei in modo che per il setup ci siano dei listeners appositi
-        //quando il setup è finito dico alla view di aggiornarsi
+        this.listenersManager.notifySetupListener(initialCard);
     }
 
 
@@ -171,7 +171,7 @@ public class LocalModel {
         synchronized (this.playerStations) {
             ((PersonalStation) this.playerStations.get(this.nickname)).updateCardsInHand(playableCard);
         }
-        this.listenersManager.notify(GameEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(this.nickname));
+        this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_STATION, (PersonalStation) this.playerStations.get(this.nickname));
     }
 
     public void updateCardsInTable(PlayableCard playableCard, PlayableCardType playableCardType, int position){
@@ -196,10 +196,10 @@ public class LocalModel {
             previousPlayableCards.put(playableCard.getCardCode(), playableCard);
         }
         
-        this.listenersManager.notify(GameEvents.UPDATE_TABLE, table);
+        this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_TABLE, table);
     }
 
-    public ConcurrentHashMap<String, OtherStation> getOtherStations() {
+    public ConcurrentHashMap<String, OtherStation> getStations() {
         ConcurrentHashMap<String, OtherStation> otherStations =
                 new ConcurrentHashMap<>();
         synchronized (playerStations) {
@@ -232,7 +232,7 @@ public class LocalModel {
             }
         }
 
-        this.listenersManager.notify(GameEvents.UPDATE_TABLE, table);
+        this.listenersManager.notifyGameEventsListener(GameEvents.UPDATE_TABLE, table);
     }
 
     public LocalTable getTable() {
@@ -244,7 +244,6 @@ public class LocalModel {
     public void setFirstPlayer(String firstPlayer) {
         this.firstPlayer = firstPlayer;
 
-        this.listenersManager.notify(firstPlayer);
     }
 
     public String getFirstPlayer() {
@@ -261,6 +260,7 @@ public class LocalModel {
 
     public void setAvailableColors(List<Color> availableColors) {
         this.availableColors = availableColors;
+        this.listenersManager.notifySetupListener(availableColors);
     }
 
     public List<Color> getAvailableColors() {
@@ -271,7 +271,7 @@ public class LocalModel {
         synchronized (this.messages){
             messages.add(new Message(messageContent, sender, String.valueOf(receivers)));
         }
-        this.listenersManager.notify(messages);
+        this.listenersManager.notifyChatListener(messages);
     }
 
     public ArrayList<Message> getMessages() {
@@ -294,7 +294,7 @@ public class LocalModel {
 
     public int getNumActivePlayers(){
         return (int) playerState.values().stream()
-                .filter(e -> e==State.ACTIVE)
+                .filter(e -> e == State.ACTIVE)
                 .count();
     }
 

@@ -250,13 +250,12 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(AvailableGamesMessage message) {
-        //@TODO: handle available games: simply notify view about available games
+        this.clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(BeginFinalRoundMessage message) {
-        this.listenersManager.notify(GameEvents.BEGIN_FINAL_ROUND);
-        //clientController.getCurrentState().nextState(message); ?????????????????
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override

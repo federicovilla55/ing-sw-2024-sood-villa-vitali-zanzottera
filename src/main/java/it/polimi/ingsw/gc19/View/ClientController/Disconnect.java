@@ -35,6 +35,7 @@ class Disconnect extends ClientState {
         reconnectScheduler.interrupt();
         super.clientInterface.startSendingHeartbeat();
         clientController.setNextState(new NotGame(clientController, clientInterface));
+        super.nextState(message);
     }
 
     @Override

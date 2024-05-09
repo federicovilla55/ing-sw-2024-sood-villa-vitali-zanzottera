@@ -24,9 +24,4 @@ class Pick extends ClientState {
         return ViewState.PICK;
     }
 
-    @Override
-    public void nextState(GamePausedMessage message) {
-        clientController.setNextState(new Pause(clientController, clientInterface));
-    }
-
 }

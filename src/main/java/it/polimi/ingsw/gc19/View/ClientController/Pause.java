@@ -35,11 +35,6 @@ class Pause extends ClientState {
     }
 
     @Override
-    public void nextState(GameResumedMessage message) {
-        clientController.setNextState(clientController.getPrevState());
-    }
-
-    @Override
     public ViewState getState() {
         return ViewState.PAUSE;
     }

@@ -19,20 +19,16 @@ class OtherTurn extends ClientState {
 
     @Override
     public void nextState(EndGameMessage message) {
+        super.nextState(message);
         clientController.setNextState(new End(clientController, clientInterface));
     }
 
     @Override
     public void nextState(TurnStateMessage message) {
-        if (message.getNick().equals(clientController.getNickname()) &&
-                message.getTurnState() == TurnState.PLACE) {
+        if (message.getNick().equals(clientController.getNickname()) && message.getTurnState() == TurnState.PLACE) {
             clientController.setNextState(new Place(clientController, clientInterface));
         }
-    }
-
-    @Override
-    public void nextState(GamePausedMessage message) {
-        clientController.setNextState(new Pause(clientController, clientInterface));
+        super.nextState(message);
     }
 
     @Override

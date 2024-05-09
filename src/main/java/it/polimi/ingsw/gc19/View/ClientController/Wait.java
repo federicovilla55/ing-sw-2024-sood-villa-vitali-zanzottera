@@ -42,16 +42,17 @@ public class Wait extends ClientState {
         if (message.getNick().equals(clientController.getNickname()) && message.getTurnState() == TurnState.DRAW) {
             clientController.setNextState(new Pick(clientController, clientInterface));
         }
-        else
+        else {
             if (!message.getNick().equals(clientController.getNickname())) {
                 clientController.setNextState(new OtherTurn(clientController, clientInterface));
             }
+        }
+        this.listenersManager.notifyTurnStateListener(message.getNick(), message.getTurnState());
     }
 
     @Override
     public void nextState(EndGameMessage message) {
         clientController.setNextState(new End(clientController, clientInterface));
-        //@TODO: PUNTEGGI E TUTTO IL RESTO!!!!!!!!!
         super.nextState(message);
     }
 
@@ -79,12 +80,6 @@ public class Wait extends ClientState {
     @Override
     public void nextState(CreatedGameMessage message) {
         buildGame(message.getGameName());
-        super.nextState(message);
-    }
-
-    @Override
-    public void nextState(GamePausedMessage message) {
-        clientController.setNextState(new Pause(clientController, clientInterface));
         super.nextState(message);
     }
 

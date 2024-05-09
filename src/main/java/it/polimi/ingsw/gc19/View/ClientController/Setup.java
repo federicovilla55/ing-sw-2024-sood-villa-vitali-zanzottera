@@ -24,11 +24,6 @@ class Setup extends ClientState {
     }
 
     @Override
-    public void nextState(GamePausedMessage message) {
-        clientController.setNextState(new Pause(clientController, clientInterface));
-    }
-
-    @Override
     public void nextState(StartPlayingGameMessage message) {
         if (message.getNickFirstPlayer().equals(clientController.getNickname())) {
             clientController.setNextState(new Place(clientController, clientInterface));
@@ -36,6 +31,7 @@ class Setup extends ClientState {
         else {
             clientController.setNextState(new OtherTurn(clientController, clientInterface));
         }
+        super.nextState(message);
     }
 
     @Override

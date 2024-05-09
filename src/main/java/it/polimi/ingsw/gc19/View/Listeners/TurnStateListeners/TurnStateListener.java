@@ -5,8 +5,6 @@ import it.polimi.ingsw.gc19.View.Listeners.Listener;
 
 public interface TurnStateListener extends Listener {
 
-    void notify(String nick);
-
     void notify(String nick, TurnState turnState);
 
 }

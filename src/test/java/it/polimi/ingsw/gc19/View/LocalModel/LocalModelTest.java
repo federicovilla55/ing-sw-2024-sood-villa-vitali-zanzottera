@@ -6,10 +6,7 @@ import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Chat.Message;
-import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Action.PickCardFromDeckMessage;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Chat.PlayerChatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
@@ -19,10 +16,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationCo
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.Utils.Tuple;
@@ -82,7 +76,7 @@ public class LocalModelTest {
         clientController.createGame("game1", 2);
         Thread.sleep(500);
         assertNotNull(clientController.getLocalModel());
-        assertEquals(0, clientController.getLocalModel().getOtherStations().size());
+        assertEquals(0, clientController.getLocalModel().getStations().size());
         assertNotNull(clientController.getLocalModel().getPersonalStation());
     }
 
@@ -101,7 +95,7 @@ public class LocalModelTest {
         LocalModel localModel = clientController.getLocalModel();
 
         assertEquals(1, localModel.getNumActivePlayers());
-        assertEquals(0, localModel.getOtherStations().size());
+        assertEquals(0, localModel.getStations().size());
         assertEquals(0, localModel.getMessages().size());
         assertEquals("player1", localModel.getNickname());
         assertEquals("game1", localModel.getGameName());
@@ -167,7 +161,7 @@ public class LocalModelTest {
                 0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(25, 25)))
         ));
         Thread.sleep(500);
-        assertStationEquals(localModel.getOtherStations().get("player2"),
+        assertStationEquals(localModel.getStations().get("player2"),
                 new OtherStation(
                         "player2", Color.BLUE,
                         Map.of(Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
@@ -199,7 +193,7 @@ public class LocalModelTest {
         // Other player's picking up cards
         messageHandler.update(new OtherAcceptedPickCardFromDeckMessage("player2", PlayableCardType.GOLD, Symbol.INSECT));
         Thread.sleep(500);
-        assertEquals(localModel.getOtherStations().get("player2").getBackCardHand(),
+        assertEquals(localModel.getStations().get("player2").getBackCardHand(),
                 List.of(PlayableCardType.GOLD));
 
         // ------------------
@@ -253,13 +247,13 @@ public class LocalModelTest {
 
         // ---------------------------
         // Other player placing a card
-        assertTrue(localModel.getOtherStations().get("player2").cardIsPlaceable(playableCards.get("gold_04"), playableCards.get("initial_02"), Direction.DOWN_RIGHT));
-        assertEquals(localModel.getOtherStations().get("player2").getBackCardHand(),
+        assertTrue(localModel.getStations().get("player2").cardIsPlaceable(playableCards.get("gold_04"), playableCards.get("initial_02"), Direction.DOWN_RIGHT));
+        assertEquals(localModel.getStations().get("player2").getBackCardHand(),
                 List.of(PlayableCardType.GOLD));
         messageHandler.update(new AcceptedPlacePlayableCardMessage("player2", "initial_02", playableCards.get("gold_04"), Direction.DOWN_RIGHT,
                 Map.of(Symbol.ANIMAL, 2, Symbol.MUSHROOM, 4, Symbol.VEGETABLE, 1, Symbol.INSECT, 0), 0));
         Thread.sleep(500);
-        assertStationEquals(localModel.getOtherStations().get("player2"),
+        assertStationEquals(localModel.getStations().get("player2"),
                 new OtherStation(
                         "player2", Color.BLUE,
                         Map.of(Symbol.ANIMAL, 2, Symbol.MUSHROOM, 4, Symbol.VEGETABLE, 1, Symbol.INSECT, 0),
@@ -270,7 +264,7 @@ public class LocalModelTest {
 
         // --------------------------------------------------------
         // Simulating disconnection: other player
-        assertTrue(localModel.getOtherStations().containsKey("player2"));
+        assertTrue(localModel.getStations().containsKey("player2"));
         assertEquals(State.ACTIVE, localModel.getPlayerState("player2"));
         assertEquals(State.ACTIVE, localModel.getPlayerState("player1"));
         assertEquals(2, localModel.getNumPlayers());
@@ -320,7 +314,7 @@ public class LocalModelTest {
                 Map.of(), 0, List.of()
         ));
         Thread.sleep(500);
-        assertStationEquals(localModel.getOtherStations().get("player2"),
+        assertStationEquals(localModel.getStations().get("player2"),
                 new OtherStation("player2", null,
                         Map.of(), 0, List.of()));
 
@@ -340,7 +334,7 @@ public class LocalModelTest {
         messageHandler.update(new AcceptedPlaceInitialCard("player2", playableCards.get("initial_02"),
                 Map.of(Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1)));
         Thread.sleep(500);
-        assertStationEquals(localModel.getOtherStations().get("player2"),
+        assertStationEquals(localModel.getStations().get("player2"),
                 new OtherStation("player2", null,
                         Map.of(Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
                         0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(25, 25)))));

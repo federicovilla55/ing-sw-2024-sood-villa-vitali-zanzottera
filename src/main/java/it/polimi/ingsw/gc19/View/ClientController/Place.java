@@ -24,11 +24,6 @@ class Place extends ClientState {
     }
 
     @Override
-    public void nextState(GamePausedMessage message) {
-        clientController.setNextState(new Pause(clientController, clientInterface));
-    }
-
-    @Override
     public void nextState(GameHandlingErrorMessage message) {
         clientController.handleError(message);
     }

@@ -119,7 +119,7 @@ public class ClientController {
         }
         else{
             for(String u : users){
-                if(!this.localModel.getOtherStations().containsKey(u)){
+                if(!this.localModel.getStations().containsKey(u)){
                     //@TODO: view
                     return;
                 }
