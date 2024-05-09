@@ -18,11 +18,12 @@ import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEve
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationListener;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListsners.SetupListener;
-import it.polimi.ingsw.gc19.View.Listeners.TurnStateListeners.TurnStateListener;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TurnStateListener;
+import it.polimi.ingsw.gc19.View.Listeners.StateListeners.State;
+import it.polimi.ingsw.gc19.View.Listeners.StateListeners.StateListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ListenersManager {
@@ -172,12 +173,23 @@ public class ListenersManager {
         for(Listener c : this.attachedListeners.get(ListenerType.DISCONNECTION_LISTENER)) {
             ((DisconnectionListener) c).notify(varArgs);
         }
-        ((DisconnectionListener) this.attachedListeners.get(ListenerType.DISCONNECTION_LISTENER)).notify(varArgs);
     }
 
     public void notifySetupListener(List<Color> availableColors){
         for(Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
             ((SetupListener) c).notify(availableColors);
+        }
+    }
+
+    public void notifyStateListener(State state){
+        for(Listener l : this.attachedListeners.get(ListenerType.STATE_LISTENER)){
+            ((StateListener) this.attachedListeners.get(ListenerType.STATE_LISTENER)).notify(state);
+        }
+    }
+
+    public void notifyStateError(String error){
+        for(Listener l : this.attachedListeners.get(ListenerType.STATE_LISTENER)){
+            ((StateListener) this.attachedListeners.get(ListenerType.STATE_LISTENER)).notify(error);
         }
     }
 

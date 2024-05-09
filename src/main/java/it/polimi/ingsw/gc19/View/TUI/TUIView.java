@@ -12,6 +12,7 @@ import it.polimi.ingsw.gc19.View.ClientController.*;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.Command.CommandType;
 import it.polimi.ingsw.gc19.View.GameLocalView.*;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationListener;
@@ -96,12 +97,6 @@ public class TUIView implements UI, PlayerCreationListener, GameHandlingListener
             System.out.println("Successfully connected to the server!");
             System.out.print("> ");
             clientController.setNextState(new NotPlayer(clientController));
-            /*System.out.println("Successfully connected to the server");
-            System.out.println("Please enter a nickname: ");
-            Scanner scanner = new Scanner(System.in);
-            String nickname = scanner.nextLine();
-            clientController.createPlayer(nickname);
-            scanner.close();*/
         }
 
         Scanner scanner = new Scanner(System.in);
@@ -760,6 +755,8 @@ public class TUIView implements UI, PlayerCreationListener, GameHandlingListener
         for(String g : gameNames){
             System.out.println("-> " + g);
         }
+
+        System.out.print(">");
     }
 
 }

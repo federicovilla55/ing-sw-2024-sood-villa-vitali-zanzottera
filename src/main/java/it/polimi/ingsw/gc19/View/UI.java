@@ -6,4 +6,6 @@ public interface UI{
 
     void setLocalModel(LocalModel localModel);
 
+    void notifyGenericError(String errorDescription);
+
 }

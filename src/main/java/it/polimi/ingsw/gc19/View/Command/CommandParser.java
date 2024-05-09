@@ -43,7 +43,7 @@ public class CommandParser{
             parsedArguments = parseArguments(commandArgs);
         }
         catch (IllegalArgumentException illegalArgumentException){
-            //@TODO: notify for errors
+            this.clientController.getView().notifyGenericError("Command format not known!");
             return;
         }
 
