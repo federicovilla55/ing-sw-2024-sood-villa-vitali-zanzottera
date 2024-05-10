@@ -141,9 +141,9 @@ public class MessagesTest {
                         "player2",
                         null,
                         List.of(
-                                Symbol.VEGETABLE,
-                                Symbol.INSECT,
-                                Symbol.ANIMAL
+                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.INSECT, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
@@ -209,9 +209,9 @@ public class MessagesTest {
                         "player1",
                         null,
                         List.of(
-                                Symbol.ANIMAL,
-                                Symbol.MUSHROOM,
-                                Symbol.ANIMAL
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
@@ -257,9 +257,9 @@ public class MessagesTest {
                         "player3",
                         null,
                         List.of(
-                                Symbol.ANIMAL,
-                                Symbol.MUSHROOM,
-                                Symbol.VEGETABLE
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
@@ -309,9 +309,9 @@ public class MessagesTest {
                         "player1",
                         null,
                         List.of(
-                                Symbol.ANIMAL,
-                                Symbol.MUSHROOM,
-                                Symbol.ANIMAL
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
@@ -330,9 +330,9 @@ public class MessagesTest {
                         "player2",
                         null,
                         List.of(
-                                Symbol.VEGETABLE,
-                                Symbol.INSECT,
-                                Symbol.ANIMAL
+                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.INSECT, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
@@ -558,7 +558,7 @@ public class MessagesTest {
         assertMessageEquals(player1,
                 new OwnAcceptedPickCardFromDeckMessage("player1", playableCards.get("resource_18"), PlayableCardType.RESOURCE, Symbol.INSECT));
         assertMessageEquals(List.of(player2, player3, player4),
-                new OtherAcceptedPickCardFromDeckMessage("player1", PlayableCardType.RESOURCE, Symbol.INSECT));
+                new OtherAcceptedPickCardFromDeckMessage("player1",  new Tuple<>(Symbol.INSECT,PlayableCardType.RESOURCE), PlayableCardType.RESOURCE, Symbol.INSECT));
     }
 
     @Test
@@ -726,9 +726,9 @@ public class MessagesTest {
                 new OtherStationConfigurationMessage(
                         "player1",
                         Color.GREEN,
-                        List.of(Symbol.ANIMAL,
-                                Symbol.MUSHROOM,
-                                Symbol.ANIMAL),
+                        List.of(new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)),
                         Map.of(
                                 Symbol.ANIMAL, 1,
                                 Symbol.MUSHROOM, 0,
@@ -748,9 +748,9 @@ public class MessagesTest {
                         "player3",
                         Color.YELLOW,
                         List.of(
-                                Symbol.ANIMAL,
-                                Symbol.MUSHROOM,
-                                Symbol.VEGETABLE
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 1,
@@ -772,9 +772,9 @@ public class MessagesTest {
                         "player4",
                         Color.RED,
                         List.of(
-                                Symbol.VEGETABLE,
-                                Symbol.INSECT,
-                                Symbol.MUSHROOM
+                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.INSECT, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,

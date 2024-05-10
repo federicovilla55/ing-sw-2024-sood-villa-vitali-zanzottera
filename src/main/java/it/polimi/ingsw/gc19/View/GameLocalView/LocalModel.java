@@ -185,7 +185,9 @@ public class LocalModel {
             previousPlayableCards.put(initialCard.getCardCode(), initialCard);
         }
 
-        this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_INITIAL_CARD);
+        if(this.nickname.equals(nickname)) {
+            this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_INITIAL_CARD);
+        }
 
         if(finishedLocalSetup()){
             this.listenersManager.notifySetupListener(SetupEvent.COMPLETED);
@@ -282,6 +284,15 @@ public class LocalModel {
         }
     }
 
+    public void setNextSeedOfDeck(PlayableCardType type, Symbol symbol) {
+        switch (type) {
+            case RESOURCE -> { this.getTable().setNextSeedOfResourceDeck(symbol); }
+            case GOLD -> { this.getTable().setNextSeedOfGoldDeck(symbol); }
+        }
+
+        this.listenersManager.notifyTableListener(table);
+    }
+
     public void setFirstPlayer(String firstPlayer) {
         this.firstPlayer = firstPlayer;
 
@@ -301,7 +312,9 @@ public class LocalModel {
 
     public void setAvailableColors(List<Color> availableColors) {
         this.availableColors = availableColors;
-        this.listenersManager.notifySetupListener(SetupEvent.AVAILABLE_COLOR);
+        if(!this.isColorChosen()) {
+            this.listenersManager.notifySetupListener(SetupEvent.AVAILABLE_COLOR);
+        }
     }
 
     public List<Color> getAvailableColors() {

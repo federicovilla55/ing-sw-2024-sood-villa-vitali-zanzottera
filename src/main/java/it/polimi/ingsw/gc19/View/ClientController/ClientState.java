@@ -74,7 +74,6 @@ public abstract class ClientState {
 
     public void nextState(StartPlayingGameMessage message) {
         this.clientController.getView().notify("Game is starting!");
-        this.listenersManager.notifyTurnStateListener(message.getNickFirstPlayer(), TurnState.DRAW);
     }
 
     public void nextState(PlayerReconnectedToGameMessage message) {

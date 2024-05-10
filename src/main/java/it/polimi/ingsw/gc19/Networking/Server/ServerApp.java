@@ -34,7 +34,7 @@ public class ServerApp {
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Here yuo can start TCP and RMI server... \n");
+        System.out.println("Here you can start TCP and RMI server... \n");
 
         System.out.println("Default RMI server name is : " + ServerSettings.DEFAULT_RMI_SERVER_NAME + ". Insert name for RMI server (or 'default'): ");
         String rmiName = scanner.nextLine();

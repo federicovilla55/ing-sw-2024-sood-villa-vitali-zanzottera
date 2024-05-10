@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.View.GameLocalView;
 
+import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.Symbol;
@@ -89,7 +90,13 @@ public class PersonalStation extends LocalStationPlayer {
         Tuple<Integer, Integer> coord = getCoord(anchorCardCode);
         coord = new Tuple<>(direction.getX() + coord.x(), direction.getY() + coord.y());
 
-        this.cardsInHand.remove(cardToPlace);
+        /*
+        the card in hand is always UP, and we need to make sure that when removing the card received
+        from server is also UP to remove the card from the hand
+        */
+        CardOrientation cardOrientation = cardToPlace.getCardOrientation();
+        this.cardsInHand.remove(cardToPlace.setCardState(CardOrientation.UP));
+        cardToPlace.setCardState(cardOrientation);
 
         placedCardSequence.add(new Tuple<>(cardToPlace, coord));
         cardSchema[coord.x()][coord.y()] = cardToPlace;

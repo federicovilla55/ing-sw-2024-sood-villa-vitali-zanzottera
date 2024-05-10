@@ -39,7 +39,6 @@ public class Wait extends ClientState {
                 clientController.setNextState(new OtherTurn(clientController));
             }
         }
-        this.listenersManager.notifyTurnStateListener(message.getNick(), message.getTurnState());
     }
 
     @Override

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Client.Message;
 
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -12,6 +14,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHa
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.GameLocalView.*;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
@@ -109,27 +112,43 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(AcceptedColorMessage message) {
         waitForLocalModel();
-        this.localModel.setColor(message.getChosenColor());
+        if(message.getPlayer().equals(this.localModel.getNickname())) {
+            this.localModel.setColor(message.getChosenColor());
+        }
+        else {
+            this.localModel.getStations().get(message.getPlayer()).setChosenColor(message.getChosenColor());
+        }
     }
 
     @Override
     public void visit(OwnAcceptedPickCardFromDeckMessage message) {
         waitForLocalModel();
         this.localModel.updateCardsInHand(message.getPickedCard());
+        this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());
         clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(OtherAcceptedPickCardFromDeckMessage message) {
-        //????????????????
+        waitForLocalModel();
+        this.localModel.getStations().get(message.getNick()).addBackCard(new Tuple<>(message.getBackPickedCard().x(), message.getBackPickedCard().y()));
+        this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());
+        clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(AcceptedPickCardFromTable message) {
         waitForLocalModel();
-        this.localModel.updateCardsInHand(message.getPickedCard());
+        if(message.getNick().equals(this.localModel.getNickname())) {
+            this.localModel.updateCardsInHand(message.getPickedCard());
+        }
+        else {
+            this.localModel.getStations().get(message.getNick()).addBackCard(new Tuple<>(message.getPickedCard().getSeed(), message.getPickedCard().getCardType()));
+        }
         this.localModel.updateCardsInTable(message.getCardToPutInSlot(), message.getDeckType(), message.getCoords());
+        this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());
         clientController.getCurrentState().nextState(message);
+
     }
 
     @Override
@@ -175,7 +194,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         waitForLocalModel();
         this.localModel.setOtherStations(message.getNick(),
                 new OtherStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
-                        message.getNumPoints(), message.getPlacedCardSequence()));
+                        message.getNumPoints(), message.getPlacedCardSequence(), message.getCardsInHand()));
    }
 
     @Override

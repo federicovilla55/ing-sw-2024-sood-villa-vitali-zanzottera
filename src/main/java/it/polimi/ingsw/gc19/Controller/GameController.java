@@ -24,6 +24,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColors
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.PlayerReconnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 
 
 import java.util.*;
@@ -350,7 +351,7 @@ public class GameController{
         this.messageFactory.sendMessageToPlayer(nickname, new OwnAcceptedPickCardFromDeckMessage(nickname,
                                                                                                  card, type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)));
         this.messageFactory.sendMessageToAllGamePlayersExcept(new OtherAcceptedPickCardFromDeckMessage(nickname,
-                                                                                                       type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)),nickname);
+                                                                                                       new Tuple<>(card.getSeed(),card.getCardType()), type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)),nickname);
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
         this.setNextPlayer();

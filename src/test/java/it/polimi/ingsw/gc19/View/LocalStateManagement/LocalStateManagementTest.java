@@ -18,6 +18,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMe
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.ClientController.Wait;
@@ -397,9 +398,9 @@ public class LocalStateManagementTest {
                 "player2",
                 null,
                 List.of(
-                        Symbol.VEGETABLE,
-                        Symbol.INSECT,
-                        Symbol.ANIMAL
+                        new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.INSECT, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
                 ),
                 Map.of(
                         Symbol.ANIMAL, 0,
@@ -465,9 +466,9 @@ public class LocalStateManagementTest {
                 "player1",
                 null,
                 List.of(
-                        Symbol.ANIMAL,
-                        Symbol.MUSHROOM,
-                        Symbol.ANIMAL
+                        new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
                 ),
                 Map.of(
                         Symbol.ANIMAL, 0,

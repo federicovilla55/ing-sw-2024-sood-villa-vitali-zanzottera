@@ -157,7 +157,11 @@ public class LocalModelTest {
         // ------------------
         // Other player's station
         messageHandler.update(new OtherStationConfigurationMessage(
-                "player2", Color.BLUE, List.of(Symbol.VEGETABLE, Symbol.VEGETABLE),
+                "player2", Color.BLUE,
+                List.of(
+                        new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE)
+                ),
                 Map.of( Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
                 0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(25, 25)))
         ));
@@ -192,10 +196,12 @@ public class LocalModelTest {
 
         // ------------------
         // Other player's picking up cards
-        messageHandler.update(new OtherAcceptedPickCardFromDeckMessage("player2", PlayableCardType.GOLD, Symbol.INSECT));
+        messageHandler.update(new OtherAcceptedPickCardFromDeckMessage("player2", new Tuple<>(Symbol.INSECT,PlayableCardType.RESOURCE), PlayableCardType.GOLD, Symbol.INSECT));
         Thread.sleep(500);
         assertEquals(localModel.getStations().get("player2").getBackCardHand(),
-                List.of(PlayableCardType.GOLD));
+                List.of(
+                        new Tuple<>(Symbol.INSECT, PlayableCardType.GOLD)
+                ));
 
         // ------------------
         // Sending messages

@@ -122,7 +122,7 @@ public class ListenersManager {
 
     public void notifyPlayerCreationListener(String name){
         for(Listener c : this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER)) {
-            ((PlayerCreationListener) c).notify(name);
+            ((PlayerCreationListener) c).notifyPlayerCreation(name);
         }
     }
 

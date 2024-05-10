@@ -216,7 +216,7 @@ public class ClientController {
         PlayableCard anchorCard = localModel.getPlayableCard(anchor);
 
         if(!localModel.isCardPlaceablePersonalStation(cardToPlace, anchorCard, direction)){
-            this.listenersManager.notifyErrorStationListener(cardToPlace.getCardCode(), anchorCard.getCardCode(), direction.toString().toLowerCase());
+            this.listenersManager.notifyErrorStationListener(cardToInsert, anchor, direction.toString().toLowerCase());
             return;
         }
 

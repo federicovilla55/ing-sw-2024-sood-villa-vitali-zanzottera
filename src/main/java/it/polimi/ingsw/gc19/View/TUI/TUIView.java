@@ -409,7 +409,7 @@ public class TUIView implements UI, GeneralListener {
 
     String[][] tableTUIView(PlayableCard resource1, PlayableCard resource2, PlayableCard gold1, PlayableCard gold2, Symbol resourceDeckSeed, Symbol goldDeckSeed) {
         // create matrix of "  " strings, each representing a single unicode character to display in console
-        String[][] res = new String[14][26];
+        String[][] res = new String[14][40];
         for (String[] strings : res) {
             Arrays.fill(strings, "  ");
         }
@@ -604,7 +604,7 @@ public class TUIView implements UI, GeneralListener {
 
     String[][] handTUIView(List<PlayableCard> cardsInHand) {
         // create matrix of "  " strings, each representing a single unicode character to display in console
-        String[][] res = new String[5][26];
+        String[][] res = new String[5][40];
         for (String[] strings : res) {
             Arrays.fill(strings, "  ");
         }
@@ -627,6 +627,32 @@ public class TUIView implements UI, GeneralListener {
                 String[] textTUIView = textTUIView(card.getCardCode());
                 for (int i = 0; i < textTUIView.length; i++) {
                     res[1 + 3][4 + idx * 8 + i] = textTUIView[i];
+                }
+            }
+        }
+
+        return res;
+    }
+
+    String[][] backHandTUIView(List<Tuple<Symbol, PlayableCardType>> cardSymbolsInHand) {
+        // create matrix of "  " strings, each representing a single unicode character to display in console
+        String[][] res = new String[5][40];
+        for (String[] strings : res) {
+            Arrays.fill(strings, "  ");
+        }
+
+        for (int idx = 0; idx < cardSymbolsInHand.size(); idx++) {
+
+            Tuple<Symbol,PlayableCardType> cardBack = cardSymbolsInHand.get(idx);
+
+            if (cardBack != null) {
+                String[][] cardTUIView = cardBackTUIView(cardBack.x());
+
+                //print card
+                for (int i = 0; i < cardTUIView.length; i++) {
+                    for (int j = 0; j < cardTUIView[i].length; j++) {
+                        res[1 + i][4 + idx * 8 + j] = cardTUIView[i][j];
+                    }
                 }
             }
         }
@@ -742,7 +768,9 @@ public class TUIView implements UI, GeneralListener {
                 case CommandType.SHOW_PRIVATE_GOAL_CARD   -> {
                                                                 if(this.localModel.getPersonalStation().getPrivateGoalCardInStation() != null){
                                                                     System.out.println("This is your private goal card: ");
-                                                                    printTUIView(goalCardEffectTUIView(this.localModel.getPersonalStation().getPrivateGoalCardInStation()));
+                                                                    GoalCard goalCard = this.localModel.getPersonalStation().getPrivateGoalCardInStation();
+                                                                    System.out.println(goalCard.getCardDescription());
+                                                                    printTUIView(goalCardEffectTUIView(goalCard));
                                                                 }
                                                                 else{
                                                                     if(this.localModel.getPersonalStation().getPrivateGoalCardsInStation() != null) {
@@ -765,6 +793,8 @@ public class TUIView implements UI, GeneralListener {
                 case CommandType.SHOW_INITIAL_CARD        -> {
                                                                 System.out.println("This is your initial card: ");
                                                                 if(this.localModel.getPersonalStation().getInitialCard() != null) {
+                                                                    System.out.println("This is your initial card: ");
+                                                                    System.out.println(this.localModel.getPersonalStation().getInitialCard().getCardCode());
                                                                     printTUIView(initialCardTUIView(this.localModel.getPersonalStation().getInitialCard()));
                                                                 }
                                                                 else{
@@ -808,7 +838,13 @@ public class TUIView implements UI, GeneralListener {
     }
 
     @Override
-    public void notify(String name) {
+    public void notify(String message) {
+        System.out.println( message);
+        System.out.print(">");
+    }
+
+    @Override
+    public void notifyPlayerCreation(String name) {
         System.out.println("Your player has been correctly created. Your username is: " + name);
         System.out.print(">");
     }
@@ -880,11 +916,8 @@ public class TUIView implements UI, GeneralListener {
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String ... varArgs){
         switch (type) {
-            case NEW_PLAYER_CONNECTED -> {
+            case NEW_PLAYER_CONNECTED, RECONNECTED_PLAYER -> {
                 System.out.println(varArgs[0]+ " has joined the game!");
-            }
-            case RECONNECTED_PLAYER -> {
-                System.out.println(varArgs[0]+ " has reconnected!");
             }
             case DISCONNECTED_PLAYER -> {
                 System.out.println(varArgs[0]+ " disconnected...");
@@ -902,7 +935,7 @@ public class TUIView implements UI, GeneralListener {
 
     @Override
     public void notify(OtherStation otherStation){
-        if(this.showState == ShowState.PERSONAL_STATION
+        if(this.showState == ShowState.OTHER_STATION
             && Objects.equals(otherStation.getOwnerPlayer(), this.currentViewPlayer)) {
             printOtherStation();
             System.out.print(">");
@@ -922,12 +955,16 @@ public class TUIView implements UI, GeneralListener {
             printPersonalStation();
             System.out.print(">");
         }
+        else if(this.showState == ShowState.OTHER_STATION) {
+            printOtherStation();
+            System.out.print(">");
+        }
     }
 
     @Override
     public void notify(String nick, TurnState turnState){
         if(this.localModel.getPersonalStation().getOwnerPlayer().equals(nick)){
-            System.out.println("It is your turn, yuo can " + turnState.toString().toLowerCase());
+            System.out.println("It is your turn, you can " + turnState.toString().toLowerCase());
         }
         else{
             System.out.println("It is the turn of player " + nick + ". He / she can " + turnState.toString().toLowerCase());
@@ -962,30 +999,62 @@ public class TUIView implements UI, GeneralListener {
 
     private void printPersonalStation(){
         PersonalStation personalStation = this.localModel.getPersonalStation();
+        List<OtherStation> otherStations = localModel.getStations().values().stream().toList();
+        List<LocalStationPlayer> allStations = new ArrayList<>();
+        allStations.add(personalStation);
+        allStations.addAll(otherStations);
         this.clearTerminal();
-        printTUIView(scoreboardTUIView(localModel.getStations().values().toArray(new LocalStationPlayer[]{})));
+        System.out.println("Scoreboard:");
+        printTUIView(scoreboardTUIView(allStations.toArray(new LocalStationPlayer[]{})));
         System.out.println("\n");
+        System.out.println("Table:");
         printTUIView(tableTUIView(localModel.getTable().getResource1(), localModel.getTable().getResource2(),
                                   localModel.getTable().getGold1(), localModel.getTable().getGold2(),
                                   localModel.getTable().getNextSeedOfResourceDeck(), localModel.getTable().getNextSeedOfGoldDeck()));
         System.out.println("\n");
+        System.out.println("Your station:");
+        System.out.println("\n");
         printTUIView(playerAreaTUIView(personalStation.getPlacedCardSequence()));
         System.out.println("\n");
+        System.out.println("Your hand:");
         printTUIView(handTUIView(personalStation.getCardsInHand()));
         System.out.println("\n");
     }
 
     private void printOtherStation(){
         if(this.currentViewPlayer.isEmpty() || this.currentViewPlayer.equals(localModel.getNickname())) return;
+        if(localModel.getStations().get(this.currentViewPlayer) == null) {
+            this.notify("There is no other player with that name!");
+            return;
+        }
         this.clearTerminal();
         Optional<Color> color = Optional.ofNullable(localModel.getStations().get(this.currentViewPlayer).getChosenColor());
         System.out.println("You are currently visualizing the station of: " + color.map(Color::stringColor).orElse("") +
-                                   String.format("%-18.18s", String.format("%.17s",
-                                   localModel.getStations().get(this.currentViewPlayer).getOwnerPlayer())) +
+                                   localModel.getStations().get(this.currentViewPlayer).getOwnerPlayer() +
                                    color.map(Color::colorReset).orElse("") + "\n");
-        printTUIView(scoreboardTUIView(localModel.getStations().values().toArray(new LocalStationPlayer[]{})));
+        PersonalStation personalStation = this.localModel.getPersonalStation();
+        List<OtherStation> otherStations = localModel.getStations().values().stream().toList();
+        List<LocalStationPlayer> allStations = new ArrayList<>();
+        allStations.add(personalStation);
+        allStations.addAll(otherStations);
+        System.out.println("Scoreboard:");
+        printTUIView(scoreboardTUIView(allStations.toArray(new LocalStationPlayer[]{})));
+        System.out.println("\n");
+        System.out.println("Table:");
+        printTUIView(tableTUIView(localModel.getTable().getResource1(), localModel.getTable().getResource2(),
+                localModel.getTable().getGold1(), localModel.getTable().getGold2(),
+                localModel.getTable().getNextSeedOfResourceDeck(), localModel.getTable().getNextSeedOfGoldDeck()));
+        System.out.println("\n");
+        System.out.println(color.map(Color::stringColor).orElse("") +
+                        localModel.getStations().get(this.currentViewPlayer).getOwnerPlayer() +
+                color.map(Color::colorReset).orElse("") + " station:");
         System.out.println("\n");
         printTUIView(playerAreaTUIView(localModel.getStations().get(this.currentViewPlayer).getPlacedCardSequence()));
+        System.out.println("\n");
+        System.out.println(color.map(Color::stringColor).orElse("") +
+                        localModel.getStations().get(this.currentViewPlayer).getOwnerPlayer() +
+                color.map(Color::colorReset).orElse("") + " hand:");
+        printTUIView(backHandTUIView(this.localModel.getStations().get(this.currentViewPlayer).getBackCardHand()));
         System.out.println("\n");
     }
     
