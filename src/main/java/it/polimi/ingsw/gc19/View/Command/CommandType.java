@@ -10,7 +10,7 @@ public enum CommandType {
     AVAILABLE_GAMES("available_games", 0),
     PLACE_CARD("place_card", 4),
     SEND_CHAT_MESSAGE("send_message", 2),
-    PLACE_INITIAL_CARD("place_initial_card", 1),
+    PLACE_INITIAL_CARD("place_inaitial_card", 1),
     PICK_CARD_TABLE("pick_card_table", 2),
     PICK_CARD_DECK("pick_card_deck", 1),
     CHOOSE_COLOR("choose_color", 1),
@@ -19,7 +19,10 @@ public enum CommandType {
     DISCONNECT("disconnect", 0),
     SHOW_STATION("show_station", 1),
     SHOW_PERSONAL_STATION("show_personal_station", 0),
-    SHOW_CHAT("show_chat", 0);
+    SHOW_CHAT("show_chat", 0),
+    AVAILABLE_COLORS("available_colors", 0),
+    SHOW_PRIVATE_GOAL_CARD("show_private_goal_card", 0),
+    SHOW_INITIAL_CARD("show_initial_card", 0);
 
     private final String commandName;
 

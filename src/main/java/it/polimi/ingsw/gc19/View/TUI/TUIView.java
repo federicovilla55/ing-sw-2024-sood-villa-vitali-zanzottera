@@ -112,12 +112,13 @@ public class TUIView implements UI, GeneralListener {
         this.commandParser = commandParser;
         this.clientController = commandParser.clientController();
         this.clientController.getListenersManager().attachListener(this);
+        this.clientController.setView(this);
 
         this.localModel = null;
         this.showState = ShowState.NOT_PLAYING;
         this.currentViewPlayer = "";
         Thread readerThread = new Thread(this::runTUI);
-        readerThread.setDaemon(true);
+        //readerThread.setDaemon(true);
         readerThread.start();
     }
 
@@ -408,7 +409,7 @@ public class TUIView implements UI, GeneralListener {
 
     String[][] tableTUIView(PlayableCard resource1, PlayableCard resource2, PlayableCard gold1, PlayableCard gold2, Symbol resourceDeckSeed, Symbol goldDeckSeed) {
         // create matrix of "  " strings, each representing a single unicode character to display in console
-        String[][] res = new String[14][25];
+        String[][] res = new String[14][26];
         for (String[] strings : res) {
             Arrays.fill(strings, "  ");
         }
@@ -603,7 +604,7 @@ public class TUIView implements UI, GeneralListener {
 
     String[][] handTUIView(List<PlayableCard> cardsInHand) {
         // create matrix of "  " strings, each representing a single unicode character to display in console
-        String[][] res = new String[5][25];
+        String[][] res = new String[5][26];
         for (String[] strings : res) {
             Arrays.fill(strings, "  ");
         }
@@ -717,7 +718,7 @@ public class TUIView implements UI, GeneralListener {
     }
 
     private void parseCommand(String command) {
-        Pattern pattern = Pattern.compile("^(.*?)\\(([^)]*)\\)$");
+        Pattern pattern = Pattern.compile("^([^(]*)\\(([^)]*)\\)$");
         Matcher matcher = pattern.matcher(command);
 
         if (matcher.matches()) {
@@ -736,8 +737,41 @@ public class TUIView implements UI, GeneralListener {
                 case CommandType.CREATE_PLAYER            -> commandParser.createPlayer(args);
                 case CommandType.CREATE_GAME              -> commandParser.createGame(args);
                 case CommandType.JOIN_GAME                -> commandParser.joinGame(args);
+                case CommandType.AVAILABLE_COLORS         -> clientController.availableColors();
                 case CommandType.CHOOSE_COLOR             -> commandParser.chooseColor(args);
+                case CommandType.SHOW_PRIVATE_GOAL_CARD   -> {
+                                                                if(this.localModel.getPersonalStation().getPrivateGoalCardInStation() != null){
+                                                                    System.out.println("This is your private goal card: ");
+                                                                    printTUIView(goalCardEffectTUIView(this.localModel.getPersonalStation().getPrivateGoalCardInStation()));
+                                                                }
+                                                                else{
+                                                                    if(this.localModel.getPersonalStation().getPrivateGoalCardsInStation() != null) {
+                                                                        System.out.println("Those are your private goal card you can choose: ");
+                                                                        GoalCard goalCard = this.localModel.getPersonalStation().getPrivateGoalCardsInStation()[0];
+                                                                        System.out.println(goalCard.getCardDescription());
+                                                                        printTUIView(goalCardEffectTUIView(goalCard));
+                                                                        System.out.println();
+                                                                        goalCard = this.localModel.getPersonalStation().getPrivateGoalCardsInStation()[1];
+                                                                        System.out.println(goalCard.getCardDescription());
+                                                                        printTUIView(goalCardEffectTUIView(goalCard));
+                                                                    }
+                                                                    else{
+                                                                        System.out.println("No infos about your private goal. Try later...");
+                                                                    }
+                                                                }
+                                                                System.out.print(">");
+                                                            }
                 case CommandType.CHOOSE_PRIVATE_GOAL_CARD -> commandParser.chooseGoal(args);
+                case CommandType.SHOW_INITIAL_CARD        -> {
+                                                                System.out.println("This is your initial card: ");
+                                                                if(this.localModel.getPersonalStation().getInitialCard() != null) {
+                                                                    printTUIView(initialCardTUIView(this.localModel.getPersonalStation().getInitialCard()));
+                                                                }
+                                                                else{
+                                                                    System.out.println("No infos about your initial card, try later...");
+                                                                }
+                                                                System.out.print(">");
+                                                             }
                 case CommandType.PLACE_INITIAL_CARD       -> commandParser.placeInitialCard(args);
                 case CommandType.PICK_CARD_DECK           -> commandParser.pickCardFromDeck(args);
                 case CommandType.PICK_CARD_TABLE          -> commandParser.pickCardFromTable(args);
@@ -810,9 +844,12 @@ public class TUIView implements UI, GeneralListener {
     public void notify(SetupEvent type){
         switch (type){
             case SetupEvent.AVAILABLE_COLOR -> {
-                if (!localModel.isColorChosen()){
+                if(localModel.getAvailableColors() != null) {
                     System.out.println("Available colors are: ");
                     printTUIView(availableColorsTUIView(localModel.getAvailableColors()));
+                }
+                else {
+                    System.out.println("No infos about available colors, try later...");
                 }
             }
             case SetupEvent.ACCEPTED_COLOR -> {
@@ -903,7 +940,7 @@ public class TUIView implements UI, GeneralListener {
         switch (viewState){
             case ViewState.NOT_PLAYER -> printCreationPlayerScene();
             case ViewState.NOT_GAME -> printEnteringGameScene(null);
-            case ViewState.SETUP -> printSetupScene();
+            case ViewState.SETUP -> System.out.println("This the setup phase. Choose your setup");
             case ViewState.PAUSE -> System.out.print("Game is in pause! Sorry, you have to wait...");
             case ViewState.DISCONNECT -> System.err.println("[NETWORK PROBLEMS]: there are network problems. In background, we are trying to fix them...");
             case ViewState.END -> printWinners();
@@ -944,7 +981,7 @@ public class TUIView implements UI, GeneralListener {
         Optional<Color> color = Optional.ofNullable(localModel.getStations().get(this.currentViewPlayer).getChosenColor());
         System.out.println("You are currently visualizing the station of: " + color.map(Color::stringColor).orElse("") +
                                    String.format("%-18.18s", String.format("%.17s",
-                                   localModel.getStations().get(this.currentViewPlayer).getOwnerPlayer()) + ":") +
+                                   localModel.getStations().get(this.currentViewPlayer).getOwnerPlayer())) +
                                    color.map(Color::colorReset).orElse("") + "\n");
         printTUIView(scoreboardTUIView(localModel.getStations().values().toArray(new LocalStationPlayer[]{})));
         System.out.println("\n");
@@ -955,7 +992,7 @@ public class TUIView implements UI, GeneralListener {
     private void printCreationPlayerScene(){
         this.clearTerminal();
         System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
-        System.out.println("Welcome to the game!\nPlease enter your nickname: ");
+        System.out.println("Welcome to the game!\n");
         System.out.print(">");
     }
 
@@ -973,7 +1010,7 @@ public class TUIView implements UI, GeneralListener {
 
     private void printSetupScene(){
         this.clearTerminal();
-        System.out.println("Hello" + this.localModel.getNickname() + ", you are currently in game: "
+        System.out.println("Hello " + this.localModel.getNickname() + ", you are currently in game: "
                                    + this.localModel.getGameName() + "\n");
 
         if(localModel.getPersonalStation().getChosenColor() == null) {
@@ -983,7 +1020,8 @@ public class TUIView implements UI, GeneralListener {
                 printTUIView(availableColorsTUIView(localModel.getAvailableColors()));
             }
         }
-        if(localModel.getPersonalStation().getPrivateGoalCardInStation() == null) {
+        if(localModel.getPersonalStation() == null ||
+                localModel.getPersonalStation().getPrivateGoalCardInStation() == null) {
             System.out.println("You need to select a private goal card: ");
             if(localModel.getPersonalStation().getPrivateGoalCardsInStation() != null){
                 System.out.println("Those are the goal card in the personal station:");
@@ -992,7 +1030,8 @@ public class TUIView implements UI, GeneralListener {
                 }
             }
         }
-        if(localModel.getPersonalStation().getPlacedCardSequence() == null || localModel.getPersonalStation().getPlacedCardSequence().isEmpty()) {
+        if(localModel.getPersonalStation() == null||
+                localModel.getPersonalStation().getPlacedCardSequence() == null|| localModel.getPersonalStation().getPlacedCardSequence().isEmpty()) {
             System.out.println("You need to place your initial card.\nIn which direction you want to place card " +
                                        localModel.getPersonalStation().getInitialCard() + "?");
         }

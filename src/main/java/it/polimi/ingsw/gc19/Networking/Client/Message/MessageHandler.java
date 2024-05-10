@@ -163,11 +163,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     @Override
-    public void visit(ConfigurationMessage message) {
-
-    }
-
-    @Override
     public void visit(GameConfigurationMessage message) {
         waitForLocalModel();
         this.localModel.setNumPlayers(message.getNumPlayers());
@@ -185,10 +180,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(OwnStationConfigurationMessage message) {
-        waitForLocalModel();
-        this.localModel.setPersonalStation(new PersonalStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
-                                                               message.getNumPoints(), message.getPlacedCardSequence(), message.getPrivateGoalCard(),
-                                                               message.getGoalCard1(), message.getGoalCard2(), message.getCardsInHand(), message.getInitialCard()));
+        this.clientController.getCurrentState().nextState(message);
     }
 
     @Override
@@ -202,7 +194,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(AvailableColorsMessage message) {
-        waitForLocalModel();
         this.localModel.setAvailableColors(message.getAvailableColors());
     }
 

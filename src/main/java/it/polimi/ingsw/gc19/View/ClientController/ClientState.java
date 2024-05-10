@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
@@ -49,7 +50,9 @@ public abstract class ClientState {
 
     public void nextState(EndGameMessage message){
         for(String s: this.clientController.getLocalModel().getStations().keySet()){
-            this.clientController.getLocalModel().getStations().get(s).setNumPoints(message.getUpdatedPoints().get(s));
+            if(message.getUpdatedPoints().containsKey(s)) {
+                this.clientController.getLocalModel().getStations().get(s).setNumPoints(message.getUpdatedPoints().get(s));
+            }
         }
 
         this.listenersManager.notifyStateListener(ViewState.END);
@@ -107,6 +110,8 @@ public abstract class ClientState {
     public void nextState(AvailableGamesMessage message){
         this.listenersManager.notifyGameHandlingListener(GameHandlingEvents.AVAILABLE_GAMES, message.getAvailableGames().stream().toList());
     }
+
+    public void nextState(OwnStationConfigurationMessage message){ };
 
     abstract ViewState getState();
 

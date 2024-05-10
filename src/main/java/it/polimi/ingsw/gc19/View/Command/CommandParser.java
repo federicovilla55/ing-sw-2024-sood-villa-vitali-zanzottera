@@ -280,5 +280,4 @@ public record CommandParser(ClientController clientController) {
             this.clientController.getView().notifyGenericError("Command format not known!");
         }
     }
-
 }

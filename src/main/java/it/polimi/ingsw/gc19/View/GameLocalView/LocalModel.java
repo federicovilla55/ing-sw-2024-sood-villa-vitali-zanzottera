@@ -48,6 +48,7 @@ public class LocalModel {
     public void setPersonalStation(PersonalStation localStation) {
         synchronized (this.playerStations) {
             this.playerStations.put(this.nickname, localStation);
+            this.playerStations.notifyAll();
         }
         synchronized (previousGoalCards){
             GoalCard goalCard = localStation.getPrivateGoalCardInStation();
@@ -86,6 +87,14 @@ public class LocalModel {
 
     public PersonalStation getPersonalStation() {
         synchronized (playerStations) {
+            while (!this.playerStations.containsKey(nickname)){
+                try{
+                    this.playerStations.wait();
+                }
+                catch (InterruptedException interruptedException){
+                    Thread.currentThread().interrupt();
+                }
+            }
             return (PersonalStation) this.playerStations.get(this.nickname);
         }
     }
@@ -130,9 +139,9 @@ public class LocalModel {
         synchronized (this.playerStations) {
             this.playerStations.get(this.nickname).setChosenColor(color);
         }
+        this.availableColors.remove(color);
 
         this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_COLOR);
-
         if(finishedLocalSetup()){
             this.listenersManager.notifySetupListener(SetupEvent.COMPLETED);
         }
@@ -152,6 +161,10 @@ public class LocalModel {
             this.playerState.put(nickname, State.ACTIVE);
         }
 
+        synchronized (previousPlayableCards) {
+            previousPlayableCards.put(cardToPlace.getCardCode(), cardToPlace);
+        }
+
         if(this.nickname.equals(nickname)) {
             this.listenersManager.notifyStationListener((PersonalStation) this.playerStations.get(nickname));
         }
@@ -166,6 +179,10 @@ public class LocalModel {
         }
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
+        }
+
+        synchronized (previousPlayableCards) {
+            previousPlayableCards.put(initialCard.getCardCode(), initialCard);
         }
 
         this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_INITIAL_CARD);

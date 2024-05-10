@@ -4,10 +4,12 @@ import it.polimi.ingsw.gc19.Enums.GameState;
 import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.EndGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
+import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 
 
 /**
@@ -65,10 +67,7 @@ public class Wait extends ClientState {
 
         this.clientController.setLocalModel(localModel);
         this.clientInterface.getMessageHandler().setLocalModel(localModel);
-
         this.clientController.getView().setLocalModel(localModel);
-
-        clientController.setNextState(new Setup(clientController));
     }
 
     @Override
@@ -80,6 +79,7 @@ public class Wait extends ClientState {
     @Override
     public void nextState(GameConfigurationMessage message) {
         if (message.getGameState() == GameState.SETUP) {
+            System.out.println("NONDEVE PASSARE DA QUI");
             clientController.setNextState(new Setup(clientController));
         }
         else {
@@ -105,6 +105,15 @@ public class Wait extends ClientState {
         this.clientController.setLocalModel(null);
         this.clientInterface.getMessageHandler().setLocalModel(null);
         this.clientController.setNextState(new NotGame(clientController));
+    }
+
+    @Override
+    public void nextState(OwnStationConfigurationMessage message){
+        this.clientController.getLocalModel().setPersonalStation(new PersonalStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
+                                                               message.getNumPoints(), message.getPlacedCardSequence(), message.getPrivateGoalCard(),
+                                                               message.getGoalCard1(), message.getGoalCard2(), message.getCardsInHand(), message.getInitialCard()));
+
+        clientController.setNextState(new Setup(clientController));
     }
 
     @Override

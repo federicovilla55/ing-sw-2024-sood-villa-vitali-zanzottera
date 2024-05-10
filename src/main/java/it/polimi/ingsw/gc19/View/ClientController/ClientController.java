@@ -13,6 +13,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
+import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.UI;
 
 import java.util.ArrayList;
@@ -458,4 +459,11 @@ public class ClientController {
         }
     }
 
+    public void availableColors() {
+        if(viewState.getState() != ViewState.SETUP){
+            this.view.notifyGenericError("You can not choose a color when not in setup!");
+            return;
+        }
+        this.getListenersManager().notifySetupListener(SetupEvent.AVAILABLE_COLOR);
+    }
 }

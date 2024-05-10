@@ -355,18 +355,18 @@ public class Game extends Publisher{
     }
 
     public void sendCurrentStateToPlayer(String nickname) {
-        //Send to the player the current state of table
-        sendCurrentTableState(nickname);
-
         //Send to player its own station
         sendCurrentOwnStationState(nickname);
-
-        //Send to player others station
-        sendCurrentOthersStationState(nickname);
 
         //Send to player available colors if gameState is "SETUP"
         if(GameState.SETUP.equals(this.gameState))
             sendCurrentAvailableColors(nickname);
+
+        //Send to the player the current state of table
+        sendCurrentTableState(nickname);
+
+        //Send to player others station
+        sendCurrentOthersStationState(nickname);
 
         //Send to player game and turn state
         this.getMessageFactory().sendMessageToPlayer(nickname, new GameConfigurationMessage(
