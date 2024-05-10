@@ -219,6 +219,11 @@ public class LocalModel {
         synchronized (this.playerStations) {
             ((PersonalStation) this.playerStations.get(this.nickname)).updateCardsInHand(playableCard);
         }
+
+        synchronized (previousPlayableCards) {
+            previousPlayableCards.put(playableCard.getCardCode(), playableCard);
+        }
+
         this.listenersManager.notifyStationListener((PersonalStation) this.playerStations.get(this.nickname));
     }
 

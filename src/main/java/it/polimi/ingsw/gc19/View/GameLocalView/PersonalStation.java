@@ -39,6 +39,7 @@ public class PersonalStation extends LocalStationPlayer {
     @Override
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) {
 
+        if(anchor == null || toPlace == null) return false;
 
         //the card in hand is always UP
         CardOrientation cardOrientation = toPlace.getCardOrientation();
