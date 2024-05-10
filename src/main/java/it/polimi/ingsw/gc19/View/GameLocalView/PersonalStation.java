@@ -38,10 +38,15 @@ public class PersonalStation extends LocalStationPlayer {
 
     @Override
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) {
+
+
+        //the card in hand is always UP
+        CardOrientation cardOrientation = toPlace.getCardOrientation();
         // checks if the card to place is contained in the player's hand
-        if(!this.getCardsInHand().contains(toPlace)){
-            throw new RuntimeException();
+        if(!this.getCardsInHand().contains(toPlace.setCardState(CardOrientation.UP))){
+            return false;
         }
+        toPlace.setCardState(cardOrientation);
 
         if(!toPlace.enoughResourceToBePlaced(this.getVisibleSymbols())){
             return false;
