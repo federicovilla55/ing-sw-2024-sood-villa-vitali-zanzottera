@@ -220,9 +220,14 @@ public class ClientController {
             cardToPlace.setCardState(cardOrientation);
         }
 
+        //apply card orientation to see correctly if a card is placeable
         if(!localModel.isCardPlaceablePersonalStation(cardToPlace, anchorCard, direction)){
             this.listenersManager.notifyErrorStationListener(cardToInsert, anchor, direction.toString().toLowerCase());
             return;
+        }
+
+        if(cardToPlace != null ) {
+            cardToPlace.setCardState(CardOrientation.UP);
         }
 
         clientNetwork.placeCard(cardToInsert, anchor, direction, cardOrientation);
