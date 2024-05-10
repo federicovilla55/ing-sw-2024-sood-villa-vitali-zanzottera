@@ -663,13 +663,12 @@ public class TUIView implements UI, GeneralListener {
     private String[][] chatTUIView(ArrayList<Message> chat){
         ArrayList<String> printedChat = new ArrayList<>();
 
-        printedChat.add("Received messages:");
         printedChat.add("\n");
         for(Message message : chat){
             Optional<Color> color = Optional.ofNullable(localModel.getStations().get(message.getSenderPlayer()).getChosenColor());
             printedChat.add(color.map(Color::stringColor).orElse("") +
                     String.format("%-18.18s",
-                                  String.format("%.17s", localModel.getStations().get(message.getSenderPlayer())) +
+                                  String.format("%.17s", localModel.getStations().get(message.getSenderPlayer()).getOwnerPlayer()) +
                                           ":") +
                     color.map(Color::colorReset).orElse("") + "\t" + message.getSendTime());
             printedChat.add(message.getMessage());
@@ -864,24 +863,23 @@ public class TUIView implements UI, GeneralListener {
     @Override
     public void notify(GameHandlingEvents type, List<String> varArgs) {
         switch (type){
-            case GameHandlingEvents.CREATED_GAME -> System.out.println("The requested game '" + varArgs.getFirst() + "' has been correctly created.");
-            case GameHandlingEvents.JOINED_GAMES -> System.out.println("You have correctly logged in game named '" + varArgs.getFirst() + "'.");
+            case GameHandlingEvents.CREATED_GAME -> System.out.println("The requested game '" + varArgs.getFirst() + "' has been created!");
+            case GameHandlingEvents.JOINED_GAMES -> System.out.println("You have been registered to game named '" + varArgs.getFirst() + "'.");
             case AVAILABLE_GAMES -> {
                 System.out.println("The following are the available games: ");
                 for(String s : varArgs){
                     System.out.println("-> " + s);
                 }
+                System.out.print(">");
             }
         }
-        System.out.print(">");
     }
 
     @Override
     public void notify(SetupEvent type){
         switch (type){
             case SetupEvent.AVAILABLE_COLOR -> {
-                if(localModel.getAvailableColors() != null) {
-                    System.out.println("Available colors are: ");
+                if(localModel.getAvailableColors() != null && localModel.getPersonalStation() != null && localModel.getPersonalStation().getChosenColor() == null) {
                     printTUIView(availableColorsTUIView(localModel.getAvailableColors()));
                 }
                 else {
@@ -977,7 +975,7 @@ public class TUIView implements UI, GeneralListener {
         switch (viewState){
             case ViewState.NOT_PLAYER -> printCreationPlayerScene();
             case ViewState.NOT_GAME -> printEnteringGameScene(null);
-            case ViewState.SETUP -> System.out.println("This the setup phase. Choose your setup");
+            case ViewState.SETUP -> System.out.println("This the setup phase. Choose your setup...");
             case ViewState.PAUSE -> System.out.print("Game is in pause! Sorry, you have to wait...");
             case ViewState.DISCONNECT -> System.err.println("[NETWORK PROBLEMS]: there are network problems. In background, we are trying to fix them...");
             case ViewState.END -> printWinners();
@@ -1074,37 +1072,6 @@ public class TUIView implements UI, GeneralListener {
             printTUIView(availableGamesTUIView(availableGames));
         }
         System.out.println("\n");
-        System.out.print(">");
-    }
-
-    private void printSetupScene(){
-        this.clearTerminal();
-        System.out.println("Hello " + this.localModel.getNickname() + ", you are currently in game: "
-                                   + this.localModel.getGameName() + "\n");
-
-        if(localModel.getPersonalStation().getChosenColor() == null) {
-            System.out.println("You need to choose a color for your pawn.");
-            if(localModel.getAvailableColors() != null && !localModel.getAvailableColors().isEmpty()){
-                System.out.println("Those are the available colors: ");
-                printTUIView(availableColorsTUIView(localModel.getAvailableColors()));
-            }
-        }
-        if(localModel.getPersonalStation() == null ||
-                localModel.getPersonalStation().getPrivateGoalCardInStation() == null) {
-            System.out.println("You need to select a private goal card: ");
-            if(localModel.getPersonalStation().getPrivateGoalCardsInStation() != null){
-                System.out.println("Those are the goal card in the personal station:");
-                for(GoalCard card : localModel.getPersonalStation().getPrivateGoalCardsInStation()){
-                    System.out.print(card.getCardCode() + "\t");
-                }
-            }
-        }
-        if(localModel.getPersonalStation() == null||
-                localModel.getPersonalStation().getPlacedCardSequence() == null|| localModel.getPersonalStation().getPlacedCardSequence().isEmpty()) {
-            System.out.println("You need to place your initial card.\nIn which direction you want to place card " +
-                                       localModel.getPersonalStation().getInitialCard() + "?");
-        }
-
         System.out.print(">");
     }
 

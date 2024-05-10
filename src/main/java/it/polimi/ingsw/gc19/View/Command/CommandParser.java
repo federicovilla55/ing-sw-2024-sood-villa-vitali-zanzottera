@@ -12,10 +12,12 @@ import java.util.List;
 
 public record CommandParser(ClientController clientController) {
 
-    private static String[] parseArguments(String args) throws IllegalArgumentException {
+    private static String[] parseArguments(String args, boolean deleteSpaces) throws IllegalArgumentException {
         if (args == null) throw new IllegalArgumentException();
 
-        args = args.replaceAll("\\s", "");
+        if(deleteSpaces) {
+            args = args.replaceAll("\\s", "");
+        }
 
         String[] arguments = args.split(",\\s*");
 
@@ -31,7 +33,7 @@ public record CommandParser(ClientController clientController) {
         String[] parsedArguments;
 
         try {
-            parsedArguments = parseArguments(commandArgs);
+            parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;
@@ -53,7 +55,7 @@ public record CommandParser(ClientController clientController) {
         String[] parsedArguments;
 
         try {
-            parsedArguments = parseArguments(commandArgs);
+            parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;
@@ -75,7 +77,7 @@ public record CommandParser(ClientController clientController) {
         String[] parsedArguments;
 
         try {
-            parsedArguments = parseArguments(commandArgs);
+            parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;
@@ -98,7 +100,7 @@ public record CommandParser(ClientController clientController) {
         String[] parsedArguments;
 
         try {
-            parsedArguments = parseArguments(commandArgs);
+            parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;
@@ -116,7 +118,7 @@ public record CommandParser(ClientController clientController) {
         String[] parsedArguments;
 
         try {
-            parsedArguments = parseArguments(commandArgs);
+            parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;
@@ -138,7 +140,7 @@ public record CommandParser(ClientController clientController) {
         String[] parsedArguments;
 
         try {
-            parsedArguments = parseArguments(commandArgs);
+            parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;
@@ -173,7 +175,7 @@ public record CommandParser(ClientController clientController) {
         String[] parsedArguments;
 
         try {
-            parsedArguments = parseArguments(commandArgs);
+            parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;
@@ -208,7 +210,7 @@ public record CommandParser(ClientController clientController) {
         String[] parsedArguments;
 
         try {
-            parsedArguments = parseArguments(commandArgs);
+            parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;
@@ -230,7 +232,7 @@ public record CommandParser(ClientController clientController) {
         String[] parsedArguments;
 
         try {
-            parsedArguments = parseArguments(commandArgs);
+            parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;
@@ -245,7 +247,7 @@ public record CommandParser(ClientController clientController) {
         String[] parsedArguments;
 
         try {
-            parsedArguments = parseArguments(commandArgs);
+            parsedArguments = parseArguments(commandArgs, false);
         } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;
@@ -263,7 +265,7 @@ public record CommandParser(ClientController clientController) {
         String[] parsedArguments;
 
         try {
-            parsedArguments = parseArguments(commandArgs);
+            parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
             this.clientController.getView().notifyGenericError("Command format not known!");
             return;

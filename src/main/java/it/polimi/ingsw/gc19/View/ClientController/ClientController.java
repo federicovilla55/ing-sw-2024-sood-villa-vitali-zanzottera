@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.View.ClientController;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
@@ -150,7 +151,7 @@ public class ClientController {
                     return;
                 }
             }
-
+            localModel.getMessages().add(new Message(message, this.nickname, new ArrayList<>(users)));
             clientNetwork.sendChatMessage(new ArrayList<>(users), message);
         }
     }
@@ -423,23 +424,24 @@ public class ClientController {
     }
 
     public synchronized void disconnect(){
+        ConfigurationManager.deleteConfiguration(this.nickname);
+
+        this.setNextState(new Wait(this));
+        this.listenersManager.notifyStateListener(viewState.getState());
+
+        this.localModel = null;
+
         int numOfTry = 0;
 
         while (!Thread.currentThread().isInterrupted() && numOfTry < ClientSettings.MAX_DISCONNECTION_TRY_IN_CASE_OF_ERROR_BEFORE_ABORTING){
             try{
-                ConfigurationManager.deleteConfiguration(this.nickname);
-
                 this.clientNetwork.disconnect();
-
-                this.setNextState(new Wait(this));
-                this.listenersManager.notifyStateListener(viewState.getState());
-
-                this.localModel = null;
 
                 ScheduledExecutorService clientKiller = new ScheduledThreadPoolExecutor(1);
                 clientKiller.schedule(() -> {
                     this.clientNetwork.stopClient();
                     this.clientNetwork.getMessageHandler().interruptMessageHandler();
+                    this.view.notify("You leaved server!");
                 }, 2500, TimeUnit.MILLISECONDS);
 
                 return;

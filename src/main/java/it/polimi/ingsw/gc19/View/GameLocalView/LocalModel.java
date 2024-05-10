@@ -321,9 +321,9 @@ public class LocalModel {
         return availableColors;
     }
 
-    public void updateMessages(String messageContent, String sender, List<String> receivers){
+    public void updateMessages(Message message){
         synchronized (this.messages){
-            messages.add(new Message(messageContent, sender, String.valueOf(receivers)));
+            messages.add(message);
         }
         this.listenersManager.notifyChatListener(messages);
     }

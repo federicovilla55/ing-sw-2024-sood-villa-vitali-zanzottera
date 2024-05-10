@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Client.Message;
 
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -177,8 +178,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(NotifyChatMessage message) {
         waitForLocalModel();
-        this.localModel.updateMessages(message.getMessage(), message.getSender(), message.getHeader());
-        clientController.getCurrentState().nextState(message);
+        this.localModel.updateMessages(new Message(message.getMessage(), message.getSender(), String.valueOf(message.getHeader())));
     }
 
     @Override

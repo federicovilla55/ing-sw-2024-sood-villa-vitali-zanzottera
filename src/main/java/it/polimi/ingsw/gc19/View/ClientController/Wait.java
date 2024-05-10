@@ -78,7 +78,6 @@ public class Wait extends ClientState {
     @Override
     public void nextState(GameConfigurationMessage message) {
         if (message.getGameState() == GameState.SETUP) {
-            System.out.println("NONDEVE PASSARE DA QUI");
             clientController.setNextState(new Setup(clientController));
         }
         else {
