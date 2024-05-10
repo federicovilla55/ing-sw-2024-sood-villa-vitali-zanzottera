@@ -978,6 +978,8 @@ public class TUIView implements UI, GeneralListener {
             case ViewState.END -> printWinners();
         }
 
+        System.out.print(">");
+
     }
 
     private void clearTerminal(){

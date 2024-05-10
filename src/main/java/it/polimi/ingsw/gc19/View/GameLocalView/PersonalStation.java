@@ -39,11 +39,7 @@ public class PersonalStation extends LocalStationPlayer {
     @Override
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) {
         // checks if the card to place is contained in the player's hand
-        if(!this.getCardsInHand().contains(toPlace)){
-            throw new RuntimeException();
-        }
-
-        if(!toPlace.enoughResourceToBePlaced(this.getVisibleSymbols())){
+        if(!this.getCardsInHand().contains(toPlace) || !toPlace.enoughResourceToBePlaced(this.getVisibleSymbols())){
             return false;
         }
 
