@@ -76,9 +76,7 @@ public abstract class ClientState {
         this.clientController.getView().notify("Game is starting!");
     }
 
-    public void nextState(PlayerReconnectedToGameMessage message) {
-        this.listenersManager.notifyLocalModelListener(LocalModelEvents.RECONNECTED_PLAYER, clientController.getLocalModel(), message.getPlayerName());
-    }
+    public void nextState(PlayerReconnectedToGameMessage message) { }
 
     public void nextState(DisconnectFromGameMessage message) {
         this.clientController.getView().notify("You leave the game!");

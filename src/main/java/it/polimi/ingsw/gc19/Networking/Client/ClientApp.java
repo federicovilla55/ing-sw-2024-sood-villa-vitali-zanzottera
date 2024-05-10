@@ -16,7 +16,7 @@ public class ClientApp {
 
     public static void main(String[] args) {
 
-        System.out.println("Welcome to Codex Naturalis!");
+        System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
 
         String uiType;
 

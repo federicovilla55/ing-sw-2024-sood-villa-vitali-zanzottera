@@ -117,10 +117,15 @@ public class LocalModel {
     }
 
     public void setPlayerActive(String nickname){
+        if(this.playerState.get(nickname) == State.INACTIVE) {
+            this.listenersManager.notifyLocalModelListener(LocalModelEvents.RECONNECTED_PLAYER, this, nickname);
+        }
+        else{
+            this.listenersManager.notifyLocalModelListener(LocalModelEvents.NEW_PLAYER_CONNECTED, this, nickname);
+        }
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        this.listenersManager.notifyLocalModelListener(LocalModelEvents.RECONNECTED_PLAYER, this, nickname);
     }
 
     public void setPrivateGoal(GoalCard goalCard) {

@@ -914,12 +914,9 @@ public class TUIView implements UI, GeneralListener {
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String ... varArgs){
         switch (type) {
-            case NEW_PLAYER_CONNECTED, RECONNECTED_PLAYER -> {
-                System.out.println(varArgs[0]+ " has joined the game!");
-            }
-            case DISCONNECTED_PLAYER -> {
-                System.out.println(varArgs[0]+ " disconnected...");
-            }
+            case NEW_PLAYER_CONNECTED -> System.out.println(varArgs[0]+ " has joined the game!");
+            case RECONNECTED_PLAYER -> System.out.println(varArgs[0]+ " has reconnected to the game!");
+            case DISCONNECTED_PLAYER -> System.out.println(varArgs[0]+ " disconnected...");
         }
     }
 
