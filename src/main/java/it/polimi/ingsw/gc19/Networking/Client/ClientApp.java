@@ -2,6 +2,8 @@ package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.Configuration;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
+import it.polimi.ingsw.gc19.Utils.IPChecker;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.GUIView;
@@ -17,6 +19,27 @@ public class ClientApp {
     public static void main(String[] args) {
 
         System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
+
+        System.out.println("Default server IP is: " + ClientSettings.TCP_SERVER_IP + ". Insert server IP or 'default':");
+
+        boolean valid = false;
+        while(!valid){
+            Scanner scanner = new Scanner(System.in);
+            String ip = scanner.nextLine();
+            if(ip.equals("default")){
+                valid = true;
+            }
+            else{
+                valid = IPChecker.checkIPAddress(ip);
+                if(valid){
+                    ClientSettings.TCP_SERVER_IP = ip;
+                    ClientSettings.RMI_SERVER_IP = ip;
+                }
+                else{
+                    System.out.println("Error: invalid IP! Enter a valid IP or 'default':");
+                }
+            }
+        }
 
         String uiType;
 
