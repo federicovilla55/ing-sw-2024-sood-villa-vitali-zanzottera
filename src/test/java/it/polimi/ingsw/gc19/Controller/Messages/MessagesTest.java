@@ -78,18 +78,6 @@ public class MessagesTest {
 
         assertEquals(new JoinedGameMessage("game1").setHeader(player1.getUsername()), player1.getMessage());
 
-        assertMessageEquals(player1,
-                new TableConfigurationMessage(
-                        playableCards.get("resource_05").setCardState(CardOrientation.UP),
-                        playableCards.get("resource_21").setCardState(CardOrientation.UP),
-                        playableCards.get("gold_19").setCardState(CardOrientation.UP),
-                        playableCards.get("gold_23").setCardState(CardOrientation.UP),
-                        goalCards.get("goal_11"),
-                        goalCards.get("goal_15"),
-                        Symbol.VEGETABLE,
-                        Symbol.ANIMAL
-                ));
-
         assertMessageEquals(player1, new OwnStationConfigurationMessage(
                 "player1",
                 null,
@@ -119,6 +107,18 @@ public class MessagesTest {
                 new AvailableColorsMessage(List.of(Color.values())));
 
         assertMessageEquals(player1,
+                new TableConfigurationMessage(
+                        playableCards.get("resource_05").setCardState(CardOrientation.UP),
+                        playableCards.get("resource_21").setCardState(CardOrientation.UP),
+                        playableCards.get("gold_19").setCardState(CardOrientation.UP),
+                        playableCards.get("gold_23").setCardState(CardOrientation.UP),
+                        goalCards.get("goal_11"),
+                        goalCards.get("goal_15"),
+                        Symbol.VEGETABLE,
+                        Symbol.ANIMAL
+                ));
+
+        assertMessageEquals(player1,
                 new GameConfigurationMessage(
                         GameState.SETUP,
                         null,
@@ -143,7 +143,7 @@ public class MessagesTest {
                         List.of(
                                 new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
                                 new Tuple<>(Symbol.INSECT, PlayableCardType.RESOURCE),
-                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.GOLD)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
@@ -174,10 +174,6 @@ public class MessagesTest {
 
         assertEquals(new JoinedGameMessage("game1").setHeader(player2.getUsername()), player2.getMessage());
 
-
-        assertMessageEquals(player2,
-                tableConfigurationMessage);
-
         assertMessageEquals(player2,
                 new OwnStationConfigurationMessage(
                         "player2",
@@ -205,13 +201,19 @@ public class MessagesTest {
                 ));
 
         assertMessageEquals(player2,
+                new AvailableColorsMessage(List.of(Color.values())));
+
+        assertMessageEquals(player2,
+                tableConfigurationMessage);
+
+        assertMessageEquals(player2,
                 new OtherStationConfigurationMessage(
                         "player1",
                         null,
                         List.of(
                                 new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
                                 new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
-                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.GOLD)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
@@ -225,9 +227,6 @@ public class MessagesTest {
                         0,
                         List.of()
                 ));
-
-        assertMessageEquals(player2,
-                new AvailableColorsMessage(List.of(Color.values())));
 
         assertMessageEquals(player2,
                 new GameConfigurationMessage(
@@ -259,7 +258,7 @@ public class MessagesTest {
                         List.of(
                                 new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
                                 new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
-                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE)
+                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.GOLD)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
@@ -276,8 +275,6 @@ public class MessagesTest {
         assertMessageEquals(List.of(player1, player2), tableConfigurationMessage);
 
         assertEquals(new JoinedGameMessage("game1").setHeader(player3.getUsername()), player3.getMessage());
-
-        assertMessageEquals(player3, tableConfigurationMessage);
 
         assertMessageEquals(player3,
                 new OwnStationConfigurationMessage(
@@ -304,6 +301,12 @@ public class MessagesTest {
                         goalCards.get("goal_06"),
                         List.of()
                 ));
+
+        assertMessageEquals(player3,
+                new AvailableColorsMessage(List.of(Color.values())));
+
+        assertMessageEquals(player3, tableConfigurationMessage);
+
         assertMessageEquals(player3,
                 new OtherStationConfigurationMessage(
                         "player1",
@@ -311,7 +314,7 @@ public class MessagesTest {
                         List.of(
                                 new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
                                 new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
-                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.GOLD)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
@@ -332,7 +335,7 @@ public class MessagesTest {
                         List.of(
                                 new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
                                 new Tuple<>(Symbol.INSECT, PlayableCardType.RESOURCE),
-                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.GOLD)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
@@ -346,8 +349,7 @@ public class MessagesTest {
                         0,
                         List.of()
                 ));
-        assertMessageEquals(player3,
-                new AvailableColorsMessage(List.of(Color.values())));
+
         assertMessageEquals(player3,
                 new GameConfigurationMessage(
                         GameState.SETUP,
@@ -494,7 +496,7 @@ public class MessagesTest {
         //player2 action should not work and no message should be sent
         this.player2.placeCard("resource_15", "initial_01", Direction.UP_RIGHT, CardOrientation.UP);
         assertNull(player1.getMessage());
-        assertNull(player2.getMessage());
+        assertMessageEquals(player2, new RefusedActionMessage(ErrorType.NOT_YOUR_TURN, "You cannot place a card when is player1 state!"));
         assertNull(player3.getMessage());
         assertNull(player4.getMessage());
 
@@ -550,7 +552,7 @@ public class MessagesTest {
         //player2 action should not work and no message should be sent
         this.player2.pickCardFromDeck(PlayableCardType.GOLD);
         assertNull(player1.getMessage());
-        assertNull(player2.getMessage());
+        assertMessageEquals(player2, new RefusedActionMessage(ErrorType.NOT_YOUR_TURN, "You cannot place a card when is player1 state!"));
         assertNull(player3.getMessage());
         assertNull(player4.getMessage());
 
@@ -558,7 +560,7 @@ public class MessagesTest {
         assertMessageEquals(player1,
                 new OwnAcceptedPickCardFromDeckMessage("player1", playableCards.get("resource_18"), PlayableCardType.RESOURCE, Symbol.INSECT));
         assertMessageEquals(List.of(player2, player3, player4),
-                new OtherAcceptedPickCardFromDeckMessage("player1",  new Tuple<>(Symbol.INSECT,PlayableCardType.RESOURCE), PlayableCardType.RESOURCE, Symbol.INSECT));
+                new OtherAcceptedPickCardFromDeckMessage("player1",  new Tuple<>(Symbol.VEGETABLE,PlayableCardType.RESOURCE), PlayableCardType.RESOURCE, Symbol.INSECT));
     }
 
     @Test
@@ -596,7 +598,7 @@ public class MessagesTest {
         //player2 action should not work and no message should be sent
         this.player2.pickCardFromTable(PlayableCardType.GOLD, 0);
         assertNull(player1.getMessage());
-        assertNull(player2.getMessage());
+        assertMessageEquals(player2, new RefusedActionMessage(ErrorType.NOT_YOUR_TURN, "You cannot place a card when is player1 state!"));
         assertNull(player3.getMessage());
         assertNull(player4.getMessage());
 
@@ -683,18 +685,6 @@ public class MessagesTest {
                 player2.getMessage());
 
         assertMessageEquals(player2,
-                new TableConfigurationMessage(
-                        playableCards.get("resource_05").setCardState(CardOrientation.UP),
-                        playableCards.get("resource_21").setCardState(CardOrientation.UP),
-                        playableCards.get("gold_19").setCardState(CardOrientation.UP),
-                        playableCards.get("gold_23").setCardState(CardOrientation.UP),
-                        goalCards.get("goal_11"),
-                        goalCards.get("goal_15"),
-                        Symbol.VEGETABLE,
-                        Symbol.INSECT
-                ));
-
-        assertMessageEquals(player2,
                 new OwnStationConfigurationMessage(
                         "player2",
                         Color.BLUE,
@@ -723,12 +713,24 @@ public class MessagesTest {
                 ));
 
         assertMessageEquals(player2,
+                new TableConfigurationMessage(
+                        playableCards.get("resource_05").setCardState(CardOrientation.UP),
+                        playableCards.get("resource_21").setCardState(CardOrientation.UP),
+                        playableCards.get("gold_19").setCardState(CardOrientation.UP),
+                        playableCards.get("gold_23").setCardState(CardOrientation.UP),
+                        goalCards.get("goal_11"),
+                        goalCards.get("goal_15"),
+                        Symbol.VEGETABLE,
+                        Symbol.INSECT
+                ));
+
+        assertMessageEquals(player2,
                 new OtherStationConfigurationMessage(
                         "player1",
                         Color.GREEN,
                         List.of(new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
                                 new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
-                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)),
+                                new Tuple<>(Symbol.ANIMAL, PlayableCardType.GOLD)),
                         Map.of(
                                 Symbol.ANIMAL, 1,
                                 Symbol.MUSHROOM, 0,
@@ -750,7 +752,7 @@ public class MessagesTest {
                         List.of(
                                 new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
                                 new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
-                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE)
+                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.GOLD)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 1,
@@ -774,7 +776,7 @@ public class MessagesTest {
                         List.of(
                                 new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
                                 new Tuple<>(Symbol.INSECT, PlayableCardType.RESOURCE),
-                                new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE)
+                                new Tuple<>(Symbol.MUSHROOM, PlayableCardType.GOLD)
                         ),
                         Map.of(
                                 Symbol.ANIMAL, 0,
