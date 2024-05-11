@@ -16,6 +16,7 @@ import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.*;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.UI;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
@@ -34,6 +35,8 @@ public class TUIView implements UI, GeneralListener {
 
     private ShowState showState;
     private String currentViewPlayer;
+
+    private record StationInfos(PersonalStation personalStation, List<LocalStationPlayer> allStations) { }
 
     private static Configuration.ConnectionType chooseClientType() {
         String connectionType;
@@ -757,18 +760,15 @@ public class TUIView implements UI, GeneralListener {
     }
 
     private void printPlacingSequence(){
-        if(this.localModel != null){
-            System.out.println("This is your placing history: ");
-            for(int i = 0; i < this.localModel.getPersonalStation().getPlacedCardSequence().size(); i++){
-                System.out.println((i + 1) + ") " + this.localModel.getPersonalStation().getPlacedCardSequence().get(i).x().getCardCode());
-                printTUIView(cardTUIView(this.localModel.getPersonalStation().getPlacedCardSequence().get(i).x()));
-                System.out.println();
-            }
+        if(this.localModel == null) return;
+        
+        System.out.println("This is your placing history: ");
+        for(int i = 0; i < this.localModel.getPersonalStation().getPlacedCardSequence().size(); i++){
+            System.out.println((i + 1) + ") " + this.localModel.getPersonalStation().getPlacedCardSequence().get(i).x().getCardCode());
+            printTUIView(cardTUIView(this.localModel.getPersonalStation().getPlacedCardSequence().get(i).x()));
+            System.out.println();
         }
-        else{
-            System.out.println("Action is not possible in the current state!");
-        }
-    }
+}
 
     private void TUIViewCommands(Matcher matcher){
         switch (matcher.group(1)) {
@@ -777,16 +777,19 @@ public class TUIView implements UI, GeneralListener {
             case "help" -> printHelper();
             case "show_initial_card" -> showInitialCard();
             case "show_chat" -> {
+                if(this.localModel == null) return;
                 this.showState = ShowState.CHAT;
                 this.currentViewPlayer = localModel.getNickname();
                 printChat();
             }
             case "show_station" -> {
+                if(this.localModel == null) return;
                 this.showState = ShowState.OTHER_STATION;
                 this.currentViewPlayer = matcher.group(2);
                 printOtherStation();
             }
             case "show_personal_station" -> {
+                if(this.localModel == null) return;
                 this.showState = ShowState.PERSONAL_STATION;
                 this.currentViewPlayer = localModel.getNickname();
                 printPersonalStation();
@@ -843,7 +846,8 @@ public class TUIView implements UI, GeneralListener {
     }
 
     private void showInitialCard() {
-        System.out.println("This is your initial card: ");
+        if(this.localModel == null) return;
+        
         if(this.localModel.getPersonalStation().getInitialCard() != null) {
             System.out.println("This is your initial card: ");
             System.out.println(this.localModel.getPersonalStation().getInitialCard().getCardCode());
@@ -855,6 +859,8 @@ public class TUIView implements UI, GeneralListener {
     }
 
     private void choosePrivateGoalCardScene() {
+        if(this.localModel == null) return;
+        
         if(this.localModel.getPersonalStation().getPrivateGoalCardInStation() != null){
             System.out.println("This is your private goal card: ");
             GoalCard goalCard = this.localModel.getPersonalStation().getPrivateGoalCardInStation();
@@ -1055,10 +1061,7 @@ public class TUIView implements UI, GeneralListener {
     private void printInfoCard(String cardCode){
         String[] code = cardCode.split("_");
 
-        if(this.localModel == null){
-            System.out.println("Operation is not performable in this state!");
-            return;
-        }
+        if(this.localModel == null) return;
 
         if(code.length == 2) {
             if (code[0].equals("goal") && this.localModel.getGoalCard(cardCode) != null) {
@@ -1072,49 +1075,60 @@ public class TUIView implements UI, GeneralListener {
             }
 
         }
+
         System.out.println("Card code is not recognized! ");
         System.out.print(">");
     }
 
     private void printChat(){
+        if(localModel == null) return;
         this.clearTerminal();
         printTUIView(chatTUIView(localModel.getMessages()));
     }
 
     private void printPersonalStation(){
+        if(this.localModel == null) return;
+
+        StationInfos stationInfos = getStations();
+
+        this.clearTerminal();
+        printScoreBoard(stationInfos.allStations());
+        System.out.println("Your station:");
+        System.out.println("\n");
+        printTUIView(playerAreaTUIView(stationInfos.personalStation().getPlacedCardSequence()));
+        System.out.println("\n");
+        System.out.println("Your hand:");
+        printTUIView(handTUIView(stationInfos.personalStation().getCardsInHand()));
+        System.out.println("\n");
+    }
+
+    @NotNull
+    private TUIView.StationInfos getStations() {
         PersonalStation personalStation = this.localModel.getPersonalStation();
         List<OtherStation> otherStations = localModel.getOtherStations().values().stream().toList();
         List<LocalStationPlayer> allStations = new ArrayList<>();
         allStations.add(personalStation);
         allStations.addAll(otherStations);
-        this.clearTerminal();
-        printScoreBoard(allStations);
-        System.out.println("Your station:");
-        System.out.println("\n");
-        printTUIView(playerAreaTUIView(personalStation.getPlacedCardSequence()));
-        System.out.println("\n");
-        System.out.println("Your hand:");
-        printTUIView(handTUIView(personalStation.getCardsInHand()));
-        System.out.println("\n");
+        return new StationInfos(personalStation, allStations);
     }
 
     private void printOtherStation(){
+        if(this.localModel == null) return;
+        
         if(this.currentViewPlayer.isEmpty() || this.currentViewPlayer.equals(localModel.getNickname())) return;
         if(localModel.getOtherStations().get(this.currentViewPlayer) == null) {
             this.notify("There is no other player with that name!");
             return;
         }
+        
         this.clearTerminal();
+        
         Optional<Color> color = Optional.ofNullable(localModel.getOtherStations().get(this.currentViewPlayer).getChosenColor());
         System.out.println("You are currently visualizing the station of: " + color.map(Color::stringColor).orElse("") +
                                    localModel.getOtherStations().get(this.currentViewPlayer).getOwnerPlayer() +
                                    color.map(Color::colorReset).orElse("") + "\n");
-        PersonalStation personalStation = this.localModel.getPersonalStation();
-        List<OtherStation> otherStations = localModel.getOtherStations().values().stream().toList();
-        List<LocalStationPlayer> allStations = new ArrayList<>();
-        allStations.add(personalStation);
-        allStations.addAll(otherStations);
-        printScoreBoard(allStations);
+        StationInfos stationInfos = getStations();
+        printScoreBoard(stationInfos.allStations);
         System.out.println(color.map(Color::stringColor).orElse("") +
                         localModel.getOtherStations().get(this.currentViewPlayer).getOwnerPlayer() +
                 color.map(Color::colorReset).orElse("") + " station:");
