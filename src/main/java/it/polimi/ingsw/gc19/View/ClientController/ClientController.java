@@ -52,6 +52,9 @@ public class ClientController {
     private UI view;
 
     public ClientController() {
+        this.prevState = new NotPlayer(this);
+        this.viewState = new NotPlayer(this);
+
         this.listenersManager = new ListenersManager();
     }
 
@@ -103,7 +106,6 @@ public class ClientController {
         if(this.viewState.getState() == ViewState.DISCONNECT) return;
         this.prevState = viewState;
         this.setNextState(new Disconnect(this));
-        this.listenersManager.notifyStateListener(viewState.getState());
     }
 
     public synchronized void setLocalModel(LocalModel localModel){
@@ -118,9 +120,12 @@ public class ClientController {
     }
 
     public synchronized void setNextState(ClientState clientState){
+        System.out.println(prevState.getState() + "  " + clientState.getState());
+        if(!viewState.getState().equals(clientState.getState())){
+            this.listenersManager.notifyStateListener(clientState.getState());
+        }
         this.prevState = viewState;
         this.viewState = clientState;
-        this.listenersManager.notifyStateListener(viewState.getState());
     }
 
     public synchronized ClientState getCurrentState(){
@@ -146,7 +151,7 @@ public class ClientController {
         }
         else{
             for(String u : users){
-                if(!this.localModel.getStations().containsKey(u)){
+                if(!this.localModel.getOtherStations().containsKey(u)){
                     this.view.notifyGenericError("You are trying to send a message to user " + u + " that does not exists in game!");
                     return;
                 }
@@ -216,8 +221,12 @@ public class ClientController {
         PlayableCard cardToPlace = localModel.getPlayableCard(cardToInsert);
         PlayableCard anchorCard = localModel.getPlayableCard(anchor);
 
-        if(cardToPlace != null ) {
+        if(cardToPlace != null && anchorCard != null) {
             cardToPlace.setCardState(cardOrientation);
+        }
+        else{
+            this.listenersManager.notifyErrorStationListener(cardToInsert, anchor, direction.toString().toLowerCase());
+            return;
         }
 
         //apply card orientation to see correctly if a card is placeable
@@ -413,7 +422,6 @@ public class ClientController {
                 this.clientNetwork.logoutFromGame();
 
                 this.setNextState(new Wait(this));
-                this.listenersManager.notifyStateListener(viewState.getState());
                 this.localModel = null;
 
                 return;
@@ -436,7 +444,6 @@ public class ClientController {
         ConfigurationManager.deleteConfiguration(this.nickname);
 
         this.setNextState(new Wait(this));
-        this.listenersManager.notifyStateListener(viewState.getState());
 
         this.localModel = null;
 
@@ -450,7 +457,15 @@ public class ClientController {
                 clientKiller.schedule(() -> {
                     this.clientNetwork.stopClient();
                     this.clientNetwork.getMessageHandler().interruptMessageHandler();
-                    this.view.notify("You leaved server!");
+
+                    try{
+                        TimeUnit.SECONDS.sleep(5);
+                        System.exit(-1);
+                    }
+                    catch (InterruptedException interruptedException){
+                        Thread.currentThread().interrupt();
+                    }
+
                 }, 2500, TimeUnit.MILLISECONDS);
 
                 return;
