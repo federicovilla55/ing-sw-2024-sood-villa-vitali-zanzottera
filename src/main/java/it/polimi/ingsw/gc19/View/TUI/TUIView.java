@@ -808,7 +808,7 @@ public class TUIView implements UI, GeneralListener {
             case CommandType.JOIN_GAME                -> commandParser.joinGame(args);
             case CommandType.AVAILABLE_COLORS         -> clientController.availableColors();
             case CommandType.CHOOSE_COLOR             -> commandParser.chooseColor(args);
-            case CommandType.CHOOSE_PRIVATE_GOAL_CARD -> commandParser.chooseGoal(args);
+            case CommandType.CHOOSE_GOAL -> commandParser.chooseGoal(args);
             case CommandType.PLACE_INITIAL_CARD       -> commandParser.placeInitialCard(args);
             case CommandType.PICK_CARD_DECK           -> commandParser.pickCardFromDeck(args);
             case CommandType.PICK_CARD_TABLE          -> commandParser.pickCardFromTable(args);
@@ -950,7 +950,7 @@ public class TUIView implements UI, GeneralListener {
 
     @Override
     public void notify(ArrayList<Message> msg){
-        if(this.showState == ShowState.PERSONAL_STATION) {
+        if(this.showState == ShowState.CHAT) {
             printChat();
             System.out.print(">");
         }
@@ -1173,7 +1173,7 @@ public class TUIView implements UI, GeneralListener {
 
         System.out.println();
 
-        System.out.println("-> " + CommandType.CREATE_GAME.getCommandName() + "(game name, number_of_player): to create your game with the specified number of players;");
+        System.out.println("-> " + CommandType.CREATE_GAME.getCommandName() + "(game_name, number_of_player): to create your game with the specified number of players;");
         System.out.println("-> " + CommandType.JOIN_GAME.getCommandName() + "(game name): to join the specified game;");
         System.out.println("-> " + CommandType.JOIN_FIRST_GAME.getCommandName() + "(): to join first available game;");
         System.out.println("-> " + CommandType.AVAILABLE_GAMES.getCommandName() + "(): to display the available games;");
@@ -1182,7 +1182,7 @@ public class TUIView implements UI, GeneralListener {
 
         System.out.println("-> " + CommandType.AVAILABLE_COLORS.getCommandName() + "(): to display available colors;");
         System.out.println("-> " + CommandType.CHOOSE_COLOR.getCommandName() + "(color): to pick choose your color;");
-        System.out.println("-> " + CommandType.CHOOSE_PRIVATE_GOAL_CARD.getCommandName() + "(idx): to choose your private goal card: isx is the index of the card;");
+        System.out.println("-> " + CommandType.CHOOSE_GOAL.getCommandName() + "(idx): to choose your private goal card: idx is the index of the card;");
         System.out.println("-> " + CommandType.PLACE_INITIAL_CARD.getCommandName() + "(card_orientation): to place initial card with the specified orientation (UP, DOWN);");
         System.out.println("-> show_private_goal_card(): to show your private goal card/s;");
         System.out.println("-> show_personal_station(): to see your personal station;");

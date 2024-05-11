@@ -490,7 +490,7 @@ public class Game extends Publisher{
             }
             default -> throw new IllegalArgumentException("type must be RESOURCE or GOLD");
         };
-        PlayableCard result = cardsOnTable[position];
+        PlayableCard result = cardsOnTable[position % 2];
         if(result==null) {
             throw new CardNotFoundException("Card not found");
         }

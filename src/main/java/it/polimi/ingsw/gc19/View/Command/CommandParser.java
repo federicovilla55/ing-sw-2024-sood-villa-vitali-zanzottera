@@ -61,7 +61,7 @@ public record CommandParser(ClientController clientController) {
             return;
         }
 
-        if (parsedArguments.length == CommandType.CHOOSE_PRIVATE_GOAL_CARD.getNumArgs()) {
+        if (parsedArguments.length == CommandType.CHOOSE_GOAL.getNumArgs()) {
             try {
                 clientController.chooseGoal(Math.abs(Integer.parseInt(parsedArguments[0])));
             } catch (IllegalArgumentException illegalArgumentException) {
@@ -69,7 +69,7 @@ public record CommandParser(ClientController clientController) {
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("required " + CommandType.CHOOSE_PRIVATE_GOAL_CARD.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.CHOOSE_GOAL.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 

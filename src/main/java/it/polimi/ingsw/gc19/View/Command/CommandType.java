@@ -1,7 +1,5 @@
 package it.polimi.ingsw.gc19.View.Command;
 
-import it.polimi.ingsw.gc19.View.ClientController.ClientController;
-
 public enum CommandType {
     CREATE_PLAYER("create_player", 1),
     CREATE_GAME("create_game", 2),
@@ -14,7 +12,7 @@ public enum CommandType {
     PICK_CARD_TABLE("pick_card_table", 2),
     PICK_CARD_DECK("pick_card_deck", 1),
     CHOOSE_COLOR("choose_color", 1),
-    CHOOSE_PRIVATE_GOAL_CARD("choose_goal", 1),
+    CHOOSE_GOAL("choose_goal", 1),
     LOGOUT_FROM_GAME("logout_from_game", 0),
     DISCONNECT("disconnect", 0),
     AVAILABLE_COLORS("available_colors", 0);
