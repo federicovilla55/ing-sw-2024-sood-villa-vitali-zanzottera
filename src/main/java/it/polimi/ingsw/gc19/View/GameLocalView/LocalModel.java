@@ -372,6 +372,12 @@ public class LocalModel {
         synchronized (this.playerStations){
             this.playerStations.get(nickname).setVisibleSymbols(new HashMap<>(visibleSymbols));
         }
+        if(nickname.equals(this.getNickname())) {
+            this.listenersManager.notifyStationListener(this.getPersonalStation());
+        }
+        else {
+            this.listenersManager.notifyStationListener((OtherStation) this.playerStations.get(nickname));
+        }
     }
 
     public State getPlayerState(String nickname){

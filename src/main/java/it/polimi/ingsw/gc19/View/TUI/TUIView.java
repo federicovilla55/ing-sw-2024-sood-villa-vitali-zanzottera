@@ -926,16 +926,22 @@ public class TUIView implements UI, GeneralListener {
             printPersonalStation();
             System.out.print(">");
         }
+        else if(this.showState == ShowState.OTHER_STATION) {
+            printOtherStation();
+            System.out.print(">");
+        }
     }
 
     @Override
     public void notify(OtherStation otherStation){
-        if(this.showState == ShowState.OTHER_STATION
-            && Objects.equals(otherStation.getOwnerPlayer(), this.currentViewPlayer)) {
+        if(this.showState == ShowState.PERSONAL_STATION) {
+            printPersonalStation();
+            System.out.print(">");
+        }
+        else if(this.showState == ShowState.OTHER_STATION) {
             printOtherStation();
             System.out.print(">");
         }
-
     }
 
     @Override
