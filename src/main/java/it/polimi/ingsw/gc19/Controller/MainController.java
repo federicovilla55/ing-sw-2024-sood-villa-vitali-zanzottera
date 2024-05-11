@@ -55,7 +55,7 @@ public class MainController {
             }
             else {
                 player.update(new GameHandlingErrorMessage(Error.PLAYER_NAME_ALREADY_IN_USE,
-                                                           "Player " + player.getUsername() + " already in use!").setHeader(player.getUsername()));
+                                                           "Player name '" + player.getUsername() + "' already in use!").setHeader(player.getUsername()));
                 return false;
             }
         }

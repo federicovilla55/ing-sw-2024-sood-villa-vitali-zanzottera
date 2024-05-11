@@ -247,7 +247,7 @@ public class LocalModel {
         this.listenersManager.notifyTableListener(table);
     }
 
-    public ConcurrentHashMap<String, OtherStation> getStations() {
+    public ConcurrentHashMap<String, OtherStation> getOtherStations() {
         ConcurrentHashMap<String, OtherStation> otherStations =
                 new ConcurrentHashMap<>();
         synchronized (playerStations) {
@@ -258,6 +258,17 @@ public class LocalModel {
             }
         }
         return otherStations;
+    }
+
+    public ConcurrentHashMap<String, LocalStationPlayer> getStations() {
+        ConcurrentHashMap<String, LocalStationPlayer> allStations =
+                new ConcurrentHashMap<>();
+        synchronized (playerStations) {
+            for(LocalStationPlayer station : playerStations.values()){
+                allStations.put(station.getOwnerPlayer(), station);
+            }
+        }
+        return allStations;
     }
 
     public void setTable(LocalTable table) {
@@ -335,7 +346,7 @@ public class LocalModel {
 
     public ArrayList<Message> getMessages() {
         synchronized (this.messages) {
-            return new ArrayList<>(messages);
+            return this.messages;
         }
     }
 

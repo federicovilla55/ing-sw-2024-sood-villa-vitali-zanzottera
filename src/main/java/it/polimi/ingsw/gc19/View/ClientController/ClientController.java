@@ -52,6 +52,9 @@ public class ClientController {
     private UI view;
 
     public ClientController() {
+        this.prevState = new NotPlayer(this);
+        this.viewState = new NotPlayer(this);
+
         this.listenersManager = new ListenersManager();
     }
 
@@ -103,7 +106,6 @@ public class ClientController {
         if(this.viewState.getState() == ViewState.DISCONNECT) return;
         this.prevState = viewState;
         this.setNextState(new Disconnect(this));
-        this.listenersManager.notifyStateListener(viewState.getState());
     }
 
     public synchronized void setLocalModel(LocalModel localModel){
@@ -118,9 +120,11 @@ public class ClientController {
     }
 
     public synchronized void setNextState(ClientState clientState){
+        if(prevState.getState().equals(clientState.getState())){
+            this.listenersManager.notifyStateListener(viewState.getState());
+        }
         this.prevState = viewState;
         this.viewState = clientState;
-        this.listenersManager.notifyStateListener(viewState.getState());
     }
 
     public synchronized ClientState getCurrentState(){
@@ -146,7 +150,7 @@ public class ClientController {
         }
         else{
             for(String u : users){
-                if(!this.localModel.getStations().containsKey(u)){
+                if(!this.localModel.getOtherStations().containsKey(u)){
                     this.view.notifyGenericError("You are trying to send a message to user " + u + " that does not exists in game!");
                     return;
                 }
@@ -408,7 +412,6 @@ public class ClientController {
                 this.clientNetwork.logoutFromGame();
 
                 this.setNextState(new Wait(this));
-                this.listenersManager.notifyStateListener(viewState.getState());
                 this.localModel = null;
 
                 return;
@@ -431,7 +434,6 @@ public class ClientController {
         ConfigurationManager.deleteConfiguration(this.nickname);
 
         this.setNextState(new Wait(this));
-        this.listenersManager.notifyStateListener(viewState.getState());
 
         this.localModel = null;
 
