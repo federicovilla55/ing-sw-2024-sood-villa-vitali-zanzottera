@@ -956,6 +956,7 @@ public class TUIView implements UI, GeneralListener {
 
     @Override
     public void notify(ArrayList<Message> msg){
+
         if(this.showState == ShowState.CHAT) {
             printChat();
             System.out.print(">");
@@ -964,6 +965,7 @@ public class TUIView implements UI, GeneralListener {
 
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String ... varArgs){
+        System.out.println();
         switch (type) {
             case NEW_PLAYER_CONNECTED -> System.out.println(varArgs[0]+ " has joined the game!");
             case RECONNECTED_PLAYER -> System.out.println(varArgs[0]+ " has reconnected to the game!");
@@ -974,16 +976,19 @@ public class TUIView implements UI, GeneralListener {
 
     @Override
     public void notify(PersonalStation localStationPlayer){
-        if(this.showState == ShowState.PERSONAL_STATION) {
+        if (this.showState == ShowState.PERSONAL_STATION) {
             printPersonalStation();
+        } else if (this.showState == ShowState.OTHER_STATION) {
+            printOtherStation();
         }
         System.out.print(">");
     }
 
     @Override
     public void notify(OtherStation otherStation){
-        if(this.showState == ShowState.OTHER_STATION
-            && Objects.equals(otherStation.getOwnerPlayer(), this.currentViewPlayer)) {
+        if (this.showState == ShowState.PERSONAL_STATION) {
+            printPersonalStation();
+        } else if (this.showState == ShowState.OTHER_STATION) {
             printOtherStation();
         }
         System.out.print(">");
@@ -1010,6 +1015,7 @@ public class TUIView implements UI, GeneralListener {
 
     @Override
     public void notify(String nick, TurnState turnState){
+        System.out.println();
         if(this.localModel.getPersonalStation().getOwnerPlayer().equals(nick)){
             System.out.println("It is your turn, you can " + turnState.toString().toLowerCase());
         }
