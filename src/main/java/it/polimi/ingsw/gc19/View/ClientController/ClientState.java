@@ -73,7 +73,9 @@ public abstract class ClientState {
         this.clientController.getView().notify("Game is starting!");
     }
 
-    public void nextState(PlayerReconnectedToGameMessage message) { }
+    public void nextState(PlayerReconnectedToGameMessage message) {
+        //@@TODO: notify view
+    }
 
     public void nextState(DisconnectFromGameMessage message) {
         this.clientController.getView().notify("You leave the game!");
