@@ -936,10 +936,10 @@ public class TUIView implements UI, GeneralListener {
     public void notify(SetupEvent type){
         switch (type){
             case SetupEvent.AVAILABLE_COLOR -> {
-                if(localModel.getAvailableColors() != null && localModel.getPersonalStation() != null && localModel.getPersonalStation().getChosenColor() == null) {
+                if(localModel.getAvailableColors() != null && localModel.getPersonalStation() != null
+                && localModel.getPersonalStation().getChosenColor() == null && showState == ShowState.NOT_PLAYING) {
                     printTUIView(availableColorsTUIView(localModel.getAvailableColors()));
-                }
-                else {
+                } else if(showState == ShowState.NOT_PLAYING){
                     System.out.println("No infos about available colors, try later...");
                 }
             }
