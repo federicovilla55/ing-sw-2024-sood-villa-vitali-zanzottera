@@ -1,0 +1,51 @@
+@startuml
+actor Actor #lightgreen
+participant ClientRMI #lightgreen
+participant HeartBeatManager #lightgreen
+participant ScheduledExecutorService #lightgreen
+participant Registry #lightblue
+participant ClientHandlerRMI #lightblue
+participant MainServerRMI #lightblue
+participant MainController #lightblue
+participant AvailableGamesMessage
+
+activate MainServerRMI
+activate ClientHandlerRMI
+Actor -> ClientRMI ++ : reconnect
+
+ClientRMI-> Registry ++ : **RMI** (lookup)
+Registry --> ClientRMI -- : remote ref to MainServer
+
+ClientRMI -> MainServerRMI ++ : reconnect
+
+MainServerRMI -> ClientHandlerRMI ++ : interruptClientHandler
+ClientHandlerRMI -> MainServerRMI --
+
+deactivate ClientHandlerRMI
+
+create ClientHandlerRMI
+MainServerRMI  -> ClientHandlerRMI ++ : new
+ClientHandlerRMI --> MainServerRMI --
+
+MainServerRMI --> ClientHandlerRMI ++ : start
+
+MainServerRMI -> MainController ++ : reconnect
+
+create AvailableGamesMessage
+MainController  -> AvailableGamesMessage ++ : new
+AvailableGamesMessage --> MainController --
+
+MainController -> ClientHandlerRMI ++ : update(AvailableGamesMessage)
+ClientHandlerRMI --> MainController --
+
+MainController --> MainServerRMI --
+
+MainServerRMI --> ClientRMI --
+
+ClientRMI --> Actor --
+
+ClientHandlerRMI -> ClientRMI ++ : pushUpdate(AvailableGamesMessage)
+
+ClientRMI --> ClientHandlerRMI --
+
+@enduml

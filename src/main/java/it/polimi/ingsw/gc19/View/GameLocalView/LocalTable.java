@@ -12,6 +12,15 @@ public class LocalTable {
     private GoalCard publicGoal1;
     private GoalCard publicGoal2;
     private Symbol nextSeedOfResourceDeck;
+
+    public void setNextSeedOfGoldDeck(Symbol nextSeedOfGoldDeck) {
+        this.nextSeedOfGoldDeck = nextSeedOfGoldDeck;
+    }
+
+    public void setNextSeedOfResourceDeck(Symbol nextSeedOfResourceDeck) {
+        this.nextSeedOfResourceDeck = nextSeedOfResourceDeck;
+    }
+
     private Symbol nextSeedOfGoldDeck;
 
     public LocalTable(PlayableCard resource1, PlayableCard resource2, PlayableCard gold1, PlayableCard gold2,
@@ -24,6 +33,30 @@ public class LocalTable {
         this.publicGoal2 = publicGoal2;
         this.nextSeedOfResourceDeck = nextSeedOfResourceDeck;
         this.nextSeedOfGoldDeck = nextSeedOfGoldDeck;
+    }
+
+    public PlayableCard getResource1() {
+        return resource1;
+    }
+
+    public PlayableCard getResource2() {
+        return resource2;
+    }
+
+    public PlayableCard getGold1() {
+        return gold1;
+    }
+
+    public PlayableCard getGold2() {
+        return gold2;
+    }
+
+    public GoalCard getPublicGoal1() {
+        return publicGoal1;
+    }
+
+    public GoalCard getPublicGoal2() {
+        return publicGoal2;
     }
 
     public void setGold1(PlayableCard gold1) {
@@ -42,4 +75,11 @@ public class LocalTable {
         this.resource2 = resource2;
     }
 
+    public Symbol getNextSeedOfResourceDeck() {
+        return nextSeedOfResourceDeck;
+    }
+
+    public Symbol getNextSeedOfGoldDeck() {
+        return nextSeedOfGoldDeck;
+    }
 }

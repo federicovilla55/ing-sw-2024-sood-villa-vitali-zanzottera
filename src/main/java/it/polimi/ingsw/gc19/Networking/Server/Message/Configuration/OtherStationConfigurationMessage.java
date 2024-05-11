@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Configuration;
 
 import it.polimi.ingsw.gc19.Enums.Color;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
@@ -17,12 +18,13 @@ import java.util.Map;
 public class OtherStationConfigurationMessage extends ConfigurationMessage {
     private final String nick;
     private final Color color;
-    private final List<Symbol> cardsInHand;
+    private final List<Tuple<Symbol,PlayableCardType>> cardsInHand;
     private final Map<Symbol, Integer> visibleSymbols;
     private final int numPoints;
     private final List<Tuple<PlayableCard, Tuple<Integer,Integer>>> placedCardSequence;
 
-    public OtherStationConfigurationMessage(String nick, Color color, List<Symbol> cardsInHand, Map<Symbol, Integer> visibleSymbols, int numPoints, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
+    public OtherStationConfigurationMessage(String nick, Color color, List<Tuple<Symbol,PlayableCardType>> cardsInHand, Map<Symbol, Integer> visibleSymbols,
+                                            int numPoints, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
         this.nick = nick;
         this.color = color;
         this.cardsInHand = cardsInHand;
@@ -75,7 +77,7 @@ public class OtherStationConfigurationMessage extends ConfigurationMessage {
      * Getter for the cards in hand of another player. Only shows their seed, not the card!
      * @return a list of seeds corresponding to the cards in the hand of a specific player
      */
-    public List<Symbol> getCardsInHand() {
+    public List<Tuple<Symbol, PlayableCardType>> getCardsInHand() {
         return cardsInHand;
     }
 

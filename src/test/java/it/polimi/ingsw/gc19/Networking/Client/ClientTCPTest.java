@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedPickCardMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
@@ -14,125 +15,150 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnec
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
-import it.polimi.ingsw.gc19.View.GameLocalView.ActionParser;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ClientTCPTest {
 
     private TestClassClientTCP client1, client2, client3, client4;
     private HashMap<TestClassClientTCP, PlayableCard> clientsAnchors;
+    private long prevHeartBeatSetting, maxTimeBeforeReEnteringLobby, maxTimeBeforeDisconnection;
 
     @BeforeEach
     public void setUp() throws IOException {
-        ServerApp.startTCP(Settings.DEFAULT_TCP_SERVER_PORT);
+        maxTimeBeforeDisconnection = ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION;
+        prevHeartBeatSetting = ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS;
+        maxTimeBeforeReEnteringLobby = ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION;
 
-        MessageHandler messageHandler1 = new MessageHandler(new ActionParser());
-        MessageHandler messageHandler2 = new MessageHandler(new ActionParser());
-        MessageHandler messageHandler3 = new MessageHandler(new ActionParser());
-        MessageHandler messageHandler4 = new MessageHandler(new ActionParser());
+        ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS = 1;
+        ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 3;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
 
-        client1 = new TestClassClientTCP("client1", messageHandler1);
-        client2 = new TestClassClientTCP("client2", messageHandler2);
-        client3 = new TestClassClientTCP("client3", messageHandler3);
-        client4 = new TestClassClientTCP("client4", messageHandler4);
+        ServerApp.startTCP();
+
+        ClientController clientController1 = new ClientController();
+        ClientController clientController2 = new ClientController();
+        ClientController clientController3 = new ClientController();
+        ClientController clientController4 = new ClientController();
+
+        this.client1 = new TestClassClientTCP(new MessageHandler(clientController1), clientController1);
+        clientController1.setClientInterface(client1);
+        this.client2 = new TestClassClientTCP(new MessageHandler(clientController2), clientController2);
+        clientController2.setClientInterface(client2);
+        this.client3 = new TestClassClientTCP(new MessageHandler(clientController3), clientController3);
+        clientController3.setClientInterface(client3);
+        this.client4 = new TestClassClientTCP(new MessageHandler(clientController4), clientController4);
+        clientController4.setClientInterface(client4);
+
         clientsAnchors = new HashMap<>();
     }
 
     @AfterEach
     public void tearDown(){
-        this.client1.disconnect();
         this.client1.stopClient();
-        this.client2.disconnect();
         this.client2.stopClient();
-        this.client3.disconnect();
         this.client3.stopClient();
-        this.client4.disconnect();
         this.client4.stopClient();
+
         ServerApp.stopTCP();
+
+        ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS = prevHeartBeatSetting;
+        ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = maxTimeBeforeReEnteringLobby;
+        ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = maxTimeBeforeDisconnection;
     }
 
 
     @Test
     public void testCreatePlayer(){
-        this.client1.connect();
-        assertMessageEquals(this.client1, new CreatedPlayerMessage(this.client1.getNickname()));
-        this.client2.connect();
-        assertMessageEquals(this.client2, new CreatedPlayerMessage((this.client2.getNickname())));
-        this.client3.connect();
-        assertMessageEquals(this.client3, new CreatedPlayerMessage((this.client3.getNickname())));
-        this.client4.connect();
-        assertMessageEquals(this.client4, new CreatedPlayerMessage((this.client4.getNickname())));
+        this.client1.connect("client1");
+        assertMessageEquals(this.client1, new CreatedPlayerMessage("client1"));
+        this.client2.connect("client2");
+        assertMessageEquals(this.client2, new CreatedPlayerMessage("client2"));
+        this.client3.connect("client3");
+        assertMessageEquals(this.client3, new CreatedPlayerMessage("client3"));
+        this.client4.connect("client4");
+        assertMessageEquals(this.client4, new CreatedPlayerMessage("client4"));
 
-        this.client1.connect();
+        this.client1.connect("client5");
         assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
+        this.client4.disconnect();
     }
 
     @Test
     public void testMultiplePlayerInGame(){
-        this.client1.connect();
+        this.client1.connect("client1");
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message1 = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message1).getToken();
-        this.client1.setToken(token1);
+        this.client1.configure("client1", token1);
 
-        this.client1.createGame("game3", 3, 1);
+        this.client1.createGame("game3", 3);
 
         assertMessageEquals(this.client1, new CreatedGameMessage("game3"));
 
-
-        this.client2.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
 
         this.client2.joinGame("game3", false);
 
-        assertMessageEquals(this.client2, new JoinedGameMessage("game3").setHeader(this.client2.getNickname()));
+        assertMessageEquals(this.client2, new JoinedGameMessage("game3"));
 
-        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getNickname()));
+        assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage("client2"));
 
-
-        this.client3.connect();
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
 
         this.client3.joinGame("game3", false);
 
         waitingThread(500);
 
-        assertMessageEquals(this.client3, new JoinedGameMessage("game3").setHeader(this.client3.getNickname()));
-        assertMessageEquals(new NewPlayerConnectedToGameMessage(this.client3.getNickname()), this.client2, this.client1);
+        assertMessageEquals(this.client3, new JoinedGameMessage("game3"));
+        assertMessageEquals(new NewPlayerConnectedToGameMessage("client3"), this.client2, this.client1);
 
 
         client3.sendChatMessage(new ArrayList<>(List.of(this.client1.getNickname(), this.client2.getNickname())), "Message in chat");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client3.getNickname(), "Message in chat"));
 
-
         client3.chooseColor(Color.BLUE);
         assertMessageEquals(new ArrayList<>(List.of(this.client3, this.client2, this.client1)), new AcceptedColorMessage(this.client3.getNickname(), Color.BLUE));
         assertMessageEquals(new ArrayList<>(List.of(this.client2, this.client1)), new AvailableColorsMessage(new ArrayList<>(List.of(Color.GREEN, Color.YELLOW, Color.RED))));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
     }
 
 
     @Test
     public void testJoinFirstAvailableGames() throws IOException {
-        this.client1.connect();
+        this.client1.connect("client1");
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message1 = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message1).getToken();
-        this.client1.setToken(token1);
+        this.client1.configure("client1", token1);
 
         this.client1.createGame("game4", 2, 1);
 
@@ -140,7 +166,11 @@ public class ClientTCPTest {
 
         client1.waitForMessage(GameConfigurationMessage.class);
 
-        this.client2.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
 
         this.client2.joinGame("game4", false);
 
@@ -148,18 +178,24 @@ public class ClientTCPTest {
 
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getNickname()));
 
-
         this.client1.waitForMessage(TableConfigurationMessage.class);
         this.client2.waitForMessage(GameConfigurationMessage.class);
 
-        this.client3.connect();
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
 
         this.client3.createGame("game7", 2, 1);
 
-        assertMessageEquals(this.client3, new CreatedGameMessage("game7").setHeader(this.client3.getNickname()));
+        assertMessageEquals(this.client3, new CreatedGameMessage("game7"));
 
-
-        this.client4.connect();
+        this.client4.connect("client4");
+        client4.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message4 = this.client4.getMessage();
+        String token4 = ((CreatedPlayerMessage) message4).getToken();
+        this.client4.configure("client4", token4);
 
         this.client4.joinFirstAvailableGame();
 
@@ -167,24 +203,31 @@ public class ClientTCPTest {
 
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage(this.client4.getNickname()));
 
-        TestClassClientTCP client5 = new TestClassClientTCP("client5", new MessageHandler(new ActionParser()));
-        client5.connect();
+        ClientController clientController5 = new ClientController();
+        TestClassClientTCP client5 = new TestClassClientTCP(new MessageHandler(clientController5), clientController5);
+        clientController5.setClientInterface(client5);
+        client5.connect("client5");
 
         client5.joinFirstAvailableGame();
-        assertMessageEquals(new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
+        assertMessageEquals(new GameHandlingErrorMessage(Error.NO_GAMES_FREE_TO_JOIN, null));
 
         client5.disconnect();
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
+        this.client4.disconnect();
     }
 
 
     @Test
     public void testMultipleReconnection(){
-        this.client1.connect();
+        this.client1.connect("client1");
 
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message1 = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message1).getToken();
-        this.client1.setToken(token1);
+        this.client1.configure("client1", token1);
 
         this.client1.reconnect();
         assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
@@ -192,7 +235,7 @@ public class ClientTCPTest {
         this.client1.reconnect();
         assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
-        this.client1.connect();
+        this.client1.connect("client1");
         assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,null));
 
         this.client1.reconnect();
@@ -206,9 +249,19 @@ public class ClientTCPTest {
 
         this.client1.createGame("game25", 3, 1);
         assertMessageEquals(this.client1, new CreatedGameMessage("game25"));
-        this.client2.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
+
         //this.client2.startSendingHeartbeat();
-        this.client3.connect();
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
+
         //this.client3.startSendingHeartbeat();
         this.client2.joinGame("game25", false);
         assertMessageEquals(this.client2, new JoinedGameMessage("game25"));
@@ -216,35 +269,38 @@ public class ClientTCPTest {
         assertMessageEquals(this.client3, new JoinedGameMessage("game25"));
 
         this.client1.stopSendingHeartbeat();
-        waitingThread(2500);
+        waitingThread(5000);
 
-        this.client1.sendChatMessage(new ArrayList<>(List.of(this.client2.getNickname(), this.client3.getNickname())), "Chat message after heartbeat dead!");
-        assertMessageEquals(this.client1, new GameHandlingError(Error.GAME_NOT_FOUND, null));
+        this.client1.sendChatMessage(new ArrayList<>(List.of(this.client2.getNickname(), "client3")), "Chat message after heartbeat dead!");
+        assertMessageEquals(this.client1, new GameHandlingErrorMessage(Error.GAME_NOT_FOUND, null));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
     }
 
 
     @Test
-    public void testDisconnectionWhileInLobby() throws IOException {
-
-        this.client1.connect();
+    public void testDisconnectionWhileInLobby(){
+        this.client1.connect("client1");
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message1 = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message1).getToken();
-        this.client1.setToken(token1);
+        this.client1.configure("client1", token1);
 
-        this.client2.connect();
+        this.client2.connect("client2");
         client2.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message2 = this.client2.getMessage();
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        this.client2.setToken(token2);
+        this.client2.configure("client2", token2);
 
         this.client2.createGame("game11", 2, 1);
-
-        //this.client2.startSendingHeartbeat();
+        this.client2.stopSendingHeartbeat();
 
         waitingThread(5000);
 
         this.client2.reconnect();
+        this.client2.startSendingHeartbeat();
 
         assertMessageEquals(this.client2, new JoinedGameMessage("game11"));
 
@@ -253,53 +309,119 @@ public class ClientTCPTest {
         waitingThread(5000);
 
         this.client1.reconnect();
-
-        //this.client1.startSendingHeartbeat();
+        this.client1.startSendingHeartbeat();
 
         waitingThread(500);
 
         assertMessageEquals(this.client1, new AvailableGamesMessage(List.of("game11")));
 
         this.client1.reconnect();
+        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
 
         this.client1.stopSendingHeartbeat();
         waitingThread(5000);
 
-        TestClassClientTCP client8 = new TestClassClientTCP(this.client1.getNickname(), new MessageHandler(new ActionParser()));
-        client8.reconnect();
-        assertMessageEquals(this.client1, new AvailableGamesMessage(List.of("game11")));
-        client8.disconnect();
+        this.client1.reconnect();
+        this.client1.startSendingHeartbeat();
+        assertMessageEquals(client1, new AvailableGamesMessage(List.of("game11")));
+
+        client1.disconnect();
+
+        //client8 has disconnected so, it has deleted the token file
+        assertThrows(IllegalStateException.class, () -> client1.reconnect());
+        this.client2.disconnect();
+        this.client1.stopClient();
     }
 
+    @Test
+    public void testExitFromGame(){
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
+
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
+
+        this.client1.createGame("game11", 3);
+        waitingThread(1000);
+        this.client2.joinFirstAvailableGame();
+        waitingThread(1000);
+        this.client1.logoutFromGame();
+        assertMessageEquals(this.client2, new DisconnectedPlayerMessage(this.client1.getNickname()));
+        this.client2.logoutFromGame();
+
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+
+        this.client3.configure("client3", token3);
+        this.client3.availableGames();
+        assertMessageEquals(this.client3, new AvailableGamesMessage(List.of()));
+        client1.disconnect();
+        client2.disconnect();
+        client3.disconnect();
+    }
 
     @Test
     public void testPlayerCanJoinFullGame(){
-        this.client1.connect();
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
+
         this.client1.createGame("game5", 2, 1);
         assertMessageEquals(this.client1, new CreatedGameMessage("game5").setHeader(this.client1.getNickname()));
 
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
 
-        this.client2.connect();
         this.client2.joinGame("game5", false);
         assertMessageEquals(this.client2, new JoinedGameMessage("game5").setHeader(this.client2.getNickname()));
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getNickname()));
 
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
 
-        this.client3.connect();
-        assertMessageEquals(this.client3, new CreatedPlayerMessage(this.client3.getNickname()));
         this.client3.joinGame("game5", false);
-        assertMessageEquals(this.client3, new GameHandlingError(Error.GAME_NOT_ACCESSIBLE, null));
+        assertMessageEquals(this.client3, new GameHandlingErrorMessage(Error.GAME_NOT_ACCESSIBLE, null));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
     }
 
 
     @Test
     public void testMultipleGames(){
-        this.client1.connect();
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
+
         this.client1.createGame("game8", 2, 1);
         assertMessageEquals(this.client1, new CreatedGameMessage("game8"));
         client1.waitForMessage(TableConfigurationMessage.class);
 
-        this.client2.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
+
         this.client2.joinGame("game8", false);
         assertMessageEquals(this.client2, new JoinedGameMessage("game8").setHeader(this.client2.getNickname()));
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getNickname()));
@@ -307,52 +429,90 @@ public class ClientTCPTest {
         this.client1.waitForMessage(TableConfigurationMessage.class);
         this.client2.waitForMessage(GameConfigurationMessage.class);
 
-        this.client3.connect();
-        assertMessageEquals(this.client3, new CreatedPlayerMessage(this.client3.getNickname()));
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
+
         this.client3.createGame("game9", 2, 1);
         assertMessageEquals(this.client3, new CreatedGameMessage("game9").setHeader(this.client3.getNickname()));
 
-        this.client4.connect();
+        this.client4.connect("client4");
+        client4.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message4 = this.client4.getMessage();
+        String token4 = ((CreatedPlayerMessage) message4).getToken();
+        this.client4.configure("client4", token4);
+
         this.client4.joinGame("game9", false);
         assertMessageEquals(this.client4, new JoinedGameMessage("game9").setHeader(this.client4.getNickname()));
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage(this.client4.getNickname()));
 
         this.client3.sendChatMessage(new ArrayList<>(List.of(this.client3.getNickname(), this.client4.getNickname())), "Message in chat");
         assertMessageEquals(new ArrayList<>(List.of(this.client3, this.client4)), new NotifyChatMessage(this.client3.getNickname(), "Message in chat"));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
+        this.client4.disconnect();
     }
 
 
     @Test
     public void testCreateClientAfterDisconnection() throws IOException {
-        TestClassClientTCP client7 = new TestClassClientTCP("client7", new MessageHandler(new ActionParser()));
-        client7.connect();
-
+        ClientController clientController7 = new ClientController();
+        TestClassClientTCP client7 = new TestClassClientTCP(new MessageHandler(clientController7), clientController7);
+        clientController7.setClientInterface(client7);
+        client7.connect("client7");
         client7.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message7 = client7.getMessage();
         String token7 = ((CreatedPlayerMessage) message7).getToken();
+        client7.configure("client7", token7);
 
         client7.createGame("game18", 2, 1);
         waitingThread(1500);
 
         client7.disconnect();
 
-        TestClassClientTCP client8 = new TestClassClientTCP(client7.getNickname(), new MessageHandler(new ActionParser()));
-        client8.connect();
+        ClientController clientController8 = new ClientController();
+        TestClassClientTCP client8 = new TestClassClientTCP(new MessageHandler(clientController8), clientController8);
+        clientController8.setClientInterface(client8);
+        client8.connect(client7.getNickname());
         client8.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message8 = client8.getMessage();
         String token8 = ((CreatedPlayerMessage) message8).getToken();
+        client8.configure(client7.getNickname(), token8);
 
         client8.joinFirstAvailableGame();
-        assertMessageEquals(client8, new GameHandlingError(Error.NO_GAMES_FREE_TO_JOIN, null));
+        assertMessageEquals(client8, new GameHandlingErrorMessage(Error.NO_GAMES_FREE_TO_JOIN, null));
+        client8.disconnect();
     }
 
     @Test
     public void testFirePlayersAndGames(){
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message1 = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message1).getToken();
+        this.client1.configure("client1", token1);
 
-        this.client1.connect();
-        this.client2.connect();
-        this.client3.connect();
-        this.client4.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
+
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
+
+        this.client4.connect("client4");
+        client4.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message4 = this.client4.getMessage();
+        String token4 = ((CreatedPlayerMessage) message4).getToken();
+        this.client4.configure("client4", token4);
 
         this.client1.createGame("game2", 4, 1);
         this.client2.joinGame("game2", true);
@@ -495,36 +655,31 @@ public class ClientTCPTest {
 
         dummyTurn(client2, PlayableCardType.RESOURCE);
 
-        // game should end and declare client1 the winner
-        //assertEquals(GameState.END, gameController.getGameAssociated().getGameState());
-        //assertEquals(client1, gameController.getGameAssociated().getWinnerPlayers().getFirst().getNickname());
-        //assertEquals(1, gameController.getGameAssociated().getWinnerPlayers().size());
-
-
         waitingThread(4000);
 
-        assertMessageEquals(List.of(this.client2, this.client1), new DisconnectGameMessage("game2"));
+        assertMessageEquals(List.of(this.client2, this.client1), new DisconnectFromGameMessage("game2"));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
     }
 
     @Test
     public void testDisconnectionWhileInGame(){
-
-        this.client1.connect();
+        this.client1.connect("client1");
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message).getToken();
-        this.client1.setToken(token1);
-        //this.client1.startSendingHeartbeat();
+        this.client1.configure("client1", token1);
 
         this.client1.createGame("game6", 2,1);
 
         assertMessageEquals(this.client1, new CreatedGameMessage("game6"));
 
-        this.client2.connect();
+        this.client2.connect("client2");
         client2.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message2 = this.client2.getMessage();
         String token2 = ((CreatedPlayerMessage) message2).getToken();
-        this.client2.setToken(token2);
+        this.client2.configure("client2", token2);
 
         this.client2.joinGame("game6", false);
 
@@ -532,22 +687,20 @@ public class ClientTCPTest {
 
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getNickname()));
 
-
         this.client2.stopSendingHeartbeat();
-
         waitingThread(5000);
-
         client2.reconnect();
-
-        //this.client2.startSendingHeartbeat();
+        this.client2.startSendingHeartbeat();
 
         //Situation: client 2 has disconnected from game
         assertMessageEquals(client2, new JoinedGameMessage("game6"));
 
         this.client2.sendChatMessage(new ArrayList<>(List.of(this.client1.getNickname(), this.client2.getNickname())), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage(this.client2.getNickname(), "Chat message after disconnection!"));
-    }
 
+        this.client1.disconnect();
+        this.client2.disconnect();
+    }
 
     @Test
     public void testCreateGame(){
@@ -555,15 +708,23 @@ public class ClientTCPTest {
         this.client1.createGame("game1", 3, 1);
         assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
-        this.client1.connect();
-        assertMessageEquals(this.client1, new CreatedPlayerMessage(this.client1.getNickname()));
+        this.client1.connect("client1");
+        client1.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message = this.client1.getMessage();
+        String token1 = ((CreatedPlayerMessage) message).getToken();
+        this.client1.configure("client1", token1);
+
         this.client1.createGame("game1", 3, 1);
         assertMessageEquals(this.client1, new CreatedGameMessage("game1"));
 
-        this.client2.connect();
-        assertMessageEquals(this.client2, new CreatedPlayerMessage(this.client2.getNickname()));
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
+
         this.client2.createGame("game1", 2, 1);
-        assertMessageEquals(this.client2, new GameHandlingError(Error.GAME_NAME_ALREADY_IN_USE, null));
+        assertMessageEquals(this.client2, new GameHandlingErrorMessage(Error.GAME_NAME_ALREADY_IN_USE, null));
 
         this.client2.joinGame("game1", false);
         assertMessageEquals(this.client2, new JoinedGameMessage("game1"));
@@ -573,27 +734,40 @@ public class ClientTCPTest {
         this.client3.joinGame("game1", false);
         assertMessageEquals(this.client3, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
-        this.client3.connect();
+        this.client3.connect("client3");
+        client3.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message3 = this.client3.getMessage();
+        String token3 = ((CreatedPlayerMessage) message3).getToken();
+        this.client3.configure("client3", token3);
+
         this.client3.joinGame("game1", false);
         assertMessageEquals(this.client3, new JoinedGameMessage("game1"));
         assertMessageEquals(List.of(this.client2, this.client1), new NewPlayerConnectedToGameMessage(this.client3.getNickname()));
+
+        this.client1.disconnect();
+        this.client2.disconnect();
+        this.client3.disconnect();
     }
 
 
     @Test
     public void testReconnection() throws IOException {
-        this.client1.connect();
-
+        this.client1.connect("client1");
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message = this.client1.getMessage();
         String token1 = ((CreatedPlayerMessage) message).getToken();
-        this.client1.setToken(token1);
+        this.client1.configure("client1", token1);
 
         this.client1.createGame("game15", 2, 1);
 
         client1.waitForMessage(GameConfigurationMessage.class);
 
-        this.client2.connect();
+        this.client2.connect("client2");
+        client2.waitForMessage(CreatedPlayerMessage.class);
+        MessageToClient message2 = this.client2.getMessage();
+        String token2 = ((CreatedPlayerMessage) message2).getToken();
+        this.client2.configure("client2", token2);
+
         this.client2.joinGame("game15", true);
 
         client1.waitForMessage(TableConfigurationMessage.class);
@@ -602,8 +776,10 @@ public class ClientTCPTest {
 
         waitingThread(5000);
 
-        TestClassClientTCP client7 = new TestClassClientTCP(this.client1.getNickname(), new MessageHandler(new ActionParser()));
-        client7.setToken(token1);
+        ClientController clientController7 = new ClientController();
+        TestClassClientTCP client7 = new TestClassClientTCP(new MessageHandler(clientController7), clientController7);
+        clientController7.setClientInterface(client7);
+        client7.configure("client1", token1);
         client7.reconnect();
 
         assertMessageEquals(client7, new JoinedGameMessage("game15"));
@@ -620,6 +796,8 @@ public class ClientTCPTest {
         assertMessageEquals(this.client2, new NotifyChatMessage(client7.getNickname(), "Reconnected client 1 message!"));
 
         client7.disconnect();
+
+        client2.disconnect();
     }
 
     private void dummyTurn(TestClassClientTCP client, PlayableCardType cardType){
@@ -662,8 +840,6 @@ public class ClientTCPTest {
 
         assertMessageEquals(List.of(this.client1, client2), new TurnStateMessage(this.client2.getNickname(), TurnState.PLACE));
 
-        System.out.println("Cosa: " + latestMessage.getPickedCard().getCardCode());
-        System.out.println("Cosa: " + clientsAnchors.get(client).getCardCode());
         client.placeCard(latestMessage.getPickedCard().getCardCode(), clientsAnchors.get(client).getCardCode(), Direction.UP_RIGHT, CardOrientation.DOWN);
         clientsAnchors.put(client, latestMessage.getPickedCard());
     }

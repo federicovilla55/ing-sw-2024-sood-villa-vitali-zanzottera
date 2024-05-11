@@ -1,11 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
-import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.DisconnectMessage;
-import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.NewUserMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
-import it.polimi.ingsw.gc19.ObserverPattern.ObservableMessageToClient;
 import it.polimi.ingsw.gc19.ObserverPattern.ObservableMessageToServer;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToServer;
 

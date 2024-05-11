@@ -8,6 +8,7 @@ module it.polimi.ingsw.gc19 {
     requires com.fasterxml.jackson.databind;
     requires java.rmi;
     requires org.jetbrains.annotations;
+    requires java.desktop;
 
     opens it.polimi.ingsw.gc19 to javafx.fxml;
     exports it.polimi.ingsw.gc19;
@@ -51,5 +52,24 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.Utils;
     opens it.polimi.ingsw.gc19.Utils;
     exports it.polimi.ingsw.gc19.Networking.Client.ClientRMI;
+    opens it.polimi.ingsw.gc19.View.GameLocalView;
+    exports it.polimi.ingsw.gc19.View.GameLocalView;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message.Network;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message.Turn;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message.Configuration;
+    exports it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat;
+    exports it.polimi.ingsw.gc19.Networking.Client.NetworkManagement;
+    opens it.polimi.ingsw.gc19.Networking.Client.Configuration;
+    exports it.polimi.ingsw.gc19.View.GUI;
+    exports it.polimi.ingsw.gc19.View.ClientController;
+    opens it.polimi.ingsw.gc19.View.ClientController;
+    exports it.polimi.ingsw.gc19.View.Command;
+    opens it.polimi.ingsw.gc19.View.Command;
+    exports it.polimi.ingsw.gc19.Networking.Client.Configuration;
+    exports it.polimi.ingsw.gc19.View.Listeners;
+    exports it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners;
+    exports it.polimi.ingsw.gc19.View.Listeners.SetupListeners;
+    exports it.polimi.ingsw.gc19.View.Listeners.StateListener;
+    exports it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners;
 
 }

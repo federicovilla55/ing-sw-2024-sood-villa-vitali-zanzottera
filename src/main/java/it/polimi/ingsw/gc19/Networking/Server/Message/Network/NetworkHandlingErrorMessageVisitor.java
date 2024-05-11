@@ -1,8 +1,5 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Network;
 
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedChooseGoalCard;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessageVisitor;
-
 /**
  * Classes that need to visit {@link NetworkHandlingErrorMessage}
  * need to implement this interface

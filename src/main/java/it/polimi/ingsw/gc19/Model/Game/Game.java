@@ -2,14 +2,11 @@ package it.polimi.ingsw.gc19.Model.Game;
 
 import it.polimi.ingsw.gc19.Controller.JSONParser;
 import it.polimi.ingsw.gc19.Controller.MessageFactory;
-import it.polimi.ingsw.gc19.Enums.GameState;
-import it.polimi.ingsw.gc19.Enums.TurnState;
+import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Enums.Color;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Model.Chat.Chat;
 import it.polimi.ingsw.gc19.Model.Deck.Deck;
 import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
@@ -23,6 +20,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OtherStation
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 
 import java.io.IOException;
 import java.lang.reflect.MalformedParametersException;
@@ -338,7 +336,7 @@ public class Game extends Publisher{
         this.getMessageFactory().sendMessageToAllGamePlayersExcept(new OtherStationConfigurationMessage(
                 player.getName(),
                 player.getColor(),
-                player.getStation().getCardsInHand().stream().map(PlayableCard::getSeed).toList(),
+                player.getStation().getCardsInHand().stream().map(c -> new Tuple<>(c.getSeed(), c.getCardType())).toList(),
                 player.getStation().getVisibleSymbolsInStation(),
                 player.getStation().getNumPoints(),
                 player.getStation().getPlacedCardSequence()
@@ -355,18 +353,18 @@ public class Game extends Publisher{
     }
 
     public void sendCurrentStateToPlayer(String nickname) {
-        //Send to the player the current state of table
-        sendCurrentTableState(nickname);
-
         //Send to player its own station
         sendCurrentOwnStationState(nickname);
-
-        //Send to player others station
-        sendCurrentOthersStationState(nickname);
 
         //Send to player available colors if gameState is "SETUP"
         if(GameState.SETUP.equals(this.gameState))
             sendCurrentAvailableColors(nickname);
+
+        //Send to the player the current state of table
+        sendCurrentTableState(nickname);
+
+        //Send to player others station
+        sendCurrentOthersStationState(nickname);
 
         //Send to player game and turn state
         this.getMessageFactory().sendMessageToPlayer(nickname, new GameConfigurationMessage(
@@ -403,7 +401,7 @@ public class Game extends Publisher{
                 this.getMessageFactory().sendMessageToPlayer(receiver, new OtherStationConfigurationMessage(
                         nickname,
                         getPlayerByName(nickname).getColor(),
-                        getPlayerByName(nickname).getStation().getCardsInHand().stream().map(PlayableCard::getSeed).toList(),
+                        getPlayerByName(nickname).getStation().getCardsInHand().stream().map(c -> new Tuple<>(c.getSeed(), c.getCardType())).toList(),
                         getPlayerByName(nickname).getStation().getVisibleSymbolsInStation(),
                         getPlayerByName(nickname).getStation().getNumPoints(),
                         getPlayerByName(nickname).getStation().getPlacedCardSequence()

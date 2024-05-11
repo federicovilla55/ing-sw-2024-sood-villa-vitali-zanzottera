@@ -2,24 +2,18 @@ package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.JoinGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.ArrayDeque;
 
-public class TestClassClientTCP extends ClientTCP implements CommonClientMethodsForTests{
+public class TestClassClientTCP extends ClientTCP implements CommonClientMethodsForTests, ClientInterface{
 
-    public TestClassClientTCP(String nickname, MessageHandler messageHandler) throws IOException {
-
-        super(nickname, messageHandler);
-
-
+    public TestClassClientTCP(MessageHandler messageHandler, ClientController clientController) throws IOException{
+        super(messageHandler);
     }
 
     @Override
@@ -73,10 +67,10 @@ public class TestClassClientTCP extends ClientTCP implements CommonClientMethods
             boolean found = false;
             while (!found) {
                 this.sendMessage(new JoinGameMessage(gameName, this.getNickname()));
-                if (waitAndNotifyTypeOfMessage(GameHandlingError.class, JoinedGameMessage.class) == 1) {
+                if (waitAndNotifyTypeOfMessage(GameHandlingErrorMessage.class, JoinedGameMessage.class) == 1) {
                     found = true;
                 } else {
-                    getMessage(GameHandlingError.class);
+                    getMessage(GameHandlingErrorMessage.class);
                 }
             }
         }else {

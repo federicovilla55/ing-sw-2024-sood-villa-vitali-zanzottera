@@ -7,12 +7,15 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
+import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +24,7 @@ public class TUICardViewTest {
 
     private final static HashMap<String, PlayableCard> stringPlayableCardHashMap = new HashMap<>();
     private final static HashMap<String, GoalCard> stringGoalCardHashMap = new HashMap<>();
-    private final static TUIView tuiView = new TUIView();
+    private final static TUIView tuiView = new TUIView(new CommandParser(new ClientController()));
 
 
     @BeforeAll
@@ -238,26 +241,27 @@ public class TUICardViewTest {
 
         scoreboardTUIView = tuiView.scoreboardTUIView(
                 new PersonalStation(
-                        "aldo",
-                        null,
-                        Map.of(
-                                Symbol.INSECT, 0,
-                                Symbol.ANIMAL, 1,
-                                Symbol.VEGETABLE, 22,
-                                Symbol.MUSHROOM, 3,
-                                Symbol.INK, 14,
-                                Symbol.SCROLL, 5,
-                                Symbol.FEATHER, 6
-                        ),
+                    "aldo",
+                    null,
+                    Map.of(
+                            Symbol.INSECT, 0,
+                            Symbol.ANIMAL, 1,
+                            Symbol.VEGETABLE, 22,
+                            Symbol.MUSHROOM, 3,
+                            Symbol.INK, 14,
+                            Symbol.SCROLL, 5,
+                            Symbol.FEATHER, 6
+                    ),
 
-                        7,
-                        List.of(),
+                    7,
+                    List.of(),
 
-                        null,
-                        null,
+                    null,
+                    null,
 
-                        null
-
+                    null,
+                    new ArrayList<PlayableCard>(),
+                    null
                 )
 
         );
@@ -266,93 +270,100 @@ public class TUICardViewTest {
 
         scoreboardTUIView = tuiView.scoreboardTUIView(
                 new PersonalStation(
-                        "aldo",
-                        Color.RED,
-                        Map.of(
-                                Symbol.INSECT, 0,
-                                Symbol.ANIMAL, 1,
-                                Symbol.VEGETABLE, 22,
-                                Symbol.MUSHROOM, 3,
-                                Symbol.INK, 14,
-                                Symbol.SCROLL, 5,
-                                Symbol.FEATHER, 6
-                        ),
+                    "aldo",
+                    Color.RED,
+                    Map.of(
+                            Symbol.INSECT, 0,
+                            Symbol.ANIMAL, 1,
+                            Symbol.VEGETABLE, 22,
+                            Symbol.MUSHROOM, 3,
+                            Symbol.INK, 14,
+                            Symbol.SCROLL, 5,
+                            Symbol.FEATHER, 6
+                    ),
 
-                        7,
-                        List.of(),
+                    7,
+                    List.of(),
 
-                        null,
-                        null,
+                    null,
+                    null,
 
-                        null
-
-                ),
-                new PersonalStation(
-                        "giovanni",
-                        Color.GREEN,
-                        Map.of(
-                                Symbol.INSECT, 9,
-                                Symbol.ANIMAL, 21,
-                                Symbol.VEGETABLE, 53,
-                                Symbol.MUSHROOM, 3,
-                                Symbol.INK, 15,
-                                Symbol.SCROLL, 12,
-                                Symbol.FEATHER, 5
-                        ),
-
-                        28,
-                        List.of(),
-
-                        null,
-                        null,
-
-                        null
+                    null,
+                    new ArrayList<PlayableCard>(),
+                    null
 
                 ),
                 new PersonalStation(
-                        "giacomo",
-                        Color.BLUE,
-                        Map.of(
-                                Symbol.INSECT, 0,
-                                Symbol.ANIMAL, 0,
-                                Symbol.VEGETABLE, 0,
-                                Symbol.MUSHROOM, 1,
-                                Symbol.INK, 0,
-                                Symbol.SCROLL, 0,
-                                Symbol.FEATHER, 1
-                        ),
+                    "giovanni",
+                    Color.GREEN,
+                    Map.of(
+                            Symbol.INSECT, 9,
+                            Symbol.ANIMAL, 21,
+                            Symbol.VEGETABLE, 53,
+                            Symbol.MUSHROOM, 3,
+                            Symbol.INK, 15,
+                            Symbol.SCROLL, 12,
+                            Symbol.FEATHER, 5
+                    ),
 
-                        0,
-                        List.of(),
+                    28,
+                    List.of(),
 
-                        null,
-                        null,
+                    null,
+                    null,
 
-                        null
+                    null,
+                    new ArrayList<PlayableCard>(),
+                    null
+
+                ),
+                new PersonalStation(
+                    "giacomo",
+                    Color.BLUE,
+                    Map.of(
+                            Symbol.INSECT, 0,
+                            Symbol.ANIMAL, 0,
+                            Symbol.VEGETABLE, 0,
+                            Symbol.MUSHROOM, 1,
+                            Symbol.INK, 0,
+                            Symbol.SCROLL, 0,
+                            Symbol.FEATHER, 1
+                    ),
+
+                    0,
+                    List.of(),
+
+                    null,
+                    null,
+
+                    null,
+                    new ArrayList<PlayableCard>(),
+                    null
 
                 ),
 
                 new PersonalStation(
-                        "marco",
-                        Color.YELLOW,
-                        Map.of(
-                                Symbol.INSECT, 99,
-                                Symbol.ANIMAL, 99,
-                                Symbol.VEGETABLE, 99,
-                                Symbol.MUSHROOM, 99,
-                                Symbol.INK, 99,
-                                Symbol.SCROLL, 99,
-                                Symbol.FEATHER, 99
-                        ),
+                    "marco",
+                    Color.YELLOW,
+                    Map.of(
+                            Symbol.INSECT, 99,
+                            Symbol.ANIMAL, 99,
+                            Symbol.VEGETABLE, 99,
+                            Symbol.MUSHROOM, 99,
+                            Symbol.INK, 99,
+                            Symbol.SCROLL, 99,
+                            Symbol.FEATHER, 99
+                    ),
 
-                        99,
-                        List.of(),
+                    99,
+                    List.of(),
 
-                        null,
-                        null,
+                    null,
+                    null,
 
-                        null
-
+                    null,
+                    new ArrayList<PlayableCard>(),
+                    null
                 )
 
         );

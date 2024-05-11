@@ -40,7 +40,9 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
 
     /**
      * This method overrides {@link Thread#run()}. It is used to send message
-     * to client accordingly to his dynamic type
+     * to client accordingly to his dynamic type. If an {@link InterruptedException}
+     * occurs when <code>messageQueue</code> is not empty, thread will keep
+     * sending the remaining messages, interrupts itself and returns.
      */
     public void run(){
         while(!Thread.currentThread().isInterrupted()){
@@ -48,6 +50,14 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
                 ClientHandler.this.sendMessage();
             }
             catch (InterruptedException interruptedException){
+                synchronized (this.messageQueue){
+                    while(!this.messageQueue.isEmpty()){
+                        var messageToSend = this.messageQueue.remove();
+                        if(messageToSend.getHeader() == null || messageToSend.getHeader().contains(username)) {
+                            this.sendMessageToClient(messageToSend);
+                        }
+                    }
+                }
                 Thread.currentThread().interrupt();
                 return;
             }
@@ -146,6 +156,9 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
      * This method is used to interrupt the instance of client handler
      */
     public void interruptClientHandler(){
+        synchronized (this.messageQueue){
+            this.messageQueue.clear();
+        }
         this.interrupt();
     }
 

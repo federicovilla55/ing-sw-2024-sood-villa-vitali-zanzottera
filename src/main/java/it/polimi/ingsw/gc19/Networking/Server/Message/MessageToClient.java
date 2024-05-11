@@ -12,7 +12,7 @@ import java.util.List;
  * This abstract class represents a generic message that server
  * can send to client. Every message has its own priority.
  */
-public abstract class MessageToClient implements Remote, Serializable{
+public abstract class MessageToClient implements Serializable{
 
     private List<String> header;
     private MessagePriorityLevel messagePriorityLevel = MessagePriorityLevel.LOW;
@@ -47,11 +47,9 @@ public abstract class MessageToClient implements Remote, Serializable{
     /**
      * Setter for priority level of message
      * @param priority the {@link MessagePriorityLevel} associated to the message
-     * @return the updated {@link MessageToClient} object
      */
-    public MessageToClient setPriorityLevel(MessagePriorityLevel priority){
+    public void setPriorityLevel(MessagePriorityLevel priority){
         this.messagePriorityLevel = priority;
-        return this;
     }
 
     /**

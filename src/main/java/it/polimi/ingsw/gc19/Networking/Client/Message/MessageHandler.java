@@ -1,0 +1,313 @@
+package it.polimi.ingsw.gc19.Networking.Client.Message;
+
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
+import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Chat.Message;
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.AllMessageVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
+import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.GameLocalView.*;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
+import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
+import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
+
+import java.util.ArrayDeque;
+
+/**
+ * Handles incoming messages from the server to the client by implementing the AllMessageVisitor interface (design patter visitor).
+ */
+public class MessageHandler extends Thread implements AllMessageVisitor{
+
+    private final ArrayDeque<MessageToClient> messagesToHandle;
+
+    private ClientInterface client;
+
+    private LocalModel localModel;
+    private final ClientController clientController;
+
+    public ClientController getClientController() {
+        return clientController;
+    }
+
+    public MessageHandler(ClientController clientController){
+        this.messagesToHandle = new ArrayDeque<>();
+        this.clientController = clientController;
+    }
+
+    public void setClient(ClientInterface client){
+        this.client = client;
+    }
+
+    public void update(MessageToClient message) {
+        synchronized (this.messagesToHandle){
+            this.messagesToHandle.add(message);
+            this.messagesToHandle.notifyAll();
+        }
+    }
+
+    public synchronized void setLocalModel(LocalModel model){
+        this.localModel = model;
+        this.notifyAll();
+    }
+
+    private synchronized void waitForLocalModel(){
+        while(this.localModel == null){
+            try{
+                this.wait();
+            }
+            catch (InterruptedException interruptedException){
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    public ArrayDeque<MessageToClient> getMessagesToHandle(){
+        synchronized (this.messagesToHandle) {
+            return this.messagesToHandle;
+        }
+    }
+
+    @Override
+    public void run() {
+        MessageToClient message;
+        while (!Thread.currentThread().isInterrupted()){
+            synchronized (this.messagesToHandle){
+                while(this.messagesToHandle.isEmpty()){
+                    try{
+                        this.messagesToHandle.wait();
+                    }
+                    catch (InterruptedException interruptedException){
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+
+                message = this.messagesToHandle.remove();
+                this.messagesToHandle.notifyAll();
+            }
+
+            message.accept(this);
+        }
+    }
+
+    public void interruptMessageHandler(){
+        this.interrupt();
+    }
+
+    @Override
+    public void visit(AcceptedChooseGoalCardMessage message) {
+        waitForLocalModel();
+        this.localModel.setPrivateGoal(message.getGoalCard());
+    }
+
+    @Override
+    public void visit(AcceptedColorMessage message) {
+        waitForLocalModel();
+        if(message.getPlayer().equals(this.localModel.getNickname())) {
+            this.localModel.setColor(message.getChosenColor());
+        }
+        else {
+            this.localModel.getStations().get(message.getPlayer()).setChosenColor(message.getChosenColor());
+        }
+    }
+
+    @Override
+    public void visit(OwnAcceptedPickCardFromDeckMessage message) {
+        waitForLocalModel();
+        this.localModel.updateCardsInHand(message.getPickedCard());
+        this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(OtherAcceptedPickCardFromDeckMessage message) {
+        waitForLocalModel();
+        this.localModel.getStations().get(message.getNick()).addBackCard(new Tuple<>(message.getBackPickedCard().x(), message.getBackPickedCard().y()));
+        this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(AcceptedPickCardFromTable message) {
+        waitForLocalModel();
+        if(message.getNick().equals(this.localModel.getNickname())) {
+            this.localModel.updateCardsInHand(message.getPickedCard());
+        }
+        else {
+            this.localModel.getStations().get(message.getNick()).addBackCard(new Tuple<>(message.getPickedCard().getSeed(), message.getPickedCard().getCardType()));
+        }
+        this.localModel.updateCardsInTable(message.getCardToPutInSlot(), message.getDeckType(), message.getCoords());
+        this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());
+        clientController.getCurrentState().nextState(message);
+
+    }
+
+    @Override
+    public void visit(AcceptedPlacePlayableCardMessage message) {
+        waitForLocalModel();
+
+        this.localModel.placeCard(message.getNick(), message.getAnchorCode(),
+                message.getCardToPlace(), message.getDirection());
+
+        this.localModel.setNumPoints(message.getNick(), message.getNumPoints());
+        this.localModel.setVisibleSymbols(message.getNick(), message.getVisibleSymbols());
+    }
+
+    @Override
+    public void visit(AcceptedPlaceInitialCard message) {
+        waitForLocalModel();
+        this.localModel.placeInitialCard(message.getNick(), message.getInitialCard());
+        this.localModel.setVisibleSymbols(message.getNick(), message.getVisibleSymbols());
+    }
+
+    @Override
+    public void visit(RefusedActionMessage message) {
+        this.clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(NotifyChatMessage message) {
+        waitForLocalModel();
+        this.localModel.updateMessages(new Message(message.getMessage(), message.getSender(), String.valueOf(message.getHeader())));
+    }
+
+    @Override
+    public void visit(GameConfigurationMessage message) {
+        waitForLocalModel();
+        this.localModel.setNumPlayers(message.getNumPlayers());
+        this.localModel.setFirstPlayer(message.getFirstPlayer());
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(OtherStationConfigurationMessage message) {
+        waitForLocalModel();
+        this.localModel.setOtherStations(message.getNick(),
+                new OtherStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
+                        message.getNumPoints(), message.getPlacedCardSequence(), message.getCardsInHand()));
+   }
+
+    @Override
+    public void visit(OwnStationConfigurationMessage message) {
+        this.clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(TableConfigurationMessage message) {
+        waitForLocalModel();
+        this.localModel.setTable(new LocalTable(message.getSxResource(), message.getDxResource(),
+                                                message.getSxGold(), message.getDxGold(), message.getSxPublicGoal(),
+                                                message.getDxPublicGoal(), message.getNextSeedOfResourceDeck(),
+                                                message.getNextSeedOfGoldDeck()));
+    }
+
+    @Override
+    public void visit(AvailableColorsMessage message) {
+        this.localModel.setAvailableColors(message.getAvailableColors());
+    }
+
+    @Override
+    public void visit(EndGameMessage message) {
+        localModel.setWinners(message.getWinnerNicks());
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(GamePausedMessage message) {
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(GameResumedMessage message) {
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(NewPlayerConnectedToGameMessage message) {
+        waitForLocalModel();
+        this.localModel.setPlayerActive(message.getPlayerName());
+    }
+
+    @Override
+    public void visit(StartPlayingGameMessage message) {
+        waitForLocalModel();
+        this.localModel.setFirstPlayer(message.getNickFirstPlayer());
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(CreatedGameMessage message) {
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(AvailableGamesMessage message) {
+        this.clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(BeginFinalRoundMessage message) {
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(CreatedPlayerMessage message) {
+        this.client.configure(message.getNick(), message.getToken());
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(DisconnectedPlayerMessage message) {
+        waitForLocalModel();
+        this.localModel.setPlayerInactive(message.getRemovedNick());
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(JoinedGameMessage message) {
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public  void visit(PlayerReconnectedToGameMessage message) {
+        waitForLocalModel();
+        this.localModel.setPlayerActive(message.getPlayerName());
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(GameHandlingErrorMessage message) {
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(DisconnectFromGameMessage message) {
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(DisconnectFromServerMessage message) {
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(TurnStateMessage message) {
+        clientController.getCurrentState().nextState(message);
+    }
+
+    @Override
+    public void visit(NetworkHandlingErrorMessage message) {
+        clientController.getCurrentState().nextState(message);
+    }
+
+}

@@ -1,0 +1,72 @@
+@startuml
+actor Actor #lightgreen
+participant ClientTCP #lightgreen
+participant Thread #lightgreen
+participant HeartBeatManager #lightgreen
+participant ScheduledExecutorService #lightgreen
+participant Socket #lightgreen
+participant ServerSocket #lightblue
+participant TCPConnectionAcceptor #lightblue
+participant MessageToServerDispatcher #lightblue
+participant ClientHandlerSocket #lightblue
+participant MainServerTCP #lightblue
+
+activate TCPConnectionAcceptor
+TCPConnectionAcceptor -> ServerSocket ++ : accept (waiting for connections)
+
+create ClientTCP
+Actor -> ClientTCP ++ : new
+
+create Socket
+ClientTCP -> Socket ++ : new
+
+Socket <--> ServerSocket : **socket** (creation of TCP connection)
+
+ServerSocket --> TCPConnectionAcceptor -- : returns established Socket
+
+create MessageToServerDispatcher
+TCPConnectionAcceptor -> MessageToServerDispatcher ++ : new
+
+MessageToServerDispatcher --> TCPConnectionAcceptor --
+
+TCPConnectionAcceptor --> MessageToServerDispatcher ++ : start
+
+TCPConnectionAcceptor -> MainServerTCP ++ : registerSocket
+
+create ClientHandlerSocket
+MainServerTCP -> ClientHandlerSocket ++ : new
+
+ClientHandlerSocket --> MainServerTCP --
+
+MainServerTCP --> ClientHandlerSocket ++ : start
+
+MainServerTCP --> TCPConnectionAcceptor --
+
+TCPConnectionAcceptor -> ServerSocket ++ : accept (waiting for connections)
+
+Socket --> ClientTCP --
+
+create HeartBeatManager
+ClientTCP -> HeartBeatManager ++ : new
+create ScheduledExecutorService
+HeartBeatManager -> ScheduledExecutorService ++ : new
+ScheduledExecutorService --> HeartBeatManager --
+HeartBeatManager -> ScheduledExecutorService ++ : scheduleAtFixedRate
+ScheduledExecutorService --> HeartBeatManager --
+create ScheduledExecutorService
+HeartBeatManager -> ScheduledExecutorService ++ : new
+ScheduledExecutorService --> HeartBeatManager --
+HeartBeatManager -> ScheduledExecutorService ++ : scheduleAtFixedRate
+ScheduledExecutorService --> HeartBeatManager --
+
+HeartBeatManager --> ClientTCP --
+
+create Thread
+ClientTCP --> Thread ++ : receiverThread.start
+create Thread
+ClientTCP --> Thread ++ : senderThread.start
+
+
+ClientTCP --> Actor --
+
+@enduml

@@ -29,7 +29,7 @@ class TestBuilder {
     private void parseFile() throws FileNotFoundException {
         Scanner scanner = new Scanner(testFile);
         String read;
-        String arguments[];
+        String[] arguments;
         int lineNumber = 1;
         while (scanner.hasNextLine()) {
             read = scanner.nextLine();

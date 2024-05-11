@@ -1,25 +1,31 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
-import it.polimi.ingsw.gc19.Utils.Triplet;
-import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
-import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessage;
+import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.ClientHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
+import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.DisconnectFromServerMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Server;
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToServer;
-import it.polimi.ingsw.gc19.Controller.MainController;
+import it.polimi.ingsw.gc19.Utils.Triplet;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class is the TCP main server. It extends {@link Server} and implements {@link ObserverMessageToServer<MessageToServer>}.
@@ -29,7 +35,6 @@ import java.util.concurrent.*;
  */
 public class MainServerTCP extends Server implements ObserverMessageToServer<MessageToServer>{
 
-    private static MainServerTCP instance = null;
     private final HashMap<Socket, Triplet<ClientHandlerSocket, MessageToServerDispatcher, String>> connectedClients;
 
     private final HashMap<Socket, Long> pendingSocketToKill;
@@ -37,7 +42,11 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
     private final MessageToMainServerVisitor gameHandlingMessageHandler;
     private final HeartBeatMessageToServerVisitor heartBeatHandler;
-    private MainServerTCP(){
+
+    private final ScheduledExecutorService heartBeatTesterExecutor;
+    private final ScheduledExecutorService inactiveClientKillerExecutor;
+
+    public MainServerTCP(){
         this.connectedClients = new HashMap<>();
         this.lastHeartBeatOfClients = new ConcurrentHashMap<>();
         this.pendingSocketToKill = new HashMap<>();
@@ -45,19 +54,10 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         this.gameHandlingMessageHandler = new MessageToMainServerVisitor();
         this.heartBeatHandler = new HeartBeatMessageToServerVisitor();
 
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::runInactiveClientKiller, 0, Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * This method is used to implement Singleton pattern for {@link MainServerTCP}.
-     * @return {@link MainServerTCP} instance.
-     */
-    public static MainServerTCP getInstance(){
-        if(instance == null){
-            instance = new MainServerTCP();
-        }
-        return instance;
+        this.heartBeatTesterExecutor = new ScheduledThreadPoolExecutor(1);
+        this.inactiveClientKillerExecutor = new ScheduledThreadPoolExecutor(1);
+        this.heartBeatTesterExecutor.scheduleAtFixedRate(this::runHeartBeatTesterForClient, 0, ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS * 1000 / 10, TimeUnit.MILLISECONDS);
+        this.inactiveClientKillerExecutor.scheduleAtFixedRate(this::runInactiveClientKiller, 0, ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL * 1000 / 10, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -104,7 +104,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
      */
     @Override
     public boolean accept(MessageToServer message) {
-        return message instanceof GameHandlingMessage || message instanceof HeartBeatMessage;
+        return message instanceof GameHandlingMessage || message instanceof ClientHeartBeatMessage;
     }
 
     /**
@@ -129,7 +129,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                 }
                 catch (IOException ioException){
                     System.err.println("[EXCEPTION] IOException occurred while trying to build object output stream from socket " + socket + ". Closing socket...");
-                    scheduleSocketClosing(socket);
+                    closeSocket(socket);
                 }
             }
         }
@@ -175,29 +175,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
     }
 
     /**
-     * This method is used to schedule {@param socket} closure. It tries to shut down both input
-     * and output of {@param socket}. If this cannot be done within a certain time it closes
-     * socket with {@link MainServerTCP#closeSocket(Socket)}
-     * @param socket socket to close
-     */
-    public void scheduleSocketClosing(Socket socket){
-        ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
-        ExecutorService scheduledClose = Executors.newSingleThreadExecutor();
-
-        timer.schedule(() -> {
-            closeSocket(socket);
-            scheduledClose.shutdownNow();
-        }, 250, TimeUnit.MILLISECONDS);
-
-        scheduledClose.submit(() -> {
-            while (!socket.isInputShutdown() || !socket.isOutputShutdown()) { };
-            closeSocket(socket);
-            timer.shutdownNow();
-        });
-
-    }
-
-    /**
      * This method is used to close socket and (consequently freeing name)
      * of clients that are inactive for more than <code>Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL</code>
      * seconds.
@@ -205,7 +182,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
     private void runInactiveClientKiller(){
         synchronized (this.pendingSocketToKill){
             for(Socket socket : this.pendingSocketToKill.keySet()){
-                if(new Date().getTime() - this.pendingSocketToKill.get(socket) > 1000 * Settings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL){
+                if(new Date().getTime() - this.pendingSocketToKill.get(socket) > 1000 * ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL){
                     disconnectSocket(socket);
                 }
             }
@@ -259,7 +236,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         ArrayList<Socket> socketToRemove = new ArrayList<>();
 
         for (Socket socket : this.lastHeartBeatOfClients.keySet()) {
-            if (new Date().getTime() - this.lastHeartBeatOfClients.get(socket) > 1000 * Settings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
+            if (new Date().getTime() - this.lastHeartBeatOfClients.get(socket) > 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS) {
                 socketToRemove.add(socket);
                 synchronized (this.pendingSocketToKill){
                     pendingSocketToKill.put(socket, new Date().getTime());
@@ -287,6 +264,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
      */
     @Override
     public void resetServer() {
+        this.heartBeatTesterExecutor.shutdownNow();
+        this.inactiveClientKillerExecutor.shutdownNow();
+
         synchronized (connectedClients) {
             this.connectedClients.clear();
         }
@@ -399,9 +379,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                         clientHandlerSocket.update(new CreatedPlayerMessage(nickname, hashedMessage).setHeader(connectedClients.get(clientSocket).x().getUsername()));
                     }
                 }
-                else{
+                /*else{
                     closeSocket(clientSocket); //Maybe write message?
-                }
+                }*/
             }
         }
 
@@ -422,7 +402,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
             synchronized (connectedClients) {
                 for (var v : connectedClients.entrySet()) {
-                    if (v.getValue().z() != null && v.getValue().z().equals(message.getToken())) {
+                    if (v.getValue().z() != null && v.getValue().z().equals(message.getToken()) && v.getValue().x().getUsername().equals(nickname)) { //For tests if problems check this
                         socketBefore = v.getKey();
 
                         if (mainController.isPlayerActive(nickname)) {
@@ -449,11 +429,12 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                         //if (clientBeforeToRemove != null) {
                         clientBeforeToRemove.y().removeObserver(MainServerTCP.this);
                         clientBeforeToRemove.y().removeObserver(clientBeforeToRemove.x());
-                        clientBeforeToRemove.y().interruptMessageDispatcher();
+                        clientBeforeToRemove.x().interruptClientHandler();
                         clientBeforeToRemove.y().interruptMessageDispatcher();
 
                         //synchronized (connectedClients) {
                         connectedClients.get(clientSocket).x().pullClientHandlerSocketConfigIntoThis(clientBeforeToRemove.x());
+                        clientBeforeToRemove.x().interruptClientHandler();
                         connectedClients.put(clientSocket, new Triplet<>(connectedClients.get(clientSocket).x(), connectedClients.get(clientSocket).y(), clientBeforeToRemove.z()));
                         connectedClients.notifyAll();
 
@@ -477,11 +458,22 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
         /**
          * This method is used to handle {@link DisconnectMessage} received from player.
-         * It calls {@link MainServerTCP#disconnectSocket(Socket)}
+         * It calls {@link MainServerTCP#disconnectSocket(Socket)}. It also sends to
+         * the player a {@link DisconnectFromServerMessage}.
          * @param message {@link DisconnectMessage} to handle
          */
         @Override
         public void visit(DisconnectMessage message) {
+            Triplet<ClientHandlerSocket, MessageToServerDispatcher, String> clientToDisconnect;
+
+            synchronized (connectedClients) {
+                clientToDisconnect = connectedClients.get(clientSocket);
+            }
+            if(clientToDisconnect != null){
+                clientToDisconnect.x().update(new DisconnectFromServerMessage()
+                                                      .setHeader(clientToDisconnect.x().getUsername()));
+            }
+
             disconnectSocket(clientSocket);
         }
 
@@ -519,7 +511,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
          * This method is used to handle {@link RequestAvailableGamesMessage} message.
          * First, it checks if requesting client is already registered to server using
          * {@link MainServerTCP#getClientHandlerFromSocket(Socket)}. If yes, it sends
-         * to a {@link AvailableGamesMessage} with all the a
+         * to a {@link AvailableGamesMessage} with all available games.
          * @param message {@link RequestAvailableGamesMessage} to handle.
          */
         @Override
@@ -528,6 +520,22 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
             if(clientHandlerSocket != null){
                 clientHandlerSocket.update(new AvailableGamesMessage(new ArrayList<>(mainController.findAvailableGames()))
                                                    .setHeader(clientHandlerSocket.getUsername()));
+            }
+        }
+
+        /**
+         * This method is used to handle {@link RequestGameExitMessage} message.
+         * First, it checks if requesting client is already registered to server using
+         * {@link MainServerTCP#getClientHandlerFromSocket(Socket)}. If yes, it
+         * calls {@link MainController#disconnectPlayerFromGame(ClientHandler)} to
+         * disconnect the player from the game.
+         * @param message {@link RequestGameExitMessage} to handle.
+         */
+        @Override
+        public void visit(RequestGameExitMessage message) {
+            ClientHandlerSocket clientHandlerSocket = getClientHandlerFromSocket(clientSocket);
+            if(clientHandlerSocket != null){
+                mainController.disconnectPlayerFromGame(clientHandlerSocket);
             }
         }
 
@@ -544,7 +552,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
          * @return <code>true</code> if and only if {@param message} can be accepted by this object.
          */
         public boolean canAccept(MessageToServer message){
-            return message instanceof HeartBeatMessage;
+            return message instanceof ClientHeartBeatMessage;
         }
 
         /**
@@ -558,15 +566,23 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         }
 
         /**
-         * This method is used handle a {@link HeartBeatMessage} received from client.
+         * This method is used handle a {@link ClientHeartBeatMessage} received from client.
          * It checks if {@link Socket} is in <code>lastHeartBeatOfClients</code> and if yes,
          * it updates the hashmap. It also removes {@param socket} from <code>pendingSocketToKill</code>
-         * @param message {@link HeartBeatMessage} to handle.
+         * @param message {@link ClientHeartBeatMessage} to handle.
          */
         @Override
-        public void visit(HeartBeatMessage message) {
+        public void visit(ClientHeartBeatMessage message) {
+            ClientHandlerSocket clientHandlerSocket;
+
+            System.out.println("received from " + message.getNickname());
+
             if (lastHeartBeatOfClients.containsKey(clientSocket)) {
                 lastHeartBeatOfClients.put(clientSocket, new Date().getTime());
+                synchronized (connectedClients){
+                    clientHandlerSocket = connectedClients.get(clientSocket).x();
+                }
+                clientHandlerSocket.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerSocket.getUsername()));
                 synchronized (pendingSocketToKill){
                     pendingSocketToKill.remove(clientSocket);
                 }

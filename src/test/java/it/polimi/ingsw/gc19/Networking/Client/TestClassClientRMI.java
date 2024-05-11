@@ -1,15 +1,16 @@
 package it.polimi.ingsw.gc19.Networking.Client;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualMainServer;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 
 import java.rmi.RemoteException;
 
-public class TestClassClientRMI extends ClientRMI implements CommonClientMethodsForTests{
+public class TestClassClientRMI extends ClientRMI implements CommonClientMethodsForTests, ClientInterface{
 
-    public TestClassClientRMI(VirtualMainServer virtualMainServer, MessageHandler messageHandler, String nickname) throws RemoteException {
-        super(virtualMainServer, messageHandler, nickname);
+    public TestClassClientRMI(MessageHandler messageHandler, ClientController clientController) throws RemoteException {
+        super(messageHandler);
     }
 
     @Override
@@ -41,8 +42,4 @@ public class TestClassClientRMI extends ClientRMI implements CommonClientMethods
         return null;
     }
 
-    @Override
-    public String getNickname() {
-        return super.getNickname();
-    }
 }

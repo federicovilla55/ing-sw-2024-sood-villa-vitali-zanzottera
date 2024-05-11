@@ -11,10 +11,10 @@ public interface AnswerToActionMessageVisitor {
 
     /**
      * This method is used by {@link AnswerToActionMessageVisitor} to visit
-     * a message {@link AcceptedChooseGoalCard}
-     * @param message the {@link AcceptedChooseGoalCard} to visit
+     * a message {@link AcceptedChooseGoalCardMessage}
+     * @param message the {@link AcceptedChooseGoalCardMessage} to visit
      */
-    void visit(AcceptedChooseGoalCard message);
+    void visit(AcceptedChooseGoalCardMessage message);
 
     /**
      * This method is used by {@link AnswerToActionMessageVisitor} to visit

@@ -1,12 +1,9 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
 
-import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedChooseGoalCard;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.ConfigurationMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.BeginFinalRoundMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.PlayerReconnectedToGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.GameHandlingMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 
 /**
  * Classes that need to visit {@link GameHandlingMessage} must
@@ -65,15 +62,23 @@ public interface GameHandlingMessageVisitor{
 
     /**
      * This method is used by {@link GameHandlingMessageVisitor} to visit
-     * a message {@link GameHandlingError}
-     * @param message the {@link GameHandlingError} to visit
+     * a message {@link GameHandlingErrorMessage}
+     * @param message the {@link GameHandlingErrorMessage} to visit
      */
-    void visit(GameHandlingError message);
+    void visit(GameHandlingErrorMessage message);
 
     /**
      * This method is used by {@link GameHandlingMessageVisitor} to visit
-     * a message {@link DisconnectGameMessage}
-     * @param message the {@link DisconnectGameMessage} to visit
+     * a message {@link DisconnectFromGameMessage}
+     * @param message the {@link DisconnectFromGameMessage} to visit
      */
-    void visit(DisconnectGameMessage message);
+    void visit(DisconnectFromGameMessage message);
+
+    /**
+     * This method is used by {@link GameHandlingMessageVisitor} to visit
+     * a message {@link DisconnectFromServerMessage}
+     * @param message the {@link DisconnectFromServerMessage} to visit
+     */
+    void visit(DisconnectFromServerMessage message);
+
 }

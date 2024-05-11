@@ -1,0 +1,58 @@
+@startuml
+actor Actor #lightgreen
+participant ClientRMI #lightgreen
+participant HeartBeatManager #lightgreen
+participant ScheduledExecutorService #lightgreen
+participant ClientHandlerRMI #lightblue
+participant MainServerRMI #lightblue
+participant MainController #lightblue
+participant DisconnectFromServer
+
+activate MainServerRMI
+activate ClientHandlerRMI
+activate ScheduledExecutorService
+activate ScheduledExecutorService
+Actor -> ClientRMI : disconnect
+activate ClientRMI
+ClientRMI --> MainServerRMI : disconnect
+activate MainServerRMI
+
+create DisconnectFromServer
+MainServerRMI -> DisconnectFromServer : new
+activate DisconnectFromServer
+DisconnectFromServer --> MainServerRMI
+deactivate DisconnectFromServer
+
+MainServerRMI -> ClientHandlerRMI : update(DisconnectFromServer)
+activate ClientHandlerRMI
+ClientHandlerRMI --> MainServerRMI
+deactivate ClientHandlerRMI
+
+MainServerRMI --> ClientHandlerRMI : interrupt (will interrupt when all messages are sent)
+
+MainServerRMI -> MainController ++ : disconnect
+
+
+MainController --> MainServerRMI --
+
+
+MainServerRMI --> ClientRMI --
+
+ClientRMI -> HeartBeatManager : stopHeartBeatManager
+activate HeartBeatManager
+HeartBeatManager --> ScheduledExecutorService : shutDownNow
+deactivate ScheduledExecutorService
+HeartBeatManager --> ScheduledExecutorService : shutDownNow
+deactivate ScheduledExecutorService
+HeartBeatManager --> ClientRMI
+deactivate HeartBeatManager
+ClientRMI --> Actor
+deactivate ClientRMI
+
+ClientHandlerRMI -> ClientRMI : pushUpdate(DisconnectFromServer)
+activate ClientRMI
+ClientRMI --> ClientHandlerRMI : (now ClientHandler can interrupt execution)
+deactivate ClientHandlerRMI
+deactivate ClientRMI
+
+@enduml

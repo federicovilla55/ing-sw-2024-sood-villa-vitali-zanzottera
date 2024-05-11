@@ -24,6 +24,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColors
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.PlayerReconnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 
 
 import java.util.*;
@@ -55,6 +56,11 @@ public class GameController{
     private final Game gameAssociated;
 
     /**
+     * The value contains the number of clients currently connected.
+     */
+    private int numConnectedClients;
+
+    /**
      * This constructor creates a GameController to manage a game
      * @param gameAssociated the game managed by the controller
      */
@@ -73,6 +79,7 @@ public class GameController{
         gameAssociated.setMessageFactory(this.messageFactory);
         this.connectedClients = new HashMap<>();
         this.timeout = timeout;
+        this.numConnectedClients = 0;
     }
 
     public Game getGameAssociated() {
@@ -88,6 +95,7 @@ public class GameController{
      * @param nickname the name of the client to add
      */
     public synchronized void addClient(String nickname, ClientHandler clientHandler) {
+        System.err.println("entrato");
         try {
             this.gameAssociated.getPlayerByName(nickname);
             //player already present in game
@@ -113,6 +121,7 @@ public class GameController{
                         //if the game is in pause and there are 2 or more clients connected, unpause game
                         this.gameAssociated.setGameState(GameState.PLAYING);
                         this.messageFactory.sendMessageToAllGamePlayers(new GameResumedMessage());
+                        System.out.println("mandato");
                     }
                 }
             }
@@ -123,6 +132,7 @@ public class GameController{
                 clientHandler.setGameController(this);
                 messageFactory.attachObserver(nickname, clientHandler);
                 this.gameAssociated.createNewPlayer(nickname);
+                this.numConnectedClients++;
             }
         }
     }
@@ -135,6 +145,7 @@ public class GameController{
         ClientHandler clientHandlerToRemove = this.connectedClients.remove(nickname);
         if(clientHandlerToRemove != null) {
             clientHandlerToRemove.setGameController(null);
+            this.numConnectedClients--;
             this.messageFactory.removeObserver(nickname);
             this.messageFactory.sendMessageToAllGamePlayers(new DisconnectedPlayerMessage(nickname));
             if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)){
@@ -179,10 +190,21 @@ public class GameController{
             return;
         }
 
-        if(this.gameAssociated.getPlayerByName(nickname).getColor()==null && this.gameAssociated.getAvailableColors().contains(color)) {
+        if(!this.gameAssociated.getAvailableColors().contains(color)){
+            this.messageFactory.sendMessageToPlayer(nickname,
+                    new RefusedActionMessage(ErrorType.COLOR_ALREADY_CHOSEN, "The color " +
+                            color + " was already taken"));
+            return;
+        }
+
+        if(this.gameAssociated.getPlayerByName(nickname).getColor()==null) {
             this.gameAssociated.getPlayerByName(nickname).setColor(color);
             this.messageFactory.sendMessageToAllGamePlayersExcept(new AvailableColorsMessage(new ArrayList<>(this.gameAssociated.getAvailableColors())), nickname);
         }
+        else{
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.COLOR_ALREADY_CHOSEN, "You have already chosen your color!"));
+        }
+
         if(this.gameAssociated.allPlayersChooseInitialGoalColor()){
             this.gameAssociated.startGame();
         }
@@ -210,6 +232,10 @@ public class GameController{
         if(this.gameAssociated.getPlayerByName(nickname).getStation().getPrivateGoalCard()==null) {
             this.gameAssociated.getPlayerByName(nickname).getStation().setPrivateGoalCard(cardIdx);
         }
+        else{
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.GOAL_CARD_ALREADY_CHOSEN, "You have already chosen you private goal card!"));
+        }
+
         if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
             this.gameAssociated.startGame();
         }
@@ -232,6 +258,10 @@ public class GameController{
         if(!this.gameAssociated.getPlayerByName(nickname).getStation().getInitialCardIsPlaced()) {
             this.gameAssociated.getPlayerByName(nickname).getStation().placeInitialCard(cardOrientation);
         }
+        else{
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.GENERIC, "You have already chosen initial card orientation!"));
+        }
+
         if(this.gameAssociated.allPlayersChooseInitialGoalColor()) {
             this.gameAssociated.startGame();
         }
@@ -260,6 +290,8 @@ public class GameController{
         }
 
         if(!this.gameAssociated.getActivePlayer().getName().equals(nickname)){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.NOT_YOUR_TURN,
+                                                                                       "You cannot place a card when is " + this.gameAssociated.getActivePlayer().getName() + " state!"));
             return;
         }
 
@@ -319,7 +351,7 @@ public class GameController{
         this.messageFactory.sendMessageToPlayer(nickname, new OwnAcceptedPickCardFromDeckMessage(nickname,
                                                                                                  card, type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)));
         this.messageFactory.sendMessageToAllGamePlayersExcept(new OtherAcceptedPickCardFromDeckMessage(nickname,
-                                                                                                       type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)),nickname);
+                                                                                                       new Tuple<>(card.getSeed(),card.getCardType()), type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)),nickname);
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
         this.setNextPlayer();
@@ -385,6 +417,8 @@ public class GameController{
         }
 
         if(!this.gameAssociated.getActivePlayer().getName().equals(nickname)){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.NOT_YOUR_TURN,
+                                                                                       "You cannot place a card when is " + this.gameAssociated.getActivePlayer().getName() + " state!"));
             return true;
         }
         return false;
@@ -473,6 +507,10 @@ public class GameController{
             return;
         }
         this.gameAssociated.getChat().pushMessage(new Message(message, senderNick, receivers));
+    }
+
+    public synchronized int getNumConnectedClients(){
+        return this.numConnectedClients;
     }
 
 }

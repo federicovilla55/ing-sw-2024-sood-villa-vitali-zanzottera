@@ -1,0 +1,70 @@
+@startuml
+actor Actor #lightgreen
+participant ClientTCP #lightgreen
+participant DisconnectMessage
+participant HeartBeatManager #lightgreen
+participant ScheduledExecutorService #lightgreen
+participant MessageToServerDispatcher #lightblue
+participant ClientHandlerSocket #lightblue
+participant MainServerTCP #lightblue
+participant MainController #lightblue
+participant DisconnectFromServer
+
+activate ClientTCP
+activate ClientTCP
+
+activate ScheduledExecutorService
+activate ScheduledExecutorService
+
+activate MessageToServerDispatcher
+activate ClientHandlerSocket
+
+Actor -> ClientTCP ++ : connect
+
+create DisconnectMessage
+ClientTCP -> DisconnectMessage ++ : new
+DisconnectMessage --> ClientTCP --
+
+ClientTCP -> ClientTCP : send(DisconnectMessage)
+
+ClientTCP --> MessageToServerDispatcher : **socket** (sending DisconnectMessage over the network)
+
+ClientTCP -> HeartBeatManager ++ : stopHeartBeatManager
+HeartBeatManager --> ScheduledExecutorService : shutDownNow
+deactivate ScheduledExecutorService
+HeartBeatManager --> ScheduledExecutorService : shutDownNow
+deactivate ScheduledExecutorService
+HeartBeatManager --> ClientTCP --
+
+ClientTCP --> ClientTCP -- : interrupt (senderThread)
+
+ClientTCP --> ClientTCP -- : interrupt (receiverThread)
+
+ClientTCP --> Actor --
+
+MessageToServerDispatcher -> MainServerTCP ++ : update(DisconnectMessage)
+
+create DisconnectFromServer
+MainServerTCP -> DisconnectFromServer ++ : new
+DisconnectFromServer --> MainServerTCP --
+
+MainServerTCP -> ClientHandlerSocket ++ : update(DisconnectFromServer)
+ClientHandlerSocket --> MainServerTCP --
+
+MainServerTCP -> MainController ++ : disconnect
+MainController --> MainServerTCP --
+
+MainServerTCP --> ClientHandlerSocket : interruptClientHandler (stops executing when there are no messages to send)
+
+MainServerTCP --> MessageToServerDispatcher : interruptMessageDispatcher (stops executing when MainServer returns)
+
+MainServerTCP --> MessageToServerDispatcher --
+deactivate MessageToServerDispatcher
+
+
+ClientHandlerSocket -> ClientHandlerSocket : sendMessageToClient(DisconnectFromServer)
+ <-- ClientHandlerSocket : **socket**  (this message is not received because the client explicitly disconnected)
+deactivate ClientHandlerSocket
+
+
+@enduml

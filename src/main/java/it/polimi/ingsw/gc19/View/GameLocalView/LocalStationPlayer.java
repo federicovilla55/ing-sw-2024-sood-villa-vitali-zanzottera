@@ -3,12 +3,14 @@ package it.polimi.ingsw.gc19.View.GameLocalView;
 import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,20 +21,8 @@ public abstract class LocalStationPlayer {
     protected final PlayableCard[][] cardSchema;
     protected Map<Symbol, Integer> visibleSymbols;
 
-    protected final List<Tuple<PlayableCard, Tuple<Integer,Integer>>> placedCardSequence;
-
+    protected List<Tuple<PlayableCard, Tuple<Integer,Integer>>> placedCardSequence;
     protected Color chosenColor;
-
-    public LocalStationPlayer(String nicknameOwner){
-        this.ownerPlayer = nicknameOwner;
-        this.cardSchema = new PlayableCard[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
-        this.chosenColor = null;
-        this.visibleSymbols = new HashMap<>();
-        this.numPoints = 0;
-        this.placedCardSequence = null;
-
-        reconstructSchema();
-    }
 
     public LocalStationPlayer(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols,
                               int numPoints, List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence){
@@ -42,7 +32,7 @@ public abstract class LocalStationPlayer {
         this.chosenColor = chosenColor;
         this.visibleSymbols = visibleSymbols;
         this.numPoints = numPoints;
-        this.placedCardSequence = placedCardSequence;
+        this.placedCardSequence = new ArrayList<>(placedCardSequence);
 
         reconstructSchema();
     }
@@ -67,6 +57,14 @@ public abstract class LocalStationPlayer {
         }
     }
 
+    public void setChosenColor(Color chosenColor){
+        this.chosenColor = chosenColor;
+    }
+
+    public abstract void setPrivateGoalCard(int cardIdx);
+
+    public abstract void setPrivateGoalCard(GoalCard goalCard);
+
     public String getOwnerPlayer() {
         return ownerPlayer;
     }
@@ -75,7 +73,7 @@ public abstract class LocalStationPlayer {
         return numPoints;
     }
 
-    public Map<Symbol, Integer> getVisibleSymbols() {
+    public  Map<Symbol, Integer> getVisibleSymbols() {
         return visibleSymbols;
     }
 
@@ -91,17 +89,11 @@ public abstract class LocalStationPlayer {
          this.visibleSymbols = new HashMap<>(visibleSymbols);
     }
 
-    public void placeCard(PlayableCard placedCard, Tuple<Integer, Integer> position){
-        // up or down is decided by the placedCard.cardState attribute.
-        placedCardSequence.add(new Tuple<>(placedCard, position));
-
-        cardSchema[position.x()][position.y()] = placedCard;
-    }
+    public abstract void placeCard(PlayableCard cardToPlace, String anchorCardCode, Direction direction);
 
     public void placeInitialCard(PlayableCard initialCard){
         this.placedCardSequence.add(new Tuple<>(initialCard, new Tuple<>((ImportantConstants.gridDimension / 2), (ImportantConstants.gridDimension / 2))));
         this.cardSchema[ImportantConstants.gridDimension / 2][ImportantConstants.gridDimension / 2] = initialCard;
-        System.out.println(new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2));
     }
 
     public Tuple<Integer, Integer> getCoord(String cardCode){
@@ -113,7 +105,11 @@ public abstract class LocalStationPlayer {
         return new Tuple<>(-1, -1);
     }
 
-    public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard cardToPlace, Direction direction){
+    public List<Tuple<PlayableCard, Tuple<Integer,Integer>>> getPlacedCardSequence(){
+        return this.placedCardSequence;
+    }
+
+    public boolean cardIsPlaceable(PlayableCard cardToPlace, PlayableCard anchor, Direction direction){
         return true;
     }
 }

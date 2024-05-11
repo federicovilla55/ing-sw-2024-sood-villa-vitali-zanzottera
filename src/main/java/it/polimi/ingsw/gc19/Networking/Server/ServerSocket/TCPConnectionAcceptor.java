@@ -1,7 +1,5 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
-import it.polimi.ingsw.gc19.Networking.Server.Settings;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;

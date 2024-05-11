@@ -54,4 +54,11 @@ public interface GameHandlingMessageVisitor{
      * @param message the {@link RequestAvailableGamesMessage} to visit
      */
     void visit(RequestAvailableGamesMessage message);
+
+    /**
+     * This method is used by {@link GameHandlingMessageVisitor} to visit
+     * a message {@link RequestGameExitMessage}
+     * @param message the {@link RequestGameExitMessage} to visit
+     */
+    void visit(RequestGameExitMessage message);
 }

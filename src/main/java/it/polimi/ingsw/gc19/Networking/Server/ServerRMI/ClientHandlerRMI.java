@@ -7,9 +7,8 @@ import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingError;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.VirtualGameServer;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -27,7 +26,6 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
     public ClientHandlerRMI(VirtualClient virtualClientAssociated, String username) {
         super(username, null);
         this.virtualClientAssociated = virtualClientAssociated;
-
     }
 
     public ClientHandlerRMI(VirtualClient virtualClientAssociated, ClientHandler clientHandler) {
@@ -65,8 +63,8 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
             this.gameController.placeCard(username, cardToInsert, anchorCard, directionToInsert, orientation);
         }
         else{
-            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+            sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                             "You aren't connected to any game! It can be finished or you have lost connection!")
                                         .setHeader(this.username));
         }
     }
@@ -83,8 +81,8 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
             this.gameController.sendChatMessage(usersToSend, username, messageToSend);
         }
         else{
-            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                      "You aren't connected to any game! Maybe it's finished or you have to reconnect!")
+            sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                             "You aren't connected to any game! Maybe it's finished or you have to reconnect!")
                                         .setHeader(this.username));
         }
     }
@@ -100,8 +98,8 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
             this.gameController.placeInitialCard(username, cardOrientation);
         }
         else{
-            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+            sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                             "You aren't connected to any game! It can be finished or you have lost connection!")
                                         .setHeader(this.username));
         }
     }
@@ -118,8 +116,8 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
             this.gameController.drawCardFromTable(username, type, position);
         }
         else{
-            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+            sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                             "You aren't connected to any game! It can be finished or you have lost connection!")
                                         .setHeader(this.username));
         }
     }
@@ -135,8 +133,8 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
             this.gameController.drawCardFromDeck(username, type);
         }
         else{
-            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+            sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                             "You aren't connected to any game! It can be finished or you have lost connection!")
                                         .setHeader(this.username));
         }
     }
@@ -152,8 +150,8 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
             this.gameController.chooseColor(username, color);
         }
         else{
-            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+            sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                             "You aren't connected to any game! It can be finished or you have lost connection!")
                                         .setHeader(this.username));
         }
     }
@@ -169,11 +167,10 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
             this.gameController.choosePrivateGoal(username, cardIdx);
         }
         else{
-            sendMessageToClient(new GameHandlingError(Error.GAME_NOT_FOUND,
-                                                      "You aren't connected to any game! It can be finished or you have lost connection!")
+            sendMessageToClient(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
+                                                             "You aren't connected to any game! It can be finished or you have lost connection!")
                                         .setHeader(this.username));
         }
     }
 
 }
-
