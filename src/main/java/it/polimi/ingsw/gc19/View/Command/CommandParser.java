@@ -35,19 +35,19 @@ public record CommandParser(ClientController clientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("requested color is not in " + List.of(Color.values()));
             return;
         }
 
         if (parsedArguments.length == CommandType.CHOOSE_COLOR.getNumArgs()) {
             try {
-                clientController.chooseColor(Color.valueOf(parsedArguments[0]));
+                clientController.chooseColor(Color.valueOf(parsedArguments[0].toUpperCase()));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("Command format not known!");
+                this.clientController.getView().notifyGenericError("requested color is not in " + List.of(Color.values()));
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("required " + CommandType.CHOOSE_COLOR.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -57,19 +57,19 @@ public record CommandParser(ClientController clientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("integer expected");
             return;
         }
 
         if (parsedArguments.length == CommandType.CHOOSE_PRIVATE_GOAL_CARD.getNumArgs()) {
             try {
-                clientController.chooseGoal(Integer.parseInt(parsedArguments[0]));
+                clientController.chooseGoal(Math.abs(Integer.parseInt(parsedArguments[0])));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("Command format not known!");
+                this.clientController.getView().notifyGenericError("integer expected");
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("required " + CommandType.CHOOSE_PRIVATE_GOAL_CARD.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -79,20 +79,20 @@ public record CommandParser(ClientController clientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("non-empty arguments expected");
             return;
         }
 
         if (parsedArguments.length == CommandType.CREATE_GAME.getNumArgs()) {
             try {
                 clientController.createGame(parsedArguments[0],
-                                            Integer.parseInt(parsedArguments[1]));
+                                            Math.abs(Integer.parseInt(parsedArguments[1])));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("Command format not known!");
+                this.clientController.getView().notifyGenericError("integer expected as second argument");
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("required " + CommandType.CREATE_GAME.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -102,7 +102,7 @@ public record CommandParser(ClientController clientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("non-empty arguments expected");
             return;
         }
 
@@ -110,7 +110,7 @@ public record CommandParser(ClientController clientController) {
             clientController.joinGame(parsedArguments[0]);
         }
         else {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("required " + CommandType.JOIN_GAME.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -120,7 +120,7 @@ public record CommandParser(ClientController clientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("non-empty arguments expected");
             return;
         }
 
@@ -128,11 +128,11 @@ public record CommandParser(ClientController clientController) {
             try {
                 clientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0]));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("Command format not known!");
+                this.clientController.getView().notifyGenericError("card orientation argument must be in " + List.of(CardOrientation.values()));
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("required " + CommandType.JOIN_FIRST_GAME.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -142,7 +142,7 @@ public record CommandParser(ClientController clientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("expected non-empty arguments");
             return;
         }
 
@@ -153,21 +153,21 @@ public record CommandParser(ClientController clientController) {
             try {
                 direction = Direction.valueOf(parsedArguments[2]);
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("Command format not known!");
+                this.clientController.getView().notifyGenericError("direction argument must be in " + List.of(Direction.values()));
                 return;
             }
 
             try {
                 cardOrientation = CardOrientation.valueOf(parsedArguments[3]);
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("Command format not known!");
+                this.clientController.getView().notifyGenericError("card orientation argument must be in " + List.of(CardOrientation.values()));
                 return;
             }
 
             clientController.placeCard(parsedArguments[0], parsedArguments[1], direction, cardOrientation);
         }
         else {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("required " + CommandType.PLACE_CARD.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -177,7 +177,7 @@ public record CommandParser(ClientController clientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("non-empty arguments required");
             return;
         }
 
@@ -188,21 +188,21 @@ public record CommandParser(ClientController clientController) {
             try {
                 cardType = PlayableCardType.valueOf(parsedArguments[0]);
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("Command format not known!");
+                this.clientController.getView().notifyGenericError("card type must be in " + List.of(PlayableCardType.values()));
                 return;
             }
 
             try {
-                position = Integer.parseInt(parsedArguments[1]);
+                position = Math.abs(Integer.parseInt(parsedArguments[1]));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("Command format not known!");
+                this.clientController.getView().notifyGenericError("position argument must be integer");
                 return;
             }
 
             clientController.pickCardFromTable(cardType, position);
         }
         else {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("required " + CommandType.PICK_CARD_TABLE.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -212,7 +212,7 @@ public record CommandParser(ClientController clientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("non-empty arguments required");
             return;
         }
 
@@ -220,11 +220,11 @@ public record CommandParser(ClientController clientController) {
             try {
                 clientController.pickCardFromDeck(PlayableCardType.valueOf(parsedArguments[0]));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("Command format not known!");
+                this.clientController.getView().notifyGenericError("card type must be in " + List.of(PlayableCardType.values()));
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("required " + CommandType.PICK_CARD_DECK.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -234,12 +234,15 @@ public record CommandParser(ClientController clientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("non-empty arguments required");
             return;
         }
 
         if (parsedArguments.length == CommandType.CREATE_PLAYER.getNumArgs()) {
             clientController.createPlayer(parsedArguments[0]);
+        }
+        else{
+            this.clientController.getView().notifyGenericError("required " + CommandType.CREATE_PLAYER.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -249,7 +252,7 @@ public record CommandParser(ClientController clientController) {
         try {
             parsedArguments = parseArguments(commandArgs, false);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("provided arguments are not correct");
             return;
         }
 
@@ -257,7 +260,7 @@ public record CommandParser(ClientController clientController) {
             clientController.sendChatMessage(parsedArguments[0], new ArrayList<>(List.of(parsedArguments)).subList(1, parsedArguments.length));
         }
         else {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("required " + CommandType.SEND_CHAT_MESSAGE.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -267,7 +270,7 @@ public record CommandParser(ClientController clientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("non-empty arguments required");
             return;
         }
 
@@ -275,11 +278,11 @@ public record CommandParser(ClientController clientController) {
             try {
                 clientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0]));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("Command format not known!");
+                this.clientController.getView().notifyGenericError("card orientation parameter must be in " + List.of(CardOrientation.values()));
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("Command format not known!");
+            this.clientController.getView().notifyGenericError("required " + CommandType.PLACE_INITIAL_CARD.getNumArgs() + "arguments, provided " + parsedArguments.length);
         }
     }
 }

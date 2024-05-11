@@ -757,6 +757,69 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    private void printPlacingSequence(){
+        if(this.localModel != null){
+            System.out.println("This is your placing history: ");
+            for(var v : this.localModel.getPersonalStation().getPlacedCardSequence()){
+                System.out.println("-> " + v.x().getCardCode());
+                printTUIView(cardTUIView(v.x()));
+                System.out.println();
+            }
+        }
+        else{
+            System.out.println("Action is not possible in the current state!");
+        }
+    }
+
+    private void TUIViewCommands(Matcher matcher){
+        switch (matcher.group(1)) {
+            case "show_private_goal_card" -> choosePrivateGoalCardScene();
+            case "help" -> printHelper();
+            case "show_initial_card" -> showInitialCard();
+            case "show_chat" -> {
+                this.showState = ShowState.CHAT;
+                this.currentViewPlayer = localModel.getNickname();
+                printChat();
+            }
+            case "show_station" -> {
+                this.showState = ShowState.OTHER_STATION;
+                this.currentViewPlayer = matcher.group(2);
+                printOtherStation();
+            }
+            case "show_personal_station" -> {
+                this.showState = ShowState.PERSONAL_STATION;
+                this.currentViewPlayer = localModel.getNickname();
+                printPersonalStation();
+            }
+            case "show_placing_sequence" -> printPlacingSequence();
+            case "info_card" -> printInfoCard(matcher.group(2));
+            default -> System.out.println("Command is not recognized! Try again...");
+        }
+    }
+
+    private void commandParserCommands(Matcher matcher, CommandType commandType){
+        String args = matcher.group(2);
+
+        switch (commandType) {
+            case CommandType.CREATE_PLAYER            -> commandParser.createPlayer(args);
+            case CommandType.CREATE_GAME              -> commandParser.createGame(args);
+            case CommandType.JOIN_GAME                -> commandParser.joinGame(args);
+            case CommandType.AVAILABLE_COLORS         -> clientController.availableColors();
+            case CommandType.CHOOSE_COLOR             -> commandParser.chooseColor(args);
+            case CommandType.CHOOSE_PRIVATE_GOAL_CARD -> commandParser.chooseGoal(args);
+            case CommandType.PLACE_INITIAL_CARD       -> commandParser.placeInitialCard(args);
+            case CommandType.PICK_CARD_DECK           -> commandParser.pickCardFromDeck(args);
+            case CommandType.PICK_CARD_TABLE          -> commandParser.pickCardFromTable(args);
+            case CommandType.PLACE_CARD               -> commandParser.placeCard(args);
+            case CommandType.SEND_CHAT_MESSAGE        -> commandParser.sendChatMessage(args);
+            case CommandType.JOIN_FIRST_GAME          -> clientController.joinFirstAvailableGame();
+            case CommandType.AVAILABLE_GAMES          -> clientController.availableGames();
+            case CommandType.LOGOUT_FROM_GAME         -> clientController.logoutFromGame();
+            case CommandType.DISCONNECT               -> clientController.disconnect();
+            default                                   -> System.out.println("Command is not recognized! Try again...");
+        }
+    }
+
     private void parseCommand(String command) {
         Pattern pattern = Pattern.compile("^([^(]*)\\(([^)]*)\\)$");
         Matcher matcher = pattern.matcher(command);
@@ -766,51 +829,9 @@ public class TUIView implements UI, GeneralListener {
             try {
                 commandType = CommandType.valueOf(matcher.group(1).toUpperCase());
 
-                String args = matcher.group(2);
-
-                switch (commandType) {
-                    case CommandType.CREATE_PLAYER            -> commandParser.createPlayer(args);
-                    case CommandType.CREATE_GAME              -> commandParser.createGame(args);
-                    case CommandType.JOIN_GAME                -> commandParser.joinGame(args);
-                    case CommandType.AVAILABLE_COLORS         -> clientController.availableColors();
-                    case CommandType.CHOOSE_COLOR             -> commandParser.chooseColor(args);
-                    case CommandType.CHOOSE_PRIVATE_GOAL_CARD -> commandParser.chooseGoal(args);
-                    case CommandType.PLACE_INITIAL_CARD       -> commandParser.placeInitialCard(args);
-                    case CommandType.PICK_CARD_DECK           -> commandParser.pickCardFromDeck(args);
-                    case CommandType.PICK_CARD_TABLE          -> commandParser.pickCardFromTable(args);
-                    case CommandType.PLACE_CARD               -> commandParser.placeCard(args);
-                    case CommandType.SEND_CHAT_MESSAGE        -> commandParser.sendChatMessage(args);
-                    case CommandType.JOIN_FIRST_GAME          -> clientController.joinFirstAvailableGame();
-                    case CommandType.AVAILABLE_GAMES          -> clientController.availableGames();
-                    case CommandType.LOGOUT_FROM_GAME         -> clientController.logoutFromGame();
-                    case CommandType.DISCONNECT               -> clientController.disconnect();
-                }
-
+                commandParserCommands(matcher, commandType);
             } catch (IllegalArgumentException illegalArgumentException) {
-                switch (matcher.group(1)){
-                    case "show_private_goal_card" -> choosePrivateGoalCardScene();
-                    case "help" -> printHelper();
-                    case "show_initial_card" -> showInitialCard();
-                    case "show_chat" -> {
-                        this.showState = ShowState.CHAT;
-                        this.currentViewPlayer = localModel.getNickname();
-                        printChat();
-                    }
-                    case "show_station" -> {
-                        this.showState = ShowState.OTHER_STATION;
-                        this.currentViewPlayer = matcher.group(2);
-                        printOtherStation();
-                    }
-                    case "show_personal_station" -> {
-                        this.showState = ShowState.PERSONAL_STATION;
-                        this.currentViewPlayer = localModel.getNickname();
-                        printPersonalStation();
-                    }
-                    default -> {
-                        System.out.println("Command " + command + " is not recognized! Try again...");
-                        return;
-                    }
-                }
+                TUIViewCommands(matcher);
             }
 
             System.out.print(">");
@@ -866,6 +887,7 @@ public class TUIView implements UI, GeneralListener {
     @Override
     public void notifyPlayerCreation(String name) {
         System.out.println("Your player has been correctly created. Your username is: " + name);
+        System.out.println();
         System.out.print(">");
     }
 
@@ -943,8 +965,8 @@ public class TUIView implements UI, GeneralListener {
     public void notify(PersonalStation localStationPlayer){
         if(this.showState == ShowState.PERSONAL_STATION) {
             printPersonalStation();
-            System.out.print(">");
         }
+        System.out.print(">");
     }
 
     @Override
@@ -952,8 +974,8 @@ public class TUIView implements UI, GeneralListener {
         if(this.showState == ShowState.OTHER_STATION
             && Objects.equals(otherStation.getOwnerPlayer(), this.currentViewPlayer)) {
             printOtherStation();
-            System.out.print(">");
         }
+        System.out.print(">");
 
     }
 
@@ -1011,6 +1033,30 @@ public class TUIView implements UI, GeneralListener {
             }
         }
         catch (IOException | InterruptedException ignored){ }
+    }
+
+    private void printInfoCard(String cardCode){
+        String[] code = cardCode.split("_");
+
+        if(this.localModel == null){
+            System.out.println("Operation is not performable in this state!");
+            return;
+        }
+
+        if(code.length == 2) {
+            if (code[0].equals("goal") && this.localModel.getGoalCard(cardCode) != null) {
+                printTUIView(goalCardEffectTUIView(this.localModel.getGoalCard(cardCode)));
+                return;
+            }
+
+            if((code[0].equals("resource") || code[0].equals("initial") || code[0].equals("gold")) && this.localModel.getPlayableCard(cardCode) != null) {
+                printTUIView(playableCardEffectTUIView(this.localModel.getPlayableCard(cardCode)));
+                return;
+            }
+
+        }
+        System.out.println("Card code is not recognized! ");
+        System.out.print(">");
     }
 
     private void printChat(){
@@ -1129,12 +1175,14 @@ public class TUIView implements UI, GeneralListener {
         System.out.println("-> show_personal_station(): to see your personal station;");
         System.out.println("-> show_station(nick): to see the station of the player 'nick';");
         System.out.println("-> show_chat(): to see chat;");
+        System.out.println("-> info_card(card_code): gives infos about a card;");
 
         System.out.println();
 
         System.out.println("-> " + CommandType.PLACE_CARD.getCommandName() + "(anchor_code, to_place_code, direction, card_orientation): " +
                                    "to place card with code 'to_place_code' from card 'anchor_code' with the direction (UP_RIGHT, UP_LEFT, DOWN_LEFT, DOWN_RIGHT) and orientation (UP, DOWN) specified;");
         System.out.println("-> " + CommandType.PICK_CARD_TABLE.getCommandName() + "(type, position): to pick a card of type 'type' (RESOURCE, GOLD) from table in position 'position';");
+        System.out.println("-> " + CommandType.PICK_CARD_DECK.getCommandName() + "(type): to pick a card of type 'type' (RESOURCE, GOLD) from deck;");
 
         System.out.println();
 

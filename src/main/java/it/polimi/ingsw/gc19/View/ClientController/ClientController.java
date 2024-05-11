@@ -220,8 +220,12 @@ public class ClientController {
         PlayableCard cardToPlace = localModel.getPlayableCard(cardToInsert);
         PlayableCard anchorCard = localModel.getPlayableCard(anchor);
 
-        if(cardToPlace != null ) {
+        if(cardToPlace != null && anchorCard != null) {
             cardToPlace.setCardState(cardOrientation);
+        }
+        else{
+            this.listenersManager.notifyErrorStationListener(cardToInsert, anchor, direction.toString().toLowerCase());
+            return;
         }
 
         if(!localModel.isCardPlaceablePersonalStation(cardToPlace, anchorCard, direction)){

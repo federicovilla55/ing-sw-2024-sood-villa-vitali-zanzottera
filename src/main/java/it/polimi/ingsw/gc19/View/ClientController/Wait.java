@@ -98,14 +98,6 @@ public class Wait extends ClientState {
     }
 
     @Override
-    public void nextState(DisconnectFromGameMessage message) {
-        super.nextState(message);
-        this.clientController.setLocalModel(null);
-        this.clientInterface.getMessageHandler().setLocalModel(null);
-        this.clientController.setNextState(new NotGame(clientController));
-    }
-
-    @Override
     public void nextState(OwnStationConfigurationMessage message){
         this.clientController.getLocalModel().setPersonalStation(new PersonalStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
                                                                message.getNumPoints(), message.getPlacedCardSequence(), message.getPrivateGoalCard(),

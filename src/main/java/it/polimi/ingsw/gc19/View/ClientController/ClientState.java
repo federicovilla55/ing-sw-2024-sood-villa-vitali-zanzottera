@@ -77,10 +77,16 @@ public abstract class ClientState {
 
     public void nextState(DisconnectFromGameMessage message) {
         this.clientController.getView().notify("You leave the game!");
+        this.clientController.setLocalModel(null);
+        this.clientInterface.getMessageHandler().setLocalModel(null);
+        this.clientController.setNextState(new NotGame(clientController));
     }
 
     public void nextState(DisconnectFromServerMessage message){
         this.clientController.getView().notify("You leave the server!");
+        //@TODO: wait a moment and then kill view
+        this.clientController.setLocalModel(null);
+        this.clientInterface.getMessageHandler().setLocalModel(null);
     };
 
     public void nextState(TurnStateMessage message) {
