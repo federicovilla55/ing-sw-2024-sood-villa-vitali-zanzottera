@@ -387,7 +387,7 @@ public class LocalModel {
             this.listenersManager.notifyStationListener(this.getPersonalStation());
         }
         else {
-            this.listenersManager.notifyStationListener((OtherStation) this.playerStations.get(nickname));
+            this.listenersManager.notifyStationListener(this.getOtherStations().get(nickname));
         }
     }
 
