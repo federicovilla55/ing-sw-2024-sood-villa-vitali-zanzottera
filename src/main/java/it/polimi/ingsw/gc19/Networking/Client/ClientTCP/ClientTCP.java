@@ -16,12 +16,12 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.HeartBeatManager;
 import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class ClientTCP implements ClientInterface {
 
@@ -41,12 +41,12 @@ public class ClientTCP implements ClientInterface {
 
     private final Deque<MessageToServer> messagesToSend;
 
-    public ClientTCP(MessageHandler messageHandler, ClientController clientController) throws IOException{
+    public ClientTCP(MessageHandler messageHandler) throws IOException{
         this.messageHandler = messageHandler;
-        this.clientController = clientController;
+        this.clientController = messageHandler.getClientController();
 
         try {
-            this.socket = new Socket(ClientSettings.DEFAULT_SERVER_IP, ClientSettings.DEFAULT_TCP_SERVER_PORT);
+            this.socket = new Socket(ClientSettings.TCP_SERVER_IP, ClientSettings.SERVER_TCP_PORT);
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.inputStream = new ObjectInputStream(socket.getInputStream());
         }
@@ -123,9 +123,6 @@ public class ClientTCP implements ClientInterface {
         while(!Thread.interrupted()) {
             try {
                 incomingMessage = (MessageToClient) this.inputStream.readObject();
-                if(!(incomingMessage instanceof ServerHeartBeatMessage)){
-                    System.out.println(incomingMessage);
-                }
             }
             catch (ClassNotFoundException | IOException ignored){ }
 
@@ -227,33 +224,11 @@ public class ClientTCP implements ClientInterface {
         try{
             this.socket.close();
 
-            this.socket = new Socket(ClientSettings.DEFAULT_SERVER_IP, ClientSettings.DEFAULT_TCP_SERVER_PORT);
+            this.socket = new Socket(ClientSettings.TCP_SERVER_IP, ClientSettings.SERVER_TCP_PORT);
             synchronized (this.outputStreamLock) {
                 this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             }
             this.inputStream = new ObjectInputStream(this.socket.getInputStream());
-
-            /*while(!Thread.currentThread().isInterrupted() && numOfTry < 10){
-                if(this.nickname != null){
-                    nick = this.nickname;
-                }
-                else{
-                    nick = configuration.getNick();
-                }
-                if(!this.send(new ReconnectToServerMessage(nick, configuration.getToken()))){
-                    numOfTry++;
-                    try{
-                        TimeUnit.MILLISECONDS.sleep(250);
-                    }
-                    catch (InterruptedException interruptedException){
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
-                }
-                else{
-                    return;
-                }
-            }*/
 
             if(this.nickname != null){
                 nick = this.nickname;

@@ -4,14 +4,19 @@ import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 
 /**
  * This message is sent by server to all games players, different from who
  * placed a card, to notify the updates of his station
  */
 public class OtherAcceptedPickCardFromDeckMessage extends AcceptedPickCardMessage {
-    public OtherAcceptedPickCardFromDeckMessage(String nick, PlayableCardType deckType, Symbol symbol) {
-        super(nick, null, deckType, symbol);
+
+    private final Tuple<Symbol,PlayableCardType> backPickedCard;
+
+    public OtherAcceptedPickCardFromDeckMessage(String nick, Tuple<Symbol,PlayableCardType> backPickedCard, PlayableCardType deckType, Symbol symbolOnDeck) {
+        super(nick, null, deckType, symbolOnDeck);
+        this.backPickedCard = backPickedCard;
     }
 
     /**
@@ -21,6 +26,10 @@ public class OtherAcceptedPickCardFromDeckMessage extends AcceptedPickCardMessag
     @Override
     public void accept(MessageToClientVisitor visitor) {
         if(visitor instanceof AnswerToActionMessageVisitor) ((AnswerToActionMessageVisitor) visitor).visit(this);
+    }
+
+    public Tuple<Symbol, PlayableCardType> getBackPickedCard() {
+        return backPickedCard;
     }
 
 }

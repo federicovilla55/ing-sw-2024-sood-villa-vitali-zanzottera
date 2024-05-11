@@ -5,9 +5,10 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
+import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,8 @@ public class LocalModel {
     private final ConcurrentHashMap<String, GoalCard> previousGoalCards;
     private List<Color> availableColors;
     private final ArrayList<Message> messages;
-    private PropertyChangeSupport propertyChanger = new PropertyChangeSupport(this);
+    private ListenersManager listenersManager;
+    private ArrayList<String> winners;
 
     public LocalModel(){
         playerStations = new ConcurrentHashMap<>();
@@ -36,66 +38,17 @@ public class LocalModel {
         previousGoalCards = new ConcurrentHashMap<>();
         lockTable = new Object();
         messages = new ArrayList<>();
+        winners = new ArrayList<>();
     }
 
-    public void updateChat() {
-        fireChatPropertyChange();
-    }
-
-    public void updatePersonalStation() {
-        firePersonalStationPropertyChange();
-    }
-
-    public void updateOtherStations() {
-        fireOtherStationsPropertyChange();
-    }
-
-    public void updateTable() {
-        fireTablePropertyChange();
-    }
-
-    public void addAllPropertyChangeListener(PropertyChangeListener listener){
-        addTablePropertyChangeListener(listener);
-        addOtherStationsPropertyChangeListener(listener);
-        addChatPropertyChangeListener(listener);
-        addPersonalStationPropertyChangeListener(listener);
-    }
-
-    public void addChatPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("chat", listener);
-    }
-
-    public void addPersonalStationPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("personalStation", listener);
-    }
-
-    public void addTablePropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("table", listener);
-    }
-
-    public void addOtherStationsPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChanger.addPropertyChangeListener("otherStations", listener);
-    }
-
-    private void fireChatPropertyChange() {
-        propertyChanger.firePropertyChange("chat", null, this.getMessages());
-    }
-
-    private void firePersonalStationPropertyChange() {
-        propertyChanger.firePropertyChange("personalStation", null, this.getPersonalStation());
-    }
-
-    private void fireTablePropertyChange() {
-        propertyChanger.firePropertyChange("table", null, this.getTable());
-    }
-
-    private void fireOtherStationsPropertyChange() {
-        propertyChanger.firePropertyChange("otherStations", null, this.getOtherStations());
+    public void setListenersManager(ListenersManager listenersManager){
+        this.listenersManager = listenersManager;
     }
 
     public void setPersonalStation(PersonalStation localStation) {
         synchronized (this.playerStations) {
             this.playerStations.put(this.nickname, localStation);
+            this.playerStations.notifyAll();
         }
         synchronized (previousGoalCards){
             GoalCard goalCard = localStation.getPrivateGoalCardInStation();
@@ -119,10 +72,10 @@ public class LocalModel {
         }
         this.addCardsFromStationToMap(localStation);
 
-        this.updatePersonalStation();
+        this.listenersManager.notifyStationListener(localStation);
     }
 
-    public void addCardsFromStationToMap(LocalStationPlayer station){
+    private void addCardsFromStationToMap(LocalStationPlayer station){
         synchronized (previousPlayableCards){
             for(Tuple<PlayableCard, Tuple<Integer, Integer>> cardAndPos : station.getPlacedCardSequence()){
                 PlayableCard card = cardAndPos.x();
@@ -134,6 +87,14 @@ public class LocalModel {
 
     public PersonalStation getPersonalStation() {
         synchronized (playerStations) {
+            while (!this.playerStations.containsKey(nickname)){
+                try{
+                    this.playerStations.wait();
+                }
+                catch (InterruptedException interruptedException){
+                    Thread.currentThread().interrupt();
+                }
+            }
             return (PersonalStation) this.playerStations.get(this.nickname);
         }
     }
@@ -145,56 +106,75 @@ public class LocalModel {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
-        this.updateOtherStations();
+        this.listenersManager.notifyStationListener(otherStation);
     }
 
     public void setPlayerInactive(String nickname){
         synchronized (playerState) {
             this.playerState.put(nickname, State.INACTIVE);
         }
+        this.listenersManager.notifyLocalModelListener(LocalModelEvents.DISCONNECTED_PLAYER, this, nickname);
     }
 
     public void setPlayerActive(String nickname){
+        if(this.playerState.get(nickname) == State.INACTIVE) {
+            this.listenersManager.notifyLocalModelListener(LocalModelEvents.RECONNECTED_PLAYER, this, nickname);
+        }
+        else{
+            this.listenersManager.notifyLocalModelListener(LocalModelEvents.NEW_PLAYER_CONNECTED, this, nickname);
+        }
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
     }
 
-    public void setPrivateGoal(GoalCard goalCard){
-        synchronized (playerStations){
+    public void setPrivateGoal(GoalCard goalCard) {
+        synchronized (playerStations) {
             this.playerStations.get(this.nickname).setPrivateGoalCard(goalCard);
         }
-        this.updatePersonalStation();
-    }
 
+        this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_PRIVATE_GOAL_CARD);
 
-    public void setPrivateGoalCard(int cardIdx){
-        synchronized (playerStations){
-            this.playerStations.get(this.nickname).setPrivateGoalCard(cardIdx);
+        if(finishedLocalSetup()){
+            this.listenersManager.notifySetupListener(SetupEvent.COMPLETED);
         }
-        this.updatePersonalStation();
     }
 
     public void setColor(Color color){
         synchronized (this.playerStations) {
             this.playerStations.get(this.nickname).setChosenColor(color);
         }
-        this.updatePersonalStation();
+        this.availableColors.remove(color);
+
+        this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_COLOR);
+        if(finishedLocalSetup()){
+            this.listenersManager.notifySetupListener(SetupEvent.COMPLETED);
+        }
+    }
+
+    public boolean isColorChosen(){
+        synchronized (this.playerStations){
+            return (this.playerStations.get(this.nickname).getChosenColor() != null);
+        }
     }
 
     public void placeCard(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction) {
         synchronized (this.playerStations) {
-            Tuple<Integer, Integer> coords = this.playerStations.get(nickname).getCoord(anchorCode);
             this.playerStations.get(nickname).placeCard(cardToPlace, anchorCode, direction);
         }
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
 
+        synchronized (previousPlayableCards) {
+            previousPlayableCards.put(cardToPlace.getCardCode(), cardToPlace);
+        }
+
         if(this.nickname.equals(nickname)) {
-            this.updatePersonalStation();
-        } else {
-            this.updateOtherStations();
+            this.listenersManager.notifyStationListener((PersonalStation) this.playerStations.get(nickname));
+        }
+        else {
+            this.listenersManager.notifyStationListener((OtherStation) this.playerStations.get(nickname));
         }
     }
 
@@ -205,13 +185,23 @@ public class LocalModel {
         synchronized (playerState) {
             this.playerState.put(nickname, State.ACTIVE);
         }
+
+        synchronized (previousPlayableCards) {
+            previousPlayableCards.put(initialCard.getCardCode(), initialCard);
+        }
+
         if(this.nickname.equals(nickname)) {
-            this.updatePersonalStation();
-        } else {
-            this.updateOtherStations();
+            this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_INITIAL_CARD);
+        }
+
+        if(finishedLocalSetup()){
+            this.listenersManager.notifySetupListener(SetupEvent.COMPLETED);
         }
     }
 
+    private boolean finishedLocalSetup(){
+        return this.getPersonalStation().getChosenColor() != null && this.getPersonalStation().getPrivateGoalCardInStation() != null && !this.getPersonalStation().getPlacedCardSequence().isEmpty();
+    }
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
@@ -229,7 +219,7 @@ public class LocalModel {
         synchronized (this.playerStations) {
             ((PersonalStation) this.playerStations.get(this.nickname)).updateCardsInHand(playableCard);
         }
-        this.updatePersonalStation();
+        this.listenersManager.notifyStationListener((PersonalStation) this.playerStations.get(this.nickname));
     }
 
     public void updateCardsInTable(PlayableCard playableCard, PlayableCardType playableCardType, int position){
@@ -254,7 +244,7 @@ public class LocalModel {
             previousPlayableCards.put(playableCard.getCardCode(), playableCard);
         }
         
-        this.updateTable();
+        this.listenersManager.notifyTableListener(table);
     }
 
     public ConcurrentHashMap<String, OtherStation> getOtherStations() {
@@ -268,6 +258,17 @@ public class LocalModel {
             }
         }
         return otherStations;
+    }
+
+    public ConcurrentHashMap<String, LocalStationPlayer> getStations() {
+        ConcurrentHashMap<String, LocalStationPlayer> allStations =
+                new ConcurrentHashMap<>();
+        synchronized (playerStations) {
+            for(LocalStationPlayer station : playerStations.values()){
+                allStations.put(station.getOwnerPlayer(), station);
+            }
+        }
+        return allStations;
     }
 
     public void setTable(LocalTable table) {
@@ -290,7 +291,7 @@ public class LocalModel {
             }
         }
 
-        this.updateTable();
+        this.listenersManager.notifyTableListener(table);
     }
 
     public LocalTable getTable() {
@@ -299,21 +300,18 @@ public class LocalModel {
         }
     }
 
-    public void setFirstPlayer(String firstPlayer) {
-        if(firstPlayer == null) return;
+    public void setNextSeedOfDeck(PlayableCardType type, Symbol symbol) {
+        switch (type) {
+            case RESOURCE -> { this.getTable().setNextSeedOfResourceDeck(symbol); }
+            case GOLD -> { this.getTable().setNextSeedOfGoldDeck(symbol); }
+        }
 
+        this.listenersManager.notifyTableListener(table);
+    }
+
+    public void setFirstPlayer(String firstPlayer) {
         this.firstPlayer = firstPlayer;
 
-        // I suppose that there is an element in the GUI/TUI
-        // that will contain the black pawn if the player
-        // is the first one. Because I don't know if it
-        // is the personal station or not I have to decide
-        // at run time.
-        if(this.firstPlayer.equals(this.nickname)){
-            this.updatePersonalStation();
-        } else {
-            this.updateOtherStations();
-        }
     }
 
     public String getFirstPlayer() {
@@ -330,22 +328,25 @@ public class LocalModel {
 
     public void setAvailableColors(List<Color> availableColors) {
         this.availableColors = availableColors;
+        if(!this.isColorChosen()) {
+            this.listenersManager.notifySetupListener(SetupEvent.AVAILABLE_COLOR);
+        }
     }
 
     public List<Color> getAvailableColors() {
         return availableColors;
     }
 
-    public void updateMessages(String messageContent, String sender, List<String> receivers){
+    public void updateMessages(Message message){
         synchronized (this.messages){
-            messages.add(new Message(messageContent, sender, String.valueOf(receivers)));
+            messages.add(message);
         }
-        updateChat();
+        this.listenersManager.notifyChatListener(messages);
     }
 
     public ArrayList<Message> getMessages() {
         synchronized (this.messages) {
-            return new ArrayList<>(messages);
+            return this.messages;
         }
     }
 
@@ -363,7 +364,7 @@ public class LocalModel {
 
     public int getNumActivePlayers(){
         return (int) playerState.values().stream()
-                .filter(e -> e==State.ACTIVE)
+                .filter(e -> e == State.ACTIVE)
                 .count();
     }
 
@@ -393,4 +394,11 @@ public class LocalModel {
         return gameName;
     }
 
+    public void setWinners(List<String> winners) {
+        this.winners = new ArrayList<>(winners);
+    }
+
+    public ArrayList<String> getWinners() {
+        return winners;
+    }
 }

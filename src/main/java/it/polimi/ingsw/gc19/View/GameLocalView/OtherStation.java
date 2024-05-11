@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class OtherStation extends LocalStationPlayer{
     private final Object backHandLock;
-    List<PlayableCardType> backCardHand;
+    List<Tuple<Symbol,PlayableCardType>> backCardHand;
 
     public OtherStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols,
                         int numPoints, List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
@@ -26,20 +26,20 @@ public class OtherStation extends LocalStationPlayer{
 
     public OtherStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols,
                         int numPoints, List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence,
-                        List<PlayableCardType> backCardHand) {
+                        List<Tuple<Symbol,PlayableCardType>> backCardHand) {
         super(nicknameOwner, chosenColor, visibleSymbols, numPoints, placedCardSequence);
 
         this.backHandLock = new Object();
         this.backCardHand = new ArrayList<>(backCardHand);
     }
 
-    public List<PlayableCardType> getBackCardHand() {
+    public List<Tuple<Symbol,PlayableCardType>> getBackCardHand() {
         synchronized (backHandLock) {
             return backCardHand;
         }
     }
 
-    public void addBackCard(PlayableCardType cardToAdd){
+    public void addBackCard(Tuple<Symbol,PlayableCardType> cardToAdd){
         synchronized (backHandLock){
             backCardHand.add(cardToAdd);
         }
@@ -49,7 +49,9 @@ public class OtherStation extends LocalStationPlayer{
         Tuple<Integer, Integer> coord = getCoord(anchorCardCode);
         coord = new Tuple<>(direction.getX() + coord.x(), direction.getY() + coord.y());
 
-        this.backCardHand.remove(cardToPlace.getCardType());
+        Tuple<Symbol,PlayableCardType> cardToRemove = new Tuple<>(cardToPlace.getSeed(),cardToPlace.getCardType());
+
+        this.backCardHand.remove(cardToRemove);
 
         placedCardSequence.add(new Tuple<>(cardToPlace, coord));
         cardSchema[coord.x()][coord.y()] = cardToPlace;
@@ -66,7 +68,7 @@ public class OtherStation extends LocalStationPlayer{
         throw new UnsupportedOperationException();
     }
 
-    public void setBackCardHand(ArrayList<PlayableCardType> backCardHand) {
+    public void setBackCardHand(ArrayList<Tuple<Symbol,PlayableCardType>> backCardHand) {
         this.backCardHand = new ArrayList<>(backCardHand);
     }
 

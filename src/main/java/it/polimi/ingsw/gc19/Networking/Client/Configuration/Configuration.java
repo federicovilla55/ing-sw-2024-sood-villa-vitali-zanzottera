@@ -2,13 +2,27 @@ package it.polimi.ingsw.gc19.Networking.Client.Configuration;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.gc19.Networking.Client.ClientFactory;
+import it.polimi.ingsw.gc19.Networking.Client.ClientRMIFactory;
+import it.polimi.ingsw.gc19.Networking.Client.ClientTCPFactory;
 
 import java.util.Date;
 
 public class Configuration {
 
     public enum ConnectionType{
-        RMI, TCP;
+        RMI(new ClientRMIFactory()),
+        TCP(new ClientTCPFactory());
+
+        private final ClientFactory clientFactory;
+
+        ConnectionType(ClientFactory clientFactory) {
+            this.clientFactory = clientFactory;
+        }
+
+        public ClientFactory getClientFactory() {
+            return clientFactory;
+        }
     }
 
     private final String nick;

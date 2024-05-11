@@ -1,7 +1,6 @@
 package it.polimi.ingsw.gc19.View.LocalStateManagement;
 
 import it.polimi.ingsw.gc19.Controller.JSONParser;
-import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
@@ -11,24 +10,21 @@ import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
 import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OtherStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.TableConfigurationMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.AvailableColorsMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.NewPlayerConnectedToGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
-import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
+import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.ClientController.Wait;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -59,8 +55,8 @@ public class LocalStateManagementTest {
             e.printStackTrace();
         }
 
-        ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
-        ServerApp.startTCP(ServerSettings.DEFAULT_TCP_SERVER_PORT);
+        ServerApp.startRMI();
+        ServerApp.startTCP();
 
         clientController1 = new ClientController();
         clientController2 = new ClientController();
@@ -72,22 +68,22 @@ public class LocalStateManagementTest {
         messageHandler3 = new MessageHandler(clientController3);
         messageHandler4 = new MessageHandler(clientController4);
 
-        clientInterface1 = new ClientTCP(messageHandler1, clientController1);
+        clientInterface1 = new ClientTCP(messageHandler1);
         clientController1.setClientInterface(clientInterface1);
         messageHandler1.setClient(clientInterface1);
         messageHandler1.start();
 
-        clientInterface2 = new ClientRMI(messageHandler2, clientController2);
+        clientInterface2 = new ClientRMI(messageHandler2);
         clientController2.setClientInterface(clientInterface2);
         messageHandler2.setClient(clientInterface2);
         messageHandler2.start();
 
-        clientInterface3 = new ClientRMI(messageHandler3, clientController3);
+        clientInterface3 = new ClientRMI(messageHandler3);
         clientController3.setClientInterface(clientInterface3);
         messageHandler3.setClient(clientInterface3);
         messageHandler3.start();
 
-        clientInterface4 = new ClientTCP(messageHandler4, clientController4);
+        clientInterface4 = new ClientTCP(messageHandler4);
         clientController4.setClientInterface(clientInterface4);
         messageHandler4.setClient(clientInterface4);
         messageHandler4.start();
@@ -127,7 +123,7 @@ public class LocalStateManagementTest {
 
         ClientController clientController5 = new ClientController();
         MessageHandler messageHandler5 = new MessageHandler(clientController5);
-        ClientInterface clientInterface5 = new ClientTCP(messageHandler5, clientController5);
+        ClientInterface clientInterface5 = new ClientTCP(messageHandler5);
         clientController5.setClientInterface(clientInterface5);
         messageHandler5.setClient(clientInterface5);
         messageHandler5.start();
@@ -331,14 +327,14 @@ public class LocalStateManagementTest {
 
     @Test
     public void testSetup(){
-        clientController1.setNextState(new Wait(clientController1, clientInterface1));
+        clientController1.setNextState(new Wait(clientController1));
         this.messageHandler1.update(new CreatedPlayerMessage("player1"));
-        clientController2.setNextState(new Wait(clientController2, clientInterface2));
+        clientController2.setNextState(new Wait(clientController2));
         this.messageHandler2.update(new CreatedPlayerMessage("player2"));
 
         waitingThread(500);
 
-        clientController1.setNextState(new Wait(clientController1, clientInterface1));
+        clientController1.setNextState(new Wait(clientController1));
         this.messageHandler1.update(new CreatedGameMessage("game1"));
 
         waitingThread(500);
@@ -391,7 +387,7 @@ public class LocalStateManagementTest {
         assertNotNull(clientController1.getLocalModel().getPersonalStation());
         assertEquals(List.of(goalCards.get("goal_09"), goalCards.get("goal_14")), List.of(clientController1.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()));
 
-        clientController2.setNextState(new Wait(clientController2, clientInterface2));
+        clientController2.setNextState(new Wait(clientController2));
         this.messageHandler2.update(new JoinedGameMessage("game1"));
 
         messageHandler1.update(new NewPlayerConnectedToGameMessage("player2"));
@@ -402,9 +398,9 @@ public class LocalStateManagementTest {
                 "player2",
                 null,
                 List.of(
-                        Symbol.VEGETABLE,
-                        Symbol.INSECT,
-                        Symbol.ANIMAL
+                        new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.INSECT, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
                 ),
                 Map.of(
                         Symbol.ANIMAL, 0,
@@ -470,9 +466,9 @@ public class LocalStateManagementTest {
                 "player1",
                 null,
                 List.of(
-                        Symbol.ANIMAL,
-                        Symbol.MUSHROOM,
-                        Symbol.ANIMAL
+                        new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.MUSHROOM, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.ANIMAL, PlayableCardType.RESOURCE)
                 ),
                 Map.of(
                         Symbol.ANIMAL, 0,

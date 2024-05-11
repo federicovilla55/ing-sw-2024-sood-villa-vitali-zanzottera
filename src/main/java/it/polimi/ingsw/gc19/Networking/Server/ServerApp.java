@@ -7,6 +7,7 @@ import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.MainServerTCP;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.TCPConnectionAcceptor;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.ClientHandlerSocket;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
+import it.polimi.ingsw.gc19.Utils.IPChecker;
 
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
@@ -22,73 +23,117 @@ import java.util.Scanner;
  * is 127.0.0.1.
  */
 public class ServerApp {
+
     private static TCPConnectionAcceptor TCPConnectionAcceptor;
     private static MainServerTCP mainServerTCP;
     private static MainServerRMI mainServerRMI;
     private static Registry registry;
 
     public static void main(String[] args){
-        boolean validPort = false;
-        int RMIPort = ServerSettings.DEFAULT_RMI_SERVER_PORT;
-        int TCPPort = ServerSettings.DEFAULT_TCP_SERVER_PORT;
+        boolean valid = false;
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Here yuo can start TCP and RMI server... \n");
-        System.out.println("Insert port for RMI (or 'default'): ");
+        System.out.println("Here you can start TCP and RMI server... \n");
 
-        while(!validPort){
-            String portRMI = scanner.nextLine();
-            if(portRMI.equals("default") || portRMI.equals("\n")){
-                validPort = true;
+        System.out.println("Default RMI server name is : " + ServerSettings.DEFAULT_RMI_SERVER_NAME + ". Insert name for RMI server (or 'default'): ");
+        String rmiName = scanner.nextLine();
+        if(!rmiName.equals("default")){
+            ServerSettings.MAIN_RMI_SERVER_NAME = rmiName;
+        }
+
+        System.out.println("Default RMI server IP is: " + ServerSettings.MAIN_TCP_SERVER_IP + ". Insert RMI server IP or 'default':");
+
+        while(!valid){
+            String ipRMI = scanner.nextLine();
+            if(ipRMI.equals("default")){
+                valid = true;
             }
             else{
-                try {
-                    RMIPort = Integer.parseInt(scanner.nextLine());
-                    if(RMIPort < 1 || RMIPort > 65353){
-                        System.out.println("[ERROR] You must specify a valid port... \n");
-                    }
-                    else{
-                        validPort = true;
-                    }
+                valid = IPChecker.checkIPAddress(ipRMI);
+                if(valid){
+                    ServerSettings.MAIN_RMI_SERVER_IP = ipRMI;
                 }
-                catch (NumberFormatException numberFormatException){
-                    System.out.println("[ERROR] You have to specify a valid port or 'default'... \n");
+                else{
+                    System.out.println("Error: invalid IP! Enter a valid IP or 'default':");
                 }
             }
         }
-        System.out.println("Starting RMI on IP " + ServerSettings.DEFAULT_SERVER_IP + " and port " + validPort + "... \n");
-        System.out.println("Insert port for TCP (or 'default'): ");
-        startRMI(RMIPort);
 
-        validPort = false;
-        while(!validPort){
+        System.setProperty("java.rmi.server.hostname", ServerSettings.MAIN_RMI_SERVER_IP);
+
+        System.out.println("Default port for RMI is: " + ServerSettings.DEFAULT_RMI_SERVER_PORT + ". Insert port for RMI (or 'default'): ");
+
+        valid = false;
+        while(!valid){
             String portRMI = scanner.nextLine();
-            if(portRMI.equals("default") || portRMI.equals("\n")){
-                validPort = true;
+            if(portRMI.equals("default")){
+                valid = true;
             }
             else{
-                try {
-                    TCPPort = Integer.parseInt(scanner.nextLine());
-                    if(TCPPort < 1 || TCPPort > 65353){
-                        System.out.println("[ERROR] You must specify a valid port... \n");
+                if (IPChecker.checkPort(portRMI)) {
+                    ServerSettings.RMI_SERVER_PORT = Integer.parseInt(portRMI);
+                    valid = true;
+                }
+                else{
+                    System.out.println("Error: invalid port! Enter a valid port or 'default':");
+                }
+            }
+        }
+
+        System.out.println("Starting RMI on IP " + ServerSettings.MAIN_RMI_SERVER_IP + " and port " + ServerSettings.RMI_SERVER_PORT + "... \n");
+        startRMI();
+
+        System.out.println("Default IP for TCP is: " + ServerSettings.DEFAULT_SERVER_IP +  ". Insert IP for TCP (or 'default'): ");
+
+        valid = false;
+        while(!valid){
+            String ipTCP = scanner.nextLine();
+            if(ipTCP.equals("default")){
+                valid = true;
+            }
+            else{
+                valid = IPChecker.checkIPAddress(ipTCP);
+                if(valid){
+                    ServerSettings.MAIN_TCP_SERVER_IP = ipTCP;
+                }
+                else{
+                    System.out.println("Error: invalid IP! Enter a valid IP or 'default':");
+                }
+            }
+        }
+
+        System.out.println("Default port for TCP is: " + ServerSettings.DEFAULT_TCP_SERVER_PORT + ". Insert port for TCP (or 'default'):");
+
+        valid = false;
+        while(!valid){
+            String portTCP = scanner.nextLine();
+            if(portTCP.equals("default")){
+                valid = true;
+            }
+            else{
+                if (IPChecker.checkPort(portTCP)) {
+                    ServerSettings.TCP_SERVER_PORT = Integer.parseInt(portTCP);
+                    if(ServerSettings.RMI_SERVER_PORT != ServerSettings.TCP_SERVER_PORT){
+                        valid = true;
                     }
                     else{
-                        if(TCPPort == RMIPort){
-                            System.out.println("[ERROR] TCP port and RMI port must be different... \n");
+                        if(ServerSettings.MAIN_RMI_SERVER_IP.equals(ServerSettings.MAIN_TCP_SERVER_IP)){
+                            System.out.println("Error: when IP of servers are the same, RMI port and TCP port must be different. Enter another port: ");
                         }
                         else{
-                            validPort = true;
+                            valid = true;
                         }
                     }
                 }
-                catch (NumberFormatException numberFormatException){
-                    System.out.println("[ERROR] You have to specify a valid port or 'default'... \n");
+                else{
+                    System.out.println("Error: invalid port! Enter a valid port or 'default':");
                 }
             }
         }
-        System.out.println("Starting TCP on IP " + ServerSettings.DEFAULT_SERVER_IP + " and port " + TCPPort);
-        startTCP(TCPPort);
+
+        System.out.println("Starting TCP on IP " + ServerSettings.MAIN_TCP_SERVER_IP + " and port " + ServerSettings.TCP_SERVER_PORT + "... \n");
+        startTCP();
     }
 
     /**
@@ -97,12 +142,11 @@ public class ServerApp {
      * and bind it to the registry.
      * If {@link RemoteException} occurs while doing such operation
      * the system exits.
-     * @param RMIPort the port on which start {@link MainServerRMI} (default is <code>1099</code>)
      */
-    public static void startRMI(int RMIPort){
+    public static void startRMI(){
         mainServerRMI = new MainServerRMI();
         try {
-            registry = LocateRegistry.createRegistry(RMIPort);
+            registry = LocateRegistry.createRegistry(ServerSettings.RMI_SERVER_PORT);
             VirtualMainServer stub = (VirtualMainServer) UnicastRemoteObject.exportObject(mainServerRMI, 0);
             registry.rebind(ServerSettings.MAIN_RMI_SERVER_NAME, stub);
         }
@@ -124,11 +168,10 @@ public class ServerApp {
      * This method is used to start the {@link MainServerTCP}.
      * It starts {@link TCPConnectionAcceptor} on the specified port ({@param TCPPort})
      * and builds a new {@link MainServerTCP}
-     * @param TCPPort the port on which start {@link MainServerTCP} (default is <code>25.0000</code>
      */
-    public static void startTCP(int TCPPort){
+    public static void startTCP(){
         mainServerTCP = new MainServerTCP();
-        TCPConnectionAcceptor = new TCPConnectionAcceptor(mainServerTCP, TCPPort);
+        TCPConnectionAcceptor = new TCPConnectionAcceptor(mainServerTCP, ServerSettings.TCP_SERVER_PORT);
         TCPConnectionAcceptor.start();
     }
 

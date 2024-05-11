@@ -56,7 +56,7 @@ public class RMIServerAndMainControllerTest {
         ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 3;
         ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
 
-        ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
+        ServerApp.startRMI();
 
         Registry registry = LocateRegistry.getRegistry("localhost");
         virtualMainServer = (VirtualMainServer) registry.lookup(ServerSettings.MAIN_RMI_SERVER_NAME);

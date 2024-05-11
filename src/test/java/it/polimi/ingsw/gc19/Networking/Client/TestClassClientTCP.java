@@ -13,7 +13,7 @@ import java.io.IOException;
 public class TestClassClientTCP extends ClientTCP implements CommonClientMethodsForTests, ClientInterface{
 
     public TestClassClientTCP(MessageHandler messageHandler, ClientController clientController) throws IOException{
-        super(messageHandler, clientController);
+        super(messageHandler);
     }
 
     @Override

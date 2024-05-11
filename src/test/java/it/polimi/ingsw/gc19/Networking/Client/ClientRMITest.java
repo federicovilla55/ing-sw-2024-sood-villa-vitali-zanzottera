@@ -22,11 +22,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
-import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualMainServer;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import org.junit.jupiter.api.*;
 
-import java.beans.PropertyChangeListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,7 +51,7 @@ public class ClientRMITest {
         ServerSettings.TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 3;
         ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL = 20;
 
-        ServerApp.startRMI(ServerSettings.DEFAULT_RMI_SERVER_PORT);
+        ServerApp.startRMI();
 
         ClientController clientController1 = new ClientController();
         ClientController clientController2 = new ClientController();

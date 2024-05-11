@@ -8,13 +8,6 @@ public interface ConfigurationMessageVisitor{
 
     /**
      * This method is used by {@link ConfigurationMessageVisitor} to visit
-     * a message {@link ConfigurationMessage}
-     * @param message the {@link ConfigurationMessage} to visit
-     */
-    void visit(ConfigurationMessage message);
-
-    /**
-     * This method is used by {@link ConfigurationMessageVisitor} to visit
      * a message {@link GameConfigurationMessage}
      * @param message the {@link GameConfigurationMessage} to visit
      */

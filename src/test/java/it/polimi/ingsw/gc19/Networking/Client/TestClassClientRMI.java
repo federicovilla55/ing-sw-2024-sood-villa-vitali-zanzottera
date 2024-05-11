@@ -10,7 +10,7 @@ import java.rmi.RemoteException;
 public class TestClassClientRMI extends ClientRMI implements CommonClientMethodsForTests, ClientInterface{
 
     public TestClassClientRMI(MessageHandler messageHandler, ClientController clientController) throws RemoteException {
-        super(messageHandler, clientController);
+        super(messageHandler);
     }
 
     @Override

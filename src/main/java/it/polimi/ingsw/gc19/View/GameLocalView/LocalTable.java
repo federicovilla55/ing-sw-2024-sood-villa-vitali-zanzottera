@@ -12,6 +12,15 @@ public class LocalTable {
     private GoalCard publicGoal1;
     private GoalCard publicGoal2;
     private Symbol nextSeedOfResourceDeck;
+
+    public void setNextSeedOfGoldDeck(Symbol nextSeedOfGoldDeck) {
+        this.nextSeedOfGoldDeck = nextSeedOfGoldDeck;
+    }
+
+    public void setNextSeedOfResourceDeck(Symbol nextSeedOfResourceDeck) {
+        this.nextSeedOfResourceDeck = nextSeedOfResourceDeck;
+    }
+
     private Symbol nextSeedOfGoldDeck;
 
     public LocalTable(PlayableCard resource1, PlayableCard resource2, PlayableCard gold1, PlayableCard gold2,

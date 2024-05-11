@@ -2,7 +2,9 @@ package it.polimi.ingsw.gc19.View.ClientController;
 
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
+import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.ErrorType;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -11,6 +13,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHa
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
+import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
+import it.polimi.ingsw.gc19.View.UI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,19 +47,44 @@ public class ClientController {
 
     private ClientInterface clientNetwork;
 
-    public ClientController() { }
+    private final ListenersManager listenersManager;
+
+    private UI view;
+
+    public ClientController() {
+        this.prevState = new NotPlayer(this);
+        this.viewState = new NotPlayer(this);
+
+        this.listenersManager = new ListenersManager();
+    }
+
+    public ListenersManager getListenersManager(){
+        return this.listenersManager;
+    }
+
+    public UI getView() {
+        return view;
+    }
+
+    public void setView(UI view){
+        this.view = view;
+    }
+
+    public ClientInterface getClientInterface() {
+        return clientNetwork;
+    }
 
     public void setClientInterface(ClientInterface clientInterface){
         this.clientNetwork = clientInterface;
-        viewState = new NotPlayer(this, clientInterface);
-        prevState = new NotPlayer(this, clientInterface);
+        setNextState(new NotPlayer(this));
+        prevState = new NotPlayer(this);
+        this.listenersManager.notifyStateListener(viewState.getState());
     }
 
     public LocalModel getLocalModel() {
         return localModel;
     }
 
-    //Probabilmente, getNick e setNick verranno assorbite in qualche metodo...
     public String getNickname() {
         return nickname;
     }
@@ -75,7 +105,7 @@ public class ClientController {
     public synchronized void signalPossibleNetworkProblem(){
         if(this.viewState.getState() == ViewState.DISCONNECT) return;
         this.prevState = viewState;
-        this.viewState = new Disconnect(this, clientNetwork);
+        this.setNextState(new Disconnect(this));
     }
 
     public synchronized void setLocalModel(LocalModel localModel){
@@ -90,6 +120,10 @@ public class ClientController {
     }
 
     public synchronized void setNextState(ClientState clientState){
+        System.out.println(prevState.getState() + "  " + clientState.getState());
+        if(!viewState.getState().equals(clientState.getState())){
+            this.listenersManager.notifyStateListener(clientState.getState());
+        }
         this.prevState = viewState;
         this.viewState = clientState;
     }
@@ -99,7 +133,6 @@ public class ClientController {
     }
 
     public synchronized ClientState getPrevState(){
-        //@TODO: add here the logic for updating prvState according to nextSate
         return this.prevState;
     }
 
@@ -108,22 +141,22 @@ public class ClientController {
      * send_message(message_content, receiver1 {, receiver2, ...})
      */
     public synchronized void sendChatMessage(String message, List<String> users) {
-        if(viewState.getState() != ViewState.NOT_GAME || viewState.getState() != ViewState.NOT_PLAYER || viewState.getState() != ViewState.DISCONNECT) {
-            //@TODO: notify view
+        if(viewState.getState() == ViewState.NOT_GAME || viewState.getState() == ViewState.NOT_PLAYER || viewState.getState() == ViewState.DISCONNECT) {
+            this.view.notifyGenericError("You cannot send a chat message when you are disconnected or not registered to a game!");
             return;
         }
 
         if(users.size() > this.localModel.getNumPlayers()){
-            //@TODO: view
+            this.view.notifyGenericError("Incorrect players name for users to send message to!");
         }
         else{
             for(String u : users){
                 if(!this.localModel.getOtherStations().containsKey(u)){
-                    //@TODO: view
+                    this.view.notifyGenericError("You are trying to send a message to user " + u + " that does not exists in game!");
                     return;
                 }
             }
-
+            localModel.getMessages().add(new Message(message, this.nickname, new ArrayList<>(users)));
             clientNetwork.sendChatMessage(new ArrayList<>(users), message);
         }
     }
@@ -134,13 +167,13 @@ public class ClientController {
      */
     public synchronized void createPlayer(String nick){
         if(viewState.getState() != ViewState.NOT_PLAYER){
-            //@TODO: notify view
+            this.view.notifyGenericError("You are already connected (or waiting to) a player!");
             return;
         }
 
         this.nickname = nick;
-        viewState = new Wait(this, clientNetwork);
-        prevState = new NotPlayer(this, clientNetwork);
+        setNextState(new Wait(this));
+        prevState = new NotPlayer(this);
         clientNetwork.connect(nick);
     }
 
@@ -150,12 +183,12 @@ public class ClientController {
      */
     public synchronized void pickCardFromDeck(PlayableCardType cardType){
         if(viewState.getState() != ViewState.PICK){
-            //@TODO: notify view
+            this.view.notifyGenericError("Cannot pick card from deck at this moment!");
             return;
         }
 
-        viewState = new Wait(this, clientNetwork);
-        prevState = new Pick(this, clientNetwork);
+        setNextState(new Wait(this));
+        prevState = new Pick(this);
         clientNetwork.pickCardFromDeck(cardType);
     }
 
@@ -165,14 +198,14 @@ public class ClientController {
      */
     public synchronized void pickCardFromTable(PlayableCardType cardType, int position) {
         if(viewState.getState() != ViewState.PICK){
-            //@TODO: notify view
+            this.view.notifyGenericError("Cannot pick card from table at this moment!");
             return;
         }
 
         clientNetwork.pickCardFromTable(cardType, position);
 
-        viewState = new Wait(this, clientNetwork);
-        prevState = new Pick(this, clientNetwork);
+        setNextState(new Wait(this));
+        prevState = new Pick(this);
     }
 
     /**
@@ -181,31 +214,30 @@ public class ClientController {
      */
     public synchronized void placeCard(String cardToInsert, String anchor, Direction direction, CardOrientation cardOrientation) {
         if(viewState.getState() != ViewState.PLACE){
-            //@TODO: notify view
+            this.view.notifyGenericError("Cannot place card!");
             return;
         }
 
         PlayableCard cardToPlace = localModel.getPlayableCard(cardToInsert);
         PlayableCard anchorCard = localModel.getPlayableCard(anchor);
 
-        if(cardToPlace == null){
-            //@TODO: notify view
-            return;
+        if(cardToPlace != null && anchorCard != null) {
+            cardToPlace.setCardState(cardOrientation);
         }
-        if(anchorCard == null){
-            //TODO: notify view
+        else{
+            this.listenersManager.notifyErrorStationListener(cardToInsert, anchor, direction.toString().toLowerCase());
             return;
         }
 
         if(!localModel.isCardPlaceablePersonalStation(cardToPlace, anchorCard, direction)){
-            //@TODO: notify view
+            this.listenersManager.notifyErrorStationListener(cardToInsert, anchor, direction.toString().toLowerCase());
             return;
         }
 
         clientNetwork.placeCard(cardToInsert, anchor, direction, cardOrientation);
 
-        viewState = new Wait(this, clientNetwork);
-        prevState = new Place(this, clientNetwork);
+        setNextState(new Wait(this));
+        prevState = new Place(this);
     }
 
     /**
@@ -214,21 +246,21 @@ public class ClientController {
      * @param message RefusedActionMessage to analyze
      */
     public synchronized void handleError(RefusedActionMessage message){
-        //@TODO: decide what type of messages broadast to view
+        this.view.notifyGenericError(message.getDescription());
         switch (message.getErrorType()){
             case ErrorType.INVALID_CARD_ERROR, ErrorType.INVALID_ANCHOR_ERROR -> {
-                viewState = new Place(this, clientNetwork);
+                setNextState(new Place(this));
             }
-            case ErrorType.GENERIC, ErrorType.INVALID_TURN_STATE, ErrorType.INVALID_GAME_STATE -> {
+            case ErrorType.GENERIC, ErrorType.INVALID_TURN_STATE, ErrorType.INVALID_GAME_STATE, ErrorType.NOT_YOUR_TURN -> {
                 if(viewState.getState() == ViewState.WAIT){
-                    viewState = prevState;
+                    setNextState(prevState);
                 }
             }
             case ErrorType.EMPTY_DECK, ErrorType.EMPTY_TABLE_SLOT -> {
-                viewState = new Pick(this, clientNetwork);
+                setNextState(new Pick(this));
             }
             case ErrorType.INVALID_GOAL_CARD_ERROR, ErrorType.COLOR_ALREADY_CHOSEN -> {
-                viewState = new Setup(this, clientNetwork);
+                setNextState(new Setup(this));
             }
         }
     }
@@ -241,8 +273,10 @@ public class ClientController {
     public synchronized void handleError(NetworkHandlingErrorMessage message){
         if(message.getError() == NetworkError.COULD_NOT_RECONNECT){
             disconnect();
+            this.view.notifyGenericError(message.getDescription());
         }else if (message.getError() == NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER){
-            viewState = new NotPlayer(this, clientNetwork);
+            setNextState(new NotPlayer(this));
+            this.view.notifyGenericError(message.getDescription());
         }
     }
 
@@ -252,15 +286,16 @@ public class ClientController {
      * @param message GameHandlingError to analyze
      */
     public synchronized void handleError(GameHandlingErrorMessage message){
+        this.getListenersManager().notifyErrorGameHandlingListener(message.getDescription());
         switch (message.getErrorType()){
             case Error.PLAYER_NAME_ALREADY_IN_USE -> {
-                viewState = new NotPlayer(this, clientNetwork);
+                setNextState(new NotPlayer(this));
             }
             case Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME -> {
-                viewState = new Disconnect(this, clientNetwork);
+                setNextState(new Disconnect(this));
             }
             default -> {
-                viewState = new NotGame(this, clientNetwork);
+                setNextState(new NotGame(this));
             }
         }
     }
@@ -271,15 +306,14 @@ public class ClientController {
      */
     public synchronized void chooseColor(Color color) {
         if(viewState.getState() != ViewState.SETUP){
-            //@TODO: notify view
+            this.view.notifyGenericError("You cannot choose a color!");
             return;
         }
         if(!localModel.getAvailableColors().contains(color)){
-            //@TODO: notify the observer that the color selected is not available
+            this.listenersManager.notifyErrorSetupListener("The requested color is not available!");
         }
         else {
             clientNetwork.chooseColor(color);
-            //((Setup) viewState).setColorChosen();
         }
     }
 
@@ -291,14 +325,14 @@ public class ClientController {
      */
     public synchronized void chooseGoal(int cardIdx) {
         if(viewState.getState() != ViewState.SETUP){
-            //@TODO: notify view
+            this.view.notifyGenericError("You cannot choose a goal!");
             return;
         }
         if((cardIdx >= 0) && (cardIdx < 2)) {
             clientNetwork.choosePrivateGoalCard(cardIdx);
         }
         else{
-            //@TODO: notify view
+            this.listenersManager.notifyErrorSetupListener("The requested position for goal card is not correct!");
         }
     }
 
@@ -307,9 +341,8 @@ public class ClientController {
      * place_initial_card(orientation)
      */
     public synchronized void placeInitialCard(CardOrientation cardOrientation) {
-        //Insert if to check that user hasn't chosen hi cardorientation
-        if(viewState.getState() != ViewState.SETUP){
-            //@TODO: notify view
+        if(viewState.getState() != ViewState.SETUP) {
+            this.view.notifyGenericError("You cannot place initial card!");
             return;
         }
         clientNetwork.placeInitialCard(cardOrientation);
@@ -321,7 +354,7 @@ public class ClientController {
      */
     public synchronized void availableGames() {
         if(viewState.getState() != ViewState.NOT_GAME){
-            //@TODO: notify view
+            this.view.notifyGenericError("You can not choose a game to play!");
             return;
         }
        clientNetwork.availableGames();
@@ -333,12 +366,12 @@ public class ClientController {
      */
     public synchronized void joinFirstAvailableGame() {
         if(viewState.getState() != ViewState.NOT_GAME){
-            //@TODO: notify view
+            this.view.notifyGenericError("You can not join a game to play!");
             return;
         }
         clientNetwork.joinFirstAvailableGame();
-        prevState = new NotGame(this, clientNetwork);
-        viewState = new Wait(this, clientNetwork);
+        prevState = new NotGame(this);
+        setNextState(new Wait(this));
     }
 
     /**
@@ -348,12 +381,12 @@ public class ClientController {
      */
     public synchronized void joinGame(String gameName) {
         if(viewState.getState() != ViewState.NOT_GAME){
-            //@TODO: notify view
+            this.view.notifyGenericError("You can not join a game to play!");
             return;
         }
         clientNetwork.joinGame(gameName);
-        prevState = new NotGame(this, clientNetwork);
-        viewState = new Wait(this, clientNetwork);
+        prevState = new NotGame(this);
+        setNextState(new Wait(this));
     }
 
     /**
@@ -363,36 +396,36 @@ public class ClientController {
     //Maybe returning something?
     public synchronized void createGame(String gameName, int numPlayers) {
         if(viewState.getState() != ViewState.NOT_GAME){
-            //@TODO: notify view
+            this.view.notifyGenericError("You can not create a game!");
             return;
         }
         if(numPlayers > 1 && numPlayers < 5){
             clientNetwork.createGame(gameName, numPlayers);
-            prevState = new NotGame(this, clientNetwork);
-            viewState = new Wait(this, clientNetwork);
+            prevState = new NotGame(this);
+            setNextState(new Wait(this));
         }
         else{
-            //@TODO: notify view
+            this.listenersManager.notifyErrorGameHandlingListener("Games cannot have " + numPlayers + " players! Retry...");
         }
     }
 
     public synchronized void logoutFromGame(){
         int numOfTry = 0;
 
-        while(numOfTry < 10){
+        while(!Thread.currentThread().isInterrupted() && numOfTry < ClientSettings.MAX_LOGOUT_TRY_IN_CASE_OF_ERROR_BEFORE_ABORTING){
             try {
                 this.clientNetwork.logoutFromGame();
 
-                this.viewState = new Wait(this, clientNetwork);
+                this.setNextState(new Wait(this));
                 this.localModel = null;
 
-                return; //@TODO: better way to do this? What happens if logout does not raise exception but message do not arrive to server?
+                return;
             }
             catch (RuntimeException runtimeException){
                 numOfTry++;
 
                 try{
-                    TimeUnit.MILLISECONDS.sleep(250);
+                    TimeUnit.MILLISECONDS.sleep(ClientSettings.DELTA_TIME_BETWEEN_LOGOUT_TRY_IN_CASE_OF_ERROR);
                 }
                 catch (InterruptedException interruptedException){
                     Thread.currentThread().interrupt();
@@ -403,22 +436,31 @@ public class ClientController {
     }
 
     public synchronized void disconnect(){
+        ConfigurationManager.deleteConfiguration(this.nickname);
+
+        this.setNextState(new Wait(this));
+
+        this.localModel = null;
+
         int numOfTry = 0;
 
-        while (numOfTry < 10){
+        while (!Thread.currentThread().isInterrupted() && numOfTry < ClientSettings.MAX_DISCONNECTION_TRY_IN_CASE_OF_ERROR_BEFORE_ABORTING){
             try{
-                ConfigurationManager.deleteConfiguration(this.nickname);
-
                 this.clientNetwork.disconnect();
-
-                this.viewState = new Wait(this, this.clientNetwork);
-
-                this.localModel = null;
 
                 ScheduledExecutorService clientKiller = new ScheduledThreadPoolExecutor(1);
                 clientKiller.schedule(() -> {
                     this.clientNetwork.stopClient();
                     this.clientNetwork.getMessageHandler().interruptMessageHandler();
+
+                    try{
+                        TimeUnit.SECONDS.sleep(5);
+                        System.exit(-1);
+                    }
+                    catch (InterruptedException interruptedException){
+                        Thread.currentThread().interrupt();
+                    }
+
                 }, 2500, TimeUnit.MILLISECONDS);
 
                 return;
@@ -428,7 +470,7 @@ public class ClientController {
                 numOfTry++;
 
                 try{
-                    TimeUnit.MILLISECONDS.sleep(250);
+                    TimeUnit.MILLISECONDS.sleep(ClientSettings.DELTA_TIME_BETWEEN_DISCONNECTION_TRY_IN_CASE_OF_ERROR);
                 }
                 catch (InterruptedException interruptedException){
                     Thread.currentThread().interrupt();
@@ -438,4 +480,11 @@ public class ClientController {
         }
     }
 
+    public void availableColors() {
+        if(viewState.getState() != ViewState.SETUP){
+            this.view.notifyGenericError("You can not choose a color when not in setup!");
+            return;
+        }
+        this.getListenersManager().notifySetupListener(SetupEvent.AVAILABLE_COLOR);
+    }
 }
