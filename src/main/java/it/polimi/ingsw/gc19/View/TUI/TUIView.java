@@ -773,6 +773,7 @@ public class TUIView implements UI, GeneralListener {
     private void TUIViewCommands(Matcher matcher){
         switch (matcher.group(1)) {
             case "show_private_goal_card" -> choosePrivateGoalCardScene();
+            case "show_public_goal_cards" -> choosePublicGoalCardScene();
             case "help" -> printHelper();
             case "show_initial_card" -> showInitialCard();
             case "show_chat" -> {
@@ -875,6 +876,17 @@ public class TUIView implements UI, GeneralListener {
                 System.out.println("No infos about your private goal. Try later...");
             }
         }
+    }
+
+    private void choosePublicGoalCardScene() {
+        System.out.println("Those are the public goal card: ");
+        GoalCard goalCard = this.localModel.getTable().getPublicGoal1();
+        System.out.println(goalCard.getCardDescription());
+        printTUIView(goalCardEffectTUIView(goalCard));
+        System.out.println();
+        goalCard = this.localModel.getTable().getPublicGoal2();
+        System.out.println(goalCard.getCardDescription());
+        printTUIView(goalCardEffectTUIView(goalCard));
     }
 
     @Override
@@ -1171,6 +1183,7 @@ public class TUIView implements UI, GeneralListener {
         System.out.println("-> " + CommandType.CHOOSE_GOAL.getCommandName() + "(idx): to choose your private goal card: idx is the index of the card;");
         System.out.println("-> " + CommandType.PLACE_INITIAL_CARD.getCommandName() + "(card_orientation): to place initial card with the specified orientation (UP, DOWN);");
         System.out.println("-> show_private_goal_card(): to show your private goal card/s;");
+        System.out.println("-> show_public_goal_cards(): to show the public goal cards;");
         System.out.println("-> show_personal_station(): to see your personal station;");
         System.out.println("-> show_station(nick): to see the station of the player 'nick';");
         System.out.println("-> show_chat(): to see chat;");
