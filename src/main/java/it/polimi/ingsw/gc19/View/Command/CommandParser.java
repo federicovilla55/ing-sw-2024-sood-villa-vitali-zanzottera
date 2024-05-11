@@ -126,7 +126,7 @@ public record CommandParser(ClientController clientController) {
 
         if (parsedArguments.length == CommandType.PLACE_INITIAL_CARD.getNumArgs()) {
             try {
-                clientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0]));
+                clientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0].toUpperCase()));
             } catch (IllegalArgumentException illegalArgumentException) {
                 this.clientController.getView().notifyGenericError("card orientation argument must be in " + List.of(CardOrientation.values()));
             }
@@ -151,14 +151,14 @@ public record CommandParser(ClientController clientController) {
             CardOrientation cardOrientation;
 
             try {
-                direction = Direction.valueOf(parsedArguments[2]);
+                direction = Direction.valueOf(parsedArguments[2].toUpperCase());
             } catch (IllegalArgumentException illegalArgumentException) {
                 this.clientController.getView().notifyGenericError("direction argument must be in " + List.of(Direction.values()));
                 return;
             }
 
             try {
-                cardOrientation = CardOrientation.valueOf(parsedArguments[3]);
+                cardOrientation = CardOrientation.valueOf(parsedArguments[3].toUpperCase());
             } catch (IllegalArgumentException illegalArgumentException) {
                 this.clientController.getView().notifyGenericError("card orientation argument must be in " + List.of(CardOrientation.values()));
                 return;
@@ -186,7 +186,7 @@ public record CommandParser(ClientController clientController) {
             int position;
 
             try {
-                cardType = PlayableCardType.valueOf(parsedArguments[0]);
+                cardType = PlayableCardType.valueOf(parsedArguments[0].toUpperCase());
             } catch (IllegalArgumentException illegalArgumentException) {
                 this.clientController.getView().notifyGenericError("card type must be in " + List.of(PlayableCardType.values()));
                 return;
@@ -218,7 +218,7 @@ public record CommandParser(ClientController clientController) {
 
         if (parsedArguments.length == CommandType.PICK_CARD_DECK.getNumArgs()) {
             try {
-                clientController.pickCardFromDeck(PlayableCardType.valueOf(parsedArguments[0]));
+                clientController.pickCardFromDeck(PlayableCardType.valueOf(parsedArguments[0].toUpperCase()));
             } catch (IllegalArgumentException illegalArgumentException) {
                 this.clientController.getView().notifyGenericError("card type must be in " + List.of(PlayableCardType.values()));
             }
@@ -276,7 +276,7 @@ public record CommandParser(ClientController clientController) {
 
         if (parsedArguments.length >= CommandType.PLACE_INITIAL_CARD.getNumArgs()) {
             try {
-                clientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0]));
+                clientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0].toUpperCase()));
             } catch (IllegalArgumentException illegalArgumentException) {
                 this.clientController.getView().notifyGenericError("card orientation parameter must be in " + List.of(CardOrientation.values()));
             }
