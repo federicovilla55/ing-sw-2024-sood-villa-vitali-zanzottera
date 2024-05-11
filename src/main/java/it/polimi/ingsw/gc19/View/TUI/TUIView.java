@@ -1019,7 +1019,7 @@ public class TUIView implements UI, GeneralListener {
             case ViewState.NOT_PLAYER -> printCreationPlayerScene();
             case ViewState.NOT_GAME -> printEnteringGameScene();
             case ViewState.SETUP -> System.out.println("This the setup phase. Choose your setup...");
-            case ViewState.PAUSE -> System.out.print("Game is in pause! Sorry, you have to wait...");
+            case ViewState.PAUSE -> System.out.println("Game is in pause! Sorry, you have to wait...");
             case ViewState.DISCONNECT -> System.err.println("[NETWORK PROBLEMS]: there are network problems. In background, we are trying to fix them...");
             case ViewState.END -> printWinners();
         }

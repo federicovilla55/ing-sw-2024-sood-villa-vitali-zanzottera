@@ -76,21 +76,6 @@ public class Wait extends ClientState {
     }
 
     @Override
-    public void nextState(GameConfigurationMessage message) {
-        if (message.getGameState() == GameState.SETUP) {
-            clientController.setNextState(new Setup(clientController));
-        }
-        else {
-            if(message.getActivePlayer().equals(clientInterface.getNickname())){
-                clientController.setNextState(new Place(clientController));
-            }
-            else{
-                clientController.setNextState(new OtherTurn(clientController));
-            }
-        }
-    }
-
-    @Override
     public void nextState(DisconnectFromServerMessage message){
         super.nextState(message);
         this.clientInterface.getMessageHandler().interruptMessageHandler();

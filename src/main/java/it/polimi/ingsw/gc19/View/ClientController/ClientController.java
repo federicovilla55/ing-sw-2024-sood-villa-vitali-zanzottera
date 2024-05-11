@@ -478,6 +478,8 @@ public class ClientController {
 
             }
         }
+
+        //add sys exit
     }
 
     public void availableColors() {
