@@ -84,9 +84,9 @@ public abstract class ClientState {
 
     public void nextState(DisconnectFromServerMessage message){
         this.clientController.getView().notify("You leave the server!");
-        //@TODO: wait a moment and then kill view
         this.clientController.setLocalModel(null);
         this.clientInterface.getMessageHandler().setLocalModel(null);
+        System.exit(-1);
     };
 
     public void nextState(TurnStateMessage message) {

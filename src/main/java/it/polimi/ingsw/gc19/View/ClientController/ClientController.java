@@ -120,8 +120,9 @@ public class ClientController {
     }
 
     public synchronized void setNextState(ClientState clientState){
-        if(prevState.getState().equals(clientState.getState())){
-            this.listenersManager.notifyStateListener(viewState.getState());
+        System.out.println(prevState.getState() + "  " + clientState.getState());
+        if(!viewState.getState().equals(clientState.getState())){
+            this.listenersManager.notifyStateListener(clientState.getState());
         }
         this.prevState = viewState;
         this.viewState = clientState;
@@ -451,7 +452,15 @@ public class ClientController {
                 clientKiller.schedule(() -> {
                     this.clientNetwork.stopClient();
                     this.clientNetwork.getMessageHandler().interruptMessageHandler();
-                    this.view.notify("You leaved server!");
+
+                    try{
+                        TimeUnit.SECONDS.sleep(5);
+                        System.exit(-1);
+                    }
+                    catch (InterruptedException interruptedException){
+                        Thread.currentThread().interrupt();
+                    }
+
                 }, 2500, TimeUnit.MILLISECONDS);
 
                 return;

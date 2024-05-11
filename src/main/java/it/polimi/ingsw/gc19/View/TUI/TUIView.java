@@ -760,9 +760,9 @@ public class TUIView implements UI, GeneralListener {
     private void printPlacingSequence(){
         if(this.localModel != null){
             System.out.println("This is your placing history: ");
-            for(var v : this.localModel.getPersonalStation().getPlacedCardSequence()){
-                System.out.println("-> " + v.x().getCardCode());
-                printTUIView(cardTUIView(v.x()));
+            for(int i = 0; i < this.localModel.getPersonalStation().getPlacedCardSequence().size(); i++){
+                System.out.println((i + 1) + ") " + this.localModel.getPersonalStation().getPlacedCardSequence().get(i).x().getCardCode());
+                printTUIView(cardTUIView(this.localModel.getPersonalStation().getPlacedCardSequence().get(i).x()));
                 System.out.println();
             }
         }
