@@ -59,14 +59,14 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     }
 
     private synchronized void waitForLocalModel(){
-        while(this.localModel == null){
+        /*while(this.localModel == null){
             try{
                 this.wait();
             }
             catch (InterruptedException interruptedException){
                 Thread.currentThread().interrupt();
             }
-        }
+        }*/
     }
 
     public ArrayDeque<MessageToClient> getMessagesToHandle(){
@@ -104,13 +104,13 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(AcceptedChooseGoalCardMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.localModel.setPrivateGoal(message.getGoalCard());
     }
 
     @Override
     public void visit(AcceptedColorMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         if(message.getPlayer().equals(this.localModel.getNickname())) {
             this.localModel.setColor(message.getChosenColor());
         }
@@ -121,7 +121,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(OwnAcceptedPickCardFromDeckMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.localModel.updateCardsInHand(message.getPickedCard());
         this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());
         clientController.getCurrentState().nextState(message);
@@ -129,7 +129,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(OtherAcceptedPickCardFromDeckMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.localModel.getOtherStations().get(message.getNick()).addBackCard(new Tuple<>(message.getBackPickedCard().x(), message.getBackPickedCard().y()));
         this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());
         clientController.getCurrentState().nextState(message);
@@ -137,7 +137,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(AcceptedPickCardFromTable message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         if(message.getNick().equals(this.localModel.getNickname())) {
             this.localModel.updateCardsInHand(message.getPickedCard());
         }
@@ -152,7 +152,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(AcceptedPlacePlayableCardMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
 
         this.localModel.placeCard(message.getNick(), message.getAnchorCode(),
                 message.getCardToPlace(), message.getDirection());
@@ -163,7 +163,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(AcceptedPlaceInitialCard message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.localModel.placeInitialCard(message.getNick(), message.getInitialCard());
         this.localModel.setVisibleSymbols(message.getNick(), message.getVisibleSymbols());
     }
@@ -175,21 +175,23 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(NotifyChatMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.localModel.updateMessages(new Message(message.getMessage(), message.getSender(), String.valueOf(message.getHeader())));
     }
 
     @Override
     public void visit(GameConfigurationMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
+        //@TODO: final round handling
         this.localModel.setNumPlayers(message.getNumPlayers());
+        this.localModel.setPlayerActive(message.getFirstPlayer());
         this.localModel.setFirstPlayer(message.getFirstPlayer());
         clientController.getCurrentState().nextState(message);
     }
 
     @Override
     public void visit(OtherStationConfigurationMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.localModel.setOtherStations(message.getNick(),
                 new OtherStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
                         message.getNumPoints(), message.getPlacedCardSequence(), message.getCardsInHand()));
@@ -202,7 +204,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(TableConfigurationMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.localModel.setTable(new LocalTable(message.getSxResource(), message.getDxResource(),
                                                 message.getSxGold(), message.getDxGold(), message.getSxPublicGoal(),
                                                 message.getDxPublicGoal(), message.getNextSeedOfResourceDeck(),
@@ -232,13 +234,13 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(NewPlayerConnectedToGameMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.localModel.setPlayerActive(message.getPlayerName());
     }
 
     @Override
     public void visit(StartPlayingGameMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.localModel.setFirstPlayer(message.getNickFirstPlayer());
         clientController.getCurrentState().nextState(message);
     }
@@ -266,7 +268,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public void visit(DisconnectedPlayerMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.localModel.setPlayerInactive(message.getRemovedNick());
         clientController.getCurrentState().nextState(message);
     }
@@ -278,7 +280,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     @Override
     public  void visit(PlayerReconnectedToGameMessage message) {
-        waitForLocalModel();
+        //waitForLocalModel();
         this.localModel.setPlayerActive(message.getPlayerName());
         clientController.getCurrentState().nextState(message);
     }

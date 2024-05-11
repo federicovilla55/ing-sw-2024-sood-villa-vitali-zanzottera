@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.View.ClientController;
 
+import it.polimi.ingsw.gc19.Enums.GameState;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -107,7 +108,20 @@ public abstract class ClientState {
         clientController.handleError(message);
     }
 
-    public void nextState(GameConfigurationMessage message){}
+    public void nextState(GameConfigurationMessage message) {
+        if (message.getGameState() == GameState.SETUP) {
+            clientController.setNextState(new Setup(clientController));
+        }
+        else {
+            if(message.getActivePlayer().equals(clientInterface.getNickname())){
+                clientController.setNextState(new Place(clientController));
+            }
+            else{
+                clientController.setNextState(new OtherTurn(clientController));
+            }
+            this.listenersManager.notifyTurnStateListener(message.getActivePlayer(), message.getTurnState());
+        }
+    }
 
     public void nextState(AvailableGamesMessage message){
         this.listenersManager.notifyGameHandlingListener(GameHandlingEvents.AVAILABLE_GAMES, message.getAvailableGames().stream().toList());
