@@ -575,8 +575,6 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
         public void visit(ClientHeartBeatMessage message) {
             ClientHandlerSocket clientHandlerSocket;
 
-            System.out.println("received from " + message.getNickname());
-
             if (lastHeartBeatOfClients.containsKey(clientSocket)) {
                 lastHeartBeatOfClients.put(clientSocket, new Date().getTime());
                 synchronized (connectedClients){

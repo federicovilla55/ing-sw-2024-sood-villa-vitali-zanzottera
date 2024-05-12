@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.View.ClientController;
 
-import it.polimi.ingsw.gc19.Enums.TurnState;
+import it.polimi.ingsw.gc19.Enums.GameState;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -12,7 +12,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHa
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
-import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
@@ -49,13 +48,13 @@ public abstract class ClientState {
     }
 
     public void nextState(EndGameMessage message){
-        for(String s: this.clientController.getLocalModel().getStations().keySet()){
+        for(String s: this.clientController.getLocalModel().getOtherStations().keySet()){
             if(message.getUpdatedPoints().containsKey(s)) {
-                this.clientController.getLocalModel().getStations().get(s).setNumPoints(message.getUpdatedPoints().get(s));
+                this.clientController.getLocalModel().getOtherStations().get(s).setNumPoints(message.getUpdatedPoints().get(s));
             }
         }
 
-        this.listenersManager.notifyStateListener(ViewState.END);
+        //this.listenersManager.notifyStateListener(ViewState.END);
     }
 
     public void nextState(BeginFinalRoundMessage message){
@@ -64,26 +63,33 @@ public abstract class ClientState {
 
     public void nextState(GamePausedMessage message) {
         clientController.setNextState(new Pause(clientController));
-        this.listenersManager.notifyStateListener(ViewState.PAUSE);
+        //this.listenersManager.notifyStateListener(ViewState.PAUSE);
     }
 
     public void nextState(GameResumedMessage message) {
         clientController.setNextState(clientController.getPrevState());
-        this.listenersManager.notifyStateListener(clientController.getState());
     }
 
     public void nextState(StartPlayingGameMessage message) {
         this.clientController.getView().notify("Game is starting!");
     }
 
-    public void nextState(PlayerReconnectedToGameMessage message) { }
+    public void nextState(PlayerReconnectedToGameMessage message) {
+        //@@TODO: notify view
+    }
 
     public void nextState(DisconnectFromGameMessage message) {
         this.clientController.getView().notify("You leave the game!");
+        this.clientController.setLocalModel(null);
+        this.clientInterface.getMessageHandler().setLocalModel(null);
+        this.clientController.setNextState(new NotGame(clientController));
     }
 
     public void nextState(DisconnectFromServerMessage message){
         this.clientController.getView().notify("You leave the server!");
+        this.clientController.setLocalModel(null);
+        this.clientInterface.getMessageHandler().setLocalModel(null);
+        System.exit(-1);
     };
 
     public void nextState(TurnStateMessage message) {
@@ -102,7 +108,20 @@ public abstract class ClientState {
         clientController.handleError(message);
     }
 
-    public void nextState(GameConfigurationMessage message){}
+    public void nextState(GameConfigurationMessage message) {
+        if (message.getGameState() == GameState.SETUP) {
+            clientController.setNextState(new Setup(clientController));
+        }
+        else {
+            if(message.getActivePlayer().equals(clientInterface.getNickname())){
+                clientController.setNextState(new Place(clientController));
+            }
+            else{
+                clientController.setNextState(new OtherTurn(clientController));
+            }
+            this.listenersManager.notifyTurnStateListener(message.getActivePlayer(), message.getTurnState());
+        }
+    }
 
     public void nextState(AvailableGamesMessage message){
         this.listenersManager.notifyGameHandlingListener(GameHandlingEvents.AVAILABLE_GAMES, message.getAvailableGames().stream().toList());

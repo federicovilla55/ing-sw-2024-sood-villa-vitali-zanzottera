@@ -1,7 +1,5 @@
 package it.polimi.ingsw.gc19.Networking.Client.Message;
 
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
-import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
@@ -117,7 +115,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
             this.localModel.setColor(message.getChosenColor());
         }
         else {
-            this.localModel.getStations().get(message.getPlayer()).setChosenColor(message.getChosenColor());
+            this.localModel.getOtherStations().get(message.getPlayer()).setChosenColor(message.getChosenColor());
         }
     }
 
@@ -132,7 +130,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(OtherAcceptedPickCardFromDeckMessage message) {
         waitForLocalModel();
-        this.localModel.getStations().get(message.getNick()).addBackCard(new Tuple<>(message.getBackPickedCard().x(), message.getBackPickedCard().y()));
+        this.localModel.getOtherStations().get(message.getNick()).addBackCard(new Tuple<>(message.getBackPickedCard().x(), message.getBackPickedCard().y()));
         this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());
         clientController.getCurrentState().nextState(message);
     }
@@ -144,7 +142,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
             this.localModel.updateCardsInHand(message.getPickedCard());
         }
         else {
-            this.localModel.getStations().get(message.getNick()).addBackCard(new Tuple<>(message.getPickedCard().getSeed(), message.getPickedCard().getCardType()));
+            this.localModel.getOtherStations().get(message.getNick()).addBackCard(new Tuple<>(message.getPickedCard().getSeed(), message.getPickedCard().getCardType()));
         }
         this.localModel.updateCardsInTable(message.getCardToPutInSlot(), message.getDeckType(), message.getCoords());
         this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());
@@ -184,8 +182,12 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(GameConfigurationMessage message) {
         waitForLocalModel();
+        //@TODO: final round handling
         this.localModel.setNumPlayers(message.getNumPlayers());
-        this.localModel.setFirstPlayer(message.getFirstPlayer());
+        if(message.getFirstPlayer() != null) {
+            this.localModel.setPlayerActive(message.getFirstPlayer());
+            this.localModel.setFirstPlayer(message.getFirstPlayer());
+        }
         clientController.getCurrentState().nextState(message);
     }
 
