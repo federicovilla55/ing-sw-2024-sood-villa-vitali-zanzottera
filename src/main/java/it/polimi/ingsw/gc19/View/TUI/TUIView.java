@@ -837,11 +837,11 @@ public class TUIView implements UI, GeneralListener {
                 TUIViewCommands(matcher);
             }
 
-            System.out.print(">");
+            //System.out.print(">");
         }
         else {
             System.out.println("Command " + command + " is not recognized! Try again...");
-            System.out.print(">");
+            //System.out.print(">");
         }
     }
 
@@ -898,26 +898,26 @@ public class TUIView implements UI, GeneralListener {
     @Override
     public void notify(String message) {
         System.out.println(message);
-        System.out.print(">");
+        //System.out.print(">");
     }
 
     @Override
     public void notifyPlayerCreation(String name) {
         System.out.println("Your player has been correctly created. Your username is: " + name);
         System.out.println();
-        System.out.print(">");
+        //System.out.print(">");
     }
 
     @Override
     public void notifyPlayerCreationError(String error) {
         System.out.println("[ERROR]: " + error);
-        System.out.print(">");
+        //System.out.print(">");
     }
 
     @Override
     public void notifyGenericError(String errorDescription){
         System.err.println("[ERROR]: " + errorDescription);
-        System.out.print(">");
+        //System.out.print(">");
     }
 
     @Override
@@ -927,7 +927,7 @@ public class TUIView implements UI, GeneralListener {
             case GameHandlingEvents.JOINED_GAMES -> System.out.println("You have been registered to game named '" + varArgs.getFirst() + "'.");
             case AVAILABLE_GAMES -> {
                 printTUIView(availableGamesTUIView(varArgs));
-                System.out.print(">");
+                //System.out.print(">");
             }
         }
     }
@@ -957,7 +957,7 @@ public class TUIView implements UI, GeneralListener {
                 printPersonalStation();
             }
         }
-        System.out.print(">");
+        //System.out.print(">");
     }
 
     @Override
@@ -965,7 +965,7 @@ public class TUIView implements UI, GeneralListener {
 
         if(this.showState == ShowState.CHAT) {
             printChat();
-            System.out.print(">");
+            //System.out.print(">");
         }
     }
 
@@ -977,7 +977,7 @@ public class TUIView implements UI, GeneralListener {
             case RECONNECTED_PLAYER -> System.out.println(varArgs[0]+ " has reconnected to the game!");
             case DISCONNECTED_PLAYER -> System.out.println(varArgs[0]+ " disconnected...");
         }
-        System.out.println(">");
+        //System.out.println(">");
     }
 
     @Override
@@ -987,7 +987,7 @@ public class TUIView implements UI, GeneralListener {
         } else if (this.showState == ShowState.OTHER_STATION) {
             printOtherStation();
         }
-        System.out.print(">");
+        //System.out.print(">");
     }
 
     @Override
@@ -997,25 +997,25 @@ public class TUIView implements UI, GeneralListener {
         } else if (this.showState == ShowState.OTHER_STATION) {
             printOtherStation();
         }
-        System.out.print(">");
+        //System.out.print(">");
 
     }
 
     @Override
     public void notifyErrorStation(String... varArgs) {
         System.err.println("[ERROR]: card " + varArgs[0] + " is not placeable starting from " + varArgs[1] + " in direction " + varArgs[2] + "! Try again...");
-        System.out.print(">");
+        //System.out.print(">");
     }
 
     @Override
     public void notify(LocalTable localTable){
         if(this.showState == ShowState.PERSONAL_STATION) {
             printPersonalStation();
-            System.out.print(">");
+            //System.out.print(">");
         }
         else if(this.showState == ShowState.OTHER_STATION) {
             printOtherStation();
-            System.out.print(">");
+            //System.out.print(">");
         }
     }
 
@@ -1028,7 +1028,7 @@ public class TUIView implements UI, GeneralListener {
         else{
             System.out.println("It is the turn of player '" + nick + "'. He / she can " + turnState.toString().toLowerCase());
         }
-        System.out.print(">");
+        //System.out.print(">");
     }
 
     @Override
@@ -1042,7 +1042,7 @@ public class TUIView implements UI, GeneralListener {
             case ViewState.END -> printWinners();
         }
 
-        System.out.print(">");
+        //System.out.print(">");
 
     }
 
@@ -1077,7 +1077,7 @@ public class TUIView implements UI, GeneralListener {
         }
 
         System.out.println("Card code is not recognized! ");
-        System.out.print(">");
+        //System.out.print(">");
     }
 
     private void printChat(){
@@ -1171,7 +1171,7 @@ public class TUIView implements UI, GeneralListener {
         System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
         System.out.println("Now you can create or join a game.\n");
         System.out.println();
-        System.out.print(">");
+        //System.out.print(">");
     }
 
     private void printWinners(){

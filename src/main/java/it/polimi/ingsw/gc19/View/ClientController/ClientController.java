@@ -76,7 +76,7 @@ public class ClientController {
 
     public void setClientInterface(ClientInterface clientInterface){
         this.clientNetwork = clientInterface;
-        setNextState(new NotPlayer(this), true);
+        viewState = new NotPlayer(this);
         prevState = new NotPlayer(this);
         this.listenersManager.notifyStateListener(viewState.getState());
     }
