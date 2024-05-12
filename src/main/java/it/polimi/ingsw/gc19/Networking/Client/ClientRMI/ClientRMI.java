@@ -56,6 +56,8 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         }
 
         this.heartBeatManager = new HeartBeatManager(this);
+        this.virtualMainServer.registerClient(this);
+        this.heartBeatManager.startHeartBeatManager();
 
         this.virtualGameServer = null;
         this.virtualGameServerLock = new Object();
@@ -74,7 +76,6 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
             }
             try{
                 this.virtualMainServer.newConnection(this, nickname);
-                this.heartBeatManager.startHeartBeatManager();
             }
             catch (RemoteException e) {
                 this.clientController.disconnect();

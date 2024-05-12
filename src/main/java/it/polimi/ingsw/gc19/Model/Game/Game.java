@@ -375,7 +375,6 @@ public class Game extends Publisher{
                 this.finalRound,
                 this.numPlayers
         ));
-
     }
 
     public void sendCurrentAvailableColors(String nickname) {

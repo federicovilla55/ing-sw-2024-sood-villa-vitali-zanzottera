@@ -41,6 +41,29 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     }
 
     /**
+     * This method is used to register a new RMI client, to start sending to it heartbeats
+     * @param clientRMI the client to register
+     * @throws RemoteException if something goes wrong executing this method
+     */
+    @Override
+    public void registerClient(VirtualClient clientRMI) throws RemoteException {
+        ClientHandlerRMI clientHandlerRMI;
+        synchronized(this.connectedClients){
+            if(this.connectedClients.containsKey(clientRMI)){
+                    throw new RemoteException("Client is already connected");
+                }
+        }
+
+        clientHandlerRMI = new ClientHandlerRMI(clientRMI, (String) null);
+        clientHandlerRMI.start();
+
+        synchronized (this.connectedClients) {
+            this.connectedClients.put(clientRMI, new Tuple<>(clientHandlerRMI, null));
+        }
+        this.lastHeartBeatOfClients.put(clientRMI, new Date().getTime());
+    }
+
+    /**
      * This method is used to establish a new RMI connection between client and server.
      * We must check if clientRMI is already connected to server. If no, server generates a token
      * (hash of {@param nickName} and {@link ClientHandlerRMI}) and inserts it in {@link CreatedPlayerMessage}.
@@ -52,18 +75,20 @@ public class MainServerRMI extends Server implements VirtualMainServer{
      */
     @Override
     public void newConnection(VirtualClient clientRMI, String nickName) throws RemoteException{
-        ClientHandlerRMI clientHandlerRMI;
         synchronized(this.connectedClients){
-            if(this.connectedClients.containsKey(clientRMI)){
-                clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER,
-                                                           "Your virtual client is already registered in server!")
+            if(!this.connectedClients.containsKey(clientRMI)){
+                clientRMI.pushUpdate(new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER,
+                                                           "Your virtual client is not registered server!")
                                              .setHeader(nickName));
                 return;
             }
         }
 
-        clientHandlerRMI = new ClientHandlerRMI(clientRMI, nickName);
-        clientHandlerRMI.start();
+        ClientHandlerRMI clientHandlerRMI;
+
+        clientHandlerRMI = this.connectedClients.get(clientRMI).x();
+
+        clientHandlerRMI.setUsername(nickName);
         String hashedMessage = super.computeHashOfClientHandler(clientHandlerRMI, nickName);
 
         if(this.mainController.createClient(clientHandlerRMI)) {
