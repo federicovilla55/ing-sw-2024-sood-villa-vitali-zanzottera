@@ -9,7 +9,9 @@ import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.ClientHandlerSocket;
 import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
 import it.polimi.ingsw.gc19.Utils.IPChecker;
 
+import java.rmi.AccessException;
 import java.rmi.NoSuchObjectException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -203,8 +205,12 @@ public class ServerApp {
     public static void unexportRegistry() {
         try {
             UnicastRemoteObject.unexportObject(mainServerRMI, true);
+            registry.unbind(ServerSettings.MAIN_RMI_SERVER_NAME);
             UnicastRemoteObject.unexportObject(registry, true);
-        } catch (NoSuchObjectException e) {
+        } catch (NoSuchObjectException | AccessException | NotBoundException e) {
+            System.out.println("[EXCEPTION]: exception occurred while trying to un-export registry. Quitting...");
+            System.exit(-1);
+        } catch (RemoteException e){
             System.out.println("[EXCEPTION]: RemoteException occurred while trying to un-export registry. Quitting...");
             System.exit(-1);
         }
