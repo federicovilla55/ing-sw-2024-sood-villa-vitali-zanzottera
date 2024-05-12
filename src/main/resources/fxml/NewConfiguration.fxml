@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="293.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.NewConfigurationController">
+   <children>
+      <Button layoutX="157.0" layoutY="164.0" mnemonicParsing="false" onAction="#TCPPress" prefHeight="27.0" prefWidth="120.0" text="TCP" />
+      <Button layoutX="323.0" layoutY="164.0" mnemonicParsing="false" onAction="#RMIPress" prefHeight="27.0" prefWidth="120.0" text="RMI" />
+      <Label alignment="CENTER" layoutX="157.0" layoutY="36.0" prefHeight="35.0" prefWidth="286.0" text="Chose connection Type" />
+   </children>
+</AnchorPane>

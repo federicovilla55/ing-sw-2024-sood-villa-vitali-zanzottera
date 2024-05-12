@@ -1,4 +1,4 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
-public class LoginController {
+public class LoginController extends AbstractController{
 }
