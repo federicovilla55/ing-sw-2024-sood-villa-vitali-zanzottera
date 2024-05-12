@@ -102,6 +102,19 @@ public class Disconnect extends ClientState {
                 return;
             }
         }
+
+        if(numReconnect == ClientSettings.MAX_DISCONNECTION_TRY_IN_CASE_OF_ERROR_BEFORE_ABORTING){
+            this.clientController.getView().notifyGenericError("[ERROR]: unable to reconnect to server! You are going to exit the application");
+
+            try{
+                TimeUnit.SECONDS.sleep(5);
+            }
+            catch (InterruptedException interruptedException){
+                Thread.currentThread().interrupt();
+            }
+
+            System.exit(0);
+        }
     }
 
 }

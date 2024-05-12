@@ -14,7 +14,7 @@ public class HeartBeatManager{
     private final NetworkManagementInterface networkManagementInterface;
     private ScheduledExecutorService heartBeatSenderScheduler;
     private ScheduledExecutorService heartBeatChecker;
-    private long lastHeartBeatFromServer;
+    private Long lastHeartBeatFromServer;
     private final Object lastHeartBeatLock;
 
     public HeartBeatManager(NetworkManagementInterface networkManagementInterface){
@@ -39,7 +39,7 @@ public class HeartBeatManager{
     private void runHeartBeatTesterForServer(){
         if(!Thread.currentThread().isInterrupted()) {
             synchronized (this.lastHeartBeatLock) {
-                if (new Date().getTime() - lastHeartBeatFromServer > 1000 * ClientSettings.MAX_TIME_BETWEEN_SERVER_HEARTBEAT_BEFORE_SIGNALING_NETWORK_PROBLEMS) {
+                if (this.lastHeartBeatFromServer != null && new Date().getTime() - lastHeartBeatFromServer > 1000 * ClientSettings.MAX_TIME_BETWEEN_SERVER_HEARTBEAT_BEFORE_SIGNALING_NETWORK_PROBLEMS) {
                     stopHeartBeatManager();
                     networkManagementInterface.signalPossibleNetworkProblem();
                 }
@@ -59,6 +59,11 @@ public class HeartBeatManager{
     }
 
     public void startHeartBeatManager(){
+        synchronized (this.lastHeartBeatLock) {
+            if (this.lastHeartBeatFromServer == null) {
+                this.lastHeartBeatFromServer = new Date().getTime();
+            }
+        }
         if(this.heartBeatSenderScheduler.isShutdown()){
             this.heartBeatSenderScheduler = Executors.newSingleThreadScheduledExecutor();
             this.heartBeatSenderScheduler.scheduleAtFixedRate(this::sendHeartBeat, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);

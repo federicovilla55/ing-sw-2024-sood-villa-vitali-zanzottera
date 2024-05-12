@@ -45,6 +45,7 @@ public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer
             virtualClientAssociated.pushUpdate(message);
         }
         catch (RemoteException remoteException) {
+            System.out.println(remoteException.getMessage());
             System.err.println("[EXCEPTION] Remote Exception occurred while trying to send message to client RMI " + virtualClientAssociated + " with RMI. Skipping...");
         }
     }

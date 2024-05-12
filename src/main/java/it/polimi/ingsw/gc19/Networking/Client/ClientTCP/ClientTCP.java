@@ -51,6 +51,7 @@ public class ClientTCP implements ClientInterface {
             this.inputStream = new ObjectInputStream(socket.getInputStream());
         }
         catch (IOException e) {
+            System.out.println(e.getMessage());
             throw new IOException();
         }
 
