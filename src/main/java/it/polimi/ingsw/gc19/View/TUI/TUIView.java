@@ -79,7 +79,7 @@ public class TUIView implements UI, GeneralListener {
                 client.configure(config.getNick(), config.getToken());
                 clientController.setNickname(config.getNick());
                 clientController.setClientInterface(client);
-                clientController.setNextState(new Disconnect(clientController));
+                clientController.setNextState(new Disconnect(clientController), false);
             }
             else{
                 ConfigurationManager.deleteConfiguration();
@@ -106,7 +106,7 @@ public class TUIView implements UI, GeneralListener {
             clientController.setClientInterface(client);
             System.out.println("Successfully connected to the server!");
             System.out.print("> ");
-            clientController.setNextState(new NotPlayer(clientController));
+            clientController.setNextState(new NotPlayer(clientController), true);
         }
 
         Scanner scanner = new Scanner(System.in);

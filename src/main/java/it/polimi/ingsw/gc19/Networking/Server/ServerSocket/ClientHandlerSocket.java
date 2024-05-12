@@ -64,7 +64,6 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
             synchronized (this.socketLock) {
                 this.outputStream.writeObject(message);
                 finalizeSending();
-                if(message instanceof CreatedPlayerMessage)System.err.println("senttttttttttt");
             }
         }
         catch (SocketException socketException){

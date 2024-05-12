@@ -14,13 +14,13 @@ class OtherTurn extends ClientState {
     @Override
     public void nextState(EndGameMessage message) {
         super.nextState(message);
-        clientController.setNextState(new End(clientController));
+        clientController.setNextState(new End(clientController), true);
     }
 
     @Override
     public void nextState(TurnStateMessage message) {
         if (message.getNick().equals(clientController.getNickname()) && message.getTurnState() == TurnState.PLACE) {
-            clientController.setNextState(new Place(clientController));
+            clientController.setNextState(new Place(clientController), true);
         }
         super.nextState(message);
     }

@@ -243,7 +243,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     @Override
     public void signalPossibleNetworkProblem() {
         if(!this.clientController.isDisconnected()) {
-            this.clientController.disconnect();
+            this.clientController.signalPossibleNetworkProblem();
         }
         this.heartBeatManager.stopHeartBeatManager();
     }

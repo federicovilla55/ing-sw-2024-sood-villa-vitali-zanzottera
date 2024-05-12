@@ -14,10 +14,10 @@ class Setup extends ClientState {
     @Override
     public void nextState(StartPlayingGameMessage message) {
         if (message.getNickFirstPlayer().equals(clientController.getNickname())) {
-            clientController.setNextState(new Place(clientController));
+            clientController.setNextState(new Place(clientController), true);
         }
         else {
-            clientController.setNextState(new OtherTurn(clientController));
+            clientController.setNextState(new OtherTurn(clientController), true);
         }
         super.nextState(message);
     }

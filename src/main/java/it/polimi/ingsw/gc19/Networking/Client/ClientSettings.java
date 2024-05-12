@@ -6,7 +6,7 @@ import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 public class ClientSettings {
 
     public static final long MAX_TIME_BETWEEN_SERVER_HEARTBEAT_BEFORE_SIGNALING_NETWORK_PROBLEMS = 30;
-    public static final long WAIT_BETWEEN_RECONNECTION_TRY_IN_CASE_OF_EXPLICIT_NETWORK_ERROR = 5;
+    public static final long WAIT_BETWEEN_RECONNECTION_TRY_IN_CASE_OF_EXPLICIT_NETWORK_ERROR = 20;
     public static final long MAX_RECONNECTION_TRY_BEFORE_ABORTING = 50;
     public static final long DELTA_TIME_BETWEEN_DISCONNECTION_TRY_IN_CASE_OF_ERROR = 250;
     public static final long DELTA_TIME_BETWEEN_LOGOUT_TRY_IN_CASE_OF_ERROR = 250;

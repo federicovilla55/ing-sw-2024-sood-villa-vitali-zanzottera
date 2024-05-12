@@ -2,7 +2,7 @@ package it.polimi.ingsw.gc19.Networking.Server;
 
 public class ServerSettings {
 
-    public static long MAX_DELTA_TIME_BETWEEN_HEARTBEATS = 15;
+    public static long MAX_DELTA_TIME_BETWEEN_HEARTBEATS = 12;
     public static long TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 5 * 60;
     public static long TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL =  20 * 60;
 

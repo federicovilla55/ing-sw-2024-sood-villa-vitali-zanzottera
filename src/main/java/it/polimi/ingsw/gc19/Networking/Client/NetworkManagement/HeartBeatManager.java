@@ -21,9 +21,9 @@ public class HeartBeatManager{
         this.networkManagementInterface = networkManagementInterface;
 
         this.heartBeatSenderScheduler = Executors.newSingleThreadScheduledExecutor();
-        this.heartBeatSenderScheduler.scheduleAtFixedRate(this::sendHeartBeat, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
+        this.heartBeatSenderScheduler.scheduleAtFixedRate(this::sendHeartBeat, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 5, TimeUnit.MILLISECONDS);
         this.heartBeatChecker = Executors.newSingleThreadScheduledExecutor();
-        this.heartBeatChecker.scheduleAtFixedRate(this::runHeartBeatTesterForServer, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
+        this.heartBeatChecker.scheduleAtFixedRate(this::runHeartBeatTesterForServer, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 5, TimeUnit.MILLISECONDS);
 
         this.lastHeartBeatFromServer = new Date().getTime();
 

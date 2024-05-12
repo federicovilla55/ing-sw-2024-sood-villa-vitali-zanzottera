@@ -53,8 +53,6 @@ public abstract class ClientState {
                 this.clientController.getLocalModel().getOtherStations().get(s).setNumPoints(message.getUpdatedPoints().get(s));
             }
         }
-
-        //this.listenersManager.notifyStateListener(ViewState.END);
     }
 
     public void nextState(BeginFinalRoundMessage message){
@@ -62,12 +60,12 @@ public abstract class ClientState {
     };
 
     public void nextState(GamePausedMessage message) {
-        clientController.setNextState(new Pause(clientController));
+        clientController.setNextState(new Pause(clientController), true);
         //this.listenersManager.notifyStateListener(ViewState.PAUSE);
     }
 
     public void nextState(GameResumedMessage message) {
-        clientController.setNextState(clientController.getPrevState());
+        clientController.setNextState(clientController.getPrevState(), true);
     }
 
     public void nextState(StartPlayingGameMessage message) {
@@ -75,14 +73,14 @@ public abstract class ClientState {
     }
 
     public void nextState(PlayerReconnectedToGameMessage message) {
-        //@@TODO: notify view
+        this.clientController.getView().notify("Player '" + message.getPlayerName() + "' ha reconnected to the game...");
     }
 
     public void nextState(DisconnectFromGameMessage message) {
         this.clientController.getView().notify("You leave the game!");
         this.clientController.setLocalModel(null);
         this.clientInterface.getMessageHandler().setLocalModel(null);
-        this.clientController.setNextState(new NotGame(clientController));
+        this.clientController.setNextState(new NotGame(clientController), true);
     }
 
     public void nextState(DisconnectFromServerMessage message){
@@ -110,14 +108,14 @@ public abstract class ClientState {
 
     public void nextState(GameConfigurationMessage message) {
         if (message.getGameState() == GameState.SETUP) {
-            clientController.setNextState(new Setup(clientController));
+            clientController.setNextState(new Setup(clientController), true);
         }
         else {
             if(message.getActivePlayer().equals(clientInterface.getNickname())){
-                clientController.setNextState(new Place(clientController));
+                clientController.setNextState(new Place(clientController), true);
             }
             else{
-                clientController.setNextState(new OtherTurn(clientController));
+                clientController.setNextState(new OtherTurn(clientController), true);
             }
             this.listenersManager.notifyTurnStateListener(message.getActivePlayer(), message.getTurnState());
         }

@@ -1,9 +1,7 @@
 package it.polimi.ingsw.gc19.View.ClientController;
 
-import it.polimi.ingsw.gc19.Enums.GameState;
 import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
-import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.GameConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.OwnStationConfigurationMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.EndGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
@@ -26,30 +24,30 @@ public class Wait extends ClientState {
     @Override
     public void nextState(CreatedPlayerMessage message) {
         super.nextState(message);
-        clientController.setNextState(new NotGame(clientController));
+        clientController.setNextState(new NotGame(clientController), true);
     }
 
     @Override
     public void nextState(TurnStateMessage message) {
         if (message.getNick().equals(clientController.getNickname()) && message.getTurnState() == TurnState.DRAW) {
-            clientController.setNextState(new Pick(clientController));
+            clientController.setNextState(new Pick(clientController), true);
         }
         else {
             if (!message.getNick().equals(clientController.getNickname())) {
-                clientController.setNextState(new OtherTurn(clientController));
+                clientController.setNextState(new OtherTurn(clientController), true);
             }
         }
     }
 
     @Override
     public void nextState(EndGameMessage message) {
-        clientController.setNextState(new End(clientController));
+        clientController.setNextState(new End(clientController), true);
         super.nextState(message);
     }
 
     @Override
     public void nextState(OwnAcceptedPickCardFromDeckMessage message) {
-        clientController.setNextState(new OtherTurn(clientController));
+        clientController.setNextState(new OtherTurn(clientController), true);
     }
 
     @Override
