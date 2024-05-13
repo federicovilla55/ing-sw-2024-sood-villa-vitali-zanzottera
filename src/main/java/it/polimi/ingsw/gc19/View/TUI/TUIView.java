@@ -681,7 +681,6 @@ public class TUIView implements UI, GeneralListener {
         printedChat.add("\n");
 
         for(Message message : chat){
-            System.out.println(localModel.getStations().values().stream().map(LocalStationPlayer::getOwnerPlayer).toList() + "   " + message.getSenderPlayer());
             Optional<Color> color = Optional.ofNullable(localModel.getStations().get(message.getSenderPlayer()).getChosenColor());
             printedChat.add(color.map(Color::stringColor).orElse("") +
                     String.format("%-18.18s",

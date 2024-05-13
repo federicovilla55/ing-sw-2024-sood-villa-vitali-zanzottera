@@ -297,13 +297,13 @@ public class ClientController {
         this.getListenersManager().notifyErrorGameHandlingListener(message.getDescription());
         switch (message.getErrorType()){
             case Error.PLAYER_NAME_ALREADY_IN_USE -> {
-                setNextState(new NotPlayer(this), true);
+                setNextState(new NotPlayer(this), false);
             }
             case Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME -> {
-                setNextState(new Disconnect(this), true);
+                setNextState(new Disconnect(this), false);
             }
             default -> {
-                setNextState(new NotGame(this), true);
+                setNextState(new NotGame(this), false);
             }
         }
     }
