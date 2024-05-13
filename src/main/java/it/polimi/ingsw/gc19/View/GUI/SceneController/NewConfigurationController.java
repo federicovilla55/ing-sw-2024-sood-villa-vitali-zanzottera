@@ -7,6 +7,7 @@ import it.polimi.ingsw.gc19.Networking.Client.ClientRMIFactory;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCPFactory;
 import it.polimi.ingsw.gc19.View.ClientController.NotPlayer;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
+import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
@@ -66,28 +67,6 @@ public class NewConfigurationController extends AbstractController implements St
     }
     @Override
     public void notify(ViewState viewState) {
-        File url = new File(super.getScenePath().LoginScene);
-        FXMLLoader loader = null;
-        Parent root;
-        try {
-            loader = new FXMLLoader(url.toURL());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            root = loader.load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        LoginController controller = loader.getController();
-        controller.setCommandParser(this.getCommandParser());
-        controller.setClientController(this.getClientController());
-        controller.setScenePath(this.getScenePath());
-        controller.setStage(getStage());
-        controller.attachToListener();
-        controller.setToView();
-        super.getClientController().getListenersManager().removeListener(this);
-        super.getStage().setScene(new Scene(root));
-        super.getStage().show();
+        super.changeToNextScene(SceneStatesEnum.LoginScene.value());
     }
 }

@@ -29,7 +29,7 @@ public class GUIView extends Application {
     private LocalModel localModel;
     private  CommandParser commandParser;
     private  ClientController clientController;
-    private  SceneStatesConst scenePath;
+    //private  SceneStatesConst scenePath;
     @Override
     public void start(Stage stage) throws Exception {
         Configuration config;
@@ -37,23 +37,21 @@ public class GUIView extends Application {
         String reconnectChoice;
         ClientInterface client;
         Parent root;
-        this.scenePath = new SceneStatesConst();
         this.commandParser = new CommandParser(new ClientController());
         this.clientController = commandParser.clientController();
         try {
             config = ConfigurationManager.retriveConfiguration();
             connectionType = config.getConnectionType();
-            File url = new File(this.scenePath.OldConfigurationScene);
+            File url = new File(SceneStatesEnum.OldConfigurationScene.value());
             root = FXMLLoader.load(url.toURL());
 
         } catch (RuntimeException e) {
-            File url = new File(this.scenePath.NewConfigurationScene);
+            File url = new File(SceneStatesEnum.NewConfigurationScene.value());
             FXMLLoader loader = new FXMLLoader(url.toURL());
-            root = loader.load();//FXMLLoader.load(url.toURL());
+            root = loader.load();
             NewConfigurationController controller = loader.getController();
             controller.setCommandParser(this.commandParser);
             controller.setClientController(this.clientController);
-            controller.setScenePath(this.scenePath);
             controller.setStage(stage);
         }
         stage.setScene(new Scene(root));
