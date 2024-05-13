@@ -54,6 +54,7 @@ public class GUIView extends Application {
             controller.setCommandParser(this.commandParser);
             controller.setClientController(this.clientController);
             controller.setScenePath(this.scenePath);
+            controller.setStage(stage);
         }
         stage.setScene(new Scene(root));
         stage.show();

@@ -72,5 +72,6 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.View.Listeners.StateListener;
     exports it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners;
     exports it.polimi.ingsw.gc19.View.GUI.SceneController;
+    opens it.polimi.ingsw.gc19.View.GUI.SceneController to javafx.fxml;
 
 }
