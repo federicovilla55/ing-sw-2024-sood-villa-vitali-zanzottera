@@ -96,8 +96,6 @@ public class Wait extends ClientState {
         this.clientController.getLocalModel().setPersonalStation(new PersonalStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
                                                                message.getNumPoints(), message.getPlacedCardSequence(), message.getPrivateGoalCard(),
                                                                message.getGoalCard1(), message.getGoalCard2(), message.getCardsInHand(), message.getInitialCard()));
-
-        //@TODO: set next state: I think we can stay in wait and depending on type of message set other state
     }
 
     @Override

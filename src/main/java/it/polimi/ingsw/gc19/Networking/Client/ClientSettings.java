@@ -32,5 +32,6 @@ public class ClientSettings {
        " ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝    ╚═╝  ╚═══╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝\n" +
        "                                                                                                                    \n";
 
+    public static final long TIME_BETWEEN_CONSECUTIVE_AVAILABLE_GAMES_REQUESTS = 10;
 
 }

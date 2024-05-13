@@ -370,7 +370,10 @@ public class ClientController {
             this.view.notifyGenericError("You can not choose a game to play!");
             return;
         }
-       clientNetwork.availableGames();
+        else{
+            ((NotGame) this.viewState).startGameSearch();
+        }
+        //clientNetwork.availableGames();
     }
 
     /**
@@ -382,6 +385,7 @@ public class ClientController {
             this.view.notifyGenericError("You can not join a game to play!");
             return;
         }
+        ((NotGame) this.viewState).stopGameSearch();
         clientNetwork.joinFirstAvailableGame();
         prevState = new NotGame(this);
         setNextState(new Wait(this), true);
@@ -397,6 +401,7 @@ public class ClientController {
             this.view.notifyGenericError("You can not join a game to play!");
             return;
         }
+        ((NotGame) this.viewState).stopGameSearch();
         clientNetwork.joinGame(gameName);
         prevState = new NotGame(this);
         setNextState(new Wait(this), true);
@@ -413,6 +418,7 @@ public class ClientController {
             return;
         }
         if(numPlayers > 1 && numPlayers < 5){
+            ((NotGame) this.viewState).stopGameSearch();
             clientNetwork.createGame(gameName, numPlayers);
             prevState = new NotGame(this);
             setNextState(new Wait(this), true);

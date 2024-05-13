@@ -767,7 +767,7 @@ public class TUIView implements UI, GeneralListener {
             printTUIView(cardTUIView(this.localModel.getPersonalStation().getPlacedCardSequence().get(i).x()));
             System.out.println();
         }
-}
+    }
 
     private void TUIViewCommands(Matcher matcher){
         switch (matcher.group(1)) {
@@ -899,6 +899,13 @@ public class TUIView implements UI, GeneralListener {
         printTUIView(goalCardEffectTUIView(goalCard));
     }
 
+    private void printAvailableGamesScene(ArrayList<String> availableGames){
+        this.clearTerminal();
+        System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
+        System.out.println();
+        printTUIView(availableGamesTUIView(availableGames));
+    }
+
     @Override
     public void notify(String message) {
         System.out.println(message + "\n");
@@ -928,7 +935,7 @@ public class TUIView implements UI, GeneralListener {
         switch (type){
             case GameHandlingEvents.CREATED_GAME -> System.out.println("The requested game '" + varArgs.getFirst() + "' has been created!");
             case GameHandlingEvents.JOINED_GAMES -> System.out.println("You have been registered to game named '" + varArgs.getFirst() + "'.");
-            case AVAILABLE_GAMES -> printTUIView(availableGamesTUIView(varArgs));
+            case AVAILABLE_GAMES -> printAvailableGamesScene(new ArrayList<>(varArgs));
         }
         System.out.println();
     }
