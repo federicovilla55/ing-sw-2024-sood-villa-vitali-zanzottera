@@ -12,6 +12,13 @@ import java.rmi.RemoteException;
 public interface VirtualMainServer extends Remote {
 
     /**
+     * This method is used to register a new RMI client, to start sending to it heartbeats
+     * @param client the client to register
+     * @throws RemoteException if something goes wrong executing this method
+     */
+    void registerClient(VirtualClient client) throws RemoteException;
+
+    /**
      * This method is used when a new client wants to connect to server.
      * @param clientRMI is the {@link VirtualClient} of the RMI client who wants to connect
      * @param nickName is the name of the client
