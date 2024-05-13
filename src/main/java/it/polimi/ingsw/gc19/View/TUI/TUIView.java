@@ -23,21 +23,62 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The class manages the Textual User Interface (TUI) of the game.
+ */
 public class TUIView implements UI, GeneralListener {
-
+    /**
+     * To create an instance of the local model from which to retrieve
+     * table, stations information and more.
+     */
     private LocalModel localModel;
+
+    /**
+     * Instance of the Record responsible for translating commands with arguments
+     * into actions and request to the {@link ClientController}.
+     */
     private final CommandParser commandParser;
+
+    /**
+     * Instance of the class used to forward the actions given by the user
+     * through commands to the client network interface.
+     */
     private final ClientController clientController;
 
+    /**
+     * Enumeration defining what the user is currently seeing:
+     * - NOT_PLAYING, the user sees the logo, the available colors and more.
+     * - PERSONAL_STATION, the user sees the scores, its personal station, the table, its hand...
+     * - OTHER_STATION, the user sees another station, the backHand, the scoreboard...
+     * - CHAT, the user sees the game chat.
+     */
     enum ShowState{
         NOT_PLAYING, PERSONAL_STATION, OTHER_STATION, CHAT;
     }
 
+    /**
+     * Reference to the ShowState enumeration.
+     */
     private ShowState showState;
+
+    /**
+     * The player we are currently viewing. Used to determine which player we are following in
+     * case there are multiple players connected to the game.
+     */
     private String currentViewPlayer;
 
+    /**
+     * Represents information related to a station, given the personal station of the
+     * player and a list of all the stations of the game.
+     * @param personalStation, the personal station of the player.
+     * @param allStations, the list containing all the stations in the game.
+     */
     private record StationInfos(PersonalStation personalStation, List<LocalStationPlayer> allStations) { }
 
+    /**
+     * Ask the user which type of connection he wants to use (RMI or TCP) to connect to the game server.
+     * @return The chosen connection type.
+     */
     private static Configuration.ConnectionType chooseClientType() {
         String connectionType;
         do {
@@ -51,6 +92,10 @@ public class TUIView implements UI, GeneralListener {
         return Configuration.ConnectionType.valueOf(connectionType.toUpperCase());
     }
 
+    /**
+     * Runs the TUI of the game.
+     * Manages connection to the server, user input, and command parsing.
+     */
     private void runTUI() {
         Configuration config;
         Configuration.ConnectionType connectionType;
@@ -118,6 +163,10 @@ public class TUIView implements UI, GeneralListener {
         }
     }
 
+    /**
+     * Constructs a new TUIView instance with a given command parser.
+     * @param commandParser The command parser for parsing the commands a user gives.
+     */
     public TUIView(CommandParser commandParser) {
         this.commandParser = commandParser;
         this.clientController = commandParser.clientController();
@@ -132,6 +181,10 @@ public class TUIView implements UI, GeneralListener {
         readerThread.start();
     }
 
+    /**
+     * Sets the local model of the TUI game.
+     * @param localModel The local model of the current game.
+     */
     public void setLocalModel(LocalModel localModel){
         this.localModel = localModel;
     }
@@ -151,6 +204,12 @@ public class TUIView implements UI, GeneralListener {
         }
     }
 
+    /**
+     * Splits a string into an array of strings, each representing a character so that it
+     * is ensured an alignment when text is printed to the terminal.
+     * @param text, the input string to split and printed.
+     * @return tne array of strings representing characters of the input text to be printed.
+     */
     String[] textTUIView(String text) {
         List<String> res = new ArrayList<>();
         boolean startOfString = true;
@@ -170,6 +229,11 @@ public class TUIView implements UI, GeneralListener {
         return res.toArray(String[]::new);
     }
 
+    /**
+     * Generates a textual representation of available colors for the TUI.
+     * @param availableColors The list of available {@link Color}.
+     * @return A matrix of strings representing the TUI interface for available colors.
+     */
     String[][] availableColorsTUIView(List<Color> availableColors) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[availableColors.size() + 2][1];
@@ -186,6 +250,11 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a textual representation of available games for the TUI.
+     * @param availableGames, the list of available games.
+     * @return a matrix of strings representing the TUI interface for available games.
+     */
     String[][] availableGamesTUIView(List<String> availableGames) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[availableGames.size() + 2][1];
@@ -207,6 +276,12 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a textual representation of a card for the TUI.
+     *
+     * @param card the card to represent.
+     * @return a matrix of strings representing the TUI interface for the card.
+     */
     String[][] cardTUIView(PlayableCard card) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[3][5];
@@ -272,6 +347,13 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a textual representation for the TUI of the initial card that the user place in the
+     * setup phase.
+     *
+     * @param card The card to represent.
+     * @return A matrix of strings representing the initial side of the card.
+     */
     String[][] initialCardTUIView(PlayableCard card) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[5][17];
@@ -313,6 +395,12 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a textual representation of the back side of a card for the TUI.
+     *
+     * @param deckSeed The seed of the deck of the card.
+     * @return A matrix of strings representing the back side of the card.
+     */
     private String[][] cardBackTUIView(Symbol deckSeed) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[3][5];
@@ -347,6 +435,11 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Creates a dummy PlayableCard with the specified symbol.
+     * @param symbol The symbol for the dummy card.
+     * @return A dummy PlayableCard instance.
+     */
     private PlayableCard dummyPlayableCard(Symbol symbol) {
         return new PlayableCard(
                 "dummy",
@@ -366,6 +459,12 @@ public class TUIView implements UI, GeneralListener {
         );
     }
 
+    /**
+     * Generates a textual representation of the player area for the TUI.
+     *
+     * @param placedCardSequence a list containing PlayableCards and their relative positions.
+     * @return A matrix of strings representing the player area for the TUI.
+     */
     String[][] playerAreaTUIView(List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
         //determine dimension of the matrix
         int h;
@@ -422,6 +521,17 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a textual representation of the game table {@link LocalTable} for the TUI.
+     *
+     * @param resource1 the first resource card on the table.
+     * @param resource2 the second resource card on the table.
+     * @param gold1 the first gold card on the table.
+     * @param gold2 the second gold card on the table.
+     * @param resourceDeckSeed the seed of the resource deck.
+     * @param goldDeckSeed the seed of the gold deck.
+     * @return a matrix of strings representing the game table in the TUI.
+     */
     String[][] tableTUIView(PlayableCard resource1, PlayableCard resource2, PlayableCard gold1, PlayableCard gold2, Symbol resourceDeckSeed, Symbol goldDeckSeed) {
         // create matrix of "  " strings, each representing a single unicode character to display in console
         String[][] res = new String[14][40];
@@ -529,6 +639,10 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates an empty card matrix for the TUI.
+     * @return A matrix of strings representing an empty card.
+     */
     private String[][] emptyCardTUIView() {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[3][5];
@@ -556,6 +670,12 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a textual representation of the map of visible symbols to display in the TUI.
+     *
+     * @param visibleSymbols a map containing visible symbols in a station and their counts.
+     * @return a matrix of strings representing the visible symbols.
+     */
     private String[][] visibleSymbolsTUIView(Map<Symbol, Integer> visibleSymbols) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[9][1];
@@ -571,6 +691,12 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a textual representation of the scoreboard for a single player to display in the TUI.
+     *
+     * @param localStationPlayer The local station from which the scoreboard is generated.
+     * @return A matrix of strings representing the scoreboard for the player for the TUI.
+     */
     String[][] scoreboardTUIView(LocalStationPlayer localStationPlayer) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[12][1];
@@ -596,6 +722,12 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a textual representation of the scoreboard for a single player to display in the TUI.
+     *
+     * @param localStationPlayer The local stations from which the scoreboard is generated.
+     * @return A matrix of strings representing the scoreboard for the player for the TUI.
+     */
     String[][] scoreboardTUIView(LocalStationPlayer... localStationPlayer) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[12][localStationPlayer.length];
@@ -617,6 +749,11 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a textual representation of the cards in hand for display in the TUI.
+     * @param cardsInHand The list of playable cards in hand.
+     * @return A matrix of strings representing the cards in hand.
+     */
     String[][] handTUIView(List<PlayableCard> cardsInHand) {
         // create matrix of "  " strings, each representing a single unicode character to display in console
         String[][] res = new String[5][40];
@@ -649,6 +786,11 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a representation for the backs of cards in the hand of another player for the TUI.
+     * @param cardSymbolsInHand A list of tuples containing the back card information: symbols and playable card types.
+     * @return A matrix of strings representing the backs of cards in hand in the TUI.
+     */
     String[][] backHandTUIView(List<Tuple<Symbol, PlayableCardType>> cardSymbolsInHand) {
         // create matrix of "  " strings, each representing a single unicode character to display in console
         String[][] res = new String[5][40];
@@ -675,6 +817,12 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a representation of the chat messages received so far.
+     *
+     * @param chat The list of chat messages to be displayed.
+     * @return A matrix of strings representing the chat messages in the TUI.
+     */
     private String[][] chatTUIView(ArrayList<Message> chat){
         ArrayList<String> printedChat = new ArrayList<>();
 
@@ -696,14 +844,29 @@ public class TUIView implements UI, GeneralListener {
                         .toArray(String[][]::new);
     }
 
+    /**
+     * Generates a description of a goal card and its effect to display in the TUI.
+     * @param card The goal card to be displayed.
+     * @return A matrix of strings representing the goal card in the TUI.
+     */
     public String[][] goalCardEffectTUIView(GoalCard card) {
         return card.getEffectView(this);
     }
 
+    /**
+     * Generates a description of a playable card for display in the TUI.
+     * @param card The playable card to be displayed.
+     * @return A matrix of strings representing the playable card.
+     */
     public String[][] playableCardEffectTUIView(PlayableCard card) {
         return card.getEffectView(this);
     }
 
+    /**
+     * Generates a description of a goal effect of a goal card to display in the TUI.
+     * @param patternEffect the effect that will be printed in the TUI.
+     * @return A matrix of strings representing the pattern effect to be printed.
+     */
     public String[][] goalEffectView(PatternEffect patternEffect) {
 
 
@@ -737,10 +900,22 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * Generates a textual representation of the effect of a goal card with its symbol effect
+     * for display in the user interface. The symbol effect consist of having a required number
+     * of symbols that give points to the player.
+     * @param symbolEffect the symbol effect that will be printed in the TUI
+     * @return A matrix of strings representing the symbol effect to be printed.
+     */
     public String[][] goalEffectView(SymbolEffect symbolEffect) {
         return this.requiredSymbolsTUIView(symbolEffect.getRequiredSymbol());
     }
 
+    /**
+     * To print the required symbol of a card.
+     * @param requiredSymbol the map containing the Symbols and the number of times they are visible in the station.
+     * @return A matrix of strings representing the required symbols to be printed.
+     */
     private String[][] requiredSymbolsTUIView(Map<Symbol, Integer> requiredSymbol) {
         // create matrix of empty strings, each representing a single unicode character to display in console
         String[][] res = new String[2 + requiredSymbol.size()][1];
@@ -758,6 +933,9 @@ public class TUIView implements UI, GeneralListener {
         return res;
     }
 
+    /**
+     * To print the placed card sequence in the TUI.
+     */
     private void printPlacingSequence(){
         if(this.localModel == null) return;
         
@@ -769,6 +947,10 @@ public class TUIView implements UI, GeneralListener {
         }
     }
 
+    /**
+     * To handle the commands related to showing the view.
+     * @param matcher the command parsed.
+     */
     private void TUIViewCommands(Matcher matcher){
         switch (matcher.group(1)) {
             case "show_private_goal_card" -> choosePrivateGoalCardScene();
@@ -799,6 +981,11 @@ public class TUIView implements UI, GeneralListener {
         }
     }
 
+    /**
+     * To parse the command that the user can send through the TUI.
+     * @param matcher the rest of the string containing the parsed command
+     * @param commandType the command given by the user.
+     */
     private void commandParserCommands(Matcher matcher, CommandType commandType){
         String args = matcher.group(2);
 
@@ -822,6 +1009,10 @@ public class TUIView implements UI, GeneralListener {
         }
     }
 
+    /**
+     * To parse a command given a string containing the command string identifier and the parameters.
+     * @param command the string containing the command and the parameters.
+     */
     private void parseCommand(String command) {
         Pattern pattern = Pattern.compile("^([^(]*)\\(([^)]*)\\)$");
         Matcher matcher = pattern.matcher(command);
@@ -846,6 +1037,9 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To show the initial card of the personal station in order to determine how it should be placed.
+     */
     private void showInitialCard() {
         if(this.localModel == null) return;
         
@@ -860,6 +1054,10 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To visualize the private goal cards from which the only goal card can be chosen
+     * or, if set, the private goal card chosen.
+     */
     private void choosePrivateGoalCardScene() {
         if(this.localModel == null) return;
         
@@ -888,6 +1086,9 @@ public class TUIView implements UI, GeneralListener {
         }
     }
 
+    /**
+     * To show the public goal cards in the table.
+     */
     private void showPublicGoalCardScene() {
         System.out.println("Those are the public goal card: ");
         GoalCard goalCard = this.localModel.getTable().getPublicGoal1();
@@ -899,6 +1100,10 @@ public class TUIView implements UI, GeneralListener {
         printTUIView(goalCardEffectTUIView(goalCard));
     }
 
+    /**
+     * To print in the TUI a representation of the list of available games.
+     * @param availableGames the list of available games.
+     */
     private void printAvailableGamesScene(ArrayList<String> availableGames){
         this.clearTerminal();
         System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
@@ -912,24 +1117,44 @@ public class TUIView implements UI, GeneralListener {
         //System.out.print(">");
     }
 
+    /**
+     * To show the confirmation of the creation of the player.
+     * @param name the nickname that the client chose.
+     */
     @Override
     public void notifyPlayerCreation(String name) {
         System.out.println("Your player has been correctly created. Your username is: " + name + "\n");
         //System.out.print(">");
     }
 
+    /**
+     * To notify the view that an error happened.
+     * @param error the error that was raised.
+     */
     @Override
     public void notifyPlayerCreationError(String error) {
         System.out.println("[ERROR]: " + error + "\n");
-        //System.out.print(">");
     }
 
+    /**
+     * To notify the view of a generic error.
+     * @param errorDescription the description of the generic error.
+     */
     @Override
     public void notifyGenericError(String errorDescription){
         System.err.println("[ERROR]: " + errorDescription + "\n");
-        //System.out.print(">");
     }
 
+    /**
+     * To notify the view that a Game was created or joined
+     * @param type the type of GameHandlingEvents that was received.
+     *             CREATED_GAME, if the game was created.
+     *             JOINED_GAMES, if a game was joined.
+     *             AVAILABLE_GAMES, if the list of available games
+     *                              is updated.
+     * @param varArgs is a list of available information (on the game or on
+     *                the available games).
+     */
     @Override
     public void notify(GameHandlingEvents type, List<String> varArgs) {
         switch (type){
@@ -940,6 +1165,10 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To show the TUI updates during the setup phase.
+     * @param type the type of setup updates received.
+     */
     @Override
     public void notify(SetupEvent type){
         switch (type){
@@ -968,6 +1197,10 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To update the chat messages.
+     * @param msg the list of messages sent so far.
+     */
     @Override
     public void notify(ArrayList<Message> msg){
         if(this.showState == ShowState.CHAT) {
@@ -976,6 +1209,13 @@ public class TUIView implements UI, GeneralListener {
         }
     }
 
+    /**
+     * To notify changes related to the local models or the state of new players.
+     * @param type a LocalModelEvents that express the type of event received.
+     * @param localModel the new updated localmodel.
+     * @param varArgs an array of strings containing information related to the new update, such as
+     *                the nickname of the player whose station and state is updated.
+     */
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String ... varArgs){
         System.out.println();
@@ -987,6 +1227,10 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To update the personal station.
+     * @param localStationPlayer the new and updated gametable.
+     */
     @Override
     public void notify(PersonalStation localStationPlayer){
         if (this.showState == ShowState.PERSONAL_STATION) {
@@ -997,6 +1241,10 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To update the station of another player.
+     * @param otherStation the updated station.
+     */
     @Override
     public void notify(OtherStation otherStation){
         if (this.showState == ShowState.PERSONAL_STATION) {
@@ -1007,11 +1255,19 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To notify the view of an error in the station.
+     * @param varArgs the error information that will be printed in the TUI.
+     */
     @Override
     public void notifyErrorStation(String... varArgs) {
         System.err.println("[ERROR]: card " + varArgs[0] + " is not placeable starting from " + varArgs[1] + " in direction " + varArgs[2] + "! Try again..." + "\n");
     }
 
+    /**
+     * To update the common game table.
+     * @param localTable the new and updated gametable.
+     */
     @Override
     public void notify(LocalTable localTable){
         if(this.showState == ShowState.PERSONAL_STATION) {
@@ -1024,6 +1280,11 @@ public class TUIView implements UI, GeneralListener {
         }
     }
 
+    /**
+     * To notify a change of turns.
+     * @param nick the nickname of the player that is currently playing.
+     * @param turnState the new state of the game.
+     */
     @Override
     public void notify(String nick, TurnState turnState){
         System.out.println();
@@ -1036,6 +1297,10 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To show in the TUI an update containing the change of the State of the Client (View).
+     * @param viewState the new ViewState.
+     */
     @Override
     public void notify(ViewState viewState) {
         switch (viewState){
@@ -1049,6 +1314,9 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To clear the console before printing a new scene.
+     */
     private void clearTerminal(){
         try{
             if(System.getProperty("os.name").contains("Windows")){
@@ -1061,6 +1329,11 @@ public class TUIView implements UI, GeneralListener {
         catch (IOException | InterruptedException ignored){ }
     }
 
+    /**
+     * To print the information of a card.
+     * @param cardCode the card code of the card from which to
+     *                 print.
+     */
     private void printInfoCard(String cardCode){
         String[] code = cardCode.split("_");
 
@@ -1093,6 +1366,9 @@ public class TUIView implements UI, GeneralListener {
         System.out.println("Card code is not recognized! \n");
     }
 
+    /**
+     * To print the chat scene.
+     */
     private void printChat(){
         if(localModel == null) return;
         this.clearTerminal();
@@ -1126,6 +1402,10 @@ public class TUIView implements UI, GeneralListener {
         return new StationInfos(personalStation, allStations);
     }
 
+    /**
+     * To print the station of another player, the scoreboard and the table.
+     * The player's nickname whose station is printed is saved in currentViewPlayer.
+     */
     private void printOtherStation(){
         if(this.localModel == null) return;
         
@@ -1156,6 +1436,10 @@ public class TUIView implements UI, GeneralListener {
         System.out.println("\n");
     }
 
+    /**
+     * To print the scoreboard given the list of stations containing the wanted points.
+     * @param allStations the list of scoreboards.
+     */
     private void printScoreBoard(List<LocalStationPlayer> allStations) {
         System.out.println("Scoreboard:");
         printTUIView(scoreboardTUIView(allStations.toArray(new LocalStationPlayer[]{})));
@@ -1163,6 +1447,9 @@ public class TUIView implements UI, GeneralListener {
         printTable();
     }
 
+    /**
+     * To print the shared game table.
+     */
     private void printTable() {
         System.out.println("Table:");
         printTUIView(tableTUIView(localModel.getTable().getResource1(), localModel.getTable().getResource2(),
@@ -1171,6 +1458,9 @@ public class TUIView implements UI, GeneralListener {
         System.out.println("\n");
     }
 
+    /**
+     * To print the initial creation game scene.
+     */
     private void printCreationPlayerScene(){
         this.clearTerminal();
         System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
@@ -1180,6 +1470,9 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To print the scene of the game creation.
+     */
     private void printEnteringGameScene(){
         this.clearTerminal();
         System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
@@ -1188,6 +1481,9 @@ public class TUIView implements UI, GeneralListener {
         //System.out.print(">");
     }
 
+    /**
+     * To print the scene of the end of the game with the game winners.
+     */
     private void printWinners(){
         this.clearTerminal();
         System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
@@ -1201,6 +1497,9 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To print the helper of the game. The helper shows the commands that can be send to the game.
+     */
     private void printHelper(){
         System.out.println("This is the helper of TUI view. Here you can find the infos about commands: ");
 
