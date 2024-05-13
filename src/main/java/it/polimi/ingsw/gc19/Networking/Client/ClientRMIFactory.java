@@ -11,7 +11,6 @@ public class ClientRMIFactory implements ClientFactory {
     public ClientInterface createClient(ClientController clientController) throws RemoteException, RuntimeException {
         MessageHandler messageHandler = new MessageHandler(clientController);
         ClientInterface clientInterface =  new ClientRMI(messageHandler);
-        messageHandler.setClient(clientInterface);
         messageHandler.start();
 
         return clientInterface;

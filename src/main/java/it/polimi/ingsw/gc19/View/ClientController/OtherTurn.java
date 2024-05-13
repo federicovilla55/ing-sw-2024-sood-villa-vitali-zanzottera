@@ -11,12 +11,22 @@ class OtherTurn extends ClientState {
         super(clientController);
     }
 
+    /**
+     * This method handles {@link EndGameMessage}. It sets {@link ViewState} of
+     * {@link ClientController} to {@link End}.
+     * @param message the {@link EndGameMessage} to be handled
+     */
     @Override
     public void nextState(EndGameMessage message) {
         super.nextState(message);
         clientController.setNextState(new End(clientController), true);
     }
 
+    /**
+     * This method handles {@link TurnStateMessage}. It sets {@link ViewState} of
+     * {@link ClientController} to {@link Pick} or {@link OtherTurn} depending on {@param message}
+     * @param message the {@link TurnStateMessage} to be handled
+     */
     @Override
     public void nextState(TurnStateMessage message) {
         if (message.getNick().equals(clientController.getNickname()) && message.getTurnState() == TurnState.PLACE) {
@@ -25,6 +35,10 @@ class OtherTurn extends ClientState {
         super.nextState(message);
     }
 
+    /**
+     * Getter for {@link ViewState} associated to this state
+     * @return the {@link ViewState} associated to this state.
+     */
     @Override
     public ViewState getState() {
         return ViewState.OTHER_TURN;

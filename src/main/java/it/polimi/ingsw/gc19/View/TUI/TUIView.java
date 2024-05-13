@@ -130,7 +130,7 @@ public class TUIView implements UI, GeneralListener {
                 ConfigurationManager.deleteConfiguration();
             }
 
-        } catch (RuntimeException e) {
+        } catch (IllegalStateException e) {
             System.out.println("No valid configuration found... creating new client");
             reconnectChoice = "n";
         } catch (IOException e) {

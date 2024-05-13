@@ -1,5 +1,10 @@
 package it.polimi.ingsw.gc19.View.Command;
 
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
+/**
+ * This enum represents all the commands that have to be processed by
+ * {@link CommandParser} first and then {@link ClientController}.
+ */
 public enum CommandType {
     CREATE_PLAYER("create_player", 1),
     CREATE_GAME("create_game", 2),

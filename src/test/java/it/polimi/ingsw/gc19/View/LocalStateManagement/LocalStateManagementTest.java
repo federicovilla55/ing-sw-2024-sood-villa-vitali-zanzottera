@@ -69,22 +69,22 @@ public class LocalStateManagementTest {
 
         clientInterface1 = new ClientTCP(messageHandler1);
         clientController1.setClientInterface(clientInterface1);
-        messageHandler1.setClient(clientInterface1);
+        //messageHandler1.setClient(clientInterface1);
         messageHandler1.start();
 
         clientInterface2 = new ClientRMI(messageHandler2);
         clientController2.setClientInterface(clientInterface2);
-        messageHandler2.setClient(clientInterface2);
+        //messageHandler2.setClient(clientInterface2);
         messageHandler2.start();
 
         clientInterface3 = new ClientRMI(messageHandler3);
         clientController3.setClientInterface(clientInterface3);
-        messageHandler3.setClient(clientInterface3);
+        //messageHandler3.setClient(clientInterface3);
         messageHandler3.start();
 
         clientInterface4 = new ClientTCP(messageHandler4);
         clientController4.setClientInterface(clientInterface4);
-        messageHandler4.setClient(clientInterface4);
+        //messageHandler4.setClient(clientInterface4);
         messageHandler4.start();
     }
 
@@ -124,7 +124,7 @@ public class LocalStateManagementTest {
         MessageHandler messageHandler5 = new MessageHandler(clientController5);
         ClientInterface clientInterface5 = new ClientTCP(messageHandler5);
         clientController5.setClientInterface(clientInterface5);
-        messageHandler5.setClient(clientInterface5);
+        //messageHandler5.setClient(clientInterface5);
         messageHandler5.start();
 
         clientController5.createPlayer("client1");
@@ -481,117 +481,7 @@ public class LocalStateManagementTest {
                 0,
                 List.of()
         ));
-
-/*
-
-        assertMessageEquals(player2,
-                            new AvailableColorsMessage(List.of(Color.values())));
-
-        assertMessageEquals(player2,
-                            new GameConfigurationMessage(
-                                    GameState.SETUP,
-                                    null,
-                                    null,
-                                    null,
-                                    false,
-                                    4
-                            ));
-
-        this.mainController.registerToGame(player3, "game1");
-        tableConfigurationMessage = new TableConfigurationMessage(
-                playableCards.get("resource_05").setCardState(CardOrientation.UP),
-                playableCards.get("resource_21").setCardState(CardOrientation.UP),
-                playableCards.get("gold_19").setCardState(CardOrientation.UP),
-                playableCards.get("gold_23").setCardState(CardOrientation.UP),
-                goalCards.get("goal_11"),
-                goalCards.get("goal_15"),
-                Symbol.VEGETABLE,
-                Symbol.MUSHROOM
-        );
-
-        assertMessageEquals(List.of(player1,player2), new NewPlayerConnectedToGameMessage("player3"));
-        assertMessageEquals(List.of(player1,player2),
-                            new OtherStationConfigurationMessage(
-                                    "player3",
-                                    null,
-                                    Map.of(
-                                            Symbol.ANIMAL, 0,
-                                            Symbol.MUSHROOM, 0,
-                                            Symbol.VEGETABLE, 0,
-                                            Symbol.INSECT, 0,
-                                            Symbol.INK, 0,
-                                            Symbol.FEATHER, 0,
-                                            Symbol.SCROLL, 0
-                                    ),
-                                    0,
-                                    List.of()
-                            ));
-        assertMessageEquals(List.of(player1,player2),tableConfigurationMessage);
-
-        assertEquals(new JoinedGameMessage("game1").setHeader(player3.getUsername()), player3.getMessage());
-
-        assertMessageEquals(player3, tableConfigurationMessage);
-
-        assertMessageEquals(player3,
-                            new OwnStationConfigurationMessage(
-                                    "player3",
-                                    null,
-                                    List.of(
-                                            playableCards.get("resource_24"),
-                                            playableCards.get("resource_09"),
-                                            playableCards.get("gold_14")
-                                    ),
-                                    Map.of(
-                                            Symbol.ANIMAL, 0,
-                                            Symbol.MUSHROOM, 0,
-                                            Symbol.VEGETABLE, 0,
-                                            Symbol.INSECT, 0,
-                                            Symbol.INK, 0,
-                                            Symbol.FEATHER, 0,
-                                            Symbol.SCROLL, 0
-                                    ),
-                                    null,
-                                    0,
-                                    playableCards.get("initial_06"),
-                                    goalCards.get("goal_07"),
-                                    goalCards.get("goal_06"),
-                                    List.of()
-                            ));
-        for(String nickname : List.of("player1","player2")) {
-            assertMessageEquals(player3,
-                                new OtherStationConfigurationMessage(
-                                        nickname,
-                                        null,
-                                        Map.of(
-                                                Symbol.ANIMAL, 0,
-                                                Symbol.MUSHROOM, 0,
-                                                Symbol.VEGETABLE, 0,
-                                                Symbol.INSECT, 0,
-                                                Symbol.INK, 0,
-                                                Symbol.FEATHER, 0,
-                                                Symbol.SCROLL, 0
-                                        ),
-                                        0,
-                                        List.of()
-                                ));
-        }
-        assertMessageEquals(player3,
-                            new AvailableColorsMessage(List.of(Color.values())));
-        assertMessageEquals(player3,
-                            new GameConfigurationMessage(
-                                    GameState.SETUP,
-                                    null,
-                                    null,
-                                    null,
-                                    false,
-                                    4
-                            ));
-
-        this.mainController.registerToGame(player4, "game1");
-        this.clearQueue(List.of(player1,player2,player3,player4));*/
     }
-
-
 
     private void waitingThread(long millis){
         try{

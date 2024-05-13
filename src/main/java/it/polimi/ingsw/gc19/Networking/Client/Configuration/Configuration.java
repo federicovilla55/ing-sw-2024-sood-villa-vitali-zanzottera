@@ -8,6 +8,16 @@ import it.polimi.ingsw.gc19.Networking.Client.ClientTCPFactory;
 
 import java.util.Date;
 
+/**
+ * This class represents the last valid configuration of
+ * the client interface. It contains infos about:
+ * <ul>
+ *     <li>connection type <code>RMI</code> or <code>TCP</code></li>
+ *     <li>nickname</li>
+ *     <li>token</li>
+ *     <li>a {@link String} representing the timestamp</li>
+ * </ul>
+ */
 public class Configuration {
 
     public enum ConnectionType{
@@ -53,18 +63,34 @@ public class Configuration {
         this.connectionType = connectionType;
     }
 
+    /**
+     * Getter for nickname stored in configuration
+     * @return the nickname stored in the configuration
+     */
     public String getNick() {
         return nick;
     }
 
+    /**
+     * Getter for token stored in configuration
+     * @return the nickname stored in the configuration
+     */
     public String getToken() {
         return token;
     }
 
+    /**
+     * Getter for timestamp stored in configuration
+     * @return the timestamp stored in configuration
+     */
     public String getTimestamp() {
         return timestamp;
     }
 
+    /**
+     * Getter for connection type stored in configuration
+     * @return the connection type stored in configuration
+     */
     public ConnectionType getConnectionType() {
         return connectionType;
     }

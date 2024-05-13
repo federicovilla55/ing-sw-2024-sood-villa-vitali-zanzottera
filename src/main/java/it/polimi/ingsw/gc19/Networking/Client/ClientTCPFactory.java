@@ -12,7 +12,6 @@ public class ClientTCPFactory implements ClientFactory {
     public ClientInterface createClient(ClientController clientController) throws IOException {
         MessageHandler messageHandler = new MessageHandler(clientController);
         ClientInterface clientInterface =  new ClientTCP(messageHandler);
-        messageHandler.setClient(clientInterface);
         messageHandler.start();
 
         return clientInterface;
