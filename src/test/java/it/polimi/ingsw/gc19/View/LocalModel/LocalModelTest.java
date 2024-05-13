@@ -54,7 +54,6 @@ public class LocalModelTest {
         messageHandler = new MessageHandler(clientController);
         clientTCP = new ClientTCP(messageHandler);
         clientController.setClientInterface(clientTCP);
-        messageHandler.setClient(clientTCP);
         messageHandler.start();
 
     }

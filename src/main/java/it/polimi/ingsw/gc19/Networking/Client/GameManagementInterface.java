@@ -9,7 +9,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import java.util.ArrayList;
 
 /**
- * The interface is implemented by all clients independently by their connection type (RMI or socket).
+ * The interface is implemented by all clients independently by their connection type (RMI or TCP).
  * It aims to create a common way that the client can use to interact in the network.
  * By using common methods both for RMI and socket, a higher level of abstraction can be obtained,
  * without requiring to create different methods for RMI and socket in the methods that needs to
@@ -47,34 +47,34 @@ public interface GameManagementInterface {
      * The method is used to send a request to place a card in the personal table.
      * @param cardToInsert the card that needs to be placed.
      * @param anchorCard the card from which to place the card.
-     * @param directionToInsert the direction from the anchorCard in which we want to place the card.
-     * @param orientation the orientation in which we want to place cardToInsert.
+     * @param directionToInsert the direction from the anchorCard in which player wants to place the card.
+     * @param orientation the orientation in which player wants to place cardToInsert.
      */
     void placeCard(String cardToInsert, String anchorCard, Direction directionToInsert, CardOrientation orientation);
 
     /**
      * The method is used to send a message to the chat.
-     * @param UsersToSend a list containing the nickname of the users to whom we want to send the message.
-     * @param messageToSend the message we want to send.
+     * @param UsersToSend a list containing the nickname of the users to whom player wants to send the message.
+     * @param messageToSend the message player wants to send.
      */
     void sendChatMessage(ArrayList<String> UsersToSend, String messageToSend);
 
     /**
      * The method is used to place the initial card at the beginning of the game.
-     * @param cardOrientation the orientation in which we want to place the initial card.
+     * @param cardOrientation the orientation in which player wants to place the initial card.
      */
     void placeInitialCard(CardOrientation cardOrientation);
 
     /**
      * The method is used to pick a card from the common table.
-     * @param type the type of card we want to pick (RESOURCE/GOLD).
-     * @param position the position in the table we want to take the card from.
+     * @param type the type of card player wants to pick (RESOURCE/GOLD).
+     * @param position the position in the table player wants to take the card from.
      */
     void pickCardFromTable(PlayableCardType type, int position);
 
     /**
      * The method is used to pick a card from a deck.
-     * @param type the type of card we want to pick (RESOURCE/GOLD).
+     * @param type the type of card player wants to pick (RESOURCE/GOLD).
      */
     void pickCardFromDeck(PlayableCardType type);
 
@@ -86,7 +86,7 @@ public interface GameManagementInterface {
 
     /**
      * To choose the private goal card at the beginning of the game.
-     * @param cardIdx which of the two proposed goal card we want to choose.
+     * @param cardIdx which of the two proposed goal card player wants to choose.
      */
     void choosePrivateGoalCard(int cardIdx);
 

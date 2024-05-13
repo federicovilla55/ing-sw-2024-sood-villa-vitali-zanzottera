@@ -14,6 +14,7 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.ClientHeartBeatM
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServer;
 import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.HeartBeatManager;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
@@ -394,36 +395,67 @@ public class ClientTCP implements ClientInterface {
         this.sendMessage(new PlayerChatMessage(new ArrayList<>(usersToSend), this.nickname, messageToSend));
     }
 
+    /**
+     * This method is used to send a {@link DirectionOfInitialCardMessage} to server
+     * @param cardOrientation the orientation in which we want to place the initial card.
+     */
     @Override
     public void placeInitialCard(CardOrientation cardOrientation) {
         this.sendMessage(new DirectionOfInitialCardMessage(this.nickname, cardOrientation));
     }
 
+    /**
+     * This method is used to send a {@link PickCardFromTableMessage} message to server.
+     * @param type the type of card we want to pick {@link PlayableCardType}
+     * @param position the position in the table we want to take the card from.
+     */
     @Override
     public void pickCardFromTable(PlayableCardType type, int position) {
         this.sendMessage(new PickCardFromTableMessage(this.nickname, type, position));
     }
 
+    /**
+     * This method is used to send a {@link PickCardFromTableMessage} to server.
+     * @param type the type of card we want to pick {@link PlayableCardType}.
+     */
     @Override
     public void pickCardFromDeck(PlayableCardType type) {
         this.sendMessage(new PickCardFromDeckMessage(this.nickname, type));
     }
 
+    /**
+     * This method is used to send a {@link ChosenColorMessage} to server.
+     * @param color the selected color.
+     */
     @Override
     public void chooseColor(Color color) {
         this.sendMessage(new ChosenColorMessage(this.nickname, color));
     }
 
+    /**
+     * This method is used to send a {@link ChosenGoalCardMessage} to server
+     * @param cardIdx which of the two proposed goal card we want to choose.
+     */
     @Override
     public void choosePrivateGoalCard(int cardIdx) {
         this.sendMessage(new ChosenGoalCardMessage(this.nickname, cardIdx));
     }
 
+    /**
+     * This method is used to send a {@link RequestAvailableGamesMessage} to server.
+     */
     @Override
     public void availableGames() {
         this.sendMessage(new RequestAvailableGamesMessage(this.nickname));
     }
 
+    /**
+     * This method is used to configure the "interface" (e.g. storing on
+     * a separate JSON file the configuration) after {@link CreatedPlayerMessage}
+     * has arrived
+     * @param nick the nickname of the player
+     * @param token the token associated to the client.
+     */
     @Override
     public void configure(String nick, String token){
         this.nickname = nick;

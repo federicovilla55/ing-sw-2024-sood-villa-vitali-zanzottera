@@ -23,7 +23,8 @@ public class Wait extends ClientState {
 
     @Override
     public void nextState(CreatedPlayerMessage message) {
-        super.nextState(message);
+        this.clientInterface.configure(message.getNick(), message.getToken());
+        this.listenersManager.notifyPlayerCreationListener(message.getNick());
         clientController.setNextState(new NotGame(clientController), true);
     }
 

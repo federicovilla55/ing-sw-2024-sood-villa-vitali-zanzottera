@@ -10,8 +10,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This record based class is used as parser for commands.
+ * @param clientController the {@link ClientController} on which invoke methods
+ */
 public record CommandParser(ClientController clientController) {
 
+    /**
+     * This method is used to parse commands' arguments
+     * @param args a {@link String} representing the arguments of the command
+     * @param deleteSpaces if it is <code>true</code> then space are deleted.
+     * @return a {@link String} array containing parsed arguments
+     * @throws IllegalArgumentException if one command argument is empty
+     */
     private static String[] parseArguments(String args, boolean deleteSpaces) throws IllegalArgumentException {
         if (args == null) throw new IllegalArgumentException();
 
@@ -29,6 +40,10 @@ public record CommandParser(ClientController clientController) {
         return arguments;
     }
 
+    /**
+     * This method is used to parse a <code>choose_color</code> command
+     * @param commandArgs the arguments of the command
+     */
     public void chooseColor(String commandArgs) {
         String[] parsedArguments;
 
@@ -51,6 +66,10 @@ public record CommandParser(ClientController clientController) {
         }
     }
 
+    /**
+     * This method is used to parse a <code>choose_goal</code> command
+     * @param commandArgs the arguments of the command
+     */
     public void chooseGoal(String commandArgs) {
         String[] parsedArguments;
 
@@ -73,6 +92,10 @@ public record CommandParser(ClientController clientController) {
         }
     }
 
+    /**
+     * This method is used to parse a <code>create_game</code> command
+     * @param commandArgs the arguments of the command
+     */
     public void createGame(String commandArgs) {
         String[] parsedArguments;
 
@@ -96,6 +119,10 @@ public record CommandParser(ClientController clientController) {
         }
     }
 
+    /**
+     * This method is used to parse a <code>join_game</code> command
+     * @param commandArgs the arguments of the command
+     */
     public void joinGame(String commandArgs) {
         String[] parsedArguments;
 
@@ -114,6 +141,10 @@ public record CommandParser(ClientController clientController) {
         }
     }
 
+    /**
+     * This method is used to parse a <code>join_first_gamer</code> command
+     * @param commandArgs the arguments of the command
+     */
     public void joinFirstAvailableGame(String commandArgs) {
         String[] parsedArguments;
 
@@ -136,6 +167,10 @@ public record CommandParser(ClientController clientController) {
         }
     }
 
+    /**
+     * This method is used to parse a <code>place_card</code> command
+     * @param commandArgs the arguments of the command
+     */
     public void placeCard(String commandArgs) {
         String[] parsedArguments;
 
@@ -171,6 +206,10 @@ public record CommandParser(ClientController clientController) {
         }
     }
 
+    /**
+     * This method is used to parse a <code>pick_card_table</code> command
+     * @param commandArgs the arguments of the command
+     */
     public void pickCardFromTable(String commandArgs) {
         String[] parsedArguments;
 
@@ -217,6 +256,10 @@ public record CommandParser(ClientController clientController) {
         }
     }
 
+    /**
+     * This method is used to parse a <code>pick_card_deck</code> command
+     * @param commandArgs the arguments of the command
+     */
     public void pickCardFromDeck(String commandArgs) {
         String[] parsedArguments;
 
@@ -239,6 +282,10 @@ public record CommandParser(ClientController clientController) {
         }
     }
 
+    /**
+     * This method is used to parse a <code>create_player</code> command
+     * @param commandArgs the arguments of the command
+     */
     public void createPlayer(String commandArgs) {
         String[] parsedArguments;
 
@@ -257,6 +304,10 @@ public record CommandParser(ClientController clientController) {
         }
     }
 
+    /**
+     * This method is used to parse a <code>send_chat_message</code> command
+     * @param commandArgs the arguments of the command
+     */
     public void sendChatMessage(String commandArgs) {
         String[] parsedArguments;
 
@@ -275,6 +326,10 @@ public record CommandParser(ClientController clientController) {
         }
     }
 
+    /**
+     * This method is used to parse a <code>place_initial_card</code> command
+     * @param commandArgs the arguments of the command
+     */
     public void placeInitialCard(String commandArgs) {
         String[] parsedArguments;
 

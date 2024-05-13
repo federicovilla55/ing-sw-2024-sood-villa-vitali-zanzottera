@@ -1,5 +1,8 @@
 package it.polimi.ingsw.gc19.View.Listeners;
 
+/**
+ * This enum represents all possible listener types.
+ */
 public enum ListenerType {
     TURN_LISTENER,
     SETUP_LISTENER,

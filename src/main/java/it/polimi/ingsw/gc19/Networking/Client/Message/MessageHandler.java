@@ -22,30 +22,35 @@ import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 import java.util.ArrayDeque;
 
 /**
- * Handles incoming messages from the server to the client by implementing the AllMessageVisitor interface (design patter visitor).
+ * This class is responsible for visiting all messages (excluding heartbeats) received
+ * from the network. If necessary, it updates {@link LocalModel} and notifies {@link ClientController}.
+ * Its implementation is strongly based on visitor design pattern.
  */
 public class MessageHandler extends Thread implements AllMessageVisitor{
 
     private final ArrayDeque<MessageToClient> messagesToHandle;
 
-    private ClientInterface client;
-
     private LocalModel localModel;
     private final ClientController clientController;
-
-    public ClientController getClientController() {
-        return clientController;
-    }
 
     public MessageHandler(ClientController clientController){
         this.messagesToHandle = new ArrayDeque<>();
         this.clientController = clientController;
     }
 
-    public void setClient(ClientInterface client){
-        this.client = client;
+    /**
+     * Getter for {@link ClientController} associated.
+     * @return the {@link ClientController} associated to the object.
+     */
+    public ClientController getClientController() {
+        return clientController;
     }
 
+    /**
+     * This method is used to push a new {@link MessageToClient} inside the dequeue of updates
+     * of {@link MessageHandler}
+     * @param message the {@link MessageToClient} to push inside the dequeue
+     */
     public void update(MessageToClient message) {
         synchronized (this.messagesToHandle){
             this.messagesToHandle.add(message);
@@ -53,6 +58,10 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         }
     }
 
+    /**
+     * Setter for {@link LocalModel}
+     * @param model the {@link LocalModel} to set
+     */
     public synchronized void setLocalModel(LocalModel model){
         this.localModel = model;
         this.notifyAll();
@@ -69,12 +78,22 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         }
     }
 
+    /**
+     * Getter for {@link MessageToClient} dequeue
+     * @return {@link ArrayDeque<MessageToClient>} containing all the {@link MessageToClient} that
+     * {@link MessageHandler} haven't processed yet
+     */
     public ArrayDeque<MessageToClient> getMessagesToHandle(){
         synchronized (this.messagesToHandle) {
             return this.messagesToHandle;
         }
     }
 
+    /**
+     * This method is inherited from {@link Thread}. It is executed by the thread
+     * bound to {@link MessageHandler}. It retrieves one by one messages from dequeue
+     * and processes them.
+     */
     @Override
     public void run() {
         MessageToClient message;
@@ -98,16 +117,27 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         }
     }
 
+    /**
+     * This method is used to interrupt thread of {@link MessageHandler}
+     */
     public void interruptMessageHandler(){
         this.interrupt();
     }
 
+    /**
+     * This method visits a {@link AcceptedChooseGoalCardMessage}: it updates {@link LocalModel}.
+     * @param message the {@link AcceptedChooseGoalCardMessage} to visit
+     */
     @Override
     public void visit(AcceptedChooseGoalCardMessage message) {
         waitForLocalModel();
         this.localModel.setPrivateGoal(message.getGoalCard());
     }
 
+    /**
+     * This method visits a {@link AcceptedColorMessage}: it updates {@link LocalModel}.
+     * @param message the {@link AcceptedColorMessage} to visit
+     */
     @Override
     public void visit(AcceptedColorMessage message) {
         waitForLocalModel();
@@ -119,6 +149,11 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         }
     }
 
+    /**
+     * This method visits a {@link OwnAcceptedPickCardFromDeckMessage}: it updates {@link LocalModel}
+     * and notifies {@link ClientController} to change its state.
+     * @param message the {@link OwnAcceptedPickCardFromDeckMessage} to visit
+     */
     @Override
     public void visit(OwnAcceptedPickCardFromDeckMessage message) {
         waitForLocalModel();
@@ -127,6 +162,11 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link OtherAcceptedPickCardFromDeckMessage}: it updates {@link LocalModel}
+     * and notifies {@link ClientController} to change its state.
+     * @param message the {@link OtherAcceptedPickCardFromDeckMessage} to visit
+     */
     @Override
     public void visit(OtherAcceptedPickCardFromDeckMessage message) {
         waitForLocalModel();
@@ -135,6 +175,11 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link AcceptedPickCardFromTable}: it updates {@link LocalModel}
+     * and notifies {@link ClientController} to change its state.
+     * @param message the {@link AcceptedPickCardFromTable} to visit
+     */
     @Override
     public void visit(AcceptedPickCardFromTable message) {
         waitForLocalModel();
@@ -150,6 +195,11 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
     }
 
+    /**
+     * This method visits a {@link AcceptedPlacePlayableCardMessage}: it updates {@link LocalModel}
+     * and notifies {@link ClientController} to change its state.
+     * @param message the {@link AcceptedPlacePlayableCardMessage} to visit
+     */
     @Override
     public void visit(AcceptedPlacePlayableCardMessage message) {
         waitForLocalModel();
@@ -161,6 +211,10 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         this.localModel.setVisibleSymbols(message.getNick(), message.getVisibleSymbols());
     }
 
+    /**
+     * This method visits a {@link AcceptedPlaceInitialCard}: it updates {@link LocalModel}.
+     * @param message the {@link AcceptedPlaceInitialCard} to visit
+     */
     @Override
     public void visit(AcceptedPlaceInitialCard message) {
         waitForLocalModel();
@@ -168,17 +222,30 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         this.localModel.setVisibleSymbols(message.getNick(), message.getVisibleSymbols());
     }
 
+    /**
+     * This method visits a {@link RefusedActionMessage}: notifies {@link ClientController} to change its state.
+     * @param message the {@link RefusedActionMessage} to visit
+     */
     @Override
     public void visit(RefusedActionMessage message) {
         this.clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link NotifyChatMessage}: it updates {@link LocalModel}.
+     * @param message the {@link NotifyChatMessage} to visit
+     */
     @Override
     public void visit(NotifyChatMessage message) {
         waitForLocalModel();
         this.localModel.updateMessages(new Message(message.getMessage(), message.getSender(), String.valueOf(message.getHeader())));
     }
 
+    /**
+     * This method visits a {@link GameConfigurationMessage}: it updates {@link LocalModel}
+     * and notifies {@link ClientController} to change its state.
+     * @param message the {@link GameConfigurationMessage} to visit
+     */
     @Override
     public void visit(GameConfigurationMessage message) {
         waitForLocalModel();
@@ -190,19 +257,31 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link OtherStationConfigurationMessage}: it updates {@link LocalModel}.
+     * @param message the {@link OtherStationConfigurationMessage} to visit
+     */
     @Override
     public void visit(OtherStationConfigurationMessage message) {
         waitForLocalModel();
         this.localModel.setOtherStations(message.getNick(),
                 new OtherStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
                         message.getNumPoints(), message.getPlacedCardSequence(), message.getCardsInHand()));
-   }
+    }
 
+    /**
+     * This method visits a {@link OwnStationConfigurationMessage}: it updates {@link LocalModel}.
+     * @param message the {@link OwnStationConfigurationMessage} to visit
+     */
     @Override
     public void visit(OwnStationConfigurationMessage message) {
         this.clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link TableConfigurationMessage}: it updates {@link LocalModel}.
+     * @param message the {@link TableConfigurationMessage} to visit
+     */
     @Override
     public void visit(TableConfigurationMessage message) {
         waitForLocalModel();
@@ -212,33 +291,60 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
                                                 message.getNextSeedOfGoldDeck()));
     }
 
+    /**
+     * This method visits an {@link AvailableColorsMessage}: it updates {@link LocalModel}.
+     * @param message the {@link AvailableColorsMessage} to visit
+     */
     @Override
     public void visit(AvailableColorsMessage message) {
         this.localModel.setAvailableColors(message.getAvailableColors());
     }
 
+    /**
+     * This method visits a {@link EndGameMessage}: it updates {@link LocalModel}
+     * and notifies {@link ClientController} to change its state.
+     * @param message the {@link EndGameMessage} to visit
+     */
     @Override
     public void visit(EndGameMessage message) {
         localModel.setWinners(message.getWinnerNicks());
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link GamePausedMessage}: it notifies {@link ClientController} to change its state.
+     * @param message the {@link GamePausedMessage} to visit
+     */
     @Override
     public void visit(GamePausedMessage message) {
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link GameResumedMessage}: it notifies {@link ClientController} to change its state.
+     * @param message the {@link GameResumedMessage} to visit
+     */
     @Override
     public void visit(GameResumedMessage message) {
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link NewPlayerConnectedToGameMessage}: it updates {@link LocalModel}
+     * and notifies {@link ClientController} to change its state.
+     * @param message the {@link NewPlayerConnectedToGameMessage} to visit
+     */
     @Override
     public void visit(NewPlayerConnectedToGameMessage message) {
         waitForLocalModel();
         this.localModel.setPlayerActive(message.getPlayerName());
     }
 
+    /**
+     * This method visits a {@link StartPlayingGameMessage}: it updates {@link LocalModel}
+     * and notifies {@link ClientController} to change its state.
+     * @param message the {@link StartPlayingGameMessage} to visit
+     */
     @Override
     public void visit(StartPlayingGameMessage message) {
         waitForLocalModel();
@@ -246,27 +352,47 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link CreatedGameMessage}: it notifies {@link ClientController} to change its state.
+     * @param message the {@link CreatedGameMessage} to visit
+     */
     @Override
     public void visit(CreatedGameMessage message) {
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link AvailableGamesMessage}: it notifies {@link ClientController} to change its state.
+     * @param message the {@link AvailableGamesMessage} to visit
+     */
     @Override
     public void visit(AvailableGamesMessage message) {
         this.clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link BeginFinalRoundMessage}: it notifies {@link ClientController} to change its state.
+     * @param message the {@link GameConfigurationMessage} to visit
+     */
     @Override
     public void visit(BeginFinalRoundMessage message) {
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link CreatedPlayerMessage}: it notifies {@link ClientController} to change its state.
+     * @param message the {@link CreatedPlayerMessage} to visit
+     */
     @Override
     public void visit(CreatedPlayerMessage message) {
-        this.client.configure(message.getNick(), message.getToken());
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link DisconnectedPlayerMessage}: it updates {@link LocalModel}
+     * and notifies {@link ClientController} to change its state.
+     * @param message the {@link DisconnectedPlayerMessage} to visit
+     */
     @Override
     public void visit(DisconnectedPlayerMessage message) {
         waitForLocalModel();
@@ -274,11 +400,21 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link JoinedGameMessage}: it updates {@link LocalModel}
+     * and notifies {@link ClientController} to change its state.
+     * @param message the {@link JoinedGameMessage} to visit
+     */
     @Override
     public void visit(JoinedGameMessage message) {
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link PlayerReconnectedToGameMessage}: it updates {@link LocalModel}
+     * and notifies {@link ClientController} to change its state.
+     * @param message the {@link PlayerReconnectedToGameMessage} to visit
+     */
     @Override
     public  void visit(PlayerReconnectedToGameMessage message) {
         waitForLocalModel();
@@ -286,26 +422,46 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link GameHandlingErrorMessage}: it notifies {@link ClientController} to change its state.
+     * @param message the {@link GameHandlingErrorMessage} to visit
+     */
     @Override
     public void visit(GameHandlingErrorMessage message) {
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link DisconnectFromGameMessage}: it notifies {@link ClientController} to change its state.
+     * @param message the {@link DisconnectFromGameMessage} to visit
+     */
     @Override
     public void visit(DisconnectFromGameMessage message) {
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link DisconnectFromServerMessage}: it notifies {@link DisconnectFromServerMessage} to change its state.
+     * @param message the {@link GameConfigurationMessage} to visit
+     */
     @Override
     public void visit(DisconnectFromServerMessage message) {
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link TurnStateMessage}: it notifies {@link ClientController} to change its state.
+     * @param message the {@link TurnStateMessage} to visit
+     */
     @Override
     public void visit(TurnStateMessage message) {
         clientController.getCurrentState().nextState(message);
     }
 
+    /**
+     * This method visits a {@link NetworkHandlingErrorMessage}: it notifies {@link ClientController} to change its state.
+     * @param message the {@link NetworkHandlingErrorMessage} to visit
+     */
     @Override
     public void visit(NetworkHandlingErrorMessage message) {
         clientController.getCurrentState().nextState(message);

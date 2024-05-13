@@ -35,9 +35,7 @@ public abstract class ClientState {
     public void nextState(OwnAcceptedPickCardFromDeckMessage message) {}
     public void nextState(AcceptedPickCardFromTable message) {}
 
-    public void nextState(CreatedPlayerMessage message) {
-        this.listenersManager.notifyPlayerCreationListener(message.getNick());
-    }
+    public void nextState(CreatedPlayerMessage message) { }
 
     public void nextState(CreatedGameMessage message) {
         this.listenersManager.notifyGameHandlingListener(GameHandlingEvents.CREATED_GAME, List.of(message.getGameName()));
