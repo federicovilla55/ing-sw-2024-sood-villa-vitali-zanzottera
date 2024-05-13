@@ -1,12 +1,15 @@
 package it.polimi.ingsw.gc19.View.ClientController;
 
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
+import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.AvailableGamesMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +26,15 @@ public class Disconnect extends ClientState {
         startReconnecting();
     }
 
+    /**
+     * This method is used when a disconnected client receives a {@link JoinedGameMessage}.
+     * First, it interrupts reconnection routine, then set {@link ViewState} of
+     * {@link ClientController} to {@link Wait} and notifies view.
+     * If <code>{@link ClientController#getLocalModel()} == null</code>, then it builds
+     * a new {@link LocalModel}, sets <code>gameName</code> and <code>nickname</code>
+     * and manages {@link ListenersManager}
+     * @param message is the {@link JoinedGameMessage} to be handled
+     */
     @Override
     public void nextState(JoinedGameMessage message) {
         reconnectScheduler.interrupt();
@@ -46,6 +58,12 @@ public class Disconnect extends ClientState {
         }
     }
 
+    /**
+     * This method is used when a disconnected client receives an {@link AvailableGamesMessage}.
+     * First, it interrupts reconnection routine, set {@link ViewState} of {@link ClientController}
+     * to {@link NotGame} and notifies view.
+     * @param message is the {@link AvailableGamesMessage} to be handled
+     */
     @Override
     public void nextState(AvailableGamesMessage message) {
         reconnectScheduler.interrupt();
@@ -57,12 +75,19 @@ public class Disconnect extends ClientState {
         super.nextState(message);
     }
 
+    /**
+     * This method handles a {@link GameHandlingErrorMessage}. It sets
+     * {@link ViewState} in {@link ClientController} to {@link NotPlayer} if {@link GameHandlingErrorMessage#getErrorType()}
+     * is {@link Error#PLAYER_NAME_ALREADY_IN_USE}; otherwise it sets it to {@link NotGame}
+     * if {@link GameHandlingErrorMessage#getErrorType()} is {@link Error#PLAYER_NAME_ALREADY_IN_USE} ot
+     * {@link Error#GAME_NOT_FOUND}.
+     * @param message the {@link GameHandlingErrorMessage} to be handled
+     */
     @Override
     public void nextState(GameHandlingErrorMessage message) {
         switch (message.getErrorType()) {
             case Error.PLAYER_NAME_ALREADY_IN_USE -> {
                 clientController.setNextState(new NotPlayer(clientController), true);
-
                 this.listenersManager.notifyErrorPlayerCreationListener("Player name is already in use!");
             }
             case Error.PLAYER_NOT_IN_GAME, Error.GAME_NOT_FOUND -> {
@@ -72,6 +97,12 @@ public class Disconnect extends ClientState {
         }
     }
 
+    /**
+     * This method handles {@link NetworkHandlingErrorMessage}. First, it stops
+     * reconnection routine and then calls {@link ClientController#handleError(NetworkHandlingErrorMessage)}
+     * to handle the error.
+     * @param message the {@link NetworkHandlingErrorMessage} to be handled
+     */
     @Override
     public void nextState(NetworkHandlingErrorMessage message) {
         reconnectScheduler.interrupt();
@@ -81,16 +112,30 @@ public class Disconnect extends ClientState {
          */
     }
 
+    /**
+     * Getter for {@link ViewState} associated to this state
+     * @return the {@link ViewState} associated to this state.
+     */
     @Override
     public ViewState getState() {
         return ViewState.DISCONNECT;
     }
 
+    /**
+     * This method is used to start reconnection routine
+     */
     public void startReconnecting(){
         reconnectScheduler = new Thread(this::reconnect);
         reconnectScheduler.start();
     }
 
+    /**
+     * This method performs reconnection. It tries to reconnect to server for,
+     * at max, {@link ClientSettings#MAX_RECONNECTION_TRY_BEFORE_ABORTING}, waiting between one trial
+     * and other for {@link ClientSettings#WAIT_BETWEEN_RECONNECTION_TRY_IN_CASE_OF_EXPLICIT_NETWORK_ERROR}.
+     * For reconnection, it calls {@link ClientInterface#reconnect()}. When reconnection fails, it notifies
+     * view and then executes <code>System.exit()</code>
+     */
     public void reconnect() {
         int numReconnect = 0;
 

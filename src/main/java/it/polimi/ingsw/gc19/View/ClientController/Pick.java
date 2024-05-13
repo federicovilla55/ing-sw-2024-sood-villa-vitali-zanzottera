@@ -10,6 +10,10 @@ class Pick extends ClientState {
         super(clientController);
     }
 
+    /**
+     * Getter for {@link ViewState} associated to this state
+     * @return the {@link ViewState} associated to this state.
+     */
     @Override
     public ViewState getState() {
         return ViewState.PICK;

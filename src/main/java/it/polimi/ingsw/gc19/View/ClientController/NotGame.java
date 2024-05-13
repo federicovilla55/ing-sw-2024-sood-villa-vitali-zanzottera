@@ -19,18 +19,30 @@ class NotGame extends ClientState {
         this.gameSearcher = new ScheduledThreadPoolExecutor(1);
     }
 
+    /**
+     * This method starts a {@link ScheduledExecutorService} that periodically
+     * asks server about available games.
+     */
     public void startGameSearch(){
         if(!this.gameSearcher.isShutdown()){
             this.gameSearcher.scheduleAtFixedRate(() -> clientInterface.availableGames(), 0, ClientSettings.TIME_BETWEEN_CONSECUTIVE_AVAILABLE_GAMES_REQUESTS, TimeUnit.SECONDS);
         }
     }
 
+    /**
+     * This method shuts down {@link ScheduledExecutorService} that was
+     * started by {@link NotGame#startGameSearch()}
+     */
     public void stopGameSearch(){
         if(!this.gameSearcher.isShutdown()){
             this.gameSearcher.shutdownNow();
         }
     }
 
+    /**
+     * Getter for {@link ViewState} associated to this state
+     * @return the {@link ViewState} associated to this state.
+     */
     @Override
     public ViewState getState() {
         return ViewState.NOT_GAME;

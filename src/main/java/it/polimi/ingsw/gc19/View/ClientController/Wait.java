@@ -8,12 +8,13 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
+import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 
 
 /**
- * The client is waiting for a message from the server to continue playing.
- * This can be because of a place/draw he just made or because it's someone
- * else's turn.
+ * This class represents a state where client is waiting for a message from the server to continue playing.
+ * This can be because of a place/draw he just made or because it's someone else's turn.
  */
 public class Wait extends ClientState {
 
@@ -21,6 +22,12 @@ public class Wait extends ClientState {
         super(clientController);
     }
 
+    /**
+     * This method handles {@link CreatedPlayerMessage}. It sets {@link ViewState} of
+     * {@link ClientController} to {@link NotGame} and configures "network interface"
+     * associated to that player.
+     * @param message is the {@link CreatedPlayerMessage} to be handled
+     */
     @Override
     public void nextState(CreatedPlayerMessage message) {
         this.clientInterface.configure(message.getNick(), message.getToken());
@@ -28,6 +35,11 @@ public class Wait extends ClientState {
         clientController.setNextState(new NotGame(clientController), true);
     }
 
+    /**
+     * This method handles {@link TurnStateMessage}. It sets {@link ViewState} of
+     * {@link ClientController} to {@link Pick} or {@link OtherTurn} depending on {@param message}
+     * @param message the {@link TurnStateMessage} to be handled
+     */
     @Override
     public void nextState(TurnStateMessage message) {
         if (message.getNick().equals(clientController.getNickname()) && message.getTurnState() == TurnState.DRAW) {
@@ -40,23 +52,42 @@ public class Wait extends ClientState {
         }
     }
 
+    /**
+     * This method handles {@link EndGameMessage}. It sets {@link ViewState} of 
+     * {@link ClientController} to {@link End}.
+     * @param message the {@link EndGameMessage} to be handled
+     */
     @Override
     public void nextState(EndGameMessage message) {
         clientController.setNextState(new End(clientController), true);
         super.nextState(message);
     }
 
+    /**
+     * This method handle {@link OwnAcceptedPickCardFromDeckMessage}. It sets {@link ViewState} in
+     * {@link ClientController} to {@link OtherTurn}
+     * @param message the {@link OwnAcceptedPickCardFromDeckMessage} to be handled
+     */
     @Override
     public void nextState(OwnAcceptedPickCardFromDeckMessage message) {
         clientController.setNextState(new OtherTurn(clientController), true);
     }
 
+    /**
+     * This method handles {@link CreatedGameMessage}. It builds a new {@link LocalModel}
+     * and updates state inside {@link ClientController}
+     * @param message the {@link CreatedGameMessage} to be handled
+     */
     @Override
     public void nextState(JoinedGameMessage message) {
         buildGame(message.getGameName());
         super.nextState(message);
     }
 
+    /**
+     * This method builds and set locally a new {@link LocalModel}.
+     * @param gameName is the name of the game to build
+     */
     private void buildGame(String gameName) {
         LocalModel localModel = new LocalModel();
         localModel.setListenersManager(listenersManager);
@@ -68,37 +99,21 @@ public class Wait extends ClientState {
         this.clientController.getView().setLocalModel(localModel);
     }
 
+    /**
+     * This method handles {@link CreatedGameMessage}. It builds a new {@link LocalModel}
+     * and updates state inside {@link ClientController}
+     * @param message the {@link CreatedGameMessage} to be handled
+     */
     @Override
     public void nextState(CreatedGameMessage message) {
         buildGame(message.getGameName());
         super.nextState(message);
     }
 
-    @Override
-    public void nextState(DisconnectFromServerMessage message){
-        super.nextState(message);
-        this.clientInterface.getMessageHandler().interruptMessageHandler();
-        this.clientInterface.stopClient();
-    }
-
-    @Override
-    public void nextState(OwnStationConfigurationMessage message){
-        if(clientController.getLocalModel() == null){
-            LocalModel localModel = new LocalModel();
-
-            localModel.setListenersManager(listenersManager);
-            localModel.setNickname(message.getNick());
-
-            clientController.setLocalModel(localModel);
-            clientController.getView().setLocalModel(localModel);
-            clientController.getClientInterface().getMessageHandler().setLocalModel(localModel);
-        }
-
-        this.clientController.getLocalModel().setPersonalStation(new PersonalStation(message.getNick(), message.getColor(), message.getVisibleSymbols(),
-                                                               message.getNumPoints(), message.getPlacedCardSequence(), message.getPrivateGoalCard(),
-                                                               message.getGoalCard1(), message.getGoalCard2(), message.getCardsInHand(), message.getInitialCard()));
-    }
-
+    /**
+     * Getter for {@link ViewState} associated to this state
+     * @return the {@link ViewState} associated to the state
+     */
     @Override
     public ViewState getState() {
         return ViewState.WAIT;

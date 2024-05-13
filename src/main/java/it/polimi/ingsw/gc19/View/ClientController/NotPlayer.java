@@ -12,6 +12,10 @@ public class NotPlayer extends ClientState {
         super(clientController);
     }
 
+    /**
+     * Getter for {@link ViewState} associated to this state
+     * @return the {@link ViewState} associated to this state.
+     */
     @Override
     public ViewState getState() {
         return ViewState.NOT_PLAYER;

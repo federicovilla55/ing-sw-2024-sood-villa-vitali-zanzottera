@@ -85,6 +85,10 @@ public abstract class ClientState {
         this.clientController.getView().notify("You leave the server!");
         this.clientController.setLocalModel(null);
         this.clientInterface.getMessageHandler().setLocalModel(null);
+        this.clientInterface.getMessageHandler().interruptMessageHandler();
+        this.clientInterface.stopClient();
+
+        //@TODO: minimum wait
         System.exit(-1);
     };
 
