@@ -47,7 +47,7 @@ public record CommandParser(ClientController clientController) {
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("required " + CommandType.CHOOSE_COLOR.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.CHOOSE_COLOR.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -69,7 +69,7 @@ public record CommandParser(ClientController clientController) {
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("required " + CommandType.CHOOSE_GOAL.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.CHOOSE_GOAL.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -92,7 +92,7 @@ public record CommandParser(ClientController clientController) {
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("required " + CommandType.CREATE_GAME.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.CREATE_GAME.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -110,7 +110,7 @@ public record CommandParser(ClientController clientController) {
             clientController.joinGame(parsedArguments[0]);
         }
         else {
-            this.clientController.getView().notifyGenericError("required " + CommandType.JOIN_GAME.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.JOIN_GAME.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -132,7 +132,7 @@ public record CommandParser(ClientController clientController) {
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("required " + CommandType.JOIN_FIRST_GAME.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.JOIN_FIRST_GAME.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -167,7 +167,7 @@ public record CommandParser(ClientController clientController) {
             clientController.placeCard(parsedArguments[0], parsedArguments[1], direction, cardOrientation);
         }
         else {
-            this.clientController.getView().notifyGenericError("required " + CommandType.PLACE_CARD.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.PLACE_CARD.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -202,7 +202,7 @@ public record CommandParser(ClientController clientController) {
             clientController.pickCardFromTable(cardType, position);
         }
         else {
-            this.clientController.getView().notifyGenericError("required " + CommandType.PICK_CARD_TABLE.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.PICK_CARD_TABLE.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -224,7 +224,7 @@ public record CommandParser(ClientController clientController) {
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("required " + CommandType.PICK_CARD_DECK.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.PICK_CARD_DECK.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -242,7 +242,7 @@ public record CommandParser(ClientController clientController) {
             clientController.createPlayer(parsedArguments[0]);
         }
         else{
-            this.clientController.getView().notifyGenericError("required " + CommandType.CREATE_PLAYER.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.CREATE_PLAYER.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -260,7 +260,7 @@ public record CommandParser(ClientController clientController) {
             clientController.sendChatMessage(parsedArguments[0], new ArrayList<>(List.of(parsedArguments)).subList(1, parsedArguments.length));
         }
         else {
-            this.clientController.getView().notifyGenericError("required " + CommandType.SEND_CHAT_MESSAGE.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.SEND_CHAT_MESSAGE.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -282,7 +282,7 @@ public record CommandParser(ClientController clientController) {
             }
         }
         else {
-            this.clientController.getView().notifyGenericError("required " + CommandType.PLACE_INITIAL_CARD.getNumArgs() + "arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.PLACE_INITIAL_CARD.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 }

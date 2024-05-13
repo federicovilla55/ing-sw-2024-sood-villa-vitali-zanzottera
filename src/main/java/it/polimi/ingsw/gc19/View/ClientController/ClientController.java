@@ -151,12 +151,14 @@ public class ClientController {
         }
         else{
             for(String u : users){
-                if(!this.localModel.getOtherStations().containsKey(u)){
+                if(!this.localModel.getStations().containsKey(u)){
                     this.view.notifyGenericError("You are trying to send a message to user " + u + " that does not exists in game!");
                     return;
                 }
             }
-            localModel.getMessages().add(new Message(message, this.nickname, new ArrayList<>(users)));
+            if(!users.contains(this.nickname)) {
+                localModel.getMessages().add(new Message(message, this.nickname, new ArrayList<>(users)));
+            }
             clientNetwork.sendChatMessage(new ArrayList<>(users), message);
         }
     }

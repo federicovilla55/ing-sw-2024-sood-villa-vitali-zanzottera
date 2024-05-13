@@ -111,6 +111,9 @@ public abstract class ClientState {
             clientController.setNextState(new Setup(clientController), true);
         }
         else {
+            if(message.getFinalRound()){
+                clientController.getView().notify("Final round has begun!");
+            }
             if(message.getActivePlayer().equals(clientInterface.getNickname())){
                 clientController.setNextState(new Place(clientController), true);
             }

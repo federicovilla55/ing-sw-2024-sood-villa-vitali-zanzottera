@@ -182,7 +182,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(GameConfigurationMessage message) {
         waitForLocalModel();
-        //@TODO: final round handling
         this.localModel.setNumPlayers(message.getNumPlayers());
         if(message.getFirstPlayer() != null) {
             this.localModel.setPlayerActive(message.getFirstPlayer());

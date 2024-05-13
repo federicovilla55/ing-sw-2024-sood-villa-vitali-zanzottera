@@ -773,7 +773,7 @@ public class TUIView implements UI, GeneralListener {
     private void TUIViewCommands(Matcher matcher){
         switch (matcher.group(1)) {
             case "show_private_goal_card" -> choosePrivateGoalCardScene();
-            case "show_public_goal_cards" -> choosePublicGoalCardScene();
+            case "show_public_goal_cards" -> showPublicGoalCardScene();
             case "help" -> printHelper();
             case "show_initial_card" -> showInitialCard();
             case "show_chat" -> {
@@ -809,7 +809,7 @@ public class TUIView implements UI, GeneralListener {
             case CommandType.JOIN_GAME                -> commandParser.joinGame(args);
             case CommandType.AVAILABLE_COLORS         -> clientController.availableColors();
             case CommandType.CHOOSE_COLOR             -> commandParser.chooseColor(args);
-            case CommandType.CHOOSE_GOAL -> commandParser.chooseGoal(args);
+            case CommandType.CHOOSE_GOAL              -> commandParser.chooseGoal(args);
             case CommandType.PLACE_INITIAL_CARD       -> commandParser.placeInitialCard(args);
             case CommandType.PICK_CARD_DECK           -> commandParser.pickCardFromDeck(args);
             case CommandType.PICK_CARD_TABLE          -> commandParser.pickCardFromTable(args);
@@ -840,9 +840,11 @@ public class TUIView implements UI, GeneralListener {
             //System.out.print(">");
         }
         else {
-            System.out.println("Command " + command + " is not recognized! Try again...");
+            System.out.println("Command '" + command + "' is not recognized! Try again...");
             //System.out.print(">");
         }
+
+        System.out.println();
     }
 
     private void showInitialCard() {
@@ -856,6 +858,7 @@ public class TUIView implements UI, GeneralListener {
         else{
             System.out.println("No infos about your initial card, try later...");
         }
+        System.out.println();
     }
 
     private void choosePrivateGoalCardScene() {
@@ -881,10 +884,12 @@ public class TUIView implements UI, GeneralListener {
             else{
                 System.out.println("No infos about your private goal. Try later...");
             }
+
+            System.out.println();
         }
     }
 
-    private void choosePublicGoalCardScene() {
+    private void showPublicGoalCardScene() {
         System.out.println("Those are the public goal card: ");
         GoalCard goalCard = this.localModel.getTable().getPublicGoal1();
         System.out.println(goalCard.getCardDescription());
@@ -897,26 +902,25 @@ public class TUIView implements UI, GeneralListener {
 
     @Override
     public void notify(String message) {
-        System.out.println(message);
+        System.out.println(message + "\n");
         //System.out.print(">");
     }
 
     @Override
     public void notifyPlayerCreation(String name) {
-        System.out.println("Your player has been correctly created. Your username is: " + name);
-        System.out.println();
+        System.out.println("Your player has been correctly created. Your username is: " + name + "\n");
         //System.out.print(">");
     }
 
     @Override
     public void notifyPlayerCreationError(String error) {
-        System.out.println("[ERROR]: " + error);
+        System.out.println("[ERROR]: " + error + "\n");
         //System.out.print(">");
     }
 
     @Override
     public void notifyGenericError(String errorDescription){
-        System.err.println("[ERROR]: " + errorDescription);
+        System.err.println("[ERROR]: " + errorDescription + "\n");
         //System.out.print(">");
     }
 
@@ -925,11 +929,9 @@ public class TUIView implements UI, GeneralListener {
         switch (type){
             case GameHandlingEvents.CREATED_GAME -> System.out.println("The requested game '" + varArgs.getFirst() + "' has been created!");
             case GameHandlingEvents.JOINED_GAMES -> System.out.println("You have been registered to game named '" + varArgs.getFirst() + "'.");
-            case AVAILABLE_GAMES -> {
-                printTUIView(availableGamesTUIView(varArgs));
-                //System.out.print(">");
-            }
+            case AVAILABLE_GAMES -> printTUIView(availableGamesTUIView(varArgs));
         }
+        System.out.println();
     }
 
     @Override
@@ -957,15 +959,14 @@ public class TUIView implements UI, GeneralListener {
                 printPersonalStation();
             }
         }
-        //System.out.print(">");
+        System.out.println();
     }
 
     @Override
     public void notify(ArrayList<Message> msg){
-
         if(this.showState == ShowState.CHAT) {
             printChat();
-            //System.out.print(">");
+            System.out.println();
         }
     }
 
@@ -977,7 +978,7 @@ public class TUIView implements UI, GeneralListener {
             case RECONNECTED_PLAYER -> System.out.println(varArgs[0]+ " has reconnected to the game!");
             case DISCONNECTED_PLAYER -> System.out.println(varArgs[0]+ " disconnected...");
         }
-        //System.out.println(">");
+        System.out.println();
     }
 
     @Override
@@ -987,7 +988,7 @@ public class TUIView implements UI, GeneralListener {
         } else if (this.showState == ShowState.OTHER_STATION) {
             printOtherStation();
         }
-        //System.out.print(">");
+        System.out.println();
     }
 
     @Override
@@ -997,25 +998,23 @@ public class TUIView implements UI, GeneralListener {
         } else if (this.showState == ShowState.OTHER_STATION) {
             printOtherStation();
         }
-        //System.out.print(">");
-
+        System.out.println();
     }
 
     @Override
     public void notifyErrorStation(String... varArgs) {
-        System.err.println("[ERROR]: card " + varArgs[0] + " is not placeable starting from " + varArgs[1] + " in direction " + varArgs[2] + "! Try again...");
-        //System.out.print(">");
+        System.err.println("[ERROR]: card " + varArgs[0] + " is not placeable starting from " + varArgs[1] + " in direction " + varArgs[2] + "! Try again..." + "\n");
     }
 
     @Override
     public void notify(LocalTable localTable){
         if(this.showState == ShowState.PERSONAL_STATION) {
             printPersonalStation();
-            //System.out.print(">");
+            System.out.println();
         }
         else if(this.showState == ShowState.OTHER_STATION) {
             printOtherStation();
-            //System.out.print(">");
+            System.out.println();
         }
     }
 
@@ -1023,12 +1022,12 @@ public class TUIView implements UI, GeneralListener {
     public void notify(String nick, TurnState turnState){
         System.out.println();
         if(this.localModel.getPersonalStation().getOwnerPlayer().equals(nick)){
-            System.out.println("It is your turn, you can " + turnState.toString().toLowerCase());
+            System.out.println("It is your turn, you can " + turnState.toString().toLowerCase() + "\n");
         }
         else{
-            System.out.println("It is the turn of player '" + nick + "'. He / she can " + turnState.toString().toLowerCase());
+            System.out.println("It is the turn of player '" + nick + "'. He / she can " + turnState.toString().toLowerCase() + "\n");
         }
-        //System.out.print(">");
+        System.out.println();
     }
 
     @Override
@@ -1041,9 +1040,7 @@ public class TUIView implements UI, GeneralListener {
             case ViewState.DISCONNECT -> System.err.println("[NETWORK PROBLEMS]: there are network problems. In background, we are trying to fix them...");
             case ViewState.END -> printWinners();
         }
-
-        //System.out.print(">");
-
+        System.out.println();
     }
 
     private void clearTerminal(){
@@ -1065,25 +1062,36 @@ public class TUIView implements UI, GeneralListener {
 
         if(code.length == 2) {
             if (code[0].equals("goal") && this.localModel.getGoalCard(cardCode) != null) {
+                System.out.println();
                 printTUIView(goalCardEffectTUIView(this.localModel.getGoalCard(cardCode)));
+                System.out.println("Description: ");
+                System.out.println(this.localModel.getGoalCard(cardCode).getCardDescription());
                 return;
             }
 
             if((code[0].equals("resource") || code[0].equals("initial") || code[0].equals("gold")) && this.localModel.getPlayableCard(cardCode) != null) {
-                printTUIView(playableCardEffectTUIView(this.localModel.getPlayableCard(cardCode)));
+                System.out.println();
+                printTUIView(cardTUIView(this.localModel.getPlayableCard(cardCode)));
+                if(playableCardEffectTUIView(this.localModel.getPlayableCard(cardCode)).length != 0){
+                    printTUIView(playableCardEffectTUIView(this.localModel.getPlayableCard(cardCode)));
+                    System.out.println();
+                }
+                System.out.println("Description: ");
+                System.out.println(this.localModel.getPlayableCard(cardCode).getCardDescription());
                 return;
             }
 
+            System.out.println();
         }
 
-        System.out.println("Card code is not recognized! ");
-        //System.out.print(">");
+        System.out.println("Card code is not recognized! \n");
     }
 
     private void printChat(){
         if(localModel == null) return;
         this.clearTerminal();
         printTUIView(chatTUIView(localModel.getMessages()));
+        System.out.println();
     }
 
     private void printPersonalStation(){
@@ -1094,7 +1102,7 @@ public class TUIView implements UI, GeneralListener {
         this.clearTerminal();
         printScoreBoard(stationInfos.allStations());
         System.out.println("Your station:");
-        System.out.println("\n");
+        System.out.println();
         printTUIView(playerAreaTUIView(stationInfos.personalStation().getPlacedCardSequence()));
         System.out.println("\n");
         System.out.println("Your hand:");
@@ -1169,7 +1177,7 @@ public class TUIView implements UI, GeneralListener {
     private void printEnteringGameScene(){
         this.clearTerminal();
         System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
-        System.out.println("Now you can create or join a game.\n");
+        System.out.println("Now you can create or join a game.");
         System.out.println();
         //System.out.print(">");
     }
@@ -1177,9 +1185,14 @@ public class TUIView implements UI, GeneralListener {
     private void printWinners(){
         this.clearTerminal();
         System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
-        System.out.print("Game " + localModel.getGameName() + "ended! \nCongratulation to ");
+        System.out.println();
+        System.out.print("Game '" + localModel.getGameName() + "' ended! \nCongratulation to ");
         for(String name : localModel.getWinners()) System.out.print(name + " ");
         System.out.print("for winning the game!");
+        System.out.println();
+        System.out.println("Here the updated scoreboard: ");
+        printTUIView(scoreboardTUIView(localModel.getStations().values().toArray(new LocalStationPlayer[]{})));
+        System.out.println();
     }
 
     private void printHelper(){
@@ -1223,6 +1236,8 @@ public class TUIView implements UI, GeneralListener {
 
         System.out.println();
         System.out.println("-> help(): to see helper;");
+
+        System.out.println();
     }
 
 }
