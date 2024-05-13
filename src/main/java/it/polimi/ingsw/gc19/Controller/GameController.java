@@ -152,7 +152,12 @@ public class GameController{
                 // the client disconnected was the active player: turn goes to next player unless no other client is connected
                 if(!this.connectedClients.isEmpty()) {
                     this.gameAssociated.setTurnState(TurnState.PLACE);
-                    this.setNextPlayer();
+                    try {
+                        this.setNextPlayer();
+                    } catch (GameFinishedException e) {
+                        //do not send TurnStateMessage
+                        return;
+                    }
                     this.messageFactory.sendMessageToAllGamePlayers(
                             new TurnStateMessage(this.gameAssociated.getActivePlayer().getName(), this.gameAssociated.getTurnState())
                     );
@@ -320,9 +325,15 @@ public class GameController{
 
             if(this.gameAssociated.drawableCardsArePresent())
                 this.gameAssociated.setTurnState(TurnState.DRAW);
-            else
+            else {
                 // if there are no cards left to draw on table, the turn goes to next player
-                this.setNextPlayer();
+                try {
+                    this.setNextPlayer();
+                } catch (GameFinishedException e) {
+                    //do not send TurnStateMessage
+                    return;
+                }
+            }
 
             this.messageFactory.sendMessageToAllGamePlayers(
                     new TurnStateMessage(this.gameAssociated.getActivePlayer().getName(), this.gameAssociated.getTurnState())
@@ -354,7 +365,12 @@ public class GameController{
                                                                                                        new Tuple<>(card.getSeed(),card.getCardType()), type, gameAssociated.getDeckFromType(type).getNextCard().map(PlayableCard::getSeed).orElse(null)),nickname);
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
-        this.setNextPlayer();
+        try {
+            this.setNextPlayer();
+        } catch (GameFinishedException e) {
+            //do not send TurnStateMessage
+            return;
+        }
 
         this.messageFactory.sendMessageToAllGamePlayers(
                 new TurnStateMessage(this.gameAssociated.getActivePlayer().getName(), this.gameAssociated.getTurnState())
@@ -394,7 +410,13 @@ public class GameController{
         }
 
         this.gameAssociated.setTurnState(TurnState.PLACE);
-        this.setNextPlayer();
+        try {
+            this.setNextPlayer();
+        } catch (GameFinishedException e) {
+            //do not send TurnStateMessage
+            return;
+        }
+
 
         this.messageFactory.sendMessageToAllGamePlayers(
                 new TurnStateMessage(this.gameAssociated.getActivePlayer().getName(), this.gameAssociated.getTurnState())
@@ -432,14 +454,14 @@ public class GameController{
      * This method sets the next player, checking if this player is connected to the game or not.
      * If the player is not connected, the turn will go to the successive player
      */
-    private synchronized void setNextPlayer(){
+    private synchronized void setNextPlayer() throws GameFinishedException {
         Player selectedPlayer;
         do {
             selectedPlayer = this.gameAssociated.getNextPlayer();
             if(selectedPlayer.equals(this.gameAssociated.getFirstPlayer()) && this.gameAssociated.getFinalCondition()) {
                 if(this.gameAssociated.isFinalRound()){
                     this.endGame();
-                    return;
+                    throw new GameFinishedException();
                 }
                 else {
                     this.gameAssociated.setFinalRound(true);
