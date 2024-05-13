@@ -48,8 +48,8 @@ public class GUIView extends Application {
 
         } catch (RuntimeException e) {
             File url = new File(this.scenePath.NewConfigurationScene);
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(this.scenePath.NewConfigurationScene));
-            root = loader.load();
+            FXMLLoader loader = new FXMLLoader(url.toURL());
+            root = loader.load();//FXMLLoader.load(url.toURL());
             NewConfigurationController controller = loader.getController();
             controller.setCommandParser(this.commandParser);
             controller.setClientController(this.clientController);
