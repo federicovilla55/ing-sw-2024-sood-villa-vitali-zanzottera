@@ -379,6 +379,10 @@ public class GameController{
                                                                                        "You cannot pick a card from table in position " + position + " because slot is empty!"));
             return;
         }
+        catch (IllegalArgumentException illegalArgumentException){
+            this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_CARD_ERROR,
+                                                                                       illegalArgumentException.getMessage()));
+        }
 
         this.gameAssociated.getActivePlayer().getStation().updateCardsInHand(card);
         this.messageFactory.sendMessageToAllGamePlayers(new AcceptedPickCardFromTable(nickname,

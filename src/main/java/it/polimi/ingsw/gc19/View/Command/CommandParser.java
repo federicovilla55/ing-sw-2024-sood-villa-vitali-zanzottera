@@ -182,24 +182,35 @@ public record CommandParser(ClientController clientController) {
         }
 
         if (parsedArguments.length == CommandType.PICK_CARD_TABLE.getNumArgs()) {
-            PlayableCardType cardType;
-            int position;
+            String[] card = parsedArguments[0].toLowerCase().split("_");
 
-            try {
-                cardType = PlayableCardType.valueOf(parsedArguments[0].toUpperCase());
-            } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("card type must be in " + List.of(PlayableCardType.values()));
-                return;
+            if(card.length == 2) {
+                PlayableCardType type;
+                int cardNumber;
+
+                switch (card[0]){
+                    case "res" -> type = PlayableCardType.RESOURCE;
+                    case "gold" -> type = PlayableCardType.GOLD;
+                    default -> {
+                        this.clientController.getView().notifyGenericError("card type must be in [res, gold]");
+                        return;
+                    }
+                }
+
+                try{
+                    cardNumber = Integer.parseInt(card[1]);
+                }
+                catch (NumberFormatException numberFormatException){
+                    this.clientController.getView().notifyGenericError("card position must be integer");
+                    return;
+                }
+
+                clientController.pickCardFromTable(type, cardNumber);
+            }
+            else{
+                this.clientController.getView().notifyGenericError("card to pick argument must be of the form 'type'_'number'");
             }
 
-            try {
-                position = Math.abs(Integer.parseInt(parsedArguments[1]));
-            } catch (IllegalArgumentException illegalArgumentException) {
-                this.clientController.getView().notifyGenericError("position argument must be integer");
-                return;
-            }
-
-            clientController.pickCardFromTable(cardType, position);
         }
         else {
             this.clientController.getView().notifyGenericError("required " + CommandType.PICK_CARD_TABLE.getNumArgs() + " arguments, provided " + parsedArguments.length);

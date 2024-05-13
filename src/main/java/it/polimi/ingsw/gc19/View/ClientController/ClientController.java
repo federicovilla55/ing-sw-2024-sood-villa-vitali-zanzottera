@@ -204,6 +204,11 @@ public class ClientController {
             return;
         }
 
+        if(position < 0 || position > 2){
+            this.view.notifyGenericError("Position of card on table is incorrect!");
+            return;
+        }
+
         clientNetwork.pickCardFromTable(cardType, position);
 
         setNextState(new Wait(this), true);

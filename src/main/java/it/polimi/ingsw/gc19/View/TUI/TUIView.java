@@ -1225,7 +1225,7 @@ public class TUIView implements UI, GeneralListener {
 
         System.out.println("-> " + CommandType.PLACE_CARD.getCommandName() + "(anchor_code, to_place_code, direction, card_orientation): " +
                                    "to place card with code 'to_place_code' from card 'anchor_code' with the direction (UP_RIGHT, UP_LEFT, DOWN_LEFT, DOWN_RIGHT) and orientation (UP, DOWN) specified;");
-        System.out.println("-> " + CommandType.PICK_CARD_TABLE.getCommandName() + "(type, position): to pick a card of type 'type' (RESOURCE, GOLD) from table in position 'position';");
+        System.out.println("-> " + CommandType.PICK_CARD_TABLE.getCommandName() + "(name): to pick the card with that name on table;");
         System.out.println("-> " + CommandType.PICK_CARD_DECK.getCommandName() + "(type): to pick a card of type 'type' (RESOURCE, GOLD) from deck;");
 
         System.out.println();

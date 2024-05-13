@@ -468,6 +468,7 @@ public class Game extends Publisher{
         };
         return deck.pickACard();
     }
+
     /**
      * This method returns a card of the given type at the given position. The card is removed from the position, and if no card
      * is present the exception NoCardException is thrown. Then a card from the same deck type is drawn (if the deck
@@ -499,6 +500,10 @@ public class Game extends Publisher{
         } catch (EmptyDeckException e) {
             cardsOnTable[position] = null;
         }
+        catch (ArrayIndexOutOfBoundsException e){
+            throw new IllegalArgumentException("position must be 0 or 1");
+        }
+
         return result;
     }
 

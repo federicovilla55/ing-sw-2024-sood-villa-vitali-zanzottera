@@ -9,7 +9,7 @@ public enum CommandType {
     PLACE_CARD("place_card", 4),
     SEND_CHAT_MESSAGE("send_chat_message", 2),
     PLACE_INITIAL_CARD("place_initial_card", 1),
-    PICK_CARD_TABLE("pick_card_table", 2),
+    PICK_CARD_TABLE("pick_card_table", 1),
     PICK_CARD_DECK("pick_card_deck", 1),
     CHOOSE_COLOR("choose_color", 1),
     CHOOSE_GOAL("choose_goal", 1),
