@@ -237,7 +237,7 @@ public record CommandParser(ClientController clientController) {
                 }
 
                 try{
-                    cardNumber = Integer.parseInt(card[1]);
+                    cardNumber = Integer.parseInt(card[1] ) - 1;
                 }
                 catch (NumberFormatException numberFormatException){
                     this.clientController.getView().notifyGenericError("card position must be integer");
