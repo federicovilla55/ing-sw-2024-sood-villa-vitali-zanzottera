@@ -13,20 +13,27 @@ import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
+import it.polimi.ingsw.gc19.View.Listeners.Listener;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
+import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import it.polimi.ingsw.gc19.View.TUI.GeneralListener;
 import it.polimi.ingsw.gc19.View.UI;
 import javafx.fxml.FXML;
 
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class NewConfigurationController extends AbstractController implements UI, GeneralListener {
+public class NewConfigurationController extends AbstractController implements StateListener {
 
     private ClientInterface client;
     @FXML
@@ -38,14 +45,11 @@ public class NewConfigurationController extends AbstractController implements UI
             System.exit(1);
             return;
         }
+        super.attachToListener();
+        super.setToView();
         super.getClientController().setClientInterface(client);
-        System.out.println("Successfully connected to the server!");
-        System.out.print("> ");
         super.getClientController().setNextState(new NotPlayer(super.getClientController()));
-        System.out.println("Rmi");
-
     }
-
     @FXML
     public void TCPPress(ActionEvent e){
         ClientTCPFactory connectionTCP = new ClientTCPFactory();
@@ -55,84 +59,35 @@ public class NewConfigurationController extends AbstractController implements UI
             System.exit(1);
             return;
         }
-        super.getClientController().getListenersManager().attachListener(this);
-        super.getClientController().setView(this);
+        super.attachToListener();
+        super.setToView();
         super.getClientController().setClientInterface(client);
-        System.out.println("Successfully connected to the server!");
-        System.out.print("> ");
         super.getClientController().setNextState(new NotPlayer(super.getClientController()));
-        System.out.println("Rmi");
-        System.out.println("Tcp");
     }
-
-
-    @Override
-    public void notify(ArrayList<Message> msg) {
-
-    }
-
-    @Override
-    public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
-
-    }
-
-    @Override
-    public void notify(PersonalStation localStationPlayer) {
-
-    }
-
-    @Override
-    public void notify(OtherStation otherStation) {
-
-    }
-
-    @Override
-    public void notifyErrorStation(String... varArgs) {
-
-    }
-
-    @Override
-    public void notify(LocalTable localTable) {
-
-    }
-
-    @Override
-    public void notify(String nick, TurnState turnState) {
-
-    }
-
-    @Override
-    public void notify(GameHandlingEvents type, List<String> varArgs) {
-
-    }
-
-    @Override
-    public void notifyPlayerCreation(String name) {
-
-    }
-
-    @Override
-    public void notifyPlayerCreationError(String error) {
-
-    }
-
-    @Override
-    public void notify(SetupEvent type) {
-
-    }
-
     @Override
     public void notify(ViewState viewState) {
-
-    }
-
-    @Override
-    public void notifyGenericError(String errorDescription) {
-
-    }
-
-    @Override
-    public void notify(String message) {
-
+        File url = new File(super.getScenePath().LoginScene);
+        FXMLLoader loader = null;
+        Parent root;
+        try {
+            loader = new FXMLLoader(url.toURL());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        LoginController controller = loader.getController();
+        controller.setCommandParser(this.getCommandParser());
+        controller.setClientController(this.getClientController());
+        controller.setScenePath(this.getScenePath());
+        controller.setStage(getStage());
+        controller.attachToListener();
+        controller.setToView();
+        super.getClientController().getListenersManager().removeListener(this);
+        super.getStage().setScene(new Scene(root));
+        super.getStage().show();
     }
 }
