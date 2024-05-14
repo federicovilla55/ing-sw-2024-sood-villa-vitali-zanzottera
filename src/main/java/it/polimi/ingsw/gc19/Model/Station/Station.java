@@ -224,7 +224,7 @@ public class Station extends Publisher{
      * @param anchor the anchor from which the method starts searching
      * @param dir the direction of the search
      * @throws InvalidCardException if station doesn't have the card to place.
-     * @return an Optional of PlayableCard describing the card
+     * @return an {@code Optional<PlayableCard>} describing the card
      */
     public Optional<PlayableCard> getCardWithAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{
         return this.cardSchema.getCardWithAnchor(anchor, dir);
@@ -233,7 +233,7 @@ public class Station extends Publisher{
     /**
      * This method returns an optional of card containing the last placed card;
      * optional is empty if no cards has been placed.
-     * @return an Optional of PlayableCard describing the last placed card
+     * @return an {@code Optional<PlayableCard>} describing the last placed card
      */
     public Optional<PlayableCard> getLastPlaced(){
         return this.cardSchema.getLastPlaced();

@@ -31,7 +31,7 @@ public class PlayerChatMessage extends MessageToServer{
 
     /**
      * Getter for receivers of the message
-     * @return a List of Strings of the receivers of the message
+     * @return a {@code ArrayList<String>} of the receivers of the message
      */
     public ArrayList<String> getReceivers(){
         return this.receivers;

@@ -18,7 +18,7 @@ public final class JSONParser{
     private static final ObjectMapper objMapper = new ObjectMapper();
 
     /**
-     * This static method returns a Stream of PlayableCards representing
+     * This static method returns a {@code Stream<PlayableCard>} representing
      * playable cards read from file
      * @return a Stream of PlayableCards
      */
@@ -28,7 +28,7 @@ public final class JSONParser{
     }
 
     /**
-     * This static method returns a Stream of GoalCards representing
+     * This static method returns a {@code Stream<GoalCards>} representing
      * goal cards read from file
      * @return a Stream of GoalCards
      */
