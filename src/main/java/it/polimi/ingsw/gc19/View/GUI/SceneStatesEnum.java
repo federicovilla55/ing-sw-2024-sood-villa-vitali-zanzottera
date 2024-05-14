@@ -10,7 +10,6 @@ public enum SceneStatesEnum {
 
     private final String value;
 
-
     SceneStatesEnum(final String value) {
         this.value = value;
     }
@@ -18,7 +17,5 @@ public enum SceneStatesEnum {
     public String value() {
         return value;
     }
-
-
 
 }
