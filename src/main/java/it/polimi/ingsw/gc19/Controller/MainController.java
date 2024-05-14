@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.Controller;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.DisconnectedPlayerMessage;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.JoinedGameMessage;
@@ -407,6 +408,13 @@ public class MainController {
             clientHandler.update(new JoinedGameMessage(gameName).setHeader(clientHandler.getUsername()));
             this.gamesInfo.get(gameName).removeClient(clientHandler.getUsername());
             this.gamesInfo.get(gameName).addClient(clientHandler.getUsername(), clientHandler);
+            for(String nick : this.gamesInfo.get(gameName).getGameAssociated().getPlayers().stream().map(Player::getName).toList()) {
+                if(this.playerInfo.containsKey(nick)) {
+                    if(this.playerInfo.get(nick).x().equals(State.INACTIVE)) {
+                        clientHandler.update(new DisconnectedPlayerMessage(nick).setHeader(clientHandler.getUsername()));
+                    }
+                }
+            }
             clientHandler.setGameController(this.gamesInfo.get(gameName));
 
             return true;

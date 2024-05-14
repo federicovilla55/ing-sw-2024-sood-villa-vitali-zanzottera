@@ -113,13 +113,13 @@ public class TUIView implements UI, GeneralListener {
                 System.out.println("-> timestamp: " + config.getTimestamp());
                 System.out.println("-> connection type: " + config.getConnectionType());
 
-                System.out.println("do you want to try to reconnect? (s/n) ");
+                System.out.println("do you want to try to reconnect? (y/n) ");
 
                 Scanner scanner = new Scanner(System.in);
                 reconnectChoice = scanner.nextLine();
-            } while(!reconnectChoice.equalsIgnoreCase("s") && !reconnectChoice.equalsIgnoreCase("n"));
+            } while(!reconnectChoice.equalsIgnoreCase("y") && !reconnectChoice.equalsIgnoreCase("n"));
 
-            if(reconnectChoice.equalsIgnoreCase("s")) {
+            if(reconnectChoice.equalsIgnoreCase("y")) {
                 client = connectionType.getClientFactory().createClient(clientController);
                 client.configure(config.getNick(), config.getToken());
                 clientController.setNickname(config.getNick());
@@ -1212,7 +1212,7 @@ public class TUIView implements UI, GeneralListener {
     /**
      * To notify changes related to the local models or the state of new players.
      * @param type a LocalModelEvents that express the type of event received.
-     * @param localModel the new updated localmodel.
+     * @param localModel the new updated local model.
      * @param varArgs an array of strings containing information related to the new update, such as
      *                the nickname of the player whose station and state is updated.
      */
@@ -1318,6 +1318,9 @@ public class TUIView implements UI, GeneralListener {
      * To clear the console before printing a new scene.
      */
     private void clearTerminal(){
+        for(int i=0; i<30; i++){
+            System.out.println();
+        }
         try{
             if(System.getProperty("os.name").contains("Windows")){
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();

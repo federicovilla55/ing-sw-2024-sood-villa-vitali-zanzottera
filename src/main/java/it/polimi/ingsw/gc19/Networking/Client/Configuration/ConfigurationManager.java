@@ -90,16 +90,18 @@ public class ConfigurationManager {
 
         try{
             configFile = new File(ClientSettings.CONFIG_FILE_PATH);
-            if(Arrays.stream(Objects.requireNonNull(configFile.listFiles()))
-                     .filter(File::isFile)
-                     .filter(f -> f.getName().endsWith(".json"))
-                     .count() != 1){
-                throw new IllegalStateException();
+            if(configFile.exists() && configFile.isDirectory()) {
+                if (Arrays.stream(Objects.requireNonNull(configFile.listFiles()))
+                        .filter(File::isFile)
+                        .filter(f -> f.getName().endsWith(".json"))
+                        .count() != 1) {
+                    throw new IllegalStateException();
+                } else {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    configuration = objectMapper.readValue(Objects.requireNonNull(configFile.listFiles())[0], Configuration.class);
+                }
             }
-            else{
-                ObjectMapper objectMapper = new ObjectMapper();
-                configuration = objectMapper.readValue(Objects.requireNonNull(configFile.listFiles())[0], Configuration.class);
-            }
+            else throw new IllegalStateException();
         }
         catch (StreamReadException | DatabindException e) {
             throw new IllegalStateException(e);
