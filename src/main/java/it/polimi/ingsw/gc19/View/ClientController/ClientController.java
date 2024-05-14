@@ -103,7 +103,7 @@ public class ClientController {
      * reconnect the client sending requests at a fixed rate.
      */
     public synchronized void signalPossibleNetworkProblem(){
-        if(this.viewState.getState() == ViewState.DISCONNECT) return;
+        if(this.viewState.getState().equals(ViewState.DISCONNECT)) return;
         this.prevState = viewState;
         this.setNextState(new Disconnect(this), true);
     }
@@ -114,7 +114,7 @@ public class ClientController {
 
     public synchronized boolean isDisconnected(){
         if(this.viewState != null) {
-            return this.viewState.getState() == ViewState.DISCONNECT;
+            return this.viewState.getState().equals(ViewState.DISCONNECT);
         }
         return false;
     }

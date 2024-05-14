@@ -88,11 +88,11 @@ public class HeartBeatManager{
         }
         if(this.heartBeatSenderScheduler.isShutdown()){
             this.heartBeatSenderScheduler = Executors.newSingleThreadScheduledExecutor();
-            this.heartBeatSenderScheduler.scheduleAtFixedRate(this::sendHeartBeat, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
+            this.heartBeatSenderScheduler.scheduleAtFixedRate(this::sendHeartBeat, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 5, TimeUnit.MILLISECONDS);
         }
         if(this.heartBeatChecker.isShutdown()){
             this.heartBeatChecker = Executors.newSingleThreadScheduledExecutor();
-            this.heartBeatChecker.scheduleAtFixedRate(this::runHeartBeatTesterForServer, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
+            this.heartBeatChecker.scheduleAtFixedRate(this::runHeartBeatTesterForServer, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 5, TimeUnit.MILLISECONDS);
         }
 
     }
@@ -103,6 +103,9 @@ public class HeartBeatManager{
      * {@link ScheduledExecutorService}.
      */
     public void stopHeartBeatManager(){
+        synchronized (this.lastHeartBeatLock){
+            this.lastHeartBeatFromServer = null;
+        }
         if(!this.heartBeatSenderScheduler.isShutdown()){
             this.heartBeatSenderScheduler.shutdownNow();
         }
