@@ -760,8 +760,8 @@ public class TUIView implements UI, GeneralListener {
 
     private void printPlacingSequence(){
         if(this.localModel == null) return;
-        
-        System.out.println("This is your placing history: ");
+
+        System.out.println("\nThis is your placing history: ");
         for(int i = 0; i < this.localModel.getPersonalStation().getPlacedCardSequence().size(); i++){
             System.out.println((i + 1) + ") " + this.localModel.getPersonalStation().getPlacedCardSequence().get(i).x().getCardCode());
             printTUIView(cardTUIView(this.localModel.getPersonalStation().getPlacedCardSequence().get(i).x()));
@@ -816,8 +816,8 @@ public class TUIView implements UI, GeneralListener {
             case CommandType.SEND_CHAT_MESSAGE        -> commandParser.sendChatMessage(args);
             case CommandType.JOIN_FIRST_GAME          -> clientController.joinFirstAvailableGame();
             case CommandType.AVAILABLE_GAMES          -> clientController.availableGames();
-            case CommandType.LOGOUT_FROM_GAME         -> clientController.logoutFromGame();
-            case CommandType.DISCONNECT               -> clientController.disconnect();
+            case CommandType.LOGOUT_FROM_GAME         -> {clientController.logoutFromGame();this.showState = ShowState.NOT_PLAYING;}
+            case CommandType.DISCONNECT               -> {clientController.disconnect(); this.showState = ShowState.NOT_PLAYING;}
             default                                   -> System.out.println("Command is not recognized! Try again...");
         }
     }
