@@ -1308,7 +1308,10 @@ public class TUIView implements UI, GeneralListener {
         switch (viewState){
             case ViewState.NOT_PLAYER -> printCreationPlayerScene();
             case ViewState.NOT_GAME -> printEnteringGameScene();
-            case ViewState.SETUP -> System.out.println("This the setup phase. Choose your setup...");
+            case ViewState.SETUP -> {
+                System.out.println("This the setup phase. Choose your setup...");
+                printHelper(ViewState.SETUP);
+            }
             case ViewState.PAUSE -> System.out.println("Game is in pause! Sorry, you have to wait...");
             case ViewState.DISCONNECT -> System.err.println("[NETWORK PROBLEMS]: there are network problems. In background, we are trying to fix them...");
             case ViewState.END -> printWinners();
@@ -1510,21 +1513,13 @@ public class TUIView implements UI, GeneralListener {
     private void printHelper(){
         System.out.println("This is the helper of TUI view. Here you can find the infos about commands: ");
 
-        System.out.println("The available commands while a player is not registered:");
-        printHelper(ViewState.NOT_GAME);
-        System.out.println("The available commands while a game is not created or joined:");
         printHelper(ViewState.NOT_PLAYER);
-        System.out.println("The available commands while the game is in the setup phase:");
+        printHelper(ViewState.NOT_GAME);
         printHelper(ViewState.SETUP);
-        System.out.println("The available commands while it is your turn to pick a place:");
         printHelper(ViewState.PLACE);
-        System.out.println("The available commands while it is your turn to pick a card:");
         printHelper(ViewState.PICK);
-        System.out.println("The available commands while it is not your turn:");
         printHelper(ViewState.OTHER_TURN);
-        System.out.println("The available commands while the game is in the pause state:");
         printHelper(ViewState.PAUSE);
-        System.out.println("The available commands while the game ended:");
         printHelper(ViewState.END);
 
         System.out.println("-> help(): to see helper;");
@@ -1538,7 +1533,7 @@ public class TUIView implements UI, GeneralListener {
      * phase of the game.
      */
     private void printHelper(ViewState viewState){
-        System.out.println("Those are the available actions in the current state: ");
+        System.out.println("Those are the available actions in the " + viewState.toString().toLowerCase(Locale.ROOT) + " state: ");
         System.out.println();
 
         switch (viewState){
@@ -1556,6 +1551,7 @@ public class TUIView implements UI, GeneralListener {
                 System.out.println();
 
             }
+
             case ViewState.SETUP -> {
                 System.out.println("-> " + CommandType.AVAILABLE_COLORS.getCommandName() + "(): to display available colors;");
                 System.out.println("-> " + CommandType.CHOOSE_COLOR.getCommandName() + "(color): to pick choose your color;");
@@ -1591,7 +1587,7 @@ public class TUIView implements UI, GeneralListener {
         System.out.println("-> info_card(card_code): gives infos about a card;");
         System.out.println("-> " + CommandType.LOGOUT_FROM_GAME.getCommandName() + "(): to logout from game;");
         System.out.println("-> " + CommandType.DISCONNECT.getCommandName() + "(): to disconnect from server and close app;");
-        System.out.println();
+        System.out.println("\n");
 
     }
 
