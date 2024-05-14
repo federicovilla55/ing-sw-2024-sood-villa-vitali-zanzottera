@@ -38,17 +38,17 @@ public class ServerApp {
 
         System.out.println("Here you can start TCP and RMI server... \n");
 
-        System.out.println("Default RMI server name is : " + ServerSettings.DEFAULT_RMI_SERVER_NAME + ". Insert name for RMI server (or 'default'): ");
+        System.out.println("Insert name for RMI server (" + ServerSettings.DEFAULT_RMI_SERVER_NAME + "):");
         String rmiName = scanner.nextLine();
-        if(!rmiName.equals("default")){
+        if(!rmiName.isEmpty()){
             ServerSettings.MAIN_RMI_SERVER_NAME = rmiName;
         }
 
-        System.out.println("Default RMI server IP is: " + ServerSettings.MAIN_TCP_SERVER_IP + ". Insert RMI server IP or 'default':");
+        System.out.println("Insert RMI server IP (" + ServerSettings.MAIN_TCP_SERVER_IP +  "):");
 
         while(!valid){
             String ipRMI = scanner.nextLine();
-            if(ipRMI.equals("default")){
+            if(ipRMI.isEmpty()){
                 valid = true;
             }
             else{
@@ -57,19 +57,19 @@ public class ServerApp {
                     ServerSettings.MAIN_RMI_SERVER_IP = ipRMI;
                 }
                 else{
-                    System.out.println("Error: invalid IP! Enter a valid IP or 'default':");
+                    System.out.println("Error: invalid IP! Enter a valid IP:");
                 }
             }
         }
 
         System.setProperty("java.rmi.server.hostname", ServerSettings.MAIN_RMI_SERVER_IP);
 
-        System.out.println("Default port for RMI is: " + ServerSettings.DEFAULT_RMI_SERVER_PORT + ". Insert port for RMI (or 'default'): ");
+        System.out.println("Insert port for RMI (" + ServerSettings.DEFAULT_RMI_SERVER_PORT + "):");
 
         valid = false;
         while(!valid){
             String portRMI = scanner.nextLine();
-            if(portRMI.equals("default")){
+            if(portRMI.isEmpty()){
                 valid = true;
             }
             else{
@@ -78,7 +78,7 @@ public class ServerApp {
                     valid = true;
                 }
                 else{
-                    System.out.println("Error: invalid port! Enter a valid port or 'default':");
+                    System.out.println("Error: invalid port! Enter a valid port:");
                 }
             }
         }
@@ -86,12 +86,12 @@ public class ServerApp {
         System.out.println("Starting RMI on IP " + ServerSettings.MAIN_RMI_SERVER_IP + " and port " + ServerSettings.RMI_SERVER_PORT + "... \n");
         startRMI();
 
-        System.out.println("Default IP for TCP is: " + ServerSettings.DEFAULT_SERVER_IP +  ". Insert IP for TCP (or 'default'): ");
+        System.out.println("Insert IP for TCP (" + ServerSettings.DEFAULT_SERVER_IP +"):");
 
         valid = false;
         while(!valid){
             String ipTCP = scanner.nextLine();
-            if(ipTCP.equals("default")){
+            if(ipTCP.isEmpty()){
                 valid = true;
             }
             else{
@@ -100,17 +100,17 @@ public class ServerApp {
                     ServerSettings.MAIN_TCP_SERVER_IP = ipTCP;
                 }
                 else{
-                    System.out.println("Error: invalid IP! Enter a valid IP or 'default':");
+                    System.out.println("Error: invalid IP! Enter a valid IP:");
                 }
             }
         }
 
-        System.out.println("Default port for TCP is: " + ServerSettings.DEFAULT_TCP_SERVER_PORT + ". Insert port for TCP (or 'default'):");
+        System.out.println("Insert port for TCP (" + ServerSettings.DEFAULT_TCP_SERVER_PORT + "):");
 
         valid = false;
         while(!valid){
             String portTCP = scanner.nextLine();
-            if(portTCP.equals("default")){
+            if(portTCP.isEmpty()){
                 valid = true;
             }
             else{
@@ -129,7 +129,7 @@ public class ServerApp {
                     }
                 }
                 else{
-                    System.out.println("Error: invalid port! Enter a valid port or 'default':");
+                    System.out.println("Error: invalid port! Enter a valid port:");
                 }
             }
         }
