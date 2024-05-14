@@ -282,7 +282,8 @@ public class ClientController {
      */
     public synchronized void handleError(NetworkHandlingErrorMessage message){
         if(message.getError() == NetworkError.COULD_NOT_RECONNECT){
-            disconnect();
+            ConfigurationManager.deleteConfiguration(this.nickname);
+            setNextState(new NotPlayer(this), true);
             this.view.notifyGenericError(message.getDescription());
         }else if (message.getError() == NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER){
             setNextState(new NotPlayer(this), true);
