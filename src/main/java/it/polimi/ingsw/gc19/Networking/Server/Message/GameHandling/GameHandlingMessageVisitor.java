@@ -49,7 +49,7 @@ public interface GameHandlingMessageVisitor{
     /**
      * This method is used by {@link GameHandlingMessageVisitor} to visit
      * a message {@link JoinedGameMessage}
-     * @param message the {@link JoinedGameMessage to visit
+     * @param message the {@link JoinedGameMessage} to visit
      */
     void visit(JoinedGameMessage message);
 

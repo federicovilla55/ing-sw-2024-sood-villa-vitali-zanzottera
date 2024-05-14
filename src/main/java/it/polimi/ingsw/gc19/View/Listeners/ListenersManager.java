@@ -80,7 +80,7 @@ public class ListenersManager {
 
     /**
      * This method is used to notify {@link ChatListener}
-     * @param messages the <code>ArrayList<Message></code> inside chat
+     * @param messages the ArrayList of Messages inside chat
      */
     public void notifyChatListener(ArrayList<Message> messages){
         for(Listener c : this.attachedListeners.get(ListenerType.CHAT_LISTENER)) {
