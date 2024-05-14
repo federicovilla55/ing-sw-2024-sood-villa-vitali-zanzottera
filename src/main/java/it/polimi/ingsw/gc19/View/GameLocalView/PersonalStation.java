@@ -12,11 +12,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The class contains the information of a personal station of a player.
+ * It extends the class {@link LocalStationPlayer} and adds the following information:
+ * - the list of cards in hand;
+ * - the private goal card chosen;
+ * - the list of private goal cards from which to choose the private goal card;
+ * - the initial card.
+ */
 public class PersonalStation extends LocalStationPlayer {
-
+    /**
+     * The array of the PlayableCards that the client has in its hand.
+     */
     private final ArrayList<PlayableCard> cardsInHand;
+
+    /**
+     * The private goal card that the user has chosen.
+     */
     private GoalCard privateGoalCardInStation;
+
+    /**
+     * The array of cards from which the user can choose its private goal card.
+     */
     private final GoalCard[] privateGoalCardsInStation;
+
+    /**
+     * The initial card that the user can place during the setup phase of the game.
+     */
     private final PlayableCard initialCard;
 
     public PersonalStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols, int numPoints,
@@ -32,10 +54,21 @@ public class PersonalStation extends LocalStationPlayer {
         setPrivateGoalCard(privateGoalCard);
     }
 
-    public  void updateCardsInHand(PlayableCard cardToAdd){
+    /**
+     * To add a card in the player hand.
+     * @param cardToAdd, the {@link PlayableCard} that the user wants to add in the hand
+     */
+    public void updateCardsInHand(PlayableCard cardToAdd){
         cardsInHand.add(cardToAdd);
     }
 
+    /**
+     * To ask if a card is placeable in the personal station of the client.
+     * @param toPlace, the card the client wants to place.
+     * @param anchor, the anchor from which the client wants to place the card.
+     * @param direction, the direction of the cardToPlace from the anchor.
+     * @return a boolean containing True only if the card is placeable.
+     */
     @Override
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) {
 
@@ -79,10 +112,18 @@ public class PersonalStation extends LocalStationPlayer {
         return true;
     }
 
+    /**
+     * To return an ArrayList containing the {@link PlayableCard} in the player hand.
+     * @return an ArrayList containing the {@link PlayableCard} in the player hand.
+     */
     public ArrayList<PlayableCard> getCardsInHand() {
         return cardsInHand;
     }
 
+    /**
+     *
+     * @param goalCard the chosen GoalCard from the array of private goal cards.
+     */
     public void setPrivateGoalCard(GoalCard goalCard) {
         if(goalCard == null) return; // obtained a new personal station but the card was not chosen.
         if (privateGoalCardsInStation[0] != null && privateGoalCardsInStation[1] != null) {
@@ -92,6 +133,12 @@ public class PersonalStation extends LocalStationPlayer {
         }
     }
 
+    /**
+     * Method used to place a card in the Personal Station given:
+     * @param anchorCardCode, the anchor card code of the card we want to place the card from.
+     * @param cardToPlace, the card we want to place.
+     * @param direction, the direction in which we want to place the card, given the anchor card.
+     */
     public void placeCard(PlayableCard cardToPlace, String anchorCardCode, Direction direction){
         Tuple<Integer, Integer> coord = getCoord(anchorCardCode);
         coord = new Tuple<>(direction.getX() + coord.x(), direction.getY() + coord.y());
@@ -108,18 +155,36 @@ public class PersonalStation extends LocalStationPlayer {
         cardSchema[coord.x()][coord.y()] = cardToPlace;
     }
 
+    /**
+     * To return the initial card of the Personal Station.
+     * @return the initial card of the Personal Station.
+     */
     public PlayableCard getInitialCard() {
         return initialCard;
     }
 
+    /**
+     * To set the private goal card from the array of playable cards.
+     * @param cardIdx the index of the card from the array of private goal cards.
+     */
     public  void setPrivateGoalCard(int cardIdx) {
         this.privateGoalCardInStation = privateGoalCardsInStation[cardIdx];
     }
 
+    /**
+     * To obtain the private goal card chosen.
+     * @return the private goal card chosen by the client.
+     */
     public GoalCard getPrivateGoalCardInStation() {
         return privateGoalCardInStation;
     }
 
+    /**
+     * To obtain the array of possible goal cards from which
+     * the client can choose its private goal card.
+     * @return the array of possible goal cards from which
+     *          the client can choose its private goal card
+     */
     public GoalCard[] getPrivateGoalCardsInStation() {
         return privateGoalCardsInStation;
     }
