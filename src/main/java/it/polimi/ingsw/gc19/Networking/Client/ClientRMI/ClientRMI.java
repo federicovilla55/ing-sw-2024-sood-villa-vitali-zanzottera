@@ -86,7 +86,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                 this.virtualMainServer.newConnection(this, nickname);
             }
             catch (RemoteException e) {
-                this.clientController.disconnect();
+                signalPossibleNetworkProblem();
             }
 
         });
@@ -108,7 +108,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
             try {
                 this.virtualGameServer = this.virtualMainServer.createGame(this, gameName, this.nickname, numPlayers);
             } catch (RemoteException e) {
-                this.clientController.disconnect();
+                signalPossibleNetworkProblem();
             }
         });
     }
@@ -131,7 +131,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                     this.virtualGameServer = this.virtualMainServer.createGame(this, gameName, this.nickname, numPlayers, seed);
                 }
                 catch (RemoteException e) {
-                    this.clientController.disconnect();
+                    signalPossibleNetworkProblem();
                 }
             }
         });
@@ -154,7 +154,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                     this.virtualGameServer = this.virtualMainServer.joinGame(this, gameName, this.nickname);
                 }
                 catch (RemoteException e) {
-                    this.clientController.disconnect();
+                    signalPossibleNetworkProblem();
                 }
             }
         });
@@ -175,7 +175,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                     this.virtualGameServer = this.virtualMainServer.joinFirstAvailableGame(this, this.nickname);
                 }
                 catch (RemoteException e) {
-                    this.clientController.disconnect();
+                    signalPossibleNetworkProblem();
                 }
             }
         });
@@ -341,7 +341,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                     }
                 }
                 catch (RemoteException e) {
-                    this.clientController.disconnect();
+                    signalPossibleNetworkProblem();
                 }
             }
         });
@@ -365,7 +365,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                         this.virtualGameServer.sendChatMessage(UsersToSend, messageToSend);
                     }
                 } catch (RemoteException e) {
-                    this.clientController.disconnect();
+                    signalPossibleNetworkProblem();
                 }
             }
         });
@@ -389,7 +389,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                         this.virtualGameServer.placeInitialCard(cardOrientation);
                     }
                 } catch (RemoteException e) {
-                    this.clientController.disconnect();
+                    signalPossibleNetworkProblem();
                 }
             }
         });
@@ -415,7 +415,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                     }
                 }
                 catch (RemoteException e) {
-                    this.clientController.disconnect();
+                    signalPossibleNetworkProblem();
                 }
             }
         });
@@ -439,7 +439,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                     }
                 }
                 catch (RemoteException e) {
-                    this.clientController.disconnect();
+                    signalPossibleNetworkProblem();
                 }
             }
         });
@@ -463,7 +463,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                     }
                 }
                 catch (RemoteException e) {
-                    this.clientController.disconnect();
+                    signalPossibleNetworkProblem();
                 }
             }
         });
@@ -488,7 +488,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                     }
                 }
                 catch (RemoteException e) {
-                    this.clientController.disconnect();
+                    signalPossibleNetworkProblem();
                 }
             }
         });
@@ -510,7 +510,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
                     this.virtualMainServer.requestAvailableGames(this, this.nickname);
                 }
                 catch (RemoteException e) {
-                    this.clientController.disconnect();
+                    signalPossibleNetworkProblem();
                 }
             }
         });

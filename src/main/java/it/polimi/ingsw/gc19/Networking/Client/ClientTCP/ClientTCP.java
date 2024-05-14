@@ -117,7 +117,7 @@ public class ClientTCP implements ClientInterface {
                     synchronized (this.messagesToSend) {
                         this.messagesToSend.clear();
                     }
-                    this.clientController.signalPossibleNetworkProblem();
+                    this.signalPossibleNetworkProblem();
                 }
             }
         }
