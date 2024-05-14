@@ -24,19 +24,19 @@ public class ClientApp {
 
         System.out.println();
 
-        System.out.println("Default RMI server name is: " + ClientSettings.DEFAULT_RMI_SERVER_NAME + ". Insert server RMI IP or 'default':");
+        System.out.println("Insert server RMI IP (" + ClientSettings.DEFAULT_RMI_SERVER_NAME +"):");
 
         String serverRMIName = scanner.nextLine();
-        if(!serverRMIName.equals("default")){
+        if(!serverRMIName.isEmpty()){
             ClientSettings.MAIN_SERVER_RMI_NAME = serverRMIName;
         }
 
-        System.out.println("Default RMI server IP is: " + ClientSettings.RMI_SERVER_IP + ". Insert server RMI IP or 'default':");
+        System.out.println("Insert server RMI IP (" + ClientSettings.RMI_SERVER_IP + "):");
 
         boolean valid = false;
         while(!valid){
             String ip = scanner.nextLine();
-            if(ip.equals("default")){
+            if(ip.isEmpty()){
                 valid = true;
             }
             else{
@@ -45,17 +45,17 @@ public class ClientApp {
                     ClientSettings.RMI_SERVER_IP = ip;
                 }
                 else{
-                    System.out.println("Error: invalid IP! Enter a valid IP or 'default':");
+                    System.out.println("Error: invalid IP! Enter a valid IP':");
                 }
             }
         }
 
-        System.out.println("Default TCP server IP is: " + ClientSettings.TCP_SERVER_IP + ". Insert server RMI IP or 'default':");
+        System.out.println("Insert server Socket IP (" + ClientSettings.TCP_SERVER_IP + "):");
 
         valid = false;
         while(!valid){
             String ip = scanner.nextLine();
-            if(ip.equals("default")){
+            if(ip.isEmpty()){
                 valid = true;
             }
             else{
@@ -64,7 +64,7 @@ public class ClientApp {
                     ClientSettings.TCP_SERVER_IP = ip;
                 }
                 else{
-                    System.out.println("Error: invalid IP! Enter a valid IP or 'default':");
+                    System.out.println("Error: invalid IP! Enter a valid IP:");
                 }
             }
         }

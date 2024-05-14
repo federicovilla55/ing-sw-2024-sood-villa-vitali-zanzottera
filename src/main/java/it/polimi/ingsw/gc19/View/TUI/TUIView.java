@@ -113,13 +113,13 @@ public class TUIView implements UI, GeneralListener {
                 System.out.println("-> timestamp: " + config.getTimestamp());
                 System.out.println("-> connection type: " + config.getConnectionType());
 
-                System.out.println("do you want to try to reconnect? (s/n) ");
+                System.out.println("do you want to try to reconnect? (y/n) ");
 
                 Scanner scanner = new Scanner(System.in);
                 reconnectChoice = scanner.nextLine();
-            } while(!reconnectChoice.equalsIgnoreCase("s") && !reconnectChoice.equalsIgnoreCase("n"));
+            } while(!reconnectChoice.equalsIgnoreCase("y") && !reconnectChoice.equalsIgnoreCase("n"));
 
-            if(reconnectChoice.equalsIgnoreCase("s")) {
+            if(reconnectChoice.equalsIgnoreCase("y")) {
                 client = connectionType.getClientFactory().createClient(clientController);
                 client.configure(config.getNick(), config.getToken());
                 clientController.setNickname(config.getNick());
