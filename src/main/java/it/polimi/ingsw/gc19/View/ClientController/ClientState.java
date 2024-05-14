@@ -50,7 +50,7 @@ public abstract class ClientState {
 
     /**
      * Generic message that doesn't change the state of the client.
-     * If everything works corrently the client should not receive
+     * If everything works currently the client should not receive
      * those kinds of messages.
      * Even if those messages are received they do not change the state.
      * @param message a generic {@link MessageToClient}.
@@ -197,8 +197,8 @@ public abstract class ClientState {
     }
 
     /**
-     * To update the client state after a NetworkHandlingErrorMessage.
-     * @param message
+     * To update the client state after a Network error happened.
+     * @param message a {@link NetworkHandlingErrorMessage}
      */
     public void nextState(NetworkHandlingErrorMessage message) {
         clientController.handleError(message);

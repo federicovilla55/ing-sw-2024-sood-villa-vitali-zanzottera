@@ -955,7 +955,7 @@ public class TUIView implements UI, GeneralListener {
         switch (matcher.group(1)) {
             case "show_private_goal_card" -> choosePrivateGoalCardScene();
             case "show_public_goal_cards" -> showPublicGoalCardScene();
-            case "help" -> printHelper();
+            case "help" -> printHelper(this.clientController.getState());
             case "show_initial_card" -> showInitialCard();
             case "show_chat" -> {
                 if(this.localModel == null) return;
@@ -1111,10 +1111,13 @@ public class TUIView implements UI, GeneralListener {
         printTUIView(availableGamesTUIView(availableGames));
     }
 
+    /**
+     * Notify the view of a general message.
+     * @param message a {@link String} description of the error
+     */
     @Override
     public void notify(String message) {
         System.out.println(message + "\n");
-        //System.out.print(">");
     }
 
     /**
@@ -1124,7 +1127,6 @@ public class TUIView implements UI, GeneralListener {
     @Override
     public void notifyPlayerCreation(String name) {
         System.out.println("Your player has been correctly created. Your username is: " + name + "\n");
-        //System.out.print(">");
     }
 
     /**
@@ -1266,7 +1268,7 @@ public class TUIView implements UI, GeneralListener {
 
     /**
      * To update the common game table.
-     * @param localTable the new and updated gametable.
+     * @param localTable the new and updated game table.
      */
     @Override
     public void notify(LocalTable localTable){
@@ -1437,6 +1439,7 @@ public class TUIView implements UI, GeneralListener {
                 color.map(Color::colorReset).orElse("") + " hand:");
         printTUIView(backHandTUIView(this.localModel.getOtherStations().get(this.currentViewPlayer).getBackCardHand()));
         System.out.println("\n");
+
     }
 
     /**
@@ -1481,7 +1484,7 @@ public class TUIView implements UI, GeneralListener {
         System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
         System.out.println("Now you can create or join a game.");
         System.out.println();
-        //System.out.print(">");
+        printHelper(ViewState.NOT_GAME);
     }
 
     /**
@@ -1498,6 +1501,7 @@ public class TUIView implements UI, GeneralListener {
         System.out.println("Here the updated scoreboard: ");
         printTUIView(scoreboardTUIView(localModel.getStations().values().toArray(new LocalStationPlayer[]{})));
         System.out.println();
+        printHelper(ViewState.END);
     }
 
     /**
@@ -1506,46 +1510,89 @@ public class TUIView implements UI, GeneralListener {
     private void printHelper(){
         System.out.println("This is the helper of TUI view. Here you can find the infos about commands: ");
 
+        System.out.println("The available commands while a player is not registered:");
+        printHelper(ViewState.NOT_GAME);
+        System.out.println("The available commands while a game is not created or joined:");
+        printHelper(ViewState.NOT_PLAYER);
+        System.out.println("The available commands while the game is in the setup phase:");
+        printHelper(ViewState.SETUP);
+        System.out.println("The available commands while it is your turn to pick a place:");
+        printHelper(ViewState.PLACE);
+        System.out.println("The available commands while it is your turn to pick a card:");
+        printHelper(ViewState.PICK);
+        System.out.println("The available commands while it is not your turn:");
+        printHelper(ViewState.OTHER_TURN);
+        System.out.println("The available commands while the game is in the pause state:");
+        printHelper(ViewState.PAUSE);
+        System.out.println("The available commands while the game ended:");
+        printHelper(ViewState.END);
+
+        System.out.println("-> help(): to see helper;");
+        System.out.println();
+    }
+
+
+    /**
+     * To print the helper of a specific state of the game.
+     * This helper will print just the actions that the client can actually use in a
+     * phase of the game.
+     */
+    private void printHelper(ViewState viewState){
+        System.out.println("Those are the available actions in the current state: ");
         System.out.println();
 
-        System.out.println("-> " + CommandType.CREATE_PLAYER.getCommandName() + "(nick): to register your player;");
+        switch (viewState){
+            case ViewState.NOT_PLAYER -> {
+                System.out.println("-> " + CommandType.CREATE_PLAYER.getCommandName() + "(nick): to register your player;");
+                System.out.println();
 
-        System.out.println();
+            }
+            case ViewState.NOT_GAME -> {
+                System.out.println("-> " + CommandType.CREATE_GAME.getCommandName() + "(game_name, number_of_player): to create your game with the specified number of players;");
+                System.out.println("-> " + CommandType.JOIN_GAME.getCommandName() + "(game name): to join the specified game;");
+                System.out.println("-> " + CommandType.JOIN_FIRST_GAME.getCommandName() + "(): to join first available game;");
+                System.out.println("-> " + CommandType.AVAILABLE_GAMES.getCommandName() + "(): to display the available games;");
 
-        System.out.println("-> " + CommandType.CREATE_GAME.getCommandName() + "(game_name, number_of_player): to create your game with the specified number of players;");
-        System.out.println("-> " + CommandType.JOIN_GAME.getCommandName() + "(game name): to join the specified game;");
-        System.out.println("-> " + CommandType.JOIN_FIRST_GAME.getCommandName() + "(): to join first available game;");
-        System.out.println("-> " + CommandType.AVAILABLE_GAMES.getCommandName() + "(): to display the available games;");
+                System.out.println();
 
-        System.out.println();
+            }
+            case ViewState.SETUP -> {
+                System.out.println("-> " + CommandType.AVAILABLE_COLORS.getCommandName() + "(): to display available colors;");
+                System.out.println("-> " + CommandType.CHOOSE_COLOR.getCommandName() + "(color): to pick choose your color;");
+                System.out.println("-> " + CommandType.CHOOSE_GOAL.getCommandName() + "(idx): to choose your private goal card: idx is the index of the card;");
+                System.out.println("-> " + CommandType.PLACE_INITIAL_CARD.getCommandName() + "(card_orientation): to place initial card with the specified orientation (UP, DOWN);");
+                printCommonPlayingActions();
+            }
+            case ViewState.PICK ->{
+                System.out.println("-> " + CommandType.PLACE_CARD.getCommandName() + "(anchor_code, to_place_code, direction, card_orientation): " +
+                        "to place card with code 'to_place_code' from card 'anchor_code' with the direction (UP_RIGHT, UP_LEFT, DOWN_LEFT, DOWN_RIGHT) and orientation (UP, DOWN) specified;");
 
-        System.out.println("-> " + CommandType.AVAILABLE_COLORS.getCommandName() + "(): to display available colors;");
-        System.out.println("-> " + CommandType.CHOOSE_COLOR.getCommandName() + "(color): to pick choose your color;");
-        System.out.println("-> " + CommandType.CHOOSE_GOAL.getCommandName() + "(idx): to choose your private goal card: idx is the index of the card;");
-        System.out.println("-> " + CommandType.PLACE_INITIAL_CARD.getCommandName() + "(card_orientation): to place initial card with the specified orientation (UP, DOWN);");
+                printCommonPlayingActions();
+            }
+            case ViewState.PLACE ->{
+                System.out.println("-> " + CommandType.PICK_CARD_TABLE.getCommandName() + "(name): to pick the card with that name on table;");
+                System.out.println("-> " + CommandType.PICK_CARD_DECK.getCommandName() + "(type): to pick a card of type 'type' (RESOURCE, GOLD) from deck;");
+                printCommonPlayingActions();
+            }
+            case ViewState.END, ViewState.PAUSE, ViewState.OTHER_TURN, ViewState.WAIT -> {
+                printCommonPlayingActions();
+            }
+            default -> {}
+        }
+    }
+
+    public void printCommonPlayingActions(){
+        System.out.println("-> " + CommandType.SEND_CHAT_MESSAGE.getCommandName() + "(message content): to send the 'content' of the message (receiver1, ...) to send the message to one or more players;");
         System.out.println("-> show_private_goal_card(): to show your private goal card/s;");
         System.out.println("-> show_public_goal_cards(): to show the public goal cards;");
         System.out.println("-> show_personal_station(): to see your personal station;");
         System.out.println("-> show_station(nick): to see the station of the player 'nick';");
         System.out.println("-> show_chat(): to see chat;");
         System.out.println("-> info_card(card_code): gives infos about a card;");
-
-        System.out.println();
-
-        System.out.println("-> " + CommandType.PLACE_CARD.getCommandName() + "(anchor_code, to_place_code, direction, card_orientation): " +
-                                   "to place card with code 'to_place_code' from card 'anchor_code' with the direction (UP_RIGHT, UP_LEFT, DOWN_LEFT, DOWN_RIGHT) and orientation (UP, DOWN) specified;");
-        System.out.println("-> " + CommandType.PICK_CARD_TABLE.getCommandName() + "(name): to pick the card with that name on table;");
-        System.out.println("-> " + CommandType.PICK_CARD_DECK.getCommandName() + "(type): to pick a card of type 'type' (RESOURCE, GOLD) from deck;");
-
-        System.out.println();
-
         System.out.println("-> " + CommandType.LOGOUT_FROM_GAME.getCommandName() + "(): to logout from game;");
         System.out.println("-> " + CommandType.DISCONNECT.getCommandName() + "(): to disconnect from server and close app;");
-
         System.out.println();
-        System.out.println("-> help(): to see helper;");
 
-        System.out.println();
     }
 
 }
