@@ -398,6 +398,8 @@ public class GameController{
         catch (IllegalArgumentException illegalArgumentException){
             this.messageFactory.sendMessageToPlayer(nickname, new RefusedActionMessage(ErrorType.INVALID_CARD_ERROR,
                                                                                        illegalArgumentException.getMessage()));
+
+            return;
         }
 
         this.gameAssociated.getActivePlayer().getStation().updateCardsInHand(card);

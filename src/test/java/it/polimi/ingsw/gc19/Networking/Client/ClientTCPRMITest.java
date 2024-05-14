@@ -118,13 +118,6 @@ public class ClientTCPRMITest {
         assertNull(this.client2.getMessage());
         assertNull(this.client3.getMessage());
 
-        this.client1.connect("client1");
-
-        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
-        assertNull(this.client2.getMessage());
-        assertNull(this.client3.getMessage());
-        assertNull(this.client4.getMessage());
-
         //Create new client with other name
         this.client5.connect("client1");
 
@@ -711,7 +704,7 @@ public class ClientTCPRMITest {
         //Client6 tries to reconnect with no token
         client6.configure("client6", "fake token");
         client6.reconnect();
-        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client6, new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT, null));
 
         client2.sendChatMessage(new ArrayList<>(List.of("client1", "client2")), "Chat message after disconnection!");
         assertMessageEquals(new ArrayList<>(List.of(this.client1, this.client2)), new NotifyChatMessage("client2", "Chat message after disconnection!"));

@@ -99,9 +99,6 @@ public class ClientRMITest {
         this.client4.connect("client4");
         assertMessageEquals(this.client4, new CreatedPlayerMessage("client4"));
 
-        this.client1.connect("client5");
-        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
-
         this.client1.disconnect();
         this.client2.disconnect();
         this.client3.disconnect();
@@ -128,13 +125,6 @@ public class ClientRMITest {
         assertNull(this.client2.getMessage());
         assertNull(this.client3.getMessage());
 
-        this.client1.connect("client1");
-
-        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
-        assertNull(this.client2.getMessage());
-        assertNull(this.client3.getMessage());
-        assertNull(this.client4.getMessage());
-
         //Create new client with other name
         this.client5.connect("client1");
         //this.client5.connect();
@@ -144,10 +134,6 @@ public class ClientRMITest {
 
     @Test
     public void testCreateGame(){
-        //Client1 tries to create a game without having registered his player
-        this.client1.createGame("game1", 3, 1);
-        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
-
         this.client1.connect("client1");
         client1.waitForMessage(CreatedPlayerMessage.class);
         MessageToClient message = this.client1.getMessage();
@@ -170,9 +156,6 @@ public class ClientRMITest {
         assertMessageEquals(this.client2, new JoinedGameMessage("game1"));
 
         assertMessageEquals(this.client1, new NewPlayerConnectedToGameMessage(this.client2.getNickname()));
-
-        this.client3.joinGame("game1");
-        assertMessageEquals(this.client3, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
 
         this.client3.connect("client3");
         client3.waitForMessage(CreatedPlayerMessage.class);

@@ -426,14 +426,14 @@ class GameControllerTest {
         // wrong card type (INITIAL)
         cardsBefore = gameController.getGameAssociated().getPlayerByName("Player 1").getStation().getCardsInHand();
         assertEquals(2, cardsBefore.size());
-        assertThrows(IllegalArgumentException.class, () -> gameController.drawCardFromTable("Player 1", PlayableCardType.INITIAL, 0));
+        gameController.drawCardFromTable("Player 1", PlayableCardType.INITIAL, 0);
         cardsAfter = gameController.getGameAssociated().getPlayerByName("Player 1").getStation().getCardsInHand();
         assertTrue(cardsBefore.containsAll(cardsAfter) && cardsAfter.containsAll(cardsBefore));
 
         // malformed index
         cardsBefore = gameController.getGameAssociated().getPlayerByName("Player 1").getStation().getCardsInHand();
         assertEquals(2, cardsBefore.size());
-        assertThrows(IndexOutOfBoundsException.class, () -> gameController.drawCardFromTable("Player 1", PlayableCardType.RESOURCE, 2));
+        gameController.drawCardFromTable("Player 1", PlayableCardType.RESOURCE, 2);
         cardsAfter = gameController.getGameAssociated().getPlayerByName("Player 1").getStation().getCardsInHand();
         assertTrue(cardsBefore.containsAll(cardsAfter) && cardsAfter.containsAll(cardsBefore));
 

@@ -299,7 +299,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
 
         synchronized (this.connectedClients) {
             for (var v : this.connectedClients.entrySet()) {
-                if (v.getValue().y().equals(token) && v.getValue().x().getUsername().equals(nickName)) { //For tests if problems check this
+                if (token.equals(v.getValue().y()) && nickName.equals(v.getValue().x().getUsername())) { //For tests if problems check this
                     clientRMIBefore = v.getKey();
                     v.getValue().x().interruptClientHandler();
                     clientHandlerRMI = new ClientHandlerRMI(clientRMI, v.getValue().x());

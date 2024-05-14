@@ -145,7 +145,8 @@ public class Disconnect extends ClientState {
                 clientInterface.reconnect();
             }
             catch (IllegalStateException e) {
-                clientController.getView().notifyGenericError("Could not reconnect, returning to the lobby");
+                if(clientController.getView() != null)
+                    clientController.getView().notifyGenericError("Could not reconnect, returning to the lobby");
                 clientController.setNextState(new NotPlayer(clientController), true);
                 Thread.currentThread().interrupt();
                 return;

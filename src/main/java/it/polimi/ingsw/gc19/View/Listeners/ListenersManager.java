@@ -225,8 +225,10 @@ public class ListenersManager {
      * @param viewState the new {@link ViewState}
      */
     public void notifyStateListener(ViewState viewState){
-        for(Listener l : this.attachedListeners.get(ListenerType.STATE_LISTENER)){
-            ((StateListener) l).notify(viewState);
+        if(this.attachedListeners.get(ListenerType.STATE_LISTENER) != null) {
+            for (Listener l : this.attachedListeners.get(ListenerType.STATE_LISTENER)) {
+                ((StateListener) l).notify(viewState);
+            }
         }
     }
 

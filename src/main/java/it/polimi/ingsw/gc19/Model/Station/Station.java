@@ -199,8 +199,13 @@ public class Station extends Publisher{
      * This method returns visible cards in station
      * @return visible cards in station
      */
-    public ArrayList<PlayableCard> getCardsInHand(){
-        return this.cardsInHand;
+    public List<PlayableCard> getCardsInHand(){
+        try {
+            return List.copyOf(this.cardsInHand);
+        }
+        catch(NullPointerException e){
+            return List.of();
+        }
     }
 
     /**

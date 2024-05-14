@@ -68,10 +68,11 @@ class GameTest {
     public void testCardsTable() throws CardNotFoundException {
         assertThrows(IllegalArgumentException.class, () -> game.pickCardFromTable(PlayableCardType.INITIAL, 0));
         assertThrows(IllegalArgumentException.class, () -> game.pickCardFromTable(PlayableCardType.INITIAL, 1));
-        assertThrows(ArrayIndexOutOfBoundsException.class, () -> game.pickCardFromTable(PlayableCardType.GOLD, 2));
-        assertThrows(ArrayIndexOutOfBoundsException.class, () -> game.pickCardFromTable(PlayableCardType.RESOURCE, 2));
+        assertThrows(IllegalArgumentException.class, () -> game.pickCardFromTable(PlayableCardType.GOLD, 2));
+        assertThrows(IllegalArgumentException.class, () -> game.pickCardFromTable(PlayableCardType.RESOURCE, 2));
 
         for(int i = 0; i < 39; i++){
+            System.out.println(i);
             game.pickCardFromTable(PlayableCardType.GOLD, 1);
             game.pickCardFromTable(PlayableCardType.RESOURCE, 1);
         }

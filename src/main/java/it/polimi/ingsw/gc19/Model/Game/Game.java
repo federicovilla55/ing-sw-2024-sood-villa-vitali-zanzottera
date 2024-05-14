@@ -447,7 +447,7 @@ public class Game extends Publisher{
         deck = switch (type) {
             case RESOURCE -> this.resourceDeck;
             case GOLD -> this.goldDeck;
-            default -> throw new MalformedParametersException("type must be RESOURCE or GOLD");
+            default -> throw new IllegalArgumentException("type must be RESOURCE or GOLD");
         };
         return deck;
     }
@@ -490,11 +490,13 @@ public class Game extends Publisher{
             }
             default -> throw new IllegalArgumentException("type must be RESOURCE or GOLD");
         };
-        PlayableCard result = cardsOnTable[position % 2];
-        if(result==null) {
-            throw new CardNotFoundException("Card not found");
-        }
+
+        PlayableCard result = null;
         try {
+            result = cardsOnTable[position];
+            if(result==null) {
+                throw new CardNotFoundException("Card not found");
+            }
             cardsOnTable[position] = deck.pickACard();
         } catch (EmptyDeckException e) {
             cardsOnTable[position] = null;

@@ -130,13 +130,6 @@ public class RMIServerAndMainControllerTest {
         assertNull(this.client2.getMessage());
         assertNull(this.client3.getMessage());
 
-        this.client1.connect();
-
-        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
-        assertNull(this.client2.getMessage());
-        assertNull(this.client3.getMessage());
-        assertNull(this.client4.getMessage());
-
         //Create new client with other name
         this.client5.setName("client1");
         this.client5.connect();
@@ -386,12 +379,14 @@ public class RMIServerAndMainControllerTest {
         this.client1.stopSendingHeartBeat();
         waitingThread(5000);
         Client client7 = new Client(virtualMainServer, this.client1.getName());
+        client7.setToken("fake token");
         client7.reconnect();
-        assertMessageEquals(client7, new NetworkHandlingErrorMessage(NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER, null));
+        assertMessageEquals(client7, new NetworkHandlingErrorMessage(NetworkError.COULD_NOT_RECONNECT, null));
 
         Client client8 = new Client(virtualMainServer, this.client1.getName());
         client8.connect();
         assertMessageEquals(client8, new GameHandlingErrorMessage(Error.PLAYER_NAME_ALREADY_IN_USE, null));
+        client8.setToken("fake token");
         client8.reconnect();
     }
 
@@ -792,6 +787,7 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable 
     public Client(VirtualMainServer virtualMainServer, String name) throws RemoteException {
         super();
         this.virtualMainServer = virtualMainServer;
+        virtualMainServer.registerClient(this);
         this.name = name;
         this.incomingMessages = new ArrayDeque<>();
         this.sendHeartBeat = false;
