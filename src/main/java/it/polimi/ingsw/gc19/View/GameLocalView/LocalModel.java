@@ -549,7 +549,7 @@ public class LocalModel {
      *                         can choose the color of its pawn.
      */
     public void setAvailableColors(List<Color> availableColors) {
-        this.availableColors = availableColors;
+        this.availableColors = new ArrayList<>(availableColors);
         if(!this.isColorChosen()) {
             this.listenersManager.notifySetupListener(SetupEvent.AVAILABLE_COLOR);
         }

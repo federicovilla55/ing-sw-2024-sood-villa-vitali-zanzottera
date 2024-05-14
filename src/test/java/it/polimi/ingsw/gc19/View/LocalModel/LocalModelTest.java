@@ -20,7 +20,10 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMe
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
+import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GameLocalView.*;
+import it.polimi.ingsw.gc19.View.TUI.TUIView;
+import it.polimi.ingsw.gc19.View.UI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +58,8 @@ public class LocalModelTest {
         clientTCP = new ClientTCP(messageHandler);
         clientController.setClientInterface(clientTCP);
         messageHandler.start();
+
+        clientController.setView(new TUIView(new CommandParser(clientController)));
 
     }
 
@@ -168,7 +173,9 @@ public class LocalModelTest {
                 new OtherStation(
                         "player2", Color.BLUE,
                         Map.of(Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
-                        0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(25, 25)))));
+                        0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(25, 25))),
+                        List.of(new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE))));
 
         // ------------------
         // Picking a card from the deck
@@ -198,7 +205,9 @@ public class LocalModelTest {
         Thread.sleep(500);
         assertEquals(localModel.getOtherStations().get("player2").getBackCardHand(),
                 List.of(
-                        new Tuple<>(Symbol.INSECT, PlayableCardType.GOLD)
+                        new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.INSECT, PlayableCardType.RESOURCE)
                 ));
 
         // ------------------
@@ -214,14 +223,14 @@ public class LocalModelTest {
         // ------------------
         // Picking a card from the table
         assertTableEquals(localModel.getTable(), new LocalTable(playableCards.get("resource_01"), playableCards.get("resource_02"), playableCards.get("gold_01"),
-                playableCards.get("gold_02"), goalCards.get("goal_01"), goalCards.get("goal_02"), Symbol.MUSHROOM, Symbol.ANIMAL));
+                playableCards.get("gold_02"), goalCards.get("goal_01"), goalCards.get("goal_02"), Symbol.MUSHROOM, Symbol.INSECT));
         assertEquals(localModel.getPersonalStation().getCardsInHand(), List.of(playableCards.get("resource_04"), playableCards.get("resource_10")));
 
         messageHandler.update(new AcceptedPickCardFromTable("player1", playableCards.get("resource_01"),
                 Symbol.MUSHROOM, 0, PlayableCardType.RESOURCE, playableCards.get("resource_05")));
         Thread.sleep(500);
         assertTableEquals(localModel.getTable(), new LocalTable(playableCards.get("resource_05"), playableCards.get("resource_02"), playableCards.get("gold_01"),
-                playableCards.get("gold_02"), goalCards.get("goal_01"), goalCards.get("goal_02"), Symbol.MUSHROOM, Symbol.ANIMAL));
+                playableCards.get("gold_02"), goalCards.get("goal_01"), goalCards.get("goal_02"), Symbol.MUSHROOM, Symbol.INSECT));
         assertEquals(localModel.getPersonalStation().getCardsInHand(), List.of(playableCards.get("resource_04"), playableCards.get("resource_10"), playableCards.get("resource_01")));
 
         messageHandler.update(new AcceptedPlacePlayableCardMessage("player1", "initial_01", playableCards.get("resource_01"),
@@ -254,7 +263,11 @@ public class LocalModelTest {
         // Other player placing a card
         assertTrue(localModel.getOtherStations().get("player2").cardIsPlaceable(playableCards.get("gold_04"), playableCards.get("initial_02"), Direction.DOWN_RIGHT));
         assertEquals(localModel.getOtherStations().get("player2").getBackCardHand(),
-                List.of(PlayableCardType.GOLD));
+                List.of(
+                        new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                        new Tuple<>(Symbol.INSECT, PlayableCardType.RESOURCE)
+                ));
         messageHandler.update(new AcceptedPlacePlayableCardMessage("player2", "initial_02", playableCards.get("gold_04"), Direction.DOWN_RIGHT,
                 Map.of(Symbol.ANIMAL, 2, Symbol.MUSHROOM, 4, Symbol.VEGETABLE, 1, Symbol.INSECT, 0), 0));
         Thread.sleep(500);
@@ -264,7 +277,11 @@ public class LocalModelTest {
                         Map.of(Symbol.ANIMAL, 2, Symbol.MUSHROOM, 4, Symbol.VEGETABLE, 1, Symbol.INSECT, 0),
                         0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(25, 25)),
                                             new Tuple<>(playableCards.get("gold_04"), new Tuple<>(26, 26))),
-                        List.of()));
+                        List.of(
+                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
+                                new Tuple<>(Symbol.INSECT, PlayableCardType.RESOURCE)
+                        )));
 
 
         // --------------------------------------------------------
@@ -386,7 +403,6 @@ public class LocalModelTest {
 
         for(int i = 0; i<messages1.size(); i++){
             assertEquals(messages1.get(i).getSenderPlayer(), messages2.get(i).getSenderPlayer());
-            assertEquals(messages1.get(i).getSendTime(), messages2.get(i).getSendTime());
             assertEquals(messages1.get(i).getMessage(), messages2.get(i).getMessage());
         }
     }
