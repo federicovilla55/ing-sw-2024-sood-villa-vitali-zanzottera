@@ -142,14 +142,6 @@ public class Disconnect extends ClientState {
         while (numReconnect < ClientSettings.MAX_RECONNECTION_TRY_BEFORE_ABORTING && !Thread.currentThread().isInterrupted()) {
 
             try {
-                TimeUnit.MILLISECONDS.sleep(1000 * ClientSettings.WAIT_BETWEEN_RECONNECTION_TRY_IN_CASE_OF_EXPLICIT_NETWORK_ERROR);
-            }
-            catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-
-            try {
                 clientInterface.reconnect();
             }
             catch (IllegalStateException e) {
@@ -160,6 +152,14 @@ public class Disconnect extends ClientState {
             }
             catch (RuntimeException e) {
                 numReconnect++;
+            }
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(1000 * ClientSettings.WAIT_BETWEEN_RECONNECTION_TRY_IN_CASE_OF_EXPLICIT_NETWORK_ERROR);
+            }
+            catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
             }
         }
 
