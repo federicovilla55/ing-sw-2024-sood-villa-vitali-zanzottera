@@ -87,8 +87,6 @@ public abstract class ClientState {
         this.clientInterface.getMessageHandler().setLocalModel(null);
         this.clientInterface.getMessageHandler().interruptMessageHandler();
         this.clientInterface.stopClient();
-
-        //@TODO: minimum wait
         System.exit(-1);
     };
 
@@ -113,9 +111,20 @@ public abstract class ClientState {
             clientController.setNextState(new Setup(clientController), true);
         }
         else {
+            if(message.getGameState() == GameState.PAUSE){
+                clientController.setNextState(new Pause(clientController), true);
+                return;
+            }
+
+            if(message.getGameState() == GameState.END){
+                clientController.setNextState(new End(clientController), true);
+                return;
+            }
+
             if(message.getFinalRound()){
                 clientController.getView().notify("Final round has begun!");
             }
+
             if(message.getActivePlayer().equals(clientInterface.getNickname())){
                 clientController.setNextState(new Place(clientController), true);
             }
