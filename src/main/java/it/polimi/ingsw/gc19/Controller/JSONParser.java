@@ -18,9 +18,9 @@ public final class JSONParser{
     private static final ObjectMapper objMapper = new ObjectMapper();
 
     /**
-     * This static method returns a Stream<PlayableCard> representing
+     * This static method returns a Stream of PlayableCards representing
      * playable cards read from file
-     * @return Stream<PlayableCards>
+     * @return a Stream of PlayableCards
      */
     public static Stream<PlayableCard> readPlayableCardFromFile() throws IOException{
         File playableCardsFile = new File(ImportantConstants.pathToPlayableCardFileJSON);
@@ -28,9 +28,9 @@ public final class JSONParser{
     }
 
     /**
-     * This static method returns a Stream<GoalCard> representing
+     * This static method returns a Stream of GoalCards representing
      * goal cards read from file
-     * @return Stream<GoalCards>
+     * @return a Stream of GoalCards
      */
     public static Stream<GoalCard> readGoalCardFromFile() throws IOException{
         File goalCardsFile = new File(ImportantConstants.pathToGoalCardFileJSON);

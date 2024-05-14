@@ -46,7 +46,7 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
 
     /**
      * This method is used to insert an {@link ObserverMessageToServer}
-     * to <code>Set<ObserverMessageToServer></code> of the class.
+     * to a Set of ObserverMessageToServer of the class.
      * @param observer the {@link ObserverMessageToServer} to insert.
      */
     @Override
@@ -58,7 +58,7 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
 
     /**
      * This method is used to remove an {@link ObserverMessageToServer}
-     * from <code>Set<ObserverMessageToServer></code> of the class.
+     * from a Set of ObserverMessageToServer of the class.
      * @param observer the {@link ObserverMessageToServer} to remove.
      */
     @Override
@@ -71,7 +71,7 @@ public class MessageToServerDispatcher extends Thread implements ObservableMessa
     /**
      * This method is inherited from {@link Thread} class. It waits
      * for new incoming messages, and it delivers them to the correct {@link ObserverMessageToServer}:
-     * for every {@link ObserverMessageToServer} in <code>Set<ObserverMessageToClient></code> it
+     * for every {@link ObserverMessageToServer} in a Set of ObserverMessageToClients it
      * asks if they can accept it and, if yes, calls their {@link ObserverMessageToServer#update(Socket, MessageToServer)}
      */
     @Override

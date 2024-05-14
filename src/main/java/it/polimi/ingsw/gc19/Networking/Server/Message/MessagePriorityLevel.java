@@ -17,7 +17,7 @@ public enum MessagePriorityLevel{
 
     /**
      * This method returns a comparator for {@link MessagePriorityLevel}.
-     * @return a <code>Comparator<MessagePriorityLevel></code>
+     * @return a Comparator of MessagePriorityLevels
      */
     public static Comparator<MessagePriorityLevel> comparePriority(){
         return Comparator.comparing(v -> v.priorityLevel);

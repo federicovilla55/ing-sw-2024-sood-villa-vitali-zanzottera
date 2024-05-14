@@ -14,8 +14,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 /**
  * This class represents the "network interface" with which server can communicate with
  * one client both sending and receiving messages.
- * It implements <code>Observer<MessageToClient></code> so that <code>Observable<MessageToClient></code>
- * can push in its queue their messages.
+ * It implements an Observer of MessageToClient so that an Observable
+ * of MessageToClient can push in its queue their messages.
  */
 public abstract class ClientHandler extends Thread implements ObserverMessageToClient<MessageToClient> {
 

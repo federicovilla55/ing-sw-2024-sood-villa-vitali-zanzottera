@@ -13,7 +13,7 @@ public interface ChatListener extends Listener {
 
     /**
      * This method is used to notify listeners about chat events
-     * @param msg the <code>ArrayList<Message></code> stored in chat
+     * @param msg the ArrayList of Messages stored in chat
      */
     void notify(ArrayList<Message> msg);
 
