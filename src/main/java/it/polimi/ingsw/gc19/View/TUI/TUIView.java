@@ -1505,7 +1505,7 @@ public class TUIView implements UI, GeneralListener {
     }
 
     /**
-     * To print the helper of the game. The helper shows the commands that can be send to the game.
+     * To print the helper of the game. The helper shows the commands that can be sent to the game.
      */
     private void printHelper(){
         System.out.println("This is the helper of TUI view. Here you can find the infos about commands: ");

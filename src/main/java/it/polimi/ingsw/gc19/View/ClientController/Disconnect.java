@@ -107,9 +107,6 @@ public class Disconnect extends ClientState {
     public void nextState(NetworkHandlingErrorMessage message) {
         reconnectScheduler.interrupt();
         clientController.handleError(message);
-        /*
-            FIXME: ask for CLIENT_ALREADY_CONNECTED_TO_SERVER
-         */
     }
 
     /**

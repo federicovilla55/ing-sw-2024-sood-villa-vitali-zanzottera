@@ -24,7 +24,7 @@ public class ClientApp {
 
         System.out.println();
 
-        System.out.println("Insert server RMI IP (" + ClientSettings.DEFAULT_RMI_SERVER_NAME +"):");
+        System.out.println("Insert server RMI name (" + ClientSettings.DEFAULT_RMI_SERVER_NAME + "): ");
 
         String serverRMIName = scanner.nextLine();
         if(!serverRMIName.isEmpty()){
