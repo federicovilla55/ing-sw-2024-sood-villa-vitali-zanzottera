@@ -192,7 +192,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
         String nick;
 
         try{
-            clientConfig = ConfigurationManager.retriveConfiguration(this.nickname);
+            clientConfig = ConfigurationManager.retrieveConfiguration(this.nickname);
         }
         catch (IllegalStateException | IOException e){
             throw new IllegalStateException("[EXCEPTION]: could not reconnect due to: " + e);

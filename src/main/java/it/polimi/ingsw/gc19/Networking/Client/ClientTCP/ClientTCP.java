@@ -17,7 +17,6 @@ import it.polimi.ingsw.gc19.Networking.Client.NetworkManagement.HeartBeatManager
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayerMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
-import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSocket.MainServerTCP;
 
@@ -303,7 +302,7 @@ public class ClientTCP implements ClientInterface {
         String nick;
 
         try{
-            configuration = ConfigurationManager.retriveConfiguration(this.nickname);
+            configuration = ConfigurationManager.retrieveConfiguration(this.nickname);
         } catch (IOException | IllegalStateException e) {
             throw new IllegalStateException("[EXCEPTION]: could not reconnect due to: " + e);
         }

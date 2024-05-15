@@ -121,7 +121,6 @@ public class ClientController {
 
     public synchronized void setNextState(ClientState clientState, boolean notify){
         System.out.println(prevState.getState() + "  " + clientState.getState());
-        new Exception().printStackTrace();
         if(notify && !viewState.getState().equals(clientState.getState())){
             this.listenersManager.notifyStateListener(clientState.getState());
         }
@@ -175,6 +174,7 @@ public class ClientController {
         }
 
         this.nickname = nick;
+        this.clientNetwork.configure(nick, null);
         setNextState(new Wait(this), true);
         prevState = new NotPlayer(this);
         clientNetwork.connect(nick);

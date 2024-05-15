@@ -97,39 +97,56 @@ public class TUIView implements UI, GeneralListener {
      * Manages connection to the server, user input, and command parsing.
      */
     private void runTUI() {
-        Configuration config;
+        List<Configuration> configs;
         Configuration.ConnectionType connectionType;
         String reconnectChoice;
 
         ClientInterface client;
         try {
-            config = ConfigurationManager.retriveConfiguration();
-            connectionType = config.getConnectionType();
+            configs = ConfigurationManager.retrieveConfiguration();
 
             do {
                 System.out.println("Configuration found. Printing infos about last interaction with server:");
 
-                System.out.println("-> nickname: " + config.getNick());
-                System.out.println("-> timestamp: " + config.getTimestamp());
-                System.out.println("-> connection type: " + config.getConnectionType());
+                printAvailableConfigs(configs);
 
-                System.out.println("do you want to try to reconnect? (y/n) ");
+                System.out.println("do you want to try to reconnect? (y/N): ");
 
                 Scanner scanner = new Scanner(System.in);
                 reconnectChoice = scanner.nextLine();
+                if (reconnectChoice.isEmpty()) {
+                    reconnectChoice = "n";
+                }
             } while(!reconnectChoice.equalsIgnoreCase("y") && !reconnectChoice.equalsIgnoreCase("n"));
 
             if(reconnectChoice.equalsIgnoreCase("y")) {
+                int configChoice;
+                Configuration config;
+
+                if(configs.size()==1) {
+                    config = configs.getFirst();
+                }
+                else {
+                    do {
+                        System.out.println();
+                        System.out.println("Available configurations: ");
+                        printAvailableConfigs(configs);
+                        Scanner scanner = new Scanner(System.in);
+                        configChoice = scanner.nextInt();
+                        System.out.println("Choose a configuration: ");
+                    } while (configChoice < 1 || configChoice > configs.size());
+
+                    config = configs.get(configChoice-1);
+                }
+
+                connectionType = config.getConnectionType();
+
                 client = connectionType.getClientFactory().createClient(clientController);
                 client.configure(config.getNick(), config.getToken());
                 clientController.setNickname(config.getNick());
                 clientController.setClientInterface(client);
                 clientController.setNextState(new Disconnect(clientController), false);
             }
-            else{
-                ConfigurationManager.deleteConfiguration();
-            }
-
         } catch (IllegalStateException e) {
             System.out.println("No valid configuration found... creating new client");
             reconnectChoice = "n";
@@ -160,6 +177,17 @@ public class TUIView implements UI, GeneralListener {
             String command = scanner.nextLine();
 
             this.parseCommand(command);
+        }
+    }
+
+    private static void printAvailableConfigs(List<Configuration> configs) {
+        int confNumber = 1;
+        for (Configuration config : configs) {
+            System.out.println("Configuration " + confNumber + ": ");
+            System.out.println("-> nickname: " + config.getNick());
+            System.out.println("-> timestamp: " + config.getTimestamp());
+            System.out.println("-> connection type: " + config.getConnectionType());
+            confNumber++;
         }
     }
 
