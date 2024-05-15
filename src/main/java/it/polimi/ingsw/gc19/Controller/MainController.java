@@ -295,7 +295,7 @@ public class MainController {
 
     /**
      * This method registers a player to an available game: the first
-     * of the ArrayList of Strings returned by {@link MainController#findAvailableGames()}
+     * of the {@code ArrayList<String>} returned by {@link MainController#findAvailableGames()}
      * It send to player {@link GameHandlingErrorMessage} with error type <code>NO_GAMES_FREE_TO_JOIN</code> if no game is available.
      * @param player is the {@link ClientHandler} of the player to be registered
      * @return name of joined game if it exists, otherwise null.
@@ -359,7 +359,7 @@ public class MainController {
      * This method finds all available games. Nothing can be guaranteed about the other
      * of available games name in the array list returned. For example, if game <code>A</code> has been
      * available for more than <code>B</code>, first element of the array list can be <code>B</code>.
-     * @return an ArrayList of Strings containing all available games names.
+     * @return an {@code ArrayList<Strings>} containing all available games names.
      */
     public ArrayList<String> findAvailableGames() {
         synchronized (this.gamesInfo) {

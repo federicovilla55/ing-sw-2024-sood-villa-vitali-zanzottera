@@ -27,7 +27,7 @@ public interface VirtualGameServer extends Remote {
 
     /**
      * This remote method is used to send a chat message.
-     * @param usersToSend is the List of Strings of receiver clients name
+     * @param usersToSend is the {@code ArrayList<String>} of receiver clients name
      * @param messageToSend is the message to send in chat
      * @throws RemoteException if something goes wrong while performing the requested action.
      */
