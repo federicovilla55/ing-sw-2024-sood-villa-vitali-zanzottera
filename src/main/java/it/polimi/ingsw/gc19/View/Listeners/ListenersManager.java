@@ -83,8 +83,10 @@ public class ListenersManager {
      * @param messages the {@code ArrayList<Message>} inside chat
      */
     public void notifyChatListener(ArrayList<Message> messages){
-        for(Listener c : this.attachedListeners.get(ListenerType.CHAT_LISTENER)) {
-            ((ChatListener) c).notify(messages);
+        if(this.attachedListeners.get(ListenerType.CHAT_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.CHAT_LISTENER)) {
+                ((ChatListener) c).notify(messages);
+            }
         }
     }
 
@@ -95,8 +97,10 @@ public class ListenersManager {
      * @param varArgs variable {@link String} arguments
      */
     public void notifyLocalModelListener(LocalModelEvents type, LocalModel localModel, String ... varArgs){
-        for(Listener c : this.attachedListeners.get(ListenerType.LOCAL_MODEL_LISTENER)) {
-            ((LocalModelListener) c).notify(type, localModel, varArgs);
+        if(this.attachedListeners.get(ListenerType.LOCAL_MODEL_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.LOCAL_MODEL_LISTENER)) {
+                ((LocalModelListener) c).notify(type, localModel, varArgs);
+            }
         }
     }
 
@@ -106,8 +110,10 @@ public class ListenersManager {
      * @param otherStation the {@link PersonalStation} on which the event happened
      */
     public void notifyStationListener(PersonalStation otherStation){
-        for(Listener c : this.attachedListeners.get(ListenerType.STATION_LISTENER)) {
-            ((StationListener) c).notify(otherStation);
+        if(this.attachedListeners.get(ListenerType.STATION_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.STATION_LISTENER)) {
+                ((StationListener) c).notify(otherStation);
+            }
         }
     }
 
@@ -117,8 +123,10 @@ public class ListenersManager {
      * @param otherStation the {@link OtherStation} on which the event happened
      */
     public void notifyStationListener(OtherStation otherStation){
-        for(Listener c : this.attachedListeners.get(ListenerType.STATION_LISTENER)) {
-            ((StationListener) c).notify(otherStation);
+        if(this.attachedListeners.get(ListenerType.STATION_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.STATION_LISTENER)) {
+                ((StationListener) c).notify(otherStation);
+            }
         }
     }
 
@@ -127,8 +135,10 @@ public class ListenersManager {
      * @param args variable {@link String} arguments describing the error
      */
     public void notifyErrorStationListener(String ... args){
-        for(Listener c : this.attachedListeners.get(ListenerType.STATION_LISTENER)) {
-            ((StationListener) c).notifyErrorStation(args);
+        if(this.attachedListeners.get(ListenerType.STATION_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.STATION_LISTENER)) {
+                ((StationListener) c).notifyErrorStation(args);
+            }
         }
     }
 
@@ -138,8 +148,10 @@ public class ListenersManager {
      * @param type is the {@link SetupEvent} of the event
      */
     public void notifySetupListener(SetupEvent type){
-        for(Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
-            ((SetupListener) c).notify(type);
+        if(this.attachedListeners.get(ListenerType.SETUP_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
+                ((SetupListener) c).notify(type);
+            }
         }
     }
 
@@ -148,8 +160,10 @@ public class ListenersManager {
      * @param error a {@link String} description of the error
      */
     public void notifyErrorSetupListener(String error){
-        for(Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
-            ((SetupListener) c).notify(error);
+        if(this.attachedListeners.get(ListenerType.SETUP_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
+                ((SetupListener) c).notify(error);
+            }
         }
     }
 
@@ -159,8 +173,10 @@ public class ListenersManager {
      * @param localTable the {@link LocalTable} on which the event happened
      */
     public void notifyTableListener(LocalTable localTable){
-        for(Listener c : this.attachedListeners.get(ListenerType.TABLE_LISTENER)) {
-            ((TableListener) c).notify(localTable);
+        if(this.attachedListeners.get(ListenerType.TURN_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.TABLE_LISTENER)) {
+                ((TableListener) c).notify(localTable);
+            }
         }
     }
 
@@ -171,8 +187,10 @@ public class ListenersManager {
      * @param turnState is the {@link TurnState} of player
      */
     public void notifyTurnStateListener(String nick, TurnState turnState){
-        for(Listener c : this.attachedListeners.get(ListenerType.TURN_LISTENER)) {
-            ((TurnStateListener) c).notify(nick, turnState);
+        if(this.attachedListeners.get(ListenerType.TURN_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.TURN_LISTENER)) {
+                ((TurnStateListener) c).notify(nick, turnState);
+            }
         }
     }
 
@@ -183,8 +201,10 @@ public class ListenersManager {
      * @param varArgs variable {@link String} arguments describing the event
      */
     public void notifyGameHandlingListener(GameHandlingEvents type, List<String> varArgs){
-        for(Listener c : this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)) {
-            ((GameHandlingListener) c).notify(type, varArgs);
+        if(this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)) {
+                ((GameHandlingListener) c).notify(type, varArgs);
+            }
         }
     }
 
@@ -193,8 +213,10 @@ public class ListenersManager {
      * @param errorDescription a {@link String} description of the error
      */
     public void notifyErrorGameHandlingListener(String errorDescription){
-        for(Listener c : this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)) {
-            ((GameHandlingListener) c).notify(errorDescription);
+        if(this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)) {
+                ((GameHandlingListener) c).notify(errorDescription);
+            }
         }
     }
 
@@ -204,8 +226,10 @@ public class ListenersManager {
      * @param name is he name of the player
      */
     public void notifyPlayerCreationListener(String name){
-        for(Listener c : this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER)) {
-            ((PlayerCreationListener) c).notifyPlayerCreation(name);
+        if(this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER)) {
+                ((PlayerCreationListener) c).notifyPlayerCreation(name);
+            }
         }
     }
 
@@ -214,8 +238,10 @@ public class ListenersManager {
      * @param error a {@link String} describing the error
      */
     public void notifyErrorPlayerCreationListener(String error){
-        for(Listener c : this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER)) {
-            ((PlayerCreationListener) c).notifyPlayerCreationError(error);
+        if(this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER) != null) {
+            for (Listener c : this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER)) {
+                ((PlayerCreationListener) c).notifyPlayerCreationError(error);
+            }
         }
     }
 

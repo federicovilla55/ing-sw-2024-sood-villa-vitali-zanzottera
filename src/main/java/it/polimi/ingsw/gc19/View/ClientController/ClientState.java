@@ -153,7 +153,8 @@ public abstract class ClientState {
      * @param message a {@link StartPlayingGameMessage} from the server.
      */
     public void nextState(StartPlayingGameMessage message) {
-        this.clientController.getView().notify("Game is starting!");
+        if (this.clientController.getView() != null)
+            this.clientController.getView().notify("Game is starting!");
     }
 
     /**

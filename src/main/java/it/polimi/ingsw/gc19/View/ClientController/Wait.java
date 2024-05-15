@@ -96,8 +96,11 @@ public class Wait extends ClientState {
 
         this.clientController.setLocalModel(localModel);
         this.clientInterface.getMessageHandler().setLocalModel(localModel);
-        this.clientController.getView().setLocalModel(localModel);
+        if(this.clientController.getView() != null) {
+            this.clientController.getView().setLocalModel(localModel);
+        }
     }
+
 
     /**
      * This method handles {@link CreatedGameMessage}. It builds a new {@link LocalModel}

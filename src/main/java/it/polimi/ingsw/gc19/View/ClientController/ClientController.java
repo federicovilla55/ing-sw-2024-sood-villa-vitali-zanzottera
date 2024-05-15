@@ -417,7 +417,8 @@ public class ClientController {
     //Maybe returning something?
     public synchronized void createGame(String gameName, int numPlayers) {
         if(viewState.getState() != ViewState.NOT_GAME){
-            this.view.notifyGenericError("You can not create a game!");
+            if (this.view !=null)
+                this.view.notifyGenericError("You can not create a game!");
             return;
         }
         if(numPlayers > 1 && numPlayers < 5){
