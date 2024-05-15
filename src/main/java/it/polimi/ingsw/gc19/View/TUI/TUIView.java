@@ -160,14 +160,13 @@ public class TUIView implements UI, GeneralListener {
             connectionType = chooseClientType();
             try {
                 client = connectionType.getClientFactory().createClient(clientController);
-            } catch (IOException e) {
+            } catch (IOException | RuntimeException e) {
                 System.out.println("Error while creating client... aborting");
                 System.exit(1);
                 return;
             }
             clientController.setClientInterface(client);
             System.out.println("Successfully connected to the server!");
-            System.out.print("> ");
             clientController.setNextState(new NotPlayer(clientController), true);
         }
 
@@ -1501,7 +1500,7 @@ public class TUIView implements UI, GeneralListener {
     private void printCreationPlayerScene(){
         this.clearTerminal();
         System.out.println(ClientSettings.CODEX_NATURALIS_LOGO);
-        printHelper();
+        printHelper(ViewState.NOT_PLAYER);
         System.out.println();
         System.out.println("All is ready to start!");
         System.out.println();

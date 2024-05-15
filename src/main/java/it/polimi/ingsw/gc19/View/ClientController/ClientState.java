@@ -134,18 +134,7 @@ public abstract class ClientState {
      * @param message a {@link GameResumedMessage} from the server.
      */
     public void nextState(GameResumedMessage message) {
-        if(message.getActivePlayer().equals(clientController.getNickname())){
-            if(message.getTurnState().equals(TurnState.PLACE)) {
-                clientController.setNextState(new Place(clientController), true);
-            }
-            else if(message.getTurnState().equals(TurnState.DRAW)) {
-                clientController.setNextState(new Pick(clientController), true);
-            }
-        }
-        else {
-            clientController.setNextState(new OtherTurn(clientController), true);
-        }
-
+        handleTurnStateAndFirstPlayer(message.getActivePlayer(), clientController.getNickname(), message.getTurnState());
     }
 
     /**
@@ -238,7 +227,7 @@ public abstract class ClientState {
                 clientController.setNextState(new Pause(clientController), true);
                 return;
             }
-
+            
             if(message.getGameState() == GameState.END){
                 clientController.setNextState(new End(clientController), true);
                 return;
@@ -248,16 +237,20 @@ public abstract class ClientState {
                 clientController.getView().notify("Final round has begun!");
             }
 
-            if (message.getActivePlayer().equals(clientInterface.getNickname())) {
-                if (message.getTurnState().equals(TurnState.PLACE))
-                    clientController.setNextState(new Place(clientController), true);
-                else if (message.getTurnState().equals(TurnState.DRAW))
-                    clientController.setNextState(new Pick(clientController), true);
-            }
-            else{
-                clientController.setNextState(new OtherTurn(clientController), true);
-            }
+            handleTurnStateAndFirstPlayer(message.getActivePlayer(), clientInterface.getNickname(), message.getTurnState());
             this.listenersManager.notifyTurnStateListener(message.getActivePlayer(), message.getTurnState());
+        }
+    }
+
+    private void handleTurnStateAndFirstPlayer(String activePlayer, String nickname, TurnState turnState) {
+        if (activePlayer.equals(nickname)) {
+            if (turnState.equals(TurnState.PLACE))
+                clientController.setNextState(new Place(clientController), true);
+            else if (turnState.equals(TurnState.DRAW))
+                clientController.setNextState(new Pick(clientController), true);
+        }
+        else{
+            clientController.setNextState(new OtherTurn(clientController), true);
         }
     }
 

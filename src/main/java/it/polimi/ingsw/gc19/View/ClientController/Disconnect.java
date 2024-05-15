@@ -142,9 +142,10 @@ public class Disconnect extends ClientState {
                 clientInterface.reconnect();
             }
             catch (IllegalStateException e) {
-                if(clientController.getView() != null)
-                    clientController.getView().notifyGenericError("Could not reconnect, returning to the lobby");
+                clientController.getView().notifyGenericError("Could not reconnect, returning to the lobby");
+
                 clientController.setNextState(new NotPlayer(clientController), true);
+
                 Thread.currentThread().interrupt();
                 return;
             }
@@ -169,6 +170,7 @@ public class Disconnect extends ClientState {
             }
             catch (InterruptedException interruptedException){
                 Thread.currentThread().interrupt();
+                return;
             }
 
             System.exit(0);
