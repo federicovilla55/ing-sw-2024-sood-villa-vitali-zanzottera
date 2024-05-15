@@ -120,7 +120,6 @@ public class ClientController {
     }
 
     public synchronized void setNextState(ClientState clientState, boolean notify){
-        System.out.println(prevState.getState() + "  " + clientState.getState());
         if(notify && !viewState.getState().equals(clientState.getState())){
             this.listenersManager.notifyStateListener(clientState.getState());
         }
