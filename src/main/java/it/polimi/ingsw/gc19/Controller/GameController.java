@@ -120,7 +120,10 @@ public class GameController{
                     else if(this.connectedClients.size()>=2) {
                         //if the game is in pause and there are 2 or more clients connected, unpause game
                         this.gameAssociated.setGameState(GameState.PLAYING);
-                        this.messageFactory.sendMessageToAllGamePlayers(new GameResumedMessage());
+                        this.messageFactory.sendMessageToAllGamePlayers(new GameResumedMessage(
+                                this.gameAssociated.getTurnState(),
+                                this.gameAssociated.getActivePlayer().getName()
+                        ));
                         System.out.println("mandato");
                     }
                 }

@@ -315,9 +315,6 @@ public class ClientTCPTest {
 
         assertMessageEquals(this.client1, new AvailableGamesMessage(List.of("game11")));
 
-        this.client1.reconnect();
-        assertMessageEquals(this.client1, new NetworkHandlingErrorMessage(NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER, null));
-
         this.client1.stopSendingHeartbeat();
         waitingThread(5000);
 

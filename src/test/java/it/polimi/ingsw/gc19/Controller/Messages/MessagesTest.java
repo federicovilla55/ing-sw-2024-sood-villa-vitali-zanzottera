@@ -804,7 +804,10 @@ public class MessagesTest {
                 ));
 
         assertMessageEquals(List.of(player1, player2),
-                new GameResumedMessage());
+                new GameResumedMessage(
+                        TurnState.PLACE,
+                        "player1"
+                ));
     }
 
 

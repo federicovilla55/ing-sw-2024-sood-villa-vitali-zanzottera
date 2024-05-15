@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.View.ClientController;
 
 import it.polimi.ingsw.gc19.Enums.GameState;
+import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.RefusedActionMessage;
@@ -133,7 +134,18 @@ public abstract class ClientState {
      * @param message a {@link GameResumedMessage} from the server.
      */
     public void nextState(GameResumedMessage message) {
-        clientController.setNextState(clientController.getPrevState(), true);
+        if(message.getActivePlayer().equals(clientController.getNickname())){
+            if(message.getTurnState().equals(TurnState.PLACE)) {
+                clientController.setNextState(new Place(clientController), true);
+            }
+            else if(message.getTurnState().equals(TurnState.DRAW)) {
+                clientController.setNextState(new Pick(clientController), true);
+            }
+        }
+        else {
+            clientController.setNextState(new OtherTurn(clientController), true);
+        }
+
     }
 
     /**
@@ -235,8 +247,11 @@ public abstract class ClientState {
                 clientController.getView().notify("Final round has begun!");
             }
 
-            if(message.getActivePlayer().equals(clientInterface.getNickname())){
-                clientController.setNextState(new Place(clientController), true);
+            if (message.getActivePlayer().equals(clientInterface.getNickname())) {
+                if (message.getTurnState().equals(TurnState.PLACE))
+                    clientController.setNextState(new Place(clientController), true);
+                else if (message.getTurnState().equals(TurnState.DRAW))
+                    clientController.setNextState(new Pick(clientController), true);
             }
             else{
                 clientController.setNextState(new OtherTurn(clientController), true);

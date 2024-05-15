@@ -251,7 +251,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         waitForLocalModel();
         this.localModel.setNumPlayers(message.getNumPlayers());
         if(message.getFirstPlayer() != null) {
-            this.localModel.setPlayerActive(message.getFirstPlayer());
             this.localModel.setFirstPlayer(message.getFirstPlayer());
         }
         clientController.getCurrentState().nextState(message);
