@@ -7,11 +7,10 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.GameSelectionController">
    <children>
       <Label contentDisplay="CENTER" layoutX="131.0" layoutY="28.0" text="Join Game" />
-      <ListView layoutX="34.0" layoutY="57.0" prefHeight="271.0" prefWidth="257.0" />
+      <ListView fx:id="availableGamesList" layoutX="34.0" layoutY="57.0" prefHeight="271.0" prefWidth="257.0" />
       <Button layoutX="122.0" layoutY="348.0" mnemonicParsing="false" text="Join Game" />
       <Label layoutX="414.0" layoutY="28.0" text="Create Game" />
       <TextField layoutX="374.0" layoutY="111.0" />

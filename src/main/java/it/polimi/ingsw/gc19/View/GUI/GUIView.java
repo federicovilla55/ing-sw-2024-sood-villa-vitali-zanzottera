@@ -9,6 +9,7 @@ import it.polimi.ingsw.gc19.View.ClientController.Disconnect;
 import it.polimi.ingsw.gc19.View.ClientController.NotPlayer;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.NewConfigurationController;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.OldConfigurationController;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.TUI.TUIView;
 import javafx.application.Application;
@@ -42,10 +43,15 @@ public class GUIView extends Application {
         this.clientController = commandParser.clientController();
         try {
             configs = ConfigurationManager.retrieveConfiguration();
-            //connectionType = configs.getConnectionType();
             File url = new File(SceneStatesEnum.OldConfigurationScene.value());
-            root = FXMLLoader.load(url.toURL());
-
+            FXMLLoader loader = new FXMLLoader(url.toURL());
+            root = loader.load();
+            OldConfigurationController controller = loader.getController();
+            controller.setCommandParser(this.commandParser);
+            controller.setClientController(this.clientController);
+            controller.setStage(stage);
+            controller.setConfig(configs);
+            controller.setUpConfigTable();
         } catch (RuntimeException e) {
             File url = new File(SceneStatesEnum.NewConfigurationScene.value());
             FXMLLoader loader = new FXMLLoader(url.toURL());
@@ -58,7 +64,6 @@ public class GUIView extends Application {
         stage.setScene(new Scene(root));
         stage.show();
     }
-
     public static void main(String[] args) {
         launch(args);
     }
