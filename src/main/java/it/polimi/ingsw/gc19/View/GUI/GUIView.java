@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Scanner;
 
 public class GUIView extends Application {
@@ -32,7 +33,7 @@ public class GUIView extends Application {
     //private  SceneStatesConst scenePath;
     @Override
     public void start(Stage stage) throws Exception {
-        Configuration config;
+        List<Configuration> configs;
         Configuration.ConnectionType connectionType;
         String reconnectChoice;
         ClientInterface client;
@@ -40,8 +41,8 @@ public class GUIView extends Application {
         this.commandParser = new CommandParser(new ClientController());
         this.clientController = commandParser.clientController();
         try {
-            config = ConfigurationManager.retriveConfiguration();
-            connectionType = config.getConnectionType();
+            configs = ConfigurationManager.retrieveConfiguration();
+            //connectionType = configs.getConnectionType();
             File url = new File(SceneStatesEnum.OldConfigurationScene.value());
             root = FXMLLoader.load(url.toURL());
 
