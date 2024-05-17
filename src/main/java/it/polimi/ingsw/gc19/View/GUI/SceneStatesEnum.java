@@ -6,7 +6,8 @@ public enum SceneStatesEnum {
     GameSelectionScene("src/main/resources/fxml/GameSelection.fxml"),
     PlayingAreaScene("src/main/resources/fxml/PlayingArea.fxml"),
     NewConfigurationScene( "src/main/resources/fxml/NewConfiguration.fxml"),
-    OldConfigurationScene("src/main/resources/fxml/OldConfiguration.fxml");
+    OldConfigurationScene("src/main/resources/fxml/OldConfiguration.fxml"),
+    SETUP_SCENE("src/main/resources/fxml/SetupScene.fxml");
 
     private final String value;
 

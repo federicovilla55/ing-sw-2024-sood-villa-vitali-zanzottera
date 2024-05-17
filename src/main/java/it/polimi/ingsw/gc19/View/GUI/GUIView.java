@@ -9,6 +9,8 @@ import it.polimi.ingsw.gc19.View.ClientController.Disconnect;
 import it.polimi.ingsw.gc19.View.ClientController.NotPlayer;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.NewConfigurationController;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.SetupController;
+import it.polimi.ingsw.gc19.View.GUI.Scenes.SetupScene;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.TUI.TUIView;
 import javafx.application.Application;
@@ -22,6 +24,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class GUIView extends Application {
@@ -39,13 +42,13 @@ public class GUIView extends Application {
         Parent root;
         this.commandParser = new CommandParser(new ClientController());
         this.clientController = commandParser.clientController();
-        try {
-            config = ConfigurationManager.retriveConfiguration();
-            connectionType = config.getConnectionType();
-            File url = new File(SceneStatesEnum.OldConfigurationScene.value());
-            root = FXMLLoader.load(url.toURL());
+        //try {
+            //config = ConfigurationManager.retrieveConfiguration();
+            //connectionType = config.getConnectionType();
+            File url = new File(SceneStatesEnum.SETUP_SCENE.value());
+            root = new FXMLLoader(url.toURL()).load();
 
-        } catch (RuntimeException e) {
+        /*} catch (RuntimeException e) {
             File url = new File(SceneStatesEnum.NewConfigurationScene.value());
             FXMLLoader loader = new FXMLLoader(url.toURL());
             root = loader.load();
@@ -53,7 +56,9 @@ public class GUIView extends Application {
             controller.setCommandParser(this.commandParser);
             controller.setClientController(this.clientController);
             controller.setStage(stage);
-        }
+        }*/
+        //SetupScene setupScene = new SetupScene(root);
+        root.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/SetupScene.css")).toExternalForm());
         stage.setScene(new Scene(root));
         stage.show();
     }
