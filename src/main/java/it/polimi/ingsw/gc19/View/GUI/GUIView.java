@@ -9,8 +9,7 @@ import it.polimi.ingsw.gc19.View.ClientController.Disconnect;
 import it.polimi.ingsw.gc19.View.ClientController.NotPlayer;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.NewConfigurationController;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.SetupController;
-import it.polimi.ingsw.gc19.View.GUI.Scenes.SetupScene;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.OldConfigurationController;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.TUI.TUIView;
 import javafx.application.Application;
@@ -24,7 +23,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Objects;
+import java.util.List;
 import java.util.Scanner;
 
 public class GUIView extends Application {
@@ -35,20 +34,25 @@ public class GUIView extends Application {
     //private  SceneStatesConst scenePath;
     @Override
     public void start(Stage stage) throws Exception {
-        Configuration config;
+        List<Configuration> configs;
         Configuration.ConnectionType connectionType;
         String reconnectChoice;
         ClientInterface client;
         Parent root;
         this.commandParser = new CommandParser(new ClientController());
         this.clientController = commandParser.clientController();
-        //try {
-            //config = ConfigurationManager.retrieveConfiguration();
-            //connectionType = config.getConnectionType();
-            File url = new File(SceneStatesEnum.SETUP_SCENE.value());
-            root = new FXMLLoader(url.toURL()).load();
-
-        /*} catch (RuntimeException e) {
+        try {
+            configs = ConfigurationManager.retrieveConfiguration();
+            File url = new File(SceneStatesEnum.OldConfigurationScene.value());
+            FXMLLoader loader = new FXMLLoader(url.toURL());
+            root = loader.load();
+            OldConfigurationController controller = loader.getController();
+            controller.setCommandParser(this.commandParser);
+            controller.setClientController(this.clientController);
+            controller.setStage(stage);
+            controller.setConfig(configs);
+            controller.setUpConfigTable();
+        } catch (RuntimeException e) {
             File url = new File(SceneStatesEnum.NewConfigurationScene.value());
             FXMLLoader loader = new FXMLLoader(url.toURL());
             root = loader.load();
@@ -56,13 +60,10 @@ public class GUIView extends Application {
             controller.setCommandParser(this.commandParser);
             controller.setClientController(this.clientController);
             controller.setStage(stage);
-        }*/
-        //SetupScene setupScene = new SetupScene(root);
-        root.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/SetupScene.css")).toExternalForm());
+        }
         stage.setScene(new Scene(root));
         stage.show();
     }
-
     public static void main(String[] args) {
         launch(args);
     }

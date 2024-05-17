@@ -49,7 +49,7 @@ public class NewConfigurationController extends AbstractController implements St
         super.attachToListener();
         super.setToView();
         super.getClientController().setClientInterface(client);
-        super.getClientController().setNextState(new NotPlayer(super.getClientController()), true);
+        //super.getClientController().setNextState(new NotPlayer(super.getClientController()));
     }
     @FXML
     public void TCPPress(ActionEvent e){
@@ -63,10 +63,10 @@ public class NewConfigurationController extends AbstractController implements St
         super.attachToListener();
         super.setToView();
         super.getClientController().setClientInterface(client);
-        super.getClientController().setNextState(new NotPlayer(super.getClientController()), true);
+        //super.getClientController().setNextState(new NotPlayer(super.getClientController()));
     }
     @Override
     public void notify(ViewState viewState) {
-        super.changeToNextScene(SceneStatesEnum.LoginScene.value());
+        super.changeToNextScene(SceneStatesEnum.LoginScene);
     }
 }

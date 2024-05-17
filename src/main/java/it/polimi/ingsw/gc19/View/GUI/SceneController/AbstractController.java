@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
+import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.Listeners.Listener;
 import it.polimi.ingsw.gc19.View.UI;
@@ -79,8 +80,8 @@ public class AbstractController implements UI , Listener {
         this.clientController.setView(this);
     }
 
-    public void changeToNextScene(String nextScenePath) {
-        File url = new File(nextScenePath);
+    public void changeToNextScene(SceneStatesEnum nextScenePath) {
+        File url = new File(nextScenePath.value());
         FXMLLoader loader = null;
         Parent root;
         try {
@@ -100,7 +101,9 @@ public class AbstractController implements UI , Listener {
         controller.attachToListener();
         controller.setToView();
         this.clientController.getListenersManager().removeListener(this);
+        Platform.runLater(() -> {
         this.stage.setScene(new Scene(root));
         this.stage.show();
+        });
     }
 }

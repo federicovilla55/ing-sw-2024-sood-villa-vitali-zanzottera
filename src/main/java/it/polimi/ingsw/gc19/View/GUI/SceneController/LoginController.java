@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
+import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationListener;
@@ -24,7 +25,7 @@ public class LoginController extends AbstractController implements PlayerCreatio
     }
     @Override
     public void notifyPlayerCreation(String name) {
-        System.out.println("Success");
+        super.changeToNextScene(SceneStatesEnum.GameSelectionScene);
     }
 
     @Override
