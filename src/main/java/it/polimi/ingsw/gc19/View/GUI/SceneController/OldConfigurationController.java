@@ -1,8 +1,18 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.Configuration;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.NewUserMessage;
+import it.polimi.ingsw.gc19.View.ClientController.Disconnect;
+import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
+import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
+import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
+import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
+import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
+import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -20,11 +30,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class OldConfigurationController extends AbstractController{
+public class OldConfigurationController extends AbstractController implements StateListener, GameHandlingListener{
 
 
     private List<Configuration> configs;
-    private Configuration.ConnectionType connectionType;
 
     @FXML
     private TableView<Configuration> confTable;
@@ -49,9 +58,23 @@ public class OldConfigurationController extends AbstractController{
     }
     @FXML
     public void onRecconectPress(ActionEvent e) {
+        ClientInterface client;
         Configuration config = confTable.getSelectionModel().getSelectedItem();
+        Configuration.ConnectionType connectionType;
         if(config != null) {
             System.out.println(config.getNick());
+            connectionType = config.getConnectionType();
+            try {
+                client = connectionType.getClientFactory().createClient(super.getClientController());
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            client.configure(config.getNick(), config.getToken());
+            super.attachToListener();
+            super.setToView();
+            super.getClientController().setNickname(config.getNick());
+            super.getClientController().setClientInterface(client);
+            super.getClientController().setNextState(new Disconnect(super.getClientController()), false);
         }
     }
     @FXML
@@ -68,6 +91,16 @@ public class OldConfigurationController extends AbstractController{
             this.getStage().setScene(new Scene(root));
             this.getStage().show();
         });
+    }
+
+    @Override
+    public void notify(ViewState viewState) {
+        System.out.println(viewState);
+    }
+
+    @Override
+    public void notify(GameHandlingEvents type, List<String> varArgs) {
+
     }
 
 }
