@@ -95,6 +95,16 @@ public class OldConfigurationController extends AbstractController implements St
 
     @Override
     public void notify(ViewState viewState) {
+        switch (viewState){
+            case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LoginScene);
+            case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GameSelectionScene);
+            case ViewState.SETUP -> {
+                super.changeToNextScene(SceneStatesEnum.SETUP_SCENE);
+            }
+            case ViewState.PAUSE -> System.out.println("Game is in pause! Sorry, you have to wait...");
+            case ViewState.DISCONNECT -> System.err.println("[NETWORK PROBLEMS]: there are network problems. In background, we are trying to fix them...");
+            case ViewState.END -> System.out.println("ciao");
+        }
         System.out.println(viewState);
     }
 
