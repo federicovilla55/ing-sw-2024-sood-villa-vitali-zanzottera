@@ -44,7 +44,8 @@ public class SetupController extends AbstractController implements SetupListener
 
         try{
             File url = new File("src/main/resources/fxml/Chat.fxml");
-            rightVBox.getChildren().add(new FXMLLoader(url.toURL()).load());
+            VBox chat = new FXMLLoader(url.toURL()).load();
+            rightVBox.getChildren().add(chat);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

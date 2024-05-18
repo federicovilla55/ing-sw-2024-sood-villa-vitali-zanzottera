@@ -1,0 +1,31 @@
+#sendButton{
+
+}
+
+#scrollPaneSend{
+    "-fx-background-color:transparent;"+
+    "-fx-border-style: solid inside; " +
+    "-fx-border-color: black; " +
+    "-fx-border-insets: 5;"
+}
+
+#scrollText{
+    "-fx-background-color:transparent;"+
+    "-fx-border-style: solid inside; " +
+    "-fx-border-color: black; " +
+    "-fx-border-insets: 5;"
+}
+
+#textAreaSend{
+    "-fx-background-color:transparent;"+
+    "-fx-border-style: solid inside; " +
+    "-fx-border-color: black; " +
+    "-fx-border-insets: 5;"
+}
+
+#textFlow{
+    "-fx-background-color:transparent;"+
+    "-fx-border-style: solid inside; " +
+    "-fx-border-color: black; " +
+    "-fx-border-insets: 5;"
+}
