@@ -86,9 +86,9 @@ public class AbstractController implements UI , Listener {
 
     public void removeListener() {
         //this.clientController.getListenersManager().removeListener(this);
+        System.out.println(sceneStatesEnum);
         List<ListenerType> listToAttach = this.sceneStatesEnum.getListeners();
-        for(ListenerType listenerType : listToAttach)
-        {
+        for(ListenerType listenerType : listToAttach) {
             this.clientController.getListenersManager().removeListener(listenerType,this);
         }
     }
@@ -121,6 +121,7 @@ public class AbstractController implements UI , Listener {
         controller.setStage(getStage());
         controller.attachToListener(nextScenePath);
         controller.setToView();
+        System.out.println(nextScenePath);
         controller.setSceneStatesEnum(nextScenePath);
         //this.clientController.getListenersManager().removeListener(this);
         this.removeListener();

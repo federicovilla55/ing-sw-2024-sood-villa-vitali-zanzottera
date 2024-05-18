@@ -23,6 +23,7 @@ public class LoginController extends AbstractController implements PlayerCreatio
         System.out.println(username);
         super.getCommandParser().createPlayer(username);
     }
+
     @Override
     public void notifyPlayerCreation(String name) {
         super.changeToNextScene(SceneStatesEnum.GameSelectionScene);

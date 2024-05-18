@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import org.controlsfx.control.CheckComboBox?>
 <VBox prefHeight="403.0" prefWidth="601.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.ChatView">
    <ScrollPane id="chatArea" prefHeight="260.0" prefWidth="600.0" />
    <HBox prefHeight="145.0" prefWidth="589.0">
@@ -11,10 +12,9 @@
       </ScrollPane>
       <VBox prefHeight="144.0" prefWidth="297.0">
          <children>
-      
-            <Button id="sendButton" mnemonicParsing="false" prefHeight="46.0" prefWidth="292.0" text="Send message!" />
+            <Button fx:id="sendButton" mnemonicParsing="false" prefHeight="46.0" prefWidth="292.0" text="Send message!" />
+            <CheckComboBox fx:id="receivers" />
          </children>
       </VBox>
-
    </HBox>
 </VBox>
