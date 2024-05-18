@@ -11,7 +11,7 @@
    <children>
       <Label contentDisplay="CENTER" layoutX="131.0" layoutY="28.0" text="Join Game" />
       <ListView fx:id="availableGamesList" layoutX="34.0" layoutY="57.0" prefHeight="271.0" prefWidth="257.0" />
-      <Button layoutX="122.0" layoutY="348.0" mnemonicParsing="false" text="Join Game" />
+      <Button layoutX="122.0" layoutY="348.0" mnemonicParsing="false" onAction="#onJoinPress" text="Join Game" />
       <Label layoutX="414.0" layoutY="28.0" text="Create Game" />
       <TextField layoutX="374.0" layoutY="111.0" />
       <ChoiceBox fx:id="numPlayerBox" layoutX="380.0" layoutY="187.0" prefWidth="150.0" />
