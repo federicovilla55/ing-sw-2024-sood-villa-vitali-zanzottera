@@ -46,7 +46,7 @@ public class NewConfigurationController extends AbstractController implements St
             System.exit(1);
             return;
         }
-        super.attachToListener();
+        super.attachToListener(SceneStatesEnum.NewConfigurationScene);
         super.setToView();
         super.getClientController().setClientInterface(client);
         //super.getClientController().setNextState(new NotPlayer(super.getClientController()));
