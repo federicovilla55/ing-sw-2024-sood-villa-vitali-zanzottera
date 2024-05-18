@@ -26,6 +26,7 @@ public class LoginController extends AbstractController implements PlayerCreatio
     @Override
     public void notifyPlayerCreation(String name) {
         super.changeToNextScene(SceneStatesEnum.GameSelectionScene);
+
     }
 
     @Override

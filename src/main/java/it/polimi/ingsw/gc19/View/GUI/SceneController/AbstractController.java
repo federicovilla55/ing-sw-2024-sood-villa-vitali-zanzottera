@@ -23,8 +23,9 @@ public class AbstractController implements UI , Listener {
     private LocalModel localModel;
     private CommandParser commandParser;
     private ClientController clientController;
-
     private Stage stage;
+
+    private SceneStatesEnum sceneStatesEnum;
 
     @Override
     public void notifyGenericError(String errorDescription) {
@@ -76,15 +77,28 @@ public class AbstractController implements UI , Listener {
 
     public void attachToListener(SceneStatesEnum sceneStatesEnum){
         this.clientController.getListenersManager().attachListener(this);
-        List<ListenerType> listToAttach = sceneStatesEnum.getListeners();
+        /*List<ListenerType> listToAttach = sceneStatesEnum.getListeners();
         for(ListenerType listenerType : listToAttach)
         {
             this.clientController.getListenersManager().attachListener(listenerType,this);
-        }
+        }*/
+    }
+
+    public void removeListener() {
+        this.clientController.getListenersManager().removeListener(this);
+        /*List<ListenerType> listToAttach = this.sceneStatesEnum.getListeners();
+        for(ListenerType listenerType : listToAttach)
+        {
+            this.clientController.getListenersManager().removeListener(listenerType,this);
+        }*/
     }
 
     public void setToView() {
         this.clientController.setView(this);
+    }
+
+    public void setSceneStatesEnum (SceneStatesEnum ScenePath){
+        this.sceneStatesEnum = ScenePath;
     }
 
     public void changeToNextScene(SceneStatesEnum nextScenePath) {
@@ -107,10 +121,12 @@ public class AbstractController implements UI , Listener {
         controller.setStage(getStage());
         controller.attachToListener(nextScenePath);
         controller.setToView();
-        this.clientController.getListenersManager().removeListener(this);
+        controller.setSceneStatesEnum(nextScenePath);
+        //this.clientController.getListenersManager().removeListener(this);
+        this.removeListener();
         Platform.runLater(() -> {
         this.stage.setScene(new Scene(root));
-        this.stage.setMaximized(true);
+        //this.stage.setMaximized(true);
         this.stage.show();
         });
     }

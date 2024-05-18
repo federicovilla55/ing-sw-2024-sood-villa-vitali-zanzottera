@@ -43,7 +43,7 @@ public class GUIView extends Application {
         this.clientController = commandParser.clientController();
         try {
             configs = ConfigurationManager.retrieveConfiguration();
-            File url = new File(SceneStatesEnum.SETUP_SCENE.value());
+            File url = new File(SceneStatesEnum.OldConfigurationScene.value());
             FXMLLoader loader = new FXMLLoader(url.toURL());
             root = loader.load();
             OldConfigurationController controller = loader.getController();
@@ -62,7 +62,7 @@ public class GUIView extends Application {
             controller.setStage(stage);
         }
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/css/SetupScene.css").toExternalForm());
+        //scene.getStylesheets().add(getClass().getResource("/css/SetupScene.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
     }

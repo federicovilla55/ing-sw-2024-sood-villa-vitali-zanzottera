@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ListenersManager {
 
-    private final ConcurrentHashMap<ListenerType, List<Listener>> attachedListeners;
+    private final ConcurrentHashMap<ListenerType, ArrayList<Listener>> attachedListeners;
 
     public ListenersManager(){
         this.attachedListeners = new ConcurrentHashMap<>();
@@ -37,12 +37,11 @@ public class ListenersManager {
      * @param listener the {@link Listener} to register
      */
     public void attachListener(ListenerType type, Listener listener){
-        if(this.attachedListeners.containsKey(type)){
-            this.attachedListeners.get(type).add(listener);
+        ArrayList<Listener> prev = new ArrayList<>(this.attachedListeners.getOrDefault(type, new ArrayList<>()));
+        if(!prev.contains(listener)){
+            prev.add(listener);
         }
-        else{
-            this.attachedListeners.put(type, List.of(listener));
-        }
+        this.attachedListeners.put(type, prev);
     }
 
     /**
@@ -51,7 +50,7 @@ public class ListenersManager {
      */
     public void attachListener(Listener listener){
         for(ListenerType l : ListenerType.values()){
-            ArrayList<Listener> prev = new ArrayList<>(this.attachedListeners.getOrDefault(l, List.of()));
+            ArrayList<Listener> prev = new ArrayList<>(this.attachedListeners.getOrDefault(l, new ArrayList<>()));
             if(!prev.contains(listener)){
                 prev.add(listener);
             }
@@ -65,7 +64,9 @@ public class ListenersManager {
      * @param listener the {@link Listener} to unregister
      */
     public void removeListener(ListenerType type, Listener listener){
-        this.attachedListeners.get(type).remove(listener);
+        if(this.attachedListeners.containsKey(type)) {
+            this.attachedListeners.get(type).remove(listener);
+        }
     }
 
     /**

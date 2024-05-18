@@ -8,6 +8,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
@@ -29,8 +30,12 @@ public class GameSelectionController extends AbstractController implements State
 
     @FXML
     private ListView<String> availableGamesList;
+
+    Timeline timeline;
     @Override
     public void notify(ViewState viewState) {
+        System.out.println(viewState);
+
 
     }
 
@@ -39,7 +44,6 @@ public class GameSelectionController extends AbstractController implements State
         availableGamesList.setItems(FXCollections.observableArrayList(availableGames));
         });
     }
-
     @Override
     public void notify(GameHandlingEvents type, List<String> varArgs) {
         switch (type){
@@ -49,15 +53,27 @@ public class GameSelectionController extends AbstractController implements State
         }
         System.out.println();
     }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         numPlayerBox.getItems().addAll(possibleNumPlayer);
         numPlayerBox.setValue(2);
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
+        timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
             super.getClientController().availableGames();
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
+    }
+    @FXML
+    public void onJoinPress(ActionEvent e) {
+        String gameName = availableGamesList.getSelectionModel().getSelectedItem();
+        if(gameName != null) {
+            System.out.println(gameName);
+            super.getClientController().joinGame(gameName);
+        }
+
+    }
+    @FXML
+    public void onCreatePress(ActionEvent e){
+
     }
 }
