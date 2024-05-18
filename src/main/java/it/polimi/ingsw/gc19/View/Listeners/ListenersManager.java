@@ -86,7 +86,7 @@ public class ListenersManager {
      */
     public synchronized void notifyChatListener(ArrayList<Message> messages){
         if(this.attachedListeners.get(ListenerType.CHAT_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.CHAT_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.CHAT_LISTENER))) {
                 ((ChatListener) c).notify(messages);
             }
         }
@@ -100,7 +100,7 @@ public class ListenersManager {
      */
     public synchronized void notifyLocalModelListener(LocalModelEvents type, LocalModel localModel, String ... varArgs){
         if(this.attachedListeners.get(ListenerType.LOCAL_MODEL_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.LOCAL_MODEL_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.LOCAL_MODEL_LISTENER))) {
                 ((LocalModelListener) c).notify(type, localModel, varArgs);
             }
         }
@@ -113,7 +113,7 @@ public class ListenersManager {
      */
     public synchronized void notifyStationListener(PersonalStation otherStation){
         if(this.attachedListeners.get(ListenerType.STATION_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.STATION_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.STATION_LISTENER))) {
                 ((StationListener) c).notify(otherStation);
             }
         }
@@ -126,7 +126,7 @@ public class ListenersManager {
      */
     public synchronized void notifyStationListener(OtherStation otherStation){
         if(this.attachedListeners.get(ListenerType.STATION_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.STATION_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.STATION_LISTENER))) {
                 ((StationListener) c).notify(otherStation);
             }
         }
@@ -138,7 +138,7 @@ public class ListenersManager {
      */
     public synchronized void notifyErrorStationListener(String ... args){
         if(this.attachedListeners.get(ListenerType.STATION_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.STATION_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.STATION_LISTENER))) {
                 ((StationListener) c).notifyErrorStation(args);
             }
         }
@@ -151,7 +151,7 @@ public class ListenersManager {
      */
     public synchronized void notifySetupListener(SetupEvent type){
         if(this.attachedListeners.get(ListenerType.SETUP_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.SETUP_LISTENER))) {
                 ((SetupListener) c).notify(type);
             }
         }
@@ -163,7 +163,7 @@ public class ListenersManager {
      */
     public synchronized void notifyErrorSetupListener(SetupEvent type, String error){
         if(this.attachedListeners.get(ListenerType.SETUP_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.SETUP_LISTENER))) {
                 ((SetupListener) c).notify(type, error);
             }
         }
@@ -176,7 +176,7 @@ public class ListenersManager {
      */
     public synchronized void notifyTableListener(LocalTable localTable){
         if(this.attachedListeners.get(ListenerType.TURN_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.TABLE_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.TABLE_LISTENER))) {
                 ((TableListener) c).notify(localTable);
             }
         }
@@ -190,7 +190,7 @@ public class ListenersManager {
      */
     public synchronized void notifyTurnStateListener(String nick, TurnState turnState){
         if(this.attachedListeners.get(ListenerType.TURN_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.TURN_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.TURN_LISTENER))) {
                 ((TurnStateListener) c).notify(nick, turnState);
             }
         }
@@ -204,7 +204,7 @@ public class ListenersManager {
      */
     public synchronized void notifyGameHandlingListener(GameHandlingEvents type, List<String> varArgs){
         if(this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER))) {
                 ((GameHandlingListener) c).notify(type, varArgs);
             }
         }
@@ -216,7 +216,7 @@ public class ListenersManager {
      */
     public synchronized void notifyErrorGameHandlingListener(String errorDescription){
         if(this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.GAME_HANDLING_EVENTS_LISTENER))) {
                 ((GameHandlingListener) c).notify(errorDescription);
             }
         }
@@ -229,7 +229,7 @@ public class ListenersManager {
      */
     public synchronized void notifyPlayerCreationListener(String name){
         if(this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER))) {
                 ((PlayerCreationListener) c).notifyPlayerCreation(name);
             }
         }
@@ -241,7 +241,7 @@ public class ListenersManager {
      */
     public synchronized void notifyErrorPlayerCreationListener(String error){
         if(this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER) != null) {
-            for (Listener c : this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER)) {
+            for (Listener c : new ArrayList<>(this.attachedListeners.get(ListenerType.PLAYER_CREATION_LISTENER))) {
                 ((PlayerCreationListener) c).notifyPlayerCreationError(error);
             }
         }
@@ -254,7 +254,7 @@ public class ListenersManager {
      */
     public synchronized void notifyStateListener(ViewState viewState){
         if(this.attachedListeners.get(ListenerType.STATE_LISTENER) != null) {
-            for (Listener l : this.attachedListeners.get(ListenerType.STATE_LISTENER)) {
+            for (Listener l : new ArrayList<>(this.attachedListeners.get(ListenerType.STATE_LISTENER))) {
                 ((StateListener) l).notify(viewState);
             }
         }

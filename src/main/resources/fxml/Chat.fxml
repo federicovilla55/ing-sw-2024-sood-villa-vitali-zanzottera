@@ -3,13 +3,18 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-
 <VBox prefHeight="403.0" prefWidth="601.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.ChatView">
    <ScrollPane id="chatArea" prefHeight="260.0" prefWidth="600.0" />
    <HBox prefHeight="145.0" prefWidth="589.0">
       <ScrollPane id="scrollPane" prefHeight="130.0" prefWidth="308.0">
          <TextArea id="messageArea" prefHeight="141.0" prefWidth="296.0" />
       </ScrollPane>
-      <Button id="sendButton" mnemonicParsing="false" prefHeight="46.0" prefWidth="292.0" text="Send message!" />
+      <VBox prefHeight="144.0" prefWidth="297.0">
+         <children>
+      
+            <Button id="sendButton" mnemonicParsing="false" prefHeight="46.0" prefWidth="292.0" text="Send message!" />
+         </children>
+      </VBox>
+
    </HBox>
 </VBox>
