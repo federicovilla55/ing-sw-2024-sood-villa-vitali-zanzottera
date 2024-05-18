@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.Listeners.Listener;
+import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.UI;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -16,6 +17,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 
 public class AbstractController implements UI , Listener {
     private LocalModel localModel;
@@ -72,8 +74,13 @@ public class AbstractController implements UI , Listener {
         return stage;
     }
 
-    public void attachToListener(){
+    public void attachToListener(SceneStatesEnum sceneStatesEnum){
         this.clientController.getListenersManager().attachListener(this);
+        List<ListenerType> listToAttach = sceneStatesEnum.getListeners();
+        for(ListenerType listenerType : listToAttach)
+        {
+            this.clientController.getListenersManager().attachListener(listenerType,this);
+        }
     }
 
     public void setToView() {
@@ -98,7 +105,7 @@ public class AbstractController implements UI , Listener {
         controller.setCommandParser(this.getCommandParser());
         controller.setClientController(this.getClientController());
         controller.setStage(getStage());
-        controller.attachToListener();
+        controller.attachToListener(nextScenePath);
         controller.setToView();
         this.clientController.getListenersManager().removeListener(this);
         Platform.runLater(() -> {

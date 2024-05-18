@@ -70,7 +70,7 @@ public class OldConfigurationController extends AbstractController implements St
                 throw new RuntimeException(ex);
             }
             client.configure(config.getNick(), config.getToken());
-            super.attachToListener();
+            super.attachToListener(SceneStatesEnum.OldConfigurationScene);
             super.setToView();
             super.getClientController().setNickname(config.getNick());
             super.getClientController().setClientInterface(client);
