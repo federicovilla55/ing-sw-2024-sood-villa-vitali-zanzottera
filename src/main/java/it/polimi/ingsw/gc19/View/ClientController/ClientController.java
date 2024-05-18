@@ -301,10 +301,11 @@ public class ClientController {
      * @param message GameHandlingError to analyze
      */
     public synchronized void handleError(GameHandlingErrorMessage message){
-        this.getListenersManager().notifyErrorGameHandlingListener(message.getDescription());
         switch (message.getErrorType()){
             case Error.PLAYER_NAME_ALREADY_IN_USE -> {
+                this.listenersManager.notifyErrorPlayerCreationListener(message.getDescription());
                 setNextState(new NotPlayer(this), false);
+                return;
             }
             case Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME -> {
                 setNextState(new Disconnect(this), false);
@@ -313,6 +314,7 @@ public class ClientController {
                 setNextState(new NotGame(this), false);
             }
         }
+        this.getListenersManager().notifyErrorGameHandlingListener(message.getDescription());
     }
 
     /**
