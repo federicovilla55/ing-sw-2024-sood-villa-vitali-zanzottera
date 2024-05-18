@@ -1,15 +1,20 @@
-#availableColors{
-    -fx-border-style: solid inside;
-    -fx-border-color: black;
-    -fx-border-insets: 5;
-}
+. /css/ SetupScene.css {
 
-#redButton{
-    -fx-background-radius: 7.5em;
-    -fx-background-color: red;
-    -fx-border-color: black;
-    -fx-border-width: 0.25;
-    -fx-border-radius: 7.5em;
-}
+    #availableColorsPane{
+        -fx-border-style: solid inside;
+        -fx-border-color: black;
+        -fx-border-insets: 5;
+    }
 
-. /src/ main /resources/ css
+    #privateGoalCardSelectionPane{
+        -fx-border-style: solid inside;
+        -fx-border-color: black;
+        -fx-border-insets: 5;
+    }
+
+    #initialCardOrientationPane{
+        -fx-border-style: solid inside;
+        -fx-border-color: black;
+        -fx-border-insets: 5;
+    }
+}

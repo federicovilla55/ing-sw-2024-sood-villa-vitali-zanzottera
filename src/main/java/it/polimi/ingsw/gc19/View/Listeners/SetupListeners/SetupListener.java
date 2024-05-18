@@ -18,8 +18,9 @@ public interface SetupListener extends Listener {
     /**
      * This method is used to notify {@link SetupListener} that an
      * error has occurred
+     * @param type the type of the error
      * @param error a {@link String} description of the error
      */
-    void notify(String error);
+    void notify(SetupEvent type, String error);
 
 }

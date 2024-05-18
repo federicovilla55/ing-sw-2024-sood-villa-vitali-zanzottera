@@ -1,34 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Accordion?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1104.0" prefWidth="1541.0" styleClass="/src/main/resources/css/SetupScene.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SetupController">
-    <Accordion layoutX="629.0" layoutY="509.0" />
-    <BorderPane fx:id="availableColors" layoutX="1123.0" layoutY="80.0" prefHeight="137.0" prefWidth="340.0" AnchorPane.leftAnchor="1123.0" AnchorPane.topAnchor="80.0">
-      <padding>
-         <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
-      </padding>
-      <top>
-         <Label alignment="CENTER_RIGHT" text="Choose your color:" textAlignment="CENTER" BorderPane.alignment="TOP_LEFT">
-            <padding>
-               <Insets bottom="25.0" />
-            </padding>
-         </Label>
-      </top>
-      <center>
-          <HBox fx:id="hbox" alignment="CENTER" spacing="25.0" BorderPane.alignment="CENTER">
-            <children>
-               <Button id="redButton" mnemonicParsing="false" text="Button" />
-               <Button id="blueButton" mnemonicParsing="false" text="Button" />
-               <Button id="yellowButton" mnemonicParsing="false" text="Button" />
-               <Button id="greenButton" mnemonicParsing="false" text="Button" />
-            </children></HBox>
-      </center>
-    </BorderPane>
-</AnchorPane>
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1440.0" prefWidth="2560.0" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SetupController">
+   <children>
+      <HBox prefHeight="1440.0" prefWidth="2560.0">
+         <children>
+            <VBox fx:id="vBox" prefHeight="1440.0" prefWidth="2845.0" />
+            <VBox fx:id="rightVBox" prefHeight="1446.0" prefWidth="750.0" spacing="25.0" HBox.hgrow="NEVER">
+               <children>
+                  <BorderPane id="availableColorsPane" prefHeight="150.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css">
+                     <padding>
+                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                     </padding>
+                     <top>
+                        <Label alignment="CENTER_RIGHT" text="Choose your pawn:" textAlignment="CENTER" BorderPane.alignment="TOP_LEFT">
+                           <padding>
+                              <Insets bottom="25.0" />
+                           </padding>
+                        </Label>
+                     </top>
+                     <center>
+                        <HBox fx:id="hbox" alignment="CENTER" prefHeight="388.0" prefWidth="1102.0" spacing="25.0" BorderPane.alignment="CENTER" />
+                     </center>
+                  </BorderPane>
+                  <BorderPane id="initialCardOrientationPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="290.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css">
+                     <top>
+                        <Label alignment="BOTTOM_LEFT" prefHeight="17.0" prefWidth="269.0" text="Choose the orientation of the initial card:" textAlignment="CENTER" BorderPane.alignment="TOP_LEFT" />
+                     </top>
+                     <padding>
+                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                     </padding>
+                     <center>
+                        <HBox fx:id="initialCardHBox" alignment="CENTER" prefHeight="200.0" prefWidth="611.0" spacing="25.0" BorderPane.alignment="CENTER">
+                           <padding>
+                              <Insets top="25.0" />
+                           </padding>
+                           <BorderPane.margin>
+                              <Insets />
+                           </BorderPane.margin>
+                        </HBox>
+                     </center>
+                  </BorderPane>
+                  <BorderPane fx:id="privateGoalCardSelectionPane" prefHeight="295.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css" VBox.vgrow="NEVER">
+                     <top>
+                        <Label alignment="BOTTOM_LEFT" prefHeight="17.0" prefWidth="213.0" text="Choose your private goal card:" textAlignment="CENTER" BorderPane.alignment="TOP_LEFT" />
+                     </top>
+                     <padding>
+                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                     </padding>
+                     <center>
+                        <HBox fx:id="goalCardsHBox" alignment="CENTER" prefHeight="200.0" prefWidth="622.0" spacing="50.0" BorderPane.alignment="CENTER">
+                           <BorderPane.margin>
+                              <Insets />
+                           </BorderPane.margin>
+                           <padding>
+                              <Insets top="25.0" />
+                           </padding>
+                        </HBox>
+                     </center>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </BorderPane>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+</StackPane>

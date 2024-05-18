@@ -1227,6 +1227,16 @@ public class TUIView implements UI, GeneralListener {
     }
 
     /**
+     * To print error regarding setup phase
+     * @param type the type of the error
+     * @param error a {@link String} description of the error
+     */
+    @Override
+    public void notify(SetupEvent type, String error) {
+        System.out.println("[ERROR]: " + error);
+    }
+
+    /**
      * To update the chat messages.
      * @param msg the list of messages sent so far.
      */

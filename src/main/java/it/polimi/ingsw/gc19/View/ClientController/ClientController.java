@@ -325,7 +325,7 @@ public class ClientController {
             return;
         }
         if(!localModel.getAvailableColors().contains(color)){
-            this.listenersManager.notifyErrorSetupListener("The requested color is not available!");
+            this.listenersManager.notifyErrorSetupListener(SetupEvent.COLOR_NOT_AVAILABLE,"The requested color is not available!");
         }
         else {
             clientNetwork.chooseColor(color);
@@ -347,7 +347,7 @@ public class ClientController {
             clientNetwork.choosePrivateGoalCard(cardIdx);
         }
         else{
-            this.listenersManager.notifyErrorSetupListener("The requested position for goal card is not correct!");
+            this.listenersManager.notifyErrorSetupListener(SetupEvent.GOAL_NOT_ACCEPTED,"The requested position for goal card is not correct!");
         }
     }
 

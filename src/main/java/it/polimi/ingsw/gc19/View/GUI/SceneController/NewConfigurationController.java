@@ -53,7 +53,8 @@ public class NewConfigurationController extends AbstractController implements St
     }
     @FXML
     public void TCPPress(ActionEvent e){
-        ClientTCPFactory connectionTCP = new ClientTCPFactory();
+        changeToNextScene(SceneStatesEnum.SETUP_SCENE);
+        /*ClientTCPFactory connectionTCP = new ClientTCPFactory();
         try {
             this.client = connectionTCP.createClient(super.getClientController());
         } catch (IOException ex) {
@@ -63,7 +64,7 @@ public class NewConfigurationController extends AbstractController implements St
         super.attachToListener();
         super.setToView();
         super.getClientController().setClientInterface(client);
-        //super.getClientController().setNextState(new NotPlayer(super.getClientController()));
+        //super.getClientController().setNextState(new NotPlayer(super.getClientController()));*/
     }
     @Override
     public void notify(ViewState viewState) {

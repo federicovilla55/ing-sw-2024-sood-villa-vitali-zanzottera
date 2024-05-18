@@ -103,6 +103,7 @@ public class AbstractController implements UI , Listener {
         this.clientController.getListenersManager().removeListener(this);
         Platform.runLater(() -> {
         this.stage.setScene(new Scene(root));
+        this.stage.setMaximized(true);
         this.stage.show();
         });
     }

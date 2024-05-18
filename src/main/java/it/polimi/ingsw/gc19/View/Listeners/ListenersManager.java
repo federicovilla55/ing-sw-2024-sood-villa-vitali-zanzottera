@@ -159,10 +159,10 @@ public class ListenersManager {
      * This method is used to notify {@link SetupListener} about errors.
      * @param error a {@link String} description of the error
      */
-    public void notifyErrorSetupListener(String error){
+    public void notifyErrorSetupListener(SetupEvent type, String error){
         if(this.attachedListeners.get(ListenerType.SETUP_LISTENER) != null) {
             for (Listener c : this.attachedListeners.get(ListenerType.SETUP_LISTENER)) {
-                ((SetupListener) c).notify(error);
+                ((SetupListener) c).notify(type, error);
             }
         }
     }
