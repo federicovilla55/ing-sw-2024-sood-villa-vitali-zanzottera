@@ -57,11 +57,11 @@ public class GameSelectionController extends AbstractController implements State
     public void initialize(URL url, ResourceBundle resourceBundle) {
         numPlayerBox.getItems().addAll(possibleNumPlayer);
         numPlayerBox.setValue(2);
-        timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
+        /*timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
             super.getClientController().availableGames();
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
+        timeline.play();*/
     }
     @FXML
     public void onJoinPress(ActionEvent e) {

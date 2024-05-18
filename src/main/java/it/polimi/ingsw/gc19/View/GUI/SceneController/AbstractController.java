@@ -76,21 +76,21 @@ public class AbstractController implements UI , Listener {
     }
 
     public void attachToListener(SceneStatesEnum sceneStatesEnum){
-        this.clientController.getListenersManager().attachListener(this);
-        /*List<ListenerType> listToAttach = sceneStatesEnum.getListeners();
+        //this.clientController.getListenersManager().attachListener(this);
+        List<ListenerType> listToAttach = sceneStatesEnum.getListeners();
         for(ListenerType listenerType : listToAttach)
         {
             this.clientController.getListenersManager().attachListener(listenerType,this);
-        }*/
+        }
     }
 
     public void removeListener() {
-        this.clientController.getListenersManager().removeListener(this);
-        /*List<ListenerType> listToAttach = this.sceneStatesEnum.getListeners();
+        //this.clientController.getListenersManager().removeListener(this);
+        List<ListenerType> listToAttach = this.sceneStatesEnum.getListeners();
         for(ListenerType listenerType : listToAttach)
         {
             this.clientController.getListenersManager().removeListener(listenerType,this);
-        }*/
+        }
     }
 
     public void setToView() {
