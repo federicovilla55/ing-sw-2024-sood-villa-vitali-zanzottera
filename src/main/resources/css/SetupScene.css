@@ -17,4 +17,11 @@
         -fx-border-color: black;
         -fx-border-insets: 5;
     }
+
+    #tableBorderPane{
+        -fx-border-style: solid inside;
+        -fx-border-color: black;
+        -fx-border-insets: 5;
+    }
+
 }

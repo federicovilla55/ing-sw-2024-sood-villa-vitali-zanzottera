@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
  * The class manages the Textual User Interface (TUI) of the game.
  */
 public class TUIView implements UI, GeneralListener {
+
     /**
      * To create an instance of the local model from which to retrieve
      * table, stations information and more.
@@ -196,7 +197,7 @@ public class TUIView implements UI, GeneralListener {
      */
     public TUIView(CommandParser commandParser) {
         this.commandParser = commandParser;
-        this.clientController = commandParser.clientController();
+        this.clientController = commandParser.getClientController();
         this.clientController.getListenersManager().attachListener(this);
         this.clientController.setView(this);
 

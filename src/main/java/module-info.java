@@ -74,5 +74,7 @@ module it.polimi.ingsw.gc19 {
     exports it.polimi.ingsw.gc19.Networking.Server.Message.Chat;
     exports it.polimi.ingsw.gc19.View.GUI.SceneController;
     opens it.polimi.ingsw.gc19.View.GUI.SceneController to javafx.fxml;
+    exports it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
+    opens it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController to javafx.fxml;
 
 }

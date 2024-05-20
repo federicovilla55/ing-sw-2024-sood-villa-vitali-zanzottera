@@ -1,0 +1,9 @@
+. /css/ TableScene.css {
+
+    #gridPane{
+        -fx-border-style: solid inside;
+        -fx-border-color: black;
+        -fx-border-insets: 5;
+    }
+
+}

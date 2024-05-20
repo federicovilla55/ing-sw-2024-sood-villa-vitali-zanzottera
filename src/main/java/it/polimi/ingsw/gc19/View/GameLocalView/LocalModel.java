@@ -142,6 +142,7 @@ public class LocalModel {
      *                      after the message cited above is arrived.
      */
     public void setPersonalStation(PersonalStation localStation) {
+        System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
         synchronized (this.playerStations) {
             this.playerStations.put(this.nickname, localStation);
             this.playerStations.notifyAll();

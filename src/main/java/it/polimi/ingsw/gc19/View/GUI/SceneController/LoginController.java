@@ -9,6 +9,7 @@ import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
 import java.util.List;
@@ -16,18 +17,21 @@ import java.util.List;
 public class LoginController extends AbstractController implements PlayerCreationListener, StateListener, GameHandlingListener {
 
     @FXML
-    TextField loginTextField;
+    private TextField loginTextField;
     @FXML
-    public void LoginPress(ActionEvent e) {
-        String username = loginTextField.getText();
-        System.out.println(username);
-        super.getCommandParser().createPlayer(username);
+    private Button loginButton;
+
+    public void initialize(){
+        loginButton.setOnAction((event) -> {
+            String username = loginTextField.getText();
+            System.out.println(username);
+            super.getCommandParser().createPlayer(username);
+        });
     }
 
     @Override
     public void notifyPlayerCreation(String name) {
         super.changeToNextScene(SceneStatesEnum.GameSelectionScene);
-
     }
 
     @Override

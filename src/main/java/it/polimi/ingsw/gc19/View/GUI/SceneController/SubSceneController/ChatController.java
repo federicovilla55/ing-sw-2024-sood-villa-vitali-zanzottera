@@ -1,25 +1,24 @@
-package it.polimi.ingsw.gc19.View.GUI.SceneController;
+package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Model.Chat.Message;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
+import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.ChatListener;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListener;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.InputMethodEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Background;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.controlsfx.control.CheckComboBox;
 
 import java.util.ArrayList;
 
-public class ChatView extends AbstractController implements ChatListener {
+public class ChatController extends AbstractController implements ChatListener, LocalModelListener {
 
     @FXML
     private ScrollPane scrollText, scrollPaneSend;
@@ -41,12 +40,19 @@ public class ChatView extends AbstractController implements ChatListener {
                        "-fx-border-style: solid inside; " +
                        "-fx-border-color: black; " +
                        "-fx-border-insets: 5;";
+
         scrollText.setStyle(style);
         scrollPaneSend.setStyle(style);
         textAreaSend.setStyle("-fx-background-color:transparent;");
         textFlow.setStyle("-fx-background-color:transparent;");
 
         textAreaSend.textProperty().addListener((observable, oldValue, newValue) -> textAreaSend.setStyle("-fx-border: none"));
+
+        sendButton.setStyle(style);
+        sendButton.setBackground(Background.fill(Color.LIGHTBLUE));
+
+        receivers.setTitle("Receivers");
+        receivers.setStyle(style);
     }
 
     @Override
@@ -98,6 +104,11 @@ public class ChatView extends AbstractController implements ChatListener {
             noReceiversAlert.setContentText("No receivers specified! Please specify alt least one receiver.");
             Platform.runLater(noReceiversAlert::show);
         }
+    }
+
+    @Override
+    public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
+        this.receivers.getItems().addAll(this.getLocalModel().getStations().keySet().stream().toList());
     }
 
 }

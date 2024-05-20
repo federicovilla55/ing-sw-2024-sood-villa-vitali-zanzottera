@@ -4,14 +4,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1440.0" prefWidth="2560.0" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SetupController">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1440.0" prefWidth="2560.0" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox prefHeight="1440.0" prefWidth="2560.0">
          <children>
-            <VBox fx:id="vBox" prefHeight="1440.0" prefWidth="2845.0" />
+            <VBox fx:id="leftVBox" alignment="CENTER" prefHeight="1440.0" prefWidth="2845.0" />
             <VBox fx:id="rightVBox" prefHeight="1446.0" prefWidth="750.0" spacing="25.0" HBox.hgrow="NEVER">
                <children>
-                  <BorderPane id="availableColorsPane" prefHeight="150.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css">
+                  <BorderPane fx:id="availableColorsPane" prefHeight="150.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css">
                      <padding>
                         <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
                      </padding>
@@ -26,7 +26,7 @@
                         <HBox fx:id="hbox" alignment="CENTER" prefHeight="388.0" prefWidth="1102.0" spacing="25.0" BorderPane.alignment="CENTER" />
                      </center>
                   </BorderPane>
-                  <BorderPane id="initialCardOrientationPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="290.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css">
+                  <BorderPane fx:id="initialCardOrientationPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="290.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css">
                      <top>
                         <Label alignment="BOTTOM_LEFT" prefHeight="17.0" prefWidth="269.0" text="Choose the orientation of the initial card:" textAlignment="CENTER" BorderPane.alignment="TOP_LEFT" />
                      </top>

@@ -346,6 +346,7 @@ public class ClientController {
             return;
         }
         if((cardIdx >= 0) && (cardIdx < 2)) {
+            System.out.println("eeeeeeeeeeeeeeeeee");
             clientNetwork.choosePrivateGoalCard(cardIdx);
         }
         else{

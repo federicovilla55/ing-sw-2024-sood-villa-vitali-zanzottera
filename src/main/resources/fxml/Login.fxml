@@ -5,10 +5,10 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="203.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.LoginController">
+<AnchorPane prefHeight="203.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" > <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.LoginController"-->
    <children>
       <Label alignment="CENTER" layoutX="220.0" layoutY="37.0" prefHeight="18.0" prefWidth="161.0" text="Choose Nickname" />
       <TextField fx:id="loginTextField" layoutX="220.0" layoutY="75.0" />
-      <Button layoutX="234.0" layoutY="129.0" mnemonicParsing="false" onAction="#LoginPress" prefHeight="27.0" prefWidth="132.0" text="Login" />
+      <Button layoutX="234.0" layoutY="129.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="132.0" text="Login"  fx:id="loginButton"/> <!--onAction="#LoginPress"-->
    </children>
 </AnchorPane>

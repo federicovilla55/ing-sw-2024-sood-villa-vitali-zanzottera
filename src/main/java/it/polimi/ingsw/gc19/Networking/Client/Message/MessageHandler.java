@@ -130,7 +130,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
      */
     @Override
     public void visit(AcceptedChooseGoalCardMessage message) {
-        waitForLocalModel();
         this.localModel.setPrivateGoal(message.getGoalCard());
     }
 

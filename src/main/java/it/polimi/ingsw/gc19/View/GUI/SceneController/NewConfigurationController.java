@@ -50,7 +50,6 @@ public class NewConfigurationController extends AbstractController implements St
         super.setSceneStatesEnum(SceneStatesEnum.NewConfigurationScene);
         super.setToView();
         super.getClientController().setClientInterface(client);
-        //super.getClientController().setNextState(new NotPlayer(super.getClientController()));
     }
     @FXML
     public void TCPPress(ActionEvent e){

@@ -1,30 +1,21 @@
 package it.polimi.ingsw.gc19.View.GUI;
 
-import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.Configuration;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
-import it.polimi.ingsw.gc19.View.ClientController.Disconnect;
-import it.polimi.ingsw.gc19.View.ClientController.NotPlayer;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.NewConfigurationController;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.OldConfigurationController;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
-import it.polimi.ingsw.gc19.View.TUI.TUIView;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
-import java.util.Scanner;
 
 public class GUIView extends Application {
 
@@ -40,7 +31,7 @@ public class GUIView extends Application {
         ClientInterface client;
         Parent root;
         this.commandParser = new CommandParser(new ClientController());
-        this.clientController = commandParser.clientController();
+        this.clientController = commandParser.getClientController();
         try {
             configs = ConfigurationManager.retrieveConfiguration();
             File url = new File(SceneStatesEnum.OldConfigurationScene.value());
