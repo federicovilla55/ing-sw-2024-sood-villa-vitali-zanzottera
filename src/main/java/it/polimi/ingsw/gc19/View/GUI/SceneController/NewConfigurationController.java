@@ -54,7 +54,9 @@ public class NewConfigurationController extends AbstractController implements St
     @FXML
     public void TCPPress(ActionEvent e){
         super.setSceneStatesEnum(SceneStatesEnum.SETUP_SCENE);
-        changeToNextScene(SceneStatesEnum.SETUP_SCENE);
+        super.attachToListener(SceneStatesEnum.SETUP_SCENE);
+        super.setSceneStatesEnum(SceneStatesEnum.SETUP_SCENE);
+        super.changeToNextScene(SceneStatesEnum.SETUP_SCENE);
         /*ClientTCPFactory connectionTCP = new ClientTCPFactory();
         try {
             this.client = connectionTCP.createClient(super.getClientController());

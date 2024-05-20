@@ -141,6 +141,7 @@ public class SetupController extends AbstractController implements SetupListener
 
         for(Color c : availableColors){
             Circle circlePawn = new Circle(25);
+
             circlePawn.setFill(new ImagePattern(new Image(Objects.requireNonNull(getClass().getResource("/pawns/" + c + "_pawn.png")).toExternalForm())));
 
             Button button = buildColorButton(c, circlePawn);

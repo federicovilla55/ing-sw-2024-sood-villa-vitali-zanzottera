@@ -53,6 +53,7 @@ public class GUIView extends Application {
             controller.setStage(stage);
         }
         Scene scene = new Scene(root);
+
         //scene.getStylesheets().add(getClass().getResource("/css/SetupScene.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
