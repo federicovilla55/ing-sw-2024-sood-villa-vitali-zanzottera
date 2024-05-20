@@ -49,20 +49,18 @@ public class GUIView extends Application {
 
         }
         catch (RuntimeException e) {
-            e.printStackTrace();
-            /*File url = new File(SceneStatesEnum.NewConfigurationScene.value());
-            FXMLLoader loader = new FXMLLoader(url.toURL());
-            root = loader.load();
-            NewConfigurationController controller = loader.getController();
-            controller.setCommandParser(commandParser);
-            controller.setClientController(clientController);
-            controller.setStage(stage);*/
-        }
-        //Scene scene = new Scene(root);
+            FXMLLoader loader = new FXMLLoader();
+            //loader.setControllerFactory((c) -> new NewConfigurationController(clientController, commandParser, stage));
 
-        //scene.getStylesheets().add(getClass().getResource("/css/SetupScene.css").toExternalForm());
-        //stage.setScene(scene);
-        //stage.show();
+            loader.setLocation(new File(SceneStatesEnum.NewConfigurationScene.value()).toURL());
+            loader.setController(new NewConfigurationController(clientController, commandParser, stage));
+
+            root = loader.load();
+
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        }
     }
     public static void main(String[] args) {
         launch(args);

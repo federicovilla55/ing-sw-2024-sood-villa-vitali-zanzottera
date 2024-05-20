@@ -76,7 +76,7 @@ public class OldConfigurationController extends AbstractController implements St
     }
     @FXML
     public void onRecconectPress(ActionEvent e) {
-        /*ClientInterface client;
+        ClientInterface client;
         Configuration config = confTable.getSelectionModel().getSelectedItem();
         Configuration.ConnectionType connectionType;
         if(config != null) {
@@ -88,28 +88,13 @@ public class OldConfigurationController extends AbstractController implements St
                 throw new RuntimeException(ex);
             }
             client.configure(config.getNick(), config.getToken());
-            super.attachToListener(SceneStatesEnum.OldConfigurationScene);
-            super.setToView();
             super.getClientController().setNickname(config.getNick());
             super.getClientController().setClientInterface(client);
             super.getClientController().setNextState(new Disconnect(super.getClientController()), false);
-        }*/
+        }
     }
     @FXML
     public void onNewConfigurationPressed(ActionEvent e){
-        /*Parent root;
-        File url = new File(SceneStatesEnum.NewConfigurationScene.value());
-        FXMLLoader loader = new FXMLLoader(url.toURL());
-        root = loader.load();
-        NewConfigurationController controller = loader.getController();
-        controller.setCommandParser(this.getCommandParser());
-        controller.setClientController(this.getClientController());
-        controller.setStage(this.getStage());
-        Platform.runLater(() -> {
-            this.getStage().setScene(new Scene(root));
-            this.getStage().show();
-        });*/
-
         super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
         super.getClientController().getListenersManager().removeListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
 

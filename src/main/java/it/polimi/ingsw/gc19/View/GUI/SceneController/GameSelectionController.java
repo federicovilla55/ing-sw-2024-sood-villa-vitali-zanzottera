@@ -70,6 +70,7 @@ public class GameSelectionController extends AbstractController implements State
                 super.getClientController().createGame(name, numPlayer);
             }
         });
+        super.getClientController().availableGames();
     }
     @Override
     public void notify(ViewState viewState) {
@@ -91,7 +92,12 @@ public class GameSelectionController extends AbstractController implements State
 
                 changeToNextScene(SceneStatesEnum.SETUP_SCENE);
             }
-            case GameHandlingEvents.JOINED_GAMES -> System.out.println("You have been registered to game named '" + varArgs.getFirst() + "'.");
+            case GameHandlingEvents.JOINED_GAMES -> {
+                super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
+                super.getClientController().getListenersManager().removeListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
+
+                changeToNextScene(SceneStatesEnum.SETUP_SCENE);
+            }
             case GameHandlingEvents.AVAILABLE_GAMES -> updateAvalaibleGames(new ArrayList<>(varArgs));
         }
         System.out.println();
