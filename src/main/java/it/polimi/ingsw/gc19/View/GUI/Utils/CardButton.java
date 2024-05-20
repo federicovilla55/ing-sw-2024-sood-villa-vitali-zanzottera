@@ -17,6 +17,7 @@ import java.util.Objects;
 
 public class CardButton extends Button{
 
+    private final Card card;
     private final ImageView front;
     private final ImageView back;
     private boolean isUp;
@@ -24,6 +25,7 @@ public class CardButton extends Button{
     public CardButton(Card card){
         super();
 
+        this.card = card;
         this.front = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/" + card.getCardCode() + "_front.jpg")).toExternalForm()));
         this.back = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/" + card.getCardCode() + "_back.jpg")).toExternalForm()));
 
@@ -57,6 +59,10 @@ public class CardButton extends Button{
         return back;
     }
 
+    public Card getCard(){
+        return this.card;
+    }
+
     public void showSide(CardOrientation orientation){
         if(orientation == CardOrientation.UP){
             this.isUp = true;
@@ -83,7 +89,9 @@ public class CardButton extends Button{
 
     public EventHandler<MouseEvent> getDefaultMouseClickedHandler(){
         return (event) -> {
-            this.swap();
+            if(event.getClickCount() == 1) {
+                this.swap();
+            }
         };
     }
 

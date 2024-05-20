@@ -6,7 +6,7 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
 
-<VBox id="chatArea" stylesheets="@../css/Chat.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.ChatController">
+<VBox id="chatArea" stylesheets="@../css/Chat.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.ChatController"-->
    <ScrollPane id="scrollText" fx:id="scrollText" fitToHeight="true" fitToWidth="true" prefHeight="260.0" prefWidth="600.0">
       <content>
          <TextFlow id="textFlow" fx:id="textFlow" lineSpacing="2.5" prefHeight="200.0" prefWidth="200.0" stylesheets="@../css/Chat.css" />
@@ -19,7 +19,7 @@
       </ScrollPane>
       <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" stylesheets="@../css/Chat.css">
          <children>
-            <Button fx:id="sendButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#sendMessage" prefHeight="43.0" prefWidth="389.0" stylesheets="@../css/Chat.css" text="Send message!" textAlignment="CENTER">
+            <Button fx:id="sendButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="43.0" prefWidth="389.0" stylesheets="@../css/Chat.css" text="Send message!" textAlignment="CENTER">
                <padding>
                   <Insets bottom="10.0" top="5.0" />
                </padding>

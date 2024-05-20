@@ -5,12 +5,14 @@ import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationListener;
+import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 import java.util.List;
 
@@ -20,6 +22,12 @@ public class LoginController extends AbstractController implements PlayerCreatio
     private TextField loginTextField;
     @FXML
     private Button loginButton;
+
+    protected LoginController(AbstractController controller) {
+        super(controller);
+
+        super.getClientController().getListenersManager().attachListener(ListenerType.PLAYER_CREATION_LISTENER, this);
+    }
 
     public void initialize(){
         loginButton.setOnAction((event) -> {
@@ -31,6 +39,8 @@ public class LoginController extends AbstractController implements PlayerCreatio
 
     @Override
     public void notifyPlayerCreation(String name) {
+        super.getClientController().getListenersManager().removeListener(ListenerType.PLAYER_CREATION_LISTENER, this);
+
         super.changeToNextScene(SceneStatesEnum.GameSelectionScene);
     }
 

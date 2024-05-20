@@ -3,6 +3,9 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.ChatController;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.TableController;
+import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
@@ -19,6 +22,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -37,6 +41,10 @@ public class SetupController extends AbstractController implements SetupListener
     @FXML
     private HBox hbox, goalCardsHBox, initialCardHBox;
 
+    protected SetupController(AbstractController controller) {
+        super(controller);
+    }
+
     public void initialize(){
 
         getClientController().getListenersManager().attachListener(ListenerType.SETUP_LISTENER, this);
@@ -49,16 +57,27 @@ public class SetupController extends AbstractController implements SetupListener
         buildInitialCardHBox();
 
         try{
-            File url = new File("src/main/resources/fxml/ChatScene.fxml");
-            VBox chat = new FXMLLoader(url.toURL()).load();
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(new File("src/main/resources/fxml/ChatScene.fxml").toURL());
+            ChatController controller = new ChatController(this);
+            loader.setController(controller);
+
+            VBox chat = loader.load();
+
             rightVBox.getChildren().add(chat);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         try{
-            File url = new File("src/main/resources/fxml/TableScene.fxml");
-            BorderPane table = new FXMLLoader(url.toURL()).load();
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(new File("src/main/resources/fxml/TableScene.fxml").toURL());
+            TableController controller = new TableController(this);
+            loader.setController(controller);
+
+            BorderPane table = loader.load();
+
             leftVBox.getChildren().add(table);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -128,8 +147,9 @@ public class SetupController extends AbstractController implements SetupListener
         }
 
         if(getLocalModel().getPersonalStation().getChosenColor() != null){
+            System.out.println("ollllllllllllllllllllllllllllllllllllllll");
             ArrayList<Button> button = colorButtonFactory(List.of(this.getLocalModel().getPersonalStation().getChosenColor()));
-            button.getFirst().setOnMouseClicked((event) -> {});
+            button.getFirst().setOnMouseClicked((event) -> {System.out.println("qqqqqqproblemaaaaaaa");});
 
             this.hbox.getChildren().clear();
             this.hbox.getChildren().add(button.getFirst());

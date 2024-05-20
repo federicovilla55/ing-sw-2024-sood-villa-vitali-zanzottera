@@ -19,10 +19,6 @@ import java.util.List;
 
 public class GUIView extends Application {
 
-    private LocalModel localModel;
-    private  CommandParser commandParser;
-    private  ClientController clientController;
-    //private  SceneStatesConst scenePath;
     @Override
     public void start(Stage stage) throws Exception {
         List<Configuration> configs;
@@ -30,33 +26,43 @@ public class GUIView extends Application {
         String reconnectChoice;
         ClientInterface client;
         Parent root;
-        this.commandParser = new CommandParser(new ClientController());
-        this.clientController = commandParser.getClientController();
+
+        CommandParser commandParser = new CommandParser(new ClientController());
+        ClientController clientController = commandParser.getClientController();
+
         try {
             configs = ConfigurationManager.retrieveConfiguration();
-            File url = new File(SceneStatesEnum.OldConfigurationScene.value());
-            FXMLLoader loader = new FXMLLoader(url.toURL());
+
+            FXMLLoader loader = new FXMLLoader();
+            loader.setControllerFactory((c) -> new OldConfigurationController(clientController, commandParser, stage));
+
+            loader.setLocation(new File(SceneStatesEnum.OldConfigurationScene.value()).toURL());
+
             root = loader.load();
-            OldConfigurationController controller = loader.getController();
-            controller.setCommandParser(this.commandParser);
-            controller.setClientController(this.clientController);
-            controller.setStage(stage);
-            controller.setConfig(configs);
-            controller.setUpConfigTable();
-        } catch (RuntimeException e) {
-            File url = new File(SceneStatesEnum.NewConfigurationScene.value());
+
+            ((OldConfigurationController) loader.getController()).setConfig(configs);
+            ((OldConfigurationController) loader.getController()).setUpConfigTable();
+
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+
+        }
+        catch (RuntimeException e) {
+            e.printStackTrace();
+            /*File url = new File(SceneStatesEnum.NewConfigurationScene.value());
             FXMLLoader loader = new FXMLLoader(url.toURL());
             root = loader.load();
             NewConfigurationController controller = loader.getController();
-            controller.setCommandParser(this.commandParser);
-            controller.setClientController(this.clientController);
-            controller.setStage(stage);
+            controller.setCommandParser(commandParser);
+            controller.setClientController(clientController);
+            controller.setStage(stage);*/
         }
-        Scene scene = new Scene(root);
+        //Scene scene = new Scene(root);
 
         //scene.getStylesheets().add(getClass().getResource("/css/SetupScene.css").toExternalForm());
-        stage.setScene(scene);
-        stage.show();
+        //stage.setScene(scene);
+        //stage.show();
     }
     public static void main(String[] args) {
         launch(args);

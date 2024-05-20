@@ -3,8 +3,10 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.Configuration;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.NewUserMessage;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.Disconnect;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
+import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
@@ -13,6 +15,7 @@ import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
+import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -24,6 +27,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
 
 import java.io.File;
@@ -31,7 +35,6 @@ import java.io.IOException;
 import java.util.List;
 
 public class OldConfigurationController extends AbstractController implements StateListener, GameHandlingListener{
-
 
     private List<Configuration> configs;
 
@@ -47,9 +50,24 @@ public class OldConfigurationController extends AbstractController implements St
     @FXML
     private TableColumn<Configuration, Configuration.ConnectionType> conTypeCol;
 
+    public OldConfigurationController(ClientController controller, CommandParser parser, Stage stage){
+        super(controller, parser, stage);
+
+        super.getClientController().getListenersManager().attachListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
+        super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
+    }
+
+    public OldConfigurationController(AbstractController controller) {
+        super(controller);
+
+        super.getClientController().getListenersManager().attachListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
+        super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
+    }
+
     public void setConfig(List<Configuration> configs) {
         this.configs = configs;
     }
+
     public void setUpConfigTable() {
         nicknameCol.setCellValueFactory(new PropertyValueFactory<Configuration, String>("nick"));
         timeCol.setCellValueFactory(new PropertyValueFactory<Configuration, String>("timestamp"));
@@ -58,7 +76,7 @@ public class OldConfigurationController extends AbstractController implements St
     }
     @FXML
     public void onRecconectPress(ActionEvent e) {
-        ClientInterface client;
+        /*ClientInterface client;
         Configuration config = confTable.getSelectionModel().getSelectedItem();
         Configuration.ConnectionType connectionType;
         if(config != null) {
@@ -75,11 +93,11 @@ public class OldConfigurationController extends AbstractController implements St
             super.getClientController().setNickname(config.getNick());
             super.getClientController().setClientInterface(client);
             super.getClientController().setNextState(new Disconnect(super.getClientController()), false);
-        }
+        }*/
     }
     @FXML
-    public void onNewConfigurationPressed(ActionEvent e) throws IOException {
-        Parent root;
+    public void onNewConfigurationPressed(ActionEvent e){
+        /*Parent root;
         File url = new File(SceneStatesEnum.NewConfigurationScene.value());
         FXMLLoader loader = new FXMLLoader(url.toURL());
         root = loader.load();
@@ -90,7 +108,12 @@ public class OldConfigurationController extends AbstractController implements St
         Platform.runLater(() -> {
             this.getStage().setScene(new Scene(root));
             this.getStage().show();
-        });
+        });*/
+
+        super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
+        super.getClientController().getListenersManager().removeListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
+
+        changeToNextScene(SceneStatesEnum.NewConfigurationScene);
     }
 
     @Override

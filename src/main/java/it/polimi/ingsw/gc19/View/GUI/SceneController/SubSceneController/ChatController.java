@@ -2,11 +2,13 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
+import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.ChatListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListener;
+import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -14,6 +16,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 import org.controlsfx.control.CheckComboBox;
 
 import java.util.ArrayList;
@@ -35,6 +38,13 @@ public class ChatController extends AbstractController implements ChatListener, 
     @FXML
     public Button sendButton;
 
+    public ChatController(AbstractController controller){
+        super(controller);
+
+        controller.getClientController().getListenersManager().attachListener(ListenerType.CHAT_LISTENER, this);
+        controller.getClientController().getListenersManager().attachListener(ListenerType.LOCAL_MODEL_LISTENER, this);
+    }
+
     public void initialize(){
         String style = "-fx-background-color:transparent;"+
                        "-fx-border-style: solid inside; " +
@@ -48,38 +58,45 @@ public class ChatController extends AbstractController implements ChatListener, 
 
         textAreaSend.textProperty().addListener((observable, oldValue, newValue) -> textAreaSend.setStyle("-fx-border: none"));
 
+        sendButton.setOnMouseClicked((event) -> sendMessage());
         sendButton.setStyle(style);
         sendButton.setBackground(Background.fill(Color.LIGHTBLUE));
 
         receivers.setTitle("Receivers");
         receivers.setStyle(style);
+
+        if(this.getLocalModel() != null && this.getLocalModel().getPersonalStation() != null){
+            receivers.getItems().add(this.getLocalModel().getNickname());
+        }
     }
 
     @Override
     public void notify(ArrayList<Message> msg) {
-        Text sender = new Text(), message = new Text();
+        Platform.runLater(() -> {
 
-        textFlow.getChildren().clear();
+            textFlow.getChildren().clear();
 
-        for(Message m : msg){
-            for(LocalStationPlayer l : new ArrayList<>(this.getLocalModel().getStations().values())){
-                if(l.getOwnerPlayer().equals(m.getSenderPlayer())){
-                    if(l.getChosenColor() != null) {
-                        sender.setStyle("-fx-fill: " + l.getChosenColor().toString().toLowerCase());
+            for(Message m : msg){
+                Text sender = new Text(), message = new Text();
+                for(LocalStationPlayer l : new ArrayList<>(this.getLocalModel().getStations().values())){
+                    if(l.getOwnerPlayer().equals(m.getSenderPlayer())){
+                        if(l.getChosenColor() != null) {
+                            sender.setStyle("-fx-fill: " + l.getChosenColor().toString().toLowerCase());
+                        }
+                        else{
+                            sender.setStyle("-fx-fill: black");
+                        }
+
+                        sender.setText("[" + m.getSendTime() + "] " + m.getSenderPlayer() + ": \n");
+
+                        message.setText(m.getMessage() + "\n");
+
+                        textFlow.getChildren().add(sender);
+                        textFlow.getChildren().add(message);
                     }
-                    else{
-                        sender.setStyle("-fx-fill: black");
-                    }
-
-                    sender.setText("[" + m.getSendTime() + "] " + m.getSenderPlayer() + ": \n");
-
-                    message.setText(m.getMessage() + "\n");
-
-                    textFlow.getChildren().add(sender);
-                    textFlow.getChildren().add(message);
                 }
             }
-        }
+        });
     }
 
     public void sendMessage() {
@@ -95,7 +112,7 @@ public class ChatController extends AbstractController implements ChatListener, 
             return;
         }
 
-        if(this.receivers.getCheckModel().getCheckedItems().size() > 1){
+        if(!this.receivers.getCheckModel().getCheckedItems().isEmpty()){
             this.getClientController().sendChatMessage(this.textAreaSend.getText(), this.receivers.getCheckModel().getCheckedItems());
         }
         else{
@@ -108,7 +125,10 @@ public class ChatController extends AbstractController implements ChatListener, 
 
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
-        this.receivers.getItems().addAll(this.getLocalModel().getStations().keySet().stream().toList());
+        Platform.runLater(() -> {
+            this.receivers.getItems().clear();
+            this.receivers.getItems().addAll(this.getLocalModel().getStations().keySet().stream().toList());
+        });
     }
 
 }

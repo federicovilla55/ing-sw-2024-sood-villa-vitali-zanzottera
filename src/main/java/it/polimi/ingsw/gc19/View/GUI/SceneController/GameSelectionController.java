@@ -4,6 +4,7 @@ import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
+import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -18,6 +19,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +41,13 @@ public class GameSelectionController extends AbstractController implements State
     private final Integer[] possibleNumPlayer = {2,3,4};
     @FXML
     private ListView<String> availableGamesList;
+
+    protected GameSelectionController(AbstractController controller) {
+        super(controller);
+
+        super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
+        super.getClientController().getListenersManager().attachListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
+    }
 
     @FXML
     public void initialize(){
@@ -77,43 +86,9 @@ public class GameSelectionController extends AbstractController implements State
     public void notify(GameHandlingEvents type, List<String> varArgs) {
         switch (type){
             case GameHandlingEvents.CREATED_GAME -> {
-                /*try{
-                    System.out.println("%%%%%% " + getLocalModel());
-                    //changeToNextScene(SceneStatesEnum.SETUP_SCENE);
+                super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
+                super.getClientController().getListenersManager().removeListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
 
-                    FXMLLoader loader = new FXMLLoader();
-                    SetupController controller = new SetupController();
-                    loader.setLocation(getClass().getResource("/fxml/SetupScene.fxml"));
-                    loader.setController(controller);
-                    controller.setLocalModel(this.getLocalModel());
-                    controller.setClientController(this.getClientController());
-                    controller.setCommandParser(this.getCommandParser());
-
-                    System.out.println(((SetupController) loader.getController()).getLocalModel());
-
-                    controller.stage = this.stage;
-                    controller.attachToListener(SceneStatesEnum.SETUP_SCENE);
-                    controller.setToView();
-                    controller.setSceneStatesEnum(SceneStatesEnum.SETUP_SCENE);
-                    //this.getClientController.getListenersManager().removeListener(this);
-                    this.removeListener();
-
-                    System.out.println("oooooooooooooooo");
-
-                    Parent root = loader.load();
-
-                    assert root != null;
-
-                    this.stage.close();
-
-                    //if(controller instanceof SetupController) ((SetupController) controller).init();
-                    this.stage.setScene(new Scene(root));
-                    //this.stage.setMaximized(true);
-                    this.stage.show();
-                }
-                catch (IOException ignored) {
-                    System.out.println(ignored.getMessage());
-                }*/
                 changeToNextScene(SceneStatesEnum.SETUP_SCENE);
             }
             case GameHandlingEvents.JOINED_GAMES -> System.out.println("You have been registered to game named '" + varArgs.getFirst() + "'.");
