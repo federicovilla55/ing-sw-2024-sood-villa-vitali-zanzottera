@@ -144,7 +144,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
             this.localModel.setColor(message.getChosenColor());
         }
         else {
-            this.localModel.getOtherStations().get(message.getPlayer()).setChosenColor(message.getChosenColor());
+            this.localModel.setColor(message.getPlayer(), message.getChosenColor());
         }
     }
 
