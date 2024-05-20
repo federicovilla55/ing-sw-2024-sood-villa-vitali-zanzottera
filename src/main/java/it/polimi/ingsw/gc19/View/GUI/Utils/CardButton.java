@@ -32,9 +32,9 @@ public class CardButton extends Button{
         this.isUp = true;
 
         this.front.setPreserveRatio(true);
-        this.front.setFitWidth(300);
+        this.front.setFitWidth(200);
         this.back.setPreserveRatio(true);
-        this.back.setFitWidth(300);
+        this.back.setFitWidth(200);
 
         super.setPadding(Insets.EMPTY);
         super.setBorder(Border.EMPTY);
@@ -51,13 +51,6 @@ public class CardButton extends Button{
         super.setGraphic(this.front);
     }
 
-    public ImageView getFront() {
-        return front;
-    }
-
-    public ImageView getBack() {
-        return back;
-    }
 
     public Card getCard(){
         return this.card;
@@ -93,10 +86,6 @@ public class CardButton extends Button{
                 this.swap();
             }
         };
-    }
-
-    public boolean isUpSide(){
-        return this.isUp;
     }
 
     public void swap(){

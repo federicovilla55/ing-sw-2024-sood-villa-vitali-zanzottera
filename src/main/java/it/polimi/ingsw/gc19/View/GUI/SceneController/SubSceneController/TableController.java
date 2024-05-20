@@ -114,7 +114,7 @@ public class TableController extends AbstractController implements TableListener
     private ImageView factoryUpperDeckCard(){
         ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/back/goal.jpg")).toExternalForm()));
         imageView.setPreserveRatio(true);
-        imageView.setFitWidth(300);
+        imageView.setFitWidth(200);
         return imageView;
     }
 
@@ -122,7 +122,7 @@ public class TableController extends AbstractController implements TableListener
         if(symbol != null) {
             ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/back/" + type.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg")).toExternalForm()));
             imageView.setPreserveRatio(true);
-            imageView.setFitWidth(300);
+            imageView.setFitWidth(200);
 
             return imageView;
         }
