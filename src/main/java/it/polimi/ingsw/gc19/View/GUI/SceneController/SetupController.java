@@ -38,10 +38,16 @@ public class SetupController extends AbstractController implements SetupListener
     private CardButton initialCard;
 
     @FXML
-    private VBox leftVBox, rightVBox;
+    private VBox leftVBox, rightVBox, chat;
 
     @FXML
     private HBox hbox, goalCardsHBox, initialCardHBox;
+
+    @FXML
+    private TabPane stations;
+
+    @FXML
+    private BorderPane availableColorsPane, initialCardOrientationPane, privateGoalCardSelectionPane, table;
 
     protected SetupController(AbstractController controller) {
         super(controller);
@@ -53,10 +59,11 @@ public class SetupController extends AbstractController implements SetupListener
         getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
 
         buildAvailableColorsHBox();
-        System.out.println(this.getLocalModel());
         buildPrivateGoalCardSelectionHBox();
-        System.out.println(this.getLocalModel());
         buildInitialCardHBox();
+
+        leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
+        rightVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.25));
 
         try{
             FXMLLoader loader = new FXMLLoader();
@@ -64,9 +71,11 @@ public class SetupController extends AbstractController implements SetupListener
             ChatController controller = new ChatController(this);
             loader.setController(controller);
 
-            VBox chat = loader.load();
+            chat = loader.load();
 
             rightVBox.getChildren().add(chat);
+
+            //controller.resize();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -77,7 +86,7 @@ public class SetupController extends AbstractController implements SetupListener
             TableController controller = new TableController(this);
             loader.setController(controller);
 
-            BorderPane table = loader.load();
+            table = loader.load();
 
             leftVBox.getChildren().add(table);
         } catch (IOException e) {
@@ -90,9 +99,11 @@ public class SetupController extends AbstractController implements SetupListener
             LocalStationTabController controller = new LocalStationTabController(this);
             loader.setController(controller);
 
-            TabPane tabPane = loader.load();
+            stations = loader.load();
 
-            leftVBox.getChildren().add(tabPane);
+            //stations.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.6));
+
+            leftVBox.getChildren().add(stations);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
