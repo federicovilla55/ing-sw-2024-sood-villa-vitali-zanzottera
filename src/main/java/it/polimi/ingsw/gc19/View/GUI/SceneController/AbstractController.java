@@ -28,7 +28,7 @@ public class AbstractController implements UI , Listener {
     protected AbstractController(ClientController controller, CommandParser parser, Stage stage){
         this.clientController = controller;
         this.commandParser = parser;
-        this.localModel = null;
+        this.localModel = new LocalModel();
         this.stage = stage;
     }
 

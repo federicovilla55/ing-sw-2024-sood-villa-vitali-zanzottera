@@ -55,13 +55,13 @@ public class ScoreboardController extends AbstractController implements StationL
 
     private ImageView scoreboardView;
 
-    private Pane scoreboardPane;
+    public Pane scoreboardPane;
 
     private double pawnSize;
 
     private double ratio;
 
-    protected ScoreboardController(AbstractController controller) {
+    public ScoreboardController(AbstractController controller) {
         super(controller);
 
         controller.getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
@@ -74,7 +74,7 @@ public class ScoreboardController extends AbstractController implements StationL
             return;
         }
 
-        double scoreboardHeight = 800;
+        double scoreboardHeight = 600;
         double proportions = scoreboardImage.getWidth() / scoreboardImage.getHeight();
         ratio = scoreboardHeight / scoreboardImage.getHeight();
         pawnSize = scoreboardImage.getHeight() * ratio * proportions / 8;
@@ -93,10 +93,11 @@ public class ScoreboardController extends AbstractController implements StationL
         }
     }
 
-    private void placePawn(LocalStationPlayer station) {
+    public void placePawn(LocalStationPlayer station) {
         if(station.getChosenColor() == null) return;
-        String pawnColor = station.getChosenColor().toString();
+        String pawnColor = station.getChosenColor().toString().toLowerCase();
         int scoredPoints = station.getNumPoints();
+        if(scoredPoints > 29) scoredPoints = 29;
         Image pawnImage = new Image(getClass().getResourceAsStream("/pawns/" + pawnColor + "_pawn.png"));
         if (pawnImage.isError()) {
             System.err.println("Error while loading image for " + pawnColor + " pawn.");

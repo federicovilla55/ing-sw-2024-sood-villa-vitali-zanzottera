@@ -46,10 +46,10 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
         "Not your turn"
     };
 
-    BorderPane borderPane;
+    public BorderPane borderPane;
 
 
-    protected PlayerSymbolsController(AbstractController controller) {
+    public PlayerSymbolsController(AbstractController controller) {
         super(controller);
     }
 
@@ -69,22 +69,29 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
     }
 
     public void updatePlayerState(String nickname, TurnState turnState){
+        String firstPlayer = getLocalModel().getFirstPlayer();
+        Label nicknameLabel = new Label(firstPlayer);
+        Label stateLabel = new Label(stateStrings[0]);
         HBox hbox = (HBox) borderPane.lookup("#hbox");
-        Label nicknameLabel = (Label) hbox.getChildren().get(0);
-        Label stateLabel = (Label) hbox.getChildren().get(1);
-        nicknameLabel.setText(nickname);
-        stateLabel.setText(stateStrings[(turnState == TurnState.PLACE) ? 0 : 1]);
+        hbox.getChildren().clear();
+        hbox.getChildren().addAll(nicknameLabel, stateLabel);
 
-        Map<Symbol, Integer> visibleSymbols = getLocalModel().getStations().get(nickname).getVisibleSymbols();
         GridPane gridPane = (GridPane) borderPane.lookup("#gridPane");
-
-        for (Map.Entry<Symbol, Integer> symbol : visibleSymbols.entrySet()) {
-            Label countLabel = new Label(String.valueOf(symbol.getValue()));
-            gridPane.add(countLabel, symbolImages.indexOf(symbol.getKey().toString().toLowerCase()), 1);
+        gridPane.getChildren().clear();
+        for(String s : symbolImages) {
+            Image symbolImage = new Image(getClass().getResourceAsStream("/symbols/"+s+".png"));
+            ImageView symbolImageView = new ImageView(symbolImage);
+            symbolImageView.setFitHeight(40);
+            symbolImageView.setFitWidth(40);
+            gridPane.add(symbolImageView, symbolImages.indexOf(s), 0);
+            GridPane.setHalignment(symbolImageView, HPos.CENTER);
+            GridPane.setValignment(symbolImageView, VPos.CENTER);
+            Label countLabel = new Label(String.valueOf(0));
+            gridPane.add(countLabel, symbolImages.indexOf(s), 1);
             GridPane.setHalignment(countLabel, HPos.CENTER);
             GridPane.setValignment(countLabel, VPos.CENTER);
-        }
 
+        }
     }
 
     @Override
