@@ -1,13 +1,12 @@
 package it.polimi.ingsw.gc19.View.GUI;
 
-import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.Configuration;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.NewConfigurationController;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.OldConfigurationController;
-import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.PlayingAreaController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -22,9 +21,6 @@ public class GUIView extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         List<Configuration> configs;
-        Configuration.ConnectionType connectionType;
-        String reconnectChoice;
-        ClientInterface client;
         Parent root;
 
         CommandParser commandParser = new CommandParser(new ClientController());
