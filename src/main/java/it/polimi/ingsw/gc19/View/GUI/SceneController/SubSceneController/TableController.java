@@ -17,7 +17,9 @@ import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -45,6 +47,7 @@ public class TableController extends AbstractController implements TableListener
         getClientController().getListenersManager().attachListener(ListenerType.TABLE_LISTENER, this);
     }
 
+    @FXML
     public void initialize(){
         buildTable();
     }

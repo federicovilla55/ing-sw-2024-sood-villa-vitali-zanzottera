@@ -547,6 +547,14 @@ public class LocalModel {
     }
 
     /**
+     * This method checks if game can start
+     * @return if game can start
+     */
+    public boolean gameCanStart(){
+        return this.getStations().size() == this.numPlayers;
+    }
+
+    /**
      * To return:
      * @return the number of players in the game.
      */

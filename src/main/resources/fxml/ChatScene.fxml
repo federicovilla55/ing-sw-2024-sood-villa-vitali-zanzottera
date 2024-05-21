@@ -26,7 +26,7 @@
                <VBox.margin>
                   <Insets />
                </VBox.margin></Button>
-            <CheckComboBox fx:id="receivers" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="390.0" stylesheets="@../css/Chat.css">
+            <CheckComboBox fx:id="receivers" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="389.0" stylesheets="@../css/Chat.css">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin></CheckComboBox>

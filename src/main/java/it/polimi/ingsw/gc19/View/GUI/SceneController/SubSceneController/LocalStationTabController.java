@@ -32,27 +32,15 @@ public class LocalStationTabController extends AbstractController implements Loc
     @FXML
     private TabPane tabPane;
 
-    private ArrayList<LocalStationController> localControllers;
-
     public LocalStationTabController(AbstractController controller) {
         super(controller);
-
-        this.localControllers = new ArrayList<>();
     }
 
     @FXML
     public void initialize(){
         buildTabs();
 
-        tabPane.setStyle("""
-        .tab-pane *.tab-header-background{
-            -fx-opacity: 0;
-        }
-        -fx-border-style: solid;
-        -fx-padding: 1;
-        -fx-border-color: black;
-        -fx-border-insets: 5;"""
-        );
+        tabPane.getStyleClass().add("floating");
     }
 
     private void buildTabs(){
@@ -74,7 +62,6 @@ public class LocalStationTabController extends AbstractController implements Loc
                         default -> controller = null;
                     }
 
-                    this.localControllers.add(controller);
                     loader.setController(controller);
 
                     tabContent = loader.load();

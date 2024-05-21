@@ -4,17 +4,23 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1440.0" prefWidth="2560.0" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox alignment="CENTER" prefHeight="1440.0" prefWidth="2560.0">
          <children>
-            <VBox fx:id="leftVBox" alignment="CENTER" prefHeight="1440.0" prefWidth="2845.0">
+            <VBox fx:id="leftVBox" alignment="CENTER" prefHeight="1440.0" prefWidth="2845.0" spacing="25.0">
                <HBox.margin>
                   <Insets />
-               </HBox.margin></VBox>
+               </HBox.margin>
+               <children>
+                  <HBox fx:id="infoHBox" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="100.0">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding></HBox>
+               </children></VBox>
             <VBox fx:id="rightVBox" prefWidth="750.0" spacing="25.0" HBox.hgrow="NEVER">
                <children>
-                  <BorderPane fx:id="availableColorsPane" prefHeight="150.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css">
+                  <BorderPane id="availableColorsPane" fx:id="availableColorsPane" prefHeight="150.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css">
                      <padding>
                         <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
                      </padding>
