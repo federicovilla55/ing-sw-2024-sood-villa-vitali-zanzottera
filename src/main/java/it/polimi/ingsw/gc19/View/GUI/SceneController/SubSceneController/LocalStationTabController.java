@@ -43,9 +43,17 @@ public class LocalStationTabController extends AbstractController implements Loc
     @FXML
     public void initialize(){
         buildTabs();
-    }
 
-    //Se in fase di setup genera il controller per il steup altrimenti genera un controllore per il gioco
+        tabPane.setStyle("""
+        .tab-pane *.tab-header-background{
+            -fx-opacity: 0;
+        }
+        -fx-border-style: solid;
+        -fx-padding: 1;
+        -fx-border-color: black;
+        -fx-border-insets: 5;"""
+        );
+    }
 
     private void buildTabs(){
         this.tabPane.getTabs().clear();

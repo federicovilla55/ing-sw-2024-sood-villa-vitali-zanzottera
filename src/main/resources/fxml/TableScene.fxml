@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane id="tableBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.TableController"-->
+<BorderPane id="tableBorderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.TableController"-->
    <center>
       <GridPane id="gridPane" fx:id="gridPane" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER">
         <columnConstraints>
@@ -33,6 +33,6 @@
          </padding></Label>
    </top>
    <padding>
-      <Insets bottom="25.0" left="25.0" top="25.0" />
+      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
    </padding>
 </BorderPane>

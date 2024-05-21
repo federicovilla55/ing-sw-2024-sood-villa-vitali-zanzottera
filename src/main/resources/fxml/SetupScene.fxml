@@ -6,9 +6,12 @@
 
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1440.0" prefWidth="2560.0" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <HBox prefHeight="1440.0" prefWidth="2560.0">
+      <HBox alignment="CENTER" prefHeight="1440.0" prefWidth="2560.0">
          <children>
-            <VBox fx:id="leftVBox" alignment="CENTER" prefHeight="1440.0" prefWidth="2845.0" />
+            <VBox fx:id="leftVBox" alignment="CENTER" prefHeight="1440.0" prefWidth="2845.0">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin></VBox>
             <VBox fx:id="rightVBox" prefHeight="1446.0" prefWidth="750.0" spacing="25.0" HBox.hgrow="NEVER">
                <children>
                   <BorderPane fx:id="availableColorsPane" prefHeight="150.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css">
@@ -66,6 +69,9 @@
                      </VBox.margin>
                   </BorderPane>
                </children>
+               <padding>
+                  <Insets left="50.0" />
+               </padding>
             </VBox>
          </children>
       </HBox>
