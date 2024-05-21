@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
+import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
@@ -17,7 +18,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -35,7 +38,7 @@ import java.util.Objects;
 
 public class SetupController extends AbstractController implements SetupListener, StateListener {
 
-    private CardButton initialCard;
+    private CardButton initialCardUp, initialCardDown;
 
     @FXML
     private VBox leftVBox, rightVBox, chat;
@@ -44,10 +47,7 @@ public class SetupController extends AbstractController implements SetupListener
     private HBox hbox, goalCardsHBox, initialCardHBox;
 
     @FXML
-    private TabPane stations;
-
-    @FXML
-    private BorderPane availableColorsPane, initialCardOrientationPane, privateGoalCardSelectionPane, table;
+    private BorderPane availableColorsPane, initialCardOrientationPane, privateGoalCardSelectionPane, table, stations;
 
     protected SetupController(AbstractController controller) {
         super(controller);
@@ -101,7 +101,7 @@ public class SetupController extends AbstractController implements SetupListener
 
             stations = loader.load();
 
-            //stations.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.6));
+            stations.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
 
             leftVBox.getChildren().add(stations);
         } catch (IOException e) {
@@ -110,55 +110,47 @@ public class SetupController extends AbstractController implements SetupListener
     }
 
     private void buildInitialCardHBox(){
-        if(this.getLocalModel().getPersonalStation().getPlacedCardSequence().isEmpty()){
+        if(this.getLocalModel().getPersonalStation().getPlacedCardSequence().isEmpty()) {
 
-            initialCard = new CardButton(this.getLocalModel().getPersonalStation().getInitialCard());
+            initialCardUp = new CardButton(this.getLocalModel().getPersonalStation().getInitialCard());
+            initialCardDown = new CardButton(this.getLocalModel().getPersonalStation().getInitialCard());
+            initialCardDown.swap();
 
-            initialCard.setOnMouseClicked((event) -> {
-                if(event.getClickCount() == 1){
-                    initialCard.swap();
-                }
-                else{
-                    getClientController().placeInitialCard(initialCard.getCardOrientation());
+            this.initialCardHBox.getChildren().addAll(List.of(initialCardUp, initialCardDown));
 
-                    initialCard.setOnMouseClicked(initialCard.getDefaultMouseClickedHandler());
-                }
-            });
+            for(var b :List.of(initialCardUp, initialCardDown)){
+
+                b.setOnMouseClicked((event) -> {
+                    getClientController().placeInitialCard(b.getCardOrientation());
+                    initialCardHBox.getChildren().clear();
+                    rightVBox.getChildren().remove(initialCardOrientationPane);
+
+                    double size = initialCardOrientationPane.getHeight();
+
+                    resizeChat(size);
+                });
+
+            }
+
         }
-        else{
-            this.initialCardHBox.getChildren().clear();
-
-            initialCard = new CardButton(this.getLocalModel().getPersonalStation().getPlacedCardSequence().getFirst().x());
-            initialCard.showSide(this.getLocalModel().getPersonalStation().getPlacedCardSequence().getFirst().x().getCardOrientation());
-        }
-
-        this.initialCardHBox.getChildren().add(initialCard);
     }
 
     private void buildPrivateGoalCardSelectionHBox(){
-        if(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation() != null){
-            this.goalCardsHBox.getChildren().clear();
-
-            CardButton goalCard = new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation());
-
-            this.goalCardsHBox.getChildren().add(goalCard);
-        }
-        else{
+        if(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation() == null){
             List<CardButton> cardButtons = new ArrayList<>(List.of(
                     new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()[0]),
                     new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()[1])));
 
             cardButtons.forEach(c -> c.setOnMouseClicked((event) -> {
-                if(event.getClickCount() == 1){
-                    cardButtons.get(cardButtons.indexOf(c)).swap();
-                }
-                else{
-                    System.out.println(cardButtons.indexOf(c));
+                getClientController().chooseGoal(cardButtons.indexOf(c));
 
-                    getClientController().chooseGoal(cardButtons.indexOf(c));
+                cardButtons.forEach(b -> b.setOnMouseClicked(b.getDefaultMouseClickedHandler()));
 
-                    cardButtons.forEach(b -> b.setOnMouseClicked(b.getDefaultMouseClickedHandler()));
-                }
+                rightVBox.getChildren().remove(privateGoalCardSelectionPane);
+
+                double size = privateGoalCardSelectionPane.getHeight();
+
+                resizeChat(size);
             }));
 
             this.goalCardsHBox.getChildren().addAll(cardButtons);
@@ -204,13 +196,21 @@ public class SetupController extends AbstractController implements SetupListener
         button.setPadding(Insets.EMPTY);
 
         button.setId(c + "_button");
-        button.setOnAction(event -> {
-            for(Node n : SetupController.this.hbox.getChildren()){
-                n.setDisable(true);
-            }
+        button.setOnMouseClicked(event -> {
             SetupController.super.getClientController().chooseColor(Color.valueOf(button.getId().toUpperCase().split("_")[0]));
+
+            double size = availableColorsPane.getHeight();
+
+            rightVBox.getChildren().remove(availableColorsPane);
+
+            resizeChat(size);
         });
+
         return button;
+    }
+
+    private void resizeChat(double additionalSize){
+        ((Region) chat.getChildren().getFirst()).setPrefHeight(((ScrollPane) chat.getChildren().getFirst()).getHeight() + 0.25 * ((Region) chat.getParent()).getHeight());
     }
 
     @Override

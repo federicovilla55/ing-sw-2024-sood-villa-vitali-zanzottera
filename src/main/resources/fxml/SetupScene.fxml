@@ -12,7 +12,7 @@
                <HBox.margin>
                   <Insets />
                </HBox.margin></VBox>
-            <VBox fx:id="rightVBox" prefHeight="1446.0" prefWidth="750.0" spacing="25.0" HBox.hgrow="NEVER">
+            <VBox fx:id="rightVBox" prefWidth="750.0" spacing="25.0" HBox.hgrow="NEVER">
                <children>
                   <BorderPane fx:id="availableColorsPane" prefHeight="150.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css">
                      <padding>
