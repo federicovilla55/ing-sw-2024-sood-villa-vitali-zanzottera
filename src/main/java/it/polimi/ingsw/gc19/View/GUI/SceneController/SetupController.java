@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
+import it.polimi.ingsw.gc19.View.GUI.PaneFireworks;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.ChatController;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.LocalStationTabController;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.TableController;
@@ -89,24 +90,11 @@ public class SetupController extends AbstractController implements SetupListener
             table = loader.load();
 
             leftVBox.getChildren().add(table);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        try{
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/LocalStationTab.fxml").toURL());
-            LocalStationTabController controller = new LocalStationTabController(this);
-            loader.setController(controller);
-
-            stations = loader.load();
-
-            //stations.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.6));
-
-            leftVBox.getChildren().add(stations);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void buildInitialCardHBox(){
@@ -133,6 +121,7 @@ public class SetupController extends AbstractController implements SetupListener
         }
 
         this.initialCardHBox.getChildren().add(initialCard);
+
     }
 
     private void buildPrivateGoalCardSelectionHBox(){
