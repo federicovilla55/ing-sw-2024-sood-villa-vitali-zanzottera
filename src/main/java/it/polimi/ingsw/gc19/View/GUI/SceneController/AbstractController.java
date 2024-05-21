@@ -33,7 +33,7 @@ public class AbstractController implements UI , Listener {
     }
 
     protected AbstractController(AbstractController controller){
-        this.localModel = controller.localModel;
+        this.localModel = controller.clientController.getLocalModel();
 
         this.clientController = controller.clientController;
         this.commandParser = controller.commandParser;
