@@ -42,7 +42,6 @@ import java.util.List;
 public class NewConfigurationController extends AbstractController implements StateListener {
 
     private ClientInterface client;
-
     @FXML
     private Button TCPButton, RMIButton;
 
@@ -84,7 +83,7 @@ public class NewConfigurationController extends AbstractController implements St
             return;
         }
         super.getClientController().setClientInterface(client);
-        System.out.println("ciao");
+        System.out.println("cio");
     }
     @Override
     public void notify(ViewState viewState) {
