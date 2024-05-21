@@ -142,7 +142,6 @@ public class LocalModel {
      *                      after the message cited above is arrived.
      */
     public void setPersonalStation(PersonalStation localStation) {
-        System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
         synchronized (this.playerStations) {
             this.playerStations.put(this.nickname, localStation);
             this.playerStations.notifyAll();
@@ -275,9 +274,20 @@ public class LocalModel {
         this.availableColors.remove(color);
 
         this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_COLOR);
+        //this.listenersManager.notifyStationListener((PersonalStation) this.playerStations.get(this.nickname));
+
         if(finishedLocalSetup()){
             this.listenersManager.notifySetupListener(SetupEvent.COMPLETED);
         }
+    }
+
+    public void setColor(String nick, Color color){
+        synchronized (this.playerStations) {
+            this.playerStations.get(nick).setChosenColor(color);
+        }
+        this.availableColors.remove(color);
+
+        this.listenersManager.notifyStationListener((OtherStation) this.playerStations.get(nick));
     }
 
     /**

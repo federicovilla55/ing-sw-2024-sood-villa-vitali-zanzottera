@@ -1,0 +1,6 @@
+. /css/ LocalStationScene{
+    -fx-border-style: solid;
+    -fx-padding: 1;
+    -fx-background-color: black;
+    -fx-border-insets: 5;
+}

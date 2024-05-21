@@ -51,17 +51,13 @@ public class TableController extends AbstractController implements TableListener
 
     private void buildTable(){
         if(this.getLocalModel().getTable() != null){
-            this.drawableTableCards[0][0] = new CardButton(this.getLocalModel().getTable().getResource1());
-            this.drawableTableCards[0][0].setOnMouseClicked((event) -> handleClickDrawableTableCard(event, this.getLocalModel().getTable().getResource1(), 0));
+            drawableCardFactory(this.getLocalModel().getTable().getResource1(), 0,0);
 
-            this.drawableTableCards[0][1] = new CardButton(this.getLocalModel().getTable().getResource2());
-            this.drawableTableCards[0][1].setOnMouseClicked((event) -> handleClickDrawableTableCard(event, this.getLocalModel().getTable().getResource2(), 1));
+            drawableCardFactory(this.getLocalModel().getTable().getResource2(), 0,1);
 
-            this.drawableTableCards[1][0] = new CardButton(this.getLocalModel().getTable().getGold1());
-            this.drawableTableCards[1][0].setOnMouseClicked((event) -> handleClickDrawableTableCard(event, this.getLocalModel().getTable().getGold1(), 0));
+            drawableCardFactory(this.getLocalModel().getTable().getGold1(), 1, 0);
 
-            this.drawableTableCards[1][1] = new CardButton(this.getLocalModel().getTable().getGold2());
-            this.drawableTableCards[1][1].setOnMouseClicked((event) -> handleClickDrawableTableCard(event, this.getLocalModel().getTable().getGold2(), 1));
+            drawableCardFactory(this.getLocalModel().getTable().getGold2(), 1, 1);
 
             this.publicGoals[0] = new CardButton(this.getLocalModel().getTable().getPublicGoal1());
             this.publicGoals[0].setOnMouseClicked(this.publicGoals[0].getDefaultMouseClickedHandler());
@@ -71,7 +67,7 @@ public class TableController extends AbstractController implements TableListener
 
             this.decks[0] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfResourceDeck(), PlayableCardType.RESOURCE);
             this.decks[1] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfGoldDeck(), PlayableCardType.GOLD);
-            this.decks[2] =  factoryUpperDeckCard();
+            this.decks[2] = factoryUpperDeckCard();
         }
 
         for(int i = 0; i < 2; i++){
@@ -105,18 +101,33 @@ public class TableController extends AbstractController implements TableListener
         }
     }
 
+    private void drawableCardFactory(PlayableCard card, int x, int y){
+        if(card != null){
+            this.drawableTableCards[x][y] = new CardButton(card);
+            this.drawableTableCards[x][y].setOnMouseClicked((event) -> handleClickDrawableTableCard(event, card, y));
+        }
+        else{
+            this.drawableTableCards[x][y] = null;
+        }
+    }
+
     private ImageView factoryUpperDeckCard(){
         ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/back/goal.jpg")).toExternalForm()));
         imageView.setPreserveRatio(true);
-        imageView.setFitWidth(300);
+        imageView.setFitWidth(200);
         return imageView;
     }
 
     private ImageView factoryUpperDeckCard(Symbol symbol, PlayableCardType type){
-        ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/back/" + type.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg")).toExternalForm()));
-        imageView.setPreserveRatio(true);
-        imageView.setFitWidth(300);
-        return imageView;
+        if(symbol != null) {
+            ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/back/" + type.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg")).toExternalForm()));
+            imageView.setPreserveRatio(true);
+            imageView.setFitWidth(200);
+
+            return imageView;
+        }
+
+        return null;
     }
 
     @Override

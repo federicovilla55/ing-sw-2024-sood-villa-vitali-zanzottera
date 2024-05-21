@@ -11,6 +11,7 @@ import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListene
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.scene.paint.Color;
@@ -68,7 +69,13 @@ public class ChatController extends AbstractController implements ChatListener, 
         if(this.getLocalModel() != null && this.getLocalModel().getPersonalStation() != null){
             receivers.getItems().add(this.getLocalModel().getNickname());
         }
+
     }
+
+    /*public void resize(double resizeX, double resizeY){
+        this.scrollText.prefWidthProperty().bind(((Node) vBox.getParent()).wid.multiply(resizeX));
+        this.scrollText.prefHeightProperty().bind(super.getStage().heightProperty().multiply(resizeY));
+    }*/
 
     @Override
     public void notify(ArrayList<Message> msg) {

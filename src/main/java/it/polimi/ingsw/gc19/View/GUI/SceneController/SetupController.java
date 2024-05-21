@@ -4,6 +4,7 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.ChatController;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.LocalStationTabController;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.TableController;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
@@ -17,6 +18,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -36,10 +38,16 @@ public class SetupController extends AbstractController implements SetupListener
     private CardButton initialCard;
 
     @FXML
-    private VBox leftVBox, rightVBox;
+    private VBox leftVBox, rightVBox, chat;
 
     @FXML
     private HBox hbox, goalCardsHBox, initialCardHBox;
+
+    @FXML
+    private TabPane stations;
+
+    @FXML
+    private BorderPane availableColorsPane, initialCardOrientationPane, privateGoalCardSelectionPane, table;
 
     protected SetupController(AbstractController controller) {
         super(controller);
@@ -51,10 +59,11 @@ public class SetupController extends AbstractController implements SetupListener
         getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
 
         buildAvailableColorsHBox();
-        System.out.println(this.getLocalModel());
         buildPrivateGoalCardSelectionHBox();
-        System.out.println(this.getLocalModel());
         buildInitialCardHBox();
+
+        leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
+        rightVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.25));
 
         try{
             FXMLLoader loader = new FXMLLoader();
@@ -62,10 +71,11 @@ public class SetupController extends AbstractController implements SetupListener
             ChatController controller = new ChatController(this);
             loader.setController(controller);
 
-            VBox chat = loader.load();
+            chat = loader.load();
 
             rightVBox.getChildren().add(chat);
 
+            //controller.resize();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -76,9 +86,24 @@ public class SetupController extends AbstractController implements SetupListener
             TableController controller = new TableController(this);
             loader.setController(controller);
 
-            BorderPane table = loader.load();
+            table = loader.load();
 
             leftVBox.getChildren().add(table);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        try{
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(new File("src/main/resources/fxml/LocalStationTab.fxml").toURL());
+            LocalStationTabController controller = new LocalStationTabController(this);
+            loader.setController(controller);
+
+            stations = loader.load();
+
+            //stations.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.6));
+
+            leftVBox.getChildren().add(stations);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -147,9 +172,7 @@ public class SetupController extends AbstractController implements SetupListener
         }
 
         if(getLocalModel().getPersonalStation().getChosenColor() != null){
-            System.out.println("ollllllllllllllllllllllllllllllllllllllll");
             ArrayList<Button> button = colorButtonFactory(List.of(this.getLocalModel().getPersonalStation().getChosenColor()));
-            button.getFirst().setOnMouseClicked((event) -> {System.out.println("qqqqqqproblemaaaaaaa");});
 
             this.hbox.getChildren().clear();
             this.hbox.getChildren().add(button.getFirst());
