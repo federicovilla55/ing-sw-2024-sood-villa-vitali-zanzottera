@@ -6,6 +6,12 @@
         -fx-border-insets: 5;
     }
 
+    #infoHBox{
+        -fx-border-style: solid inside;
+        -fx-border-color: black;
+        -fx-border-insets: 5;
+    }
+
     #privateGoalCardSelectionPane{
         -fx-border-style: solid inside;
         -fx-border-color: black;

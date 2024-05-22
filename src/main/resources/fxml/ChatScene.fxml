@@ -6,13 +6,13 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
 
-<VBox id="chatArea" stylesheets="@../css/Chat.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.ChatController"-->
+<VBox id="chatArea" alignment="CENTER" stylesheets="@../css/Chat.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.ChatController"-->
    <ScrollPane id="scrollText" fx:id="scrollText" fitToHeight="true" fitToWidth="true" prefHeight="260.0" prefWidth="600.0">
       <content>
          <TextFlow id="textFlow" fx:id="textFlow" lineSpacing="2.5" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" stylesheets="@../css/Chat.css" />
       </content></ScrollPane>
    <HBox stylesheets="@../css/Chat.css">
-      <ScrollPane id="scrollPaneSend" fx:id="scrollPaneSend" fitToHeight="true" fitToWidth="true" stylesheets="@../css/Chat.css">
+      <ScrollPane id="scrollPaneSend" fx:id="scrollPaneSend" fitToHeight="true" fitToWidth="true" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="150.0" stylesheets="@../css/Chat.css">
          <content>
             <TextArea id="textAreaSend" fx:id="textAreaSend" prefHeight="143.0" prefWidth="329.0" stylesheets="@../css/Chat.css" />
          </content>
@@ -26,7 +26,7 @@
                <VBox.margin>
                   <Insets />
                </VBox.margin></Button>
-            <CheckComboBox fx:id="receivers" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="390.0" stylesheets="@../css/Chat.css">
+            <CheckComboBox fx:id="receivers" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="389.0" stylesheets="@../css/Chat.css">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin></CheckComboBox>

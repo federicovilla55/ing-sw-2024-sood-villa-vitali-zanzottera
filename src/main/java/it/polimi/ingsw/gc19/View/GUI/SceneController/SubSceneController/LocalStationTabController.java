@@ -9,6 +9,9 @@ import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
+import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
+import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -27,32 +30,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class LocalStationTabController extends AbstractController implements LocalModelListener, StationListener {
+public class LocalStationTabController extends AbstractController implements LocalModelListener {
 
     @FXML
     private TabPane tabPane;
 
-    private ArrayList<LocalStationController> localControllers;
-
     public LocalStationTabController(AbstractController controller) {
         super(controller);
 
-        this.localControllers = new ArrayList<>();
+        super.getClientController().getListenersManager().attachListener(ListenerType.LOCAL_MODEL_LISTENER, this);
     }
 
     @FXML
     public void initialize(){
         buildTabs();
 
-        tabPane.setStyle("""
-        .tab-pane *.tab-header-background{
-            -fx-opacity: 0;
-        }
-        -fx-border-style: solid;
-        -fx-padding: 1;
-        -fx-border-color: black;
-        -fx-border-insets: 5;"""
-        );
+        tabPane.getStyleClass().add("floating");
     }
 
     private void buildTabs(){
@@ -71,10 +64,10 @@ public class LocalStationTabController extends AbstractController implements Loc
 
                     switch (this.getClientController().getState()){
                         case ViewState.SETUP -> controller = new LocalStationControllerForSetup(this, l.getOwnerPlayer());
+                        //@TODO: add controller for game. What happens if game is in pause, I shut off machine and then reconnect?
                         default -> controller = null;
                     }
 
-                    this.localControllers.add(controller);
                     loader.setController(controller);
 
                     tabContent = loader.load();
@@ -95,23 +88,9 @@ public class LocalStationTabController extends AbstractController implements Loc
 
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
-        switch (type){
-            //case LocalModelEvents.DISCONNECTED_PLAYER ->
-        }
+        Platform.runLater(() -> {
+            if (type == LocalModelEvents.NEW_PLAYER_CONNECTED) buildTabs();
+        });
     }
 
-    @Override
-    public void notify(PersonalStation localStationPlayer) {
-
-    }
-
-    @Override
-    public void notify(OtherStation otherStation) {
-
-    }
-
-    @Override
-    public void notifyErrorStation(String... varArgs) {
-
-    }
 }

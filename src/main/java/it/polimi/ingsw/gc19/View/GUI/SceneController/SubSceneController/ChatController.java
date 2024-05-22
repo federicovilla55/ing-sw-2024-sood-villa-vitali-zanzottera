@@ -64,18 +64,13 @@ public class ChatController extends AbstractController implements ChatListener, 
         sendButton.setBackground(Background.fill(Color.LIGHTBLUE));
 
         receivers.setTitle("Receivers");
-        receivers.setStyle(style);
+        receivers.setStyle(style + "-fx-border: none");
 
         if(this.getLocalModel() != null && this.getLocalModel().getPersonalStation() != null){
             receivers.getItems().add(this.getLocalModel().getNickname());
         }
 
     }
-
-    /*public void resize(double resizeX, double resizeY){
-        this.scrollText.prefWidthProperty().bind(((Node) vBox.getParent()).wid.multiply(resizeX));
-        this.scrollText.prefHeightProperty().bind(super.getStage().heightProperty().multiply(resizeY));
-    }*/
 
     @Override
     public void notify(ArrayList<Message> msg) {

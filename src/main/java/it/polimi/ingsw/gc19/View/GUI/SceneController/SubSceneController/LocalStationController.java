@@ -47,6 +47,10 @@ public class LocalStationController extends AbstractController {
     }
 
     protected void initializePawns(){
+        if(!this.nickOwner.equals(this.getLocalModel().getNickname())){
+            this.rightVBox.getChildren().clear();
+        }
+
         if(super.getLocalModel().getStations().get(nickOwner).getChosenColor() != null){
             rightVBox.getChildren().add(pawnFactory(super.getLocalModel().getStations().get(nickOwner).getChosenColor().toString()));
         }
@@ -83,7 +87,7 @@ public class LocalStationController extends AbstractController {
 
     private ImageView factoryUnswappableCard(Symbol symbol, PlayableCardType type){
         ImageView imageView = new ImageView(new Image(
-                Objects.requireNonNull(getClass().getResource("/images/back" + type.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg"))
+                Objects.requireNonNull(getClass().getResource("/images/back/" + type.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg"))
                        .toExternalForm()));
         imageView.setPreserveRatio(true);
         imageView.setFitWidth(200);

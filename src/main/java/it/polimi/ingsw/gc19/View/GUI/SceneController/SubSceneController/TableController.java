@@ -17,7 +17,7 @@ import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -28,6 +28,9 @@ public class TableController extends AbstractController implements TableListener
 
     @FXML
     private GridPane gridPane;
+
+    @FXML
+    private BorderPane tableBorderPane;
 
     private final CardButton[][] drawableTableCards;
 
@@ -45,8 +48,19 @@ public class TableController extends AbstractController implements TableListener
         getClientController().getListenersManager().attachListener(ListenerType.TABLE_LISTENER, this);
     }
 
+    @FXML
     public void initialize(){
         buildTable();
+    }
+
+    @FXML
+    public void resize(){
+        ((Region) this.tableBorderPane.getParent()).widthProperty().addListener((observable, oldValue, newValue) -> {
+            this.gridPane.getColumnConstraints().get(1).setPrefWidth(2 * newValue.doubleValue() / 7);
+            this.gridPane.getColumnConstraints().get(3).setPrefWidth(2 * newValue.doubleValue() / 7);
+
+            System.out.println(this.gridPane.getColumnConstraints().get(3).getPrefWidth());
+        });
     }
 
     private void buildTable(){

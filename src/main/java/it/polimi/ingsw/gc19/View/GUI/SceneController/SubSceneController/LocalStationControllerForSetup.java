@@ -16,7 +16,7 @@ import javafx.scene.image.ImageView;
 
 import java.util.Objects;
 
-public class LocalStationControllerForSetup extends LocalStationController implements SetupListener {
+public class LocalStationControllerForSetup extends LocalStationController implements SetupListener, StationListener {
 
     public LocalStationControllerForSetup(AbstractController controller, String nickOwner) {
         super(controller, nickOwner);
@@ -24,6 +24,7 @@ public class LocalStationControllerForSetup extends LocalStationController imple
         this.nickOwner = nickOwner;
 
         super.getClientController().getListenersManager().attachListener(ListenerType.SETUP_LISTENER, this);
+        super.getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
     }
 
     public void initialize(){
@@ -43,7 +44,18 @@ public class LocalStationControllerForSetup extends LocalStationController imple
     }
 
     @Override
-    public void notify(SetupEvent type, String error) {
+    public void notify(SetupEvent type, String error) { }
 
+    @Override
+    public void notify(PersonalStation localStationPlayer) { }
+
+    @Override
+    public void notify(OtherStation otherStation) {
+        Platform.runLater(() -> {
+            if (otherStation.getOwnerPlayer().equals(super.nickOwner)) initialize();
+        });
     }
+
+    @Override
+    public void notifyErrorStation(String... varArgs) { }
 }

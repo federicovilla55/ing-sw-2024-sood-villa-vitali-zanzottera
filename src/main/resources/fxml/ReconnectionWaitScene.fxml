@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+
+<StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <BorderPane maxHeight="345.0">
+         <center>
+            <Pane fx:id="pane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets bottom="25.0" />
+               </BorderPane.margin>
+            </Pane>
+         </center>
+         <bottom>
+            <Label text="There are network problems... In background we are trying to fix them." textAlignment="CENTER" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+         </bottom>
+         <padding>
+            <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
+         </padding>
+      </BorderPane>
+   </children>
+</StackPane>
