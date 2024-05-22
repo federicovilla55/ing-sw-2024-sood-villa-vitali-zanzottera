@@ -53,7 +53,7 @@ public class SetupController extends AbstractController implements SetupListener
     @FXML
     private StackPane stations;
 
-    protected SetupController(AbstractController controller) {
+    public SetupController(AbstractController controller) {
         super(controller);
 
         getClientController().getListenersManager().attachListener(ListenerType.SETUP_LISTENER, this);
@@ -62,7 +62,6 @@ public class SetupController extends AbstractController implements SetupListener
     }
 
     public void initialize(){
-
         buildAvailableColorsPane();
         buildPrivateGoalCardSelectionHBox();
         buildInitialCardHBox();
@@ -117,8 +116,6 @@ public class SetupController extends AbstractController implements SetupListener
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        notifyPossibleDisconnection();
     }
 
     private void buildInfoHBox(){
@@ -133,6 +130,13 @@ public class SetupController extends AbstractController implements SetupListener
         this.infoHBox.getChildren().add(new Label("Current number of players: " + super.getLocalModel().getStations().size()));
 
         gameStateFactory(super.getLocalModel().gameCanStart());
+
+        this.infoHBox.spacingProperty().bind(((Region) this.infoHBox.getParent()).widthProperty()
+                                                                                 .subtract(this.infoHBox.getChildren().stream()
+                                                                                                                      .map(c -> ((Region) c).getWidth())
+                                                                                                                      .mapToDouble(Double::doubleValue)
+                                                                                                                      .sum())
+                                                                                 .divide(20));
     }
 
     private void gameStateFactory(boolean canStart){
