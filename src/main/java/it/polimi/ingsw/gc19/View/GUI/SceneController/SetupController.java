@@ -112,6 +112,8 @@ public class SetupController extends AbstractController implements SetupListener
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        changeToNextScene(SceneStatesEnum.RECONNECTION_SCENE);
     }
 
     private void buildInfoHBox(){

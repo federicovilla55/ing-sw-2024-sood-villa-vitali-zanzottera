@@ -102,6 +102,7 @@ public class AbstractController implements UI , Listener {
                 case GameSelectionScene -> controller = new GameSelectionController(this);
                 case NewConfigurationScene -> controller = new NewConfigurationController(this);
                 case SETUP_SCENE -> controller = new SetupController(this);
+                case RECONNECTION_SCENE -> controller = new ReconnectionWaitController(this, this.stage);
                 default -> controller = null;
             }
 

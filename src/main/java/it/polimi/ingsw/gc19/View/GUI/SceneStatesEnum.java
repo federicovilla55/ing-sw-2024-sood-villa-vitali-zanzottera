@@ -14,7 +14,9 @@ public enum SceneStatesEnum {
     NewConfigurationScene( "src/main/resources/fxml/NewConfiguration.fxml", "",  List.of(ListenerType.STATE_LISTENER)),
     OldConfigurationScene("src/main/resources/fxml/OldConfiguration.fxml", "",  List.of(ListenerType.STATE_LISTENER,
             ListenerType.GAME_HANDLING_EVENTS_LISTENER)),
-    SETUP_SCENE("src/main/resources/fxml/SetupScene.fxml", "",  List.of(ListenerType.STATE_LISTENER));
+    SETUP_SCENE("src/main/resources/fxml/SetupScene.fxml", "",  List.of(ListenerType.STATE_LISTENER)),
+
+    RECONNECTION_SCENE("src/main/resources/fxml/ReconnectionWaitScene.fxml", "", List.of());
 
     private final String value;
     private final String cssPath;
