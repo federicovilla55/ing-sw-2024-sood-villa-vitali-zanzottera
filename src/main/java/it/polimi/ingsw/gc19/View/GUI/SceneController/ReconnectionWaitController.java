@@ -30,23 +30,18 @@ public class ReconnectionWaitController extends AbstractController implements St
     @FXML
     private StackPane stackPane;
 
-    private final Stage prevStage;
-
     private final ArrayList<Circle> circles;
 
     private Thread thread;
 
-    public ReconnectionWaitController(AbstractController controller, Stage prevStage) {
+    public ReconnectionWaitController(AbstractController controller) {
         super(controller);
 
         this.circles = new ArrayList<>();
-        this.prevStage = prevStage;
     }
 
     @FXML
     public void initialize(){
-        buildBackScene();
-
         double rho = 50;
 
         for(int theta = 0; theta < 12; theta++){
@@ -75,7 +70,7 @@ public class ReconnectionWaitController extends AbstractController implements St
                 currrentCircle.setFill(Color.BLACK);
 
                 try{
-                    TimeUnit.MILLISECONDS.sleep(500);
+                    TimeUnit.MILLISECONDS.sleep(300);
                 }
                 catch (InterruptedException interruptedException){
                     Thread.currentThread().interrupt();
@@ -93,18 +88,6 @@ public class ReconnectionWaitController extends AbstractController implements St
         });
 
         thread.start();
-    }
-
-    private void buildBackScene(){
-        System.out.println(this.prevStage.getScene().getRoot().getChildrenUnmodifiable().size());
-        if(!this.prevStage.getScene().getRoot().getChildrenUnmodifiable().isEmpty()) {
-            for (Node n : this.prevStage.getScene().getRoot().getChildrenUnmodifiable()) {
-                this.stackPane.getChildren().add(n);
-                n.setOpacity(0.75);
-            }
-
-            this.stackPane.requestLayout();
-        }
     }
 
     @Override

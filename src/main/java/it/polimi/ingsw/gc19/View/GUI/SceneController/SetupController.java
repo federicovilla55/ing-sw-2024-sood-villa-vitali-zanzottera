@@ -19,6 +19,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -27,6 +28,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,6 +46,9 @@ public class SetupController extends AbstractController implements SetupListener
 
     @FXML
     private BorderPane availableColorsPane, initialCardOrientationPane, privateGoalCardSelectionPane, table;
+
+    @FXML
+    private StackPane stackPane;
 
     @FXML
     private StackPane stations;
@@ -113,7 +118,7 @@ public class SetupController extends AbstractController implements SetupListener
             throw new RuntimeException(e);
         }
 
-        changeToNextScene(SceneStatesEnum.RECONNECTION_SCENE);
+        notifyPossibleDisconnection();
     }
 
     private void buildInfoHBox(){
@@ -256,6 +261,29 @@ public class SetupController extends AbstractController implements SetupListener
         ((Region) chat.getChildren().getFirst()).setPrefHeight(((ScrollPane) chat.getChildren().getFirst()).getHeight() + 0.25 * ((Region) chat.getParent()).getHeight());
     }
 
+    private void notifyPossibleDisconnection(){
+        for(Node n : this.stackPane.getChildrenUnmodifiable()){
+            n.setOpacity(0.15);
+        }
+
+        super.getStage().getScene().setFill(javafx.scene.paint.Color.GREY);
+
+        try{
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(new File("src/main/resources/fxml/ReconnectionWaitScene.fxml").toURL());
+            ReconnectionWaitController controller = new ReconnectionWaitController(this);
+            loader.setController(controller);
+
+            StackPane waitStack = loader.load();
+
+            this.stackPane.getChildren().add(waitStack);
+            this.stackPane.requestLayout();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void notify(SetupEvent type) {
         Platform.runLater(() ->{
@@ -282,6 +310,7 @@ public class SetupController extends AbstractController implements SetupListener
     public void notify(ViewState viewState) {
         switch (viewState){
             case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> super.changeToNextScene(SceneStatesEnum.PlayingAreaScene);
+            case ViewState.DISCONNECT -> notifyPossibleDisconnection();
             //@TODO: there are problems if game goes in pause when it should start?
             //@TODO: handle DISCONNECTED STATE
         }
