@@ -107,6 +107,7 @@ public class OldConfigurationController extends AbstractController implements St
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LoginScene);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GameSelectionScene);
             case ViewState.SETUP -> {
+                super.setLocalModel(super.getClientController().getLocalModel());
                 super.changeToNextScene(SceneStatesEnum.SETUP_SCENE);
             }
             case ViewState.PAUSE -> System.out.println("Game is in pause! Sorry, you have to wait...");
