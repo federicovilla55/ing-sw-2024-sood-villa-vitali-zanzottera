@@ -53,6 +53,7 @@ public class SetupController extends AbstractController implements SetupListener
 
         getClientController().getListenersManager().attachListener(ListenerType.SETUP_LISTENER, this);
         getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
+        getClientController().getListenersManager().attachListener(ListenerType.LOCAL_MODEL_LISTENER, this);
     }
 
     public void initialize(){
@@ -114,6 +115,8 @@ public class SetupController extends AbstractController implements SetupListener
     }
 
     private void buildInfoHBox(){
+        this.infoHBox.getChildren().clear();
+
         this.infoHBox.getChildren().add(new Label("Username: " + super.getClientController().getNickname()));
 
         this.infoHBox.getChildren().add(new Label("Game name: " + super.getLocalModel().getGameName()));
@@ -151,9 +154,11 @@ public class SetupController extends AbstractController implements SetupListener
 
             this.initialCardHBox.getChildren().addAll(List.of(initialCardUp, initialCardDown));
 
-            for(var b :List.of(initialCardUp, initialCardDown)){
+            for(var b : List.of(initialCardUp, initialCardDown)){
 
                 b.setOnMouseClicked((event) -> {
+
+                    System.out.println(b.getCardOrientation());
 
                     getClientController().placeInitialCard(b.getCardOrientation());
                     initialCardHBox.getChildren().clear();
@@ -262,11 +267,13 @@ public class SetupController extends AbstractController implements SetupListener
 
     @Override
     public void notify(SetupEvent type, String errorDescription){
-        super.notify(errorDescription);
+        Platform.runLater(() -> {
+            super.notify(errorDescription);
 
-        if(type == SetupEvent.COLOR_NOT_AVAILABLE){
-            buildAvailableColorsPane();
-        }
+            if (type == SetupEvent.COLOR_NOT_AVAILABLE) {
+                buildAvailableColorsPane();
+            }
+        });
     }
 
     @Override
@@ -280,32 +287,34 @@ public class SetupController extends AbstractController implements SetupListener
 
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
-        switch (type){
-            case LocalModelEvents.NEW_PLAYER_CONNECTED -> {
-                alert.setTitle("New player connected to game");
-                alert.setContentText(varArgs[0] + " has connected to this game! ");
-            }
-            case LocalModelEvents.DISCONNECTED_PLAYER -> {
-                alert.setTitle("Disconnected player");
-                alert.setContentText(varArgs[0] + " has disconnected form the game! You will keep seeing his / her infos...");
-            }
-            case LocalModelEvents.RECONNECTED_PLAYER -> {
-                alert.setTitle("Reconnected player");
-                alert.setContentText(varArgs[0] + " has reconnected to the game!");
-            }
-        }
-
-        buildInfoHBox();
-
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                alert.close();
+            switch (type) {
+                case LocalModelEvents.NEW_PLAYER_CONNECTED -> {
+                    alert.setTitle("New player connected to game");
+                    alert.setContentText(varArgs[0] + " has connected to this game! ");
+                }
+                case LocalModelEvents.DISCONNECTED_PLAYER -> {
+                    alert.setTitle("Disconnected player");
+                    alert.setContentText(varArgs[0] + " has disconnected form the game! You will keep seeing his / her infos...");
+                }
+                case LocalModelEvents.RECONNECTED_PLAYER -> {
+                    alert.setTitle("Reconnected player");
+                    alert.setContentText(varArgs[0] + " has reconnected to the game!");
+                }
             }
 
-        }, 5000);
+            buildInfoHBox();
+
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    alert.close();
+                }
+
+            }, 5000);
+        });
     }
 
 }

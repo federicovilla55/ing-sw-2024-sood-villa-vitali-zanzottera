@@ -9,6 +9,9 @@ import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
+import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
+import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -27,13 +30,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class LocalStationTabController extends AbstractController implements LocalModelListener, StationListener {
+public class LocalStationTabController extends AbstractController implements LocalModelListener {
 
     @FXML
     private TabPane tabPane;
 
     public LocalStationTabController(AbstractController controller) {
         super(controller);
+
+        super.getClientController().getListenersManager().attachListener(ListenerType.LOCAL_MODEL_LISTENER, this);
     }
 
     @FXML
@@ -59,6 +64,7 @@ public class LocalStationTabController extends AbstractController implements Loc
 
                     switch (this.getClientController().getState()){
                         case ViewState.SETUP -> controller = new LocalStationControllerForSetup(this, l.getOwnerPlayer());
+                        //@TODO: add controller for game. What happens if game is in pause, I shut off machine and then reconnect?
                         default -> controller = null;
                     }
 
@@ -82,23 +88,9 @@ public class LocalStationTabController extends AbstractController implements Loc
 
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
-        switch (type){
-            //case LocalModelEvents.DISCONNECTED_PLAYER ->
-        }
+        Platform.runLater(() -> {
+            if (type == LocalModelEvents.NEW_PLAYER_CONNECTED) buildTabs();
+        });
     }
 
-    @Override
-    public void notify(PersonalStation localStationPlayer) {
-
-    }
-
-    @Override
-    public void notify(OtherStation otherStation) {
-
-    }
-
-    @Override
-    public void notifyErrorStation(String... varArgs) {
-
-    }
 }

@@ -61,19 +61,6 @@ public class TableController extends AbstractController implements TableListener
 
             System.out.println(this.gridPane.getColumnConstraints().get(3).getPrefWidth());
         });
-
-        /*ColumnConstraints blankColumnConstraint = new ColumnConstraints();
-        blankColumnConstraint.setHgrow(Priority.ALWAYS);
-        blankColumnConstraint.prefWidthProperty().bind(((Region) this.gridPane.getParent()).widthProperty().multiply(2 / 7));
-        ColumnConstraints cardColumnConstraint = new ColumnConstraints();
-        cardColumnConstraint.setHgrow(Priority.ALWAYS);
-        cardColumnConstraint.prefWidthProperty().bind(((Region) this.gridPane.getParent()).widthProperty().multiply(1 / 7));
-
-        //constraint.prefWidthProperty().bind(((Region) this.tableBorderPane.getParent()).prefWidthProperty().multiply(1.25));
-
-        //System.out.println(((Region) this.tableBorderPane.getParent()).getPrefWidth());
-
-        this.gridPane.getColumnConstraints().addAll(cardColumnConstraint, blankColumnConstraint, cardColumnConstraint, blankColumnConstraint, cardColumnConstraint);*/
     }
 
     private void buildTable(){
