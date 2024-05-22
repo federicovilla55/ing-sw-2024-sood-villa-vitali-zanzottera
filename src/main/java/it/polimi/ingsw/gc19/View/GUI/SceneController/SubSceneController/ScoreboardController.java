@@ -1,19 +1,26 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Enums.Color;
+import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ScoreboardController extends AbstractController implements StationListener {
     private static final double[][] scoreboardPositions = {
@@ -50,6 +57,7 @@ public class ScoreboardController extends AbstractController implements StationL
     };
 
     private final HashMap<String, ImageView> pawnScoreboard = new HashMap<>();
+    private final HashMap<Integer, ArrayList<ImageView>> pawnPositions = new HashMap<>();
 
     private Image scoreboardImage;
 
@@ -74,7 +82,7 @@ public class ScoreboardController extends AbstractController implements StationL
             return;
         }
 
-        double scoreboardHeight = 600;
+        double scoreboardHeight = 700;
         double proportions = scoreboardImage.getWidth() / scoreboardImage.getHeight();
         ratio = scoreboardHeight / scoreboardImage.getHeight();
         pawnSize = scoreboardImage.getHeight() * ratio * proportions / 8;
@@ -94,10 +102,10 @@ public class ScoreboardController extends AbstractController implements StationL
     }
 
     public void placePawn(LocalStationPlayer station) {
-        if(station.getChosenColor() == null) return;
+        if (station.getChosenColor() == null) return;
         String pawnColor = station.getChosenColor().toString().toLowerCase();
         int scoredPoints = station.getNumPoints();
-        if(scoredPoints > 29) scoredPoints = 29;
+        if (scoredPoints > 29) scoredPoints = 29;
         Image pawnImage = new Image(getClass().getResourceAsStream("/pawns/" + pawnColor + "_pawn.png"));
         if (pawnImage.isError()) {
             System.err.println("Error while loading image for " + pawnColor + " pawn.");
@@ -105,20 +113,79 @@ public class ScoreboardController extends AbstractController implements StationL
         }
 
         if (pawnScoreboard.containsKey(pawnColor)) {
-            scoreboardPane.getChildren().remove(pawnScoreboard.get(pawnColor));
+            ImageView oldPawn = pawnScoreboard.get(pawnColor);
+            for(Map.Entry<Integer, ArrayList<ImageView>> entry : pawnPositions.entrySet()) {
+                if(entry.getValue().contains(oldPawn)){
+                    entry.getValue().remove(oldPawn);
+                    updatePositions(entry.getKey());
+                    break;
+                }
+            }
+            scoreboardPane.getChildren().remove(oldPawn);
         }
 
-        double[] position = scoreboardPositions[scoredPoints];
+        double[] basePosition = scoreboardPositions[scoredPoints];
+
+        ArrayList<ImageView> pawnsAtPosition = pawnPositions.getOrDefault(scoredPoints, new ArrayList<>());
+
         ImageView pawnImageView = new ImageView(pawnImage);
         pawnImageView.setFitWidth(pawnSize);
         pawnImageView.setFitHeight(pawnSize);
         pawnImageView.setPreserveRatio(true);
-        pawnImageView.setLayoutX(scoreboardView.getTranslateX() + position[0] * ratio - pawnSize / 2);
-        pawnImageView.setLayoutY(scoreboardView.getTranslateY() + position[1] * ratio - pawnSize / 2);
+        pawnImageView.setLayoutX(scoreboardView.getTranslateX() + basePosition[0] * ratio - pawnSize / 2);
+        pawnImageView.setLayoutY(scoreboardView.getTranslateY() + basePosition[1] * ratio - pawnSize / 2);
 
         scoreboardPane.getChildren().add(pawnImageView);
-
         pawnScoreboard.put(pawnColor, pawnImageView);
+
+        pawnsAtPosition.add(pawnImageView);
+
+        updatePositions(scoredPoints);
+
+        pawnPositions.put(scoredPoints, pawnsAtPosition);
+
+        addMouseHoverListener(pawnImageView);
+    }
+
+    private void updatePositions(int numPoints){
+        double xOffset = 0;
+        double yOffset = 0;
+        double offsetSize = 23;
+
+
+        for(Map.Entry<String, ImageView> entry : pawnScoreboard.entrySet()){
+            ImageView pawnImageView = entry.getValue();
+            ArrayList<ImageView> pawnsAtPosition = pawnPositions.getOrDefault(numPoints, new ArrayList<>());
+            if(pawnsAtPosition.contains(pawnImageView)) {
+                if (pawnsAtPosition.size() > 1) {
+                    switch (entry.getKey()) {
+                        case "red":
+                            xOffset = offsetSize;
+                            yOffset = -offsetSize;
+                            break;
+                        case "yellow":
+                            xOffset = -offsetSize;
+                            yOffset = -offsetSize;
+                            break;
+                        case "blue":
+                            xOffset = offsetSize;
+                            yOffset = offsetSize;
+                            break;
+                        case "green":
+                            xOffset = -offsetSize;
+                            yOffset = offsetSize;
+                            break;
+                    }
+                }
+                pawnImageView.setFitWidth(pawnSize);
+                pawnImageView.setFitHeight(pawnSize);
+                pawnImageView.setPreserveRatio(true);
+                pawnImageView.setLayoutX(scoreboardView.getTranslateX() + scoreboardPositions[numPoints][0] * ratio + xOffset - pawnSize / 2);
+                pawnImageView.setLayoutY(scoreboardView.getTranslateY() + scoreboardPositions[numPoints][1] * ratio + yOffset - pawnSize / 2);
+            }
+        }
+
+
     }
 
     @Override
@@ -138,5 +205,19 @@ public class ScoreboardController extends AbstractController implements StationL
     @Override
     public void notifyErrorStation(String... varArgs) {
         // Errors should be handled in another part of the GUI view...
+    }
+
+    private void addMouseHoverListener(ImageView pawnImageView) {
+        pawnImageView.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
+            pawnImageView.toBack();
+
+
+            Timeline beat = new Timeline(
+                    new KeyFrame(Duration.seconds(0.5), e -> {
+                        pawnImageView.toFront();
+                    })
+            );
+            beat.play();
+        });
     }
 }
