@@ -91,6 +91,8 @@ public class SetupController extends AbstractController implements SetupListener
             table = loader.load();
 
             leftVBox.getChildren().add(table);
+
+            controller.resize();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -4,14 +4,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane id="tableBorderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.TableController"-->
+<BorderPane fx:id="tableBorderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.TableController"-->
    <center>
       <GridPane id="gridPane" fx:id="gridPane" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER">
         <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="400.0" minWidth="10.0" prefWidth="400.0" />
+            <ColumnConstraints hgrow="ALWAYS" maxWidth="400.0" minWidth="10.0" percentWidth="0.0" prefWidth="400.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="400.0" minWidth="10.0" prefWidth="400.0" />
+            <ColumnConstraints hgrow="ALWAYS" maxWidth="400.0" minWidth="10.0" prefWidth="400.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
         </columnConstraints>
         <rowConstraints>
@@ -22,7 +22,7 @@
           <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <BorderPane.margin>
-            <Insets bottom="25.0" right="25.0" top="25.0" />
+            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
          </BorderPane.margin>
       </GridPane>
    </center>
