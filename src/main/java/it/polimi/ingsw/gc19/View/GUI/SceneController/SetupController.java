@@ -73,6 +73,9 @@ public class SetupController extends AbstractController implements SetupListener
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
         rightVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.25));
 
+        leftVBox.prefHeightProperty().bind(super.getStage().heightProperty());
+        rightVBox.prefHeightProperty().bind(super.getStage().heightProperty());
+
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/ChatScene.fxml").toURL());
@@ -87,7 +90,7 @@ public class SetupController extends AbstractController implements SetupListener
             throw new RuntimeException(e);
         }
 
-        ((ScrollPane) chat.getChildren().getFirst()).setPrefHeight(super.getStage().getHeight() -
+        ((Region) chat.getChildren().getFirst()).setPrefHeight(super.getStage().getHeight() -
                                                                            (this.availableColorsPane.getHeight() + this.privateGoalCardSelectionPane.getHeight() + this.privateGoalCardSelectionPane.getHeight()));
 
         /*spacer = new Region();
@@ -121,12 +124,13 @@ public class SetupController extends AbstractController implements SetupListener
 
             stations = loader.load();
 
-            stations.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
+            stations.prefHeightProperty().bind(super.getStage().heightProperty().subtract(((Region) this.infoHBox.getParent()).getPrefHeight()).subtract(((Region) this.table.getParent()).getPrefHeight()));
 
             leftVBox.getChildren().add(stations);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     private void buildInfoHBox(){
