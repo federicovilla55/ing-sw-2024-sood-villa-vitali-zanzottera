@@ -70,6 +70,9 @@ public class SetupController extends AbstractController implements SetupListener
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
         rightVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.25));
 
+        leftVBox.spacingProperty().bind(super.getStage().heightProperty().multiply(25).divide(1440));
+        rightVBox.spacingProperty().bind(super.getStage().heightProperty().multiply(25).divide(1440));
+
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/ChatScene.fxml").toURL());
