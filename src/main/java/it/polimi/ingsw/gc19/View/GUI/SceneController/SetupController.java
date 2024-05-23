@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.Enums.Color;
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.ChatController;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.LocalStationTabController;
@@ -20,10 +21,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -65,13 +63,15 @@ public class SetupController extends AbstractController implements SetupListener
         buildAvailableColorsPane();
         buildPrivateGoalCardSelectionHBox();
         buildInitialCardHBox();
+
         buildInfoHBox();
+
+        Region spacer = new Region();
+        leftVBox.getChildren().add(spacer);
+        VBox.setVgrow(spacer, Priority.ALWAYS);
 
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
         rightVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.25));
-
-        leftVBox.spacingProperty().bind(super.getStage().heightProperty().multiply(25).divide(1440));
-        rightVBox.spacingProperty().bind(super.getStage().heightProperty().multiply(25).divide(1440));
 
         try{
             FXMLLoader loader = new FXMLLoader();
@@ -90,6 +90,10 @@ public class SetupController extends AbstractController implements SetupListener
         ((ScrollPane) chat.getChildren().getFirst()).setPrefHeight(super.getStage().getHeight() -
                                                                            (this.availableColorsPane.getHeight() + this.privateGoalCardSelectionPane.getHeight() + this.privateGoalCardSelectionPane.getHeight()));
 
+        spacer = new Region();
+        leftVBox.getChildren().add(spacer);
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/TableScene.fxml").toURL());
@@ -104,6 +108,10 @@ public class SetupController extends AbstractController implements SetupListener
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        spacer = new Region();
+        leftVBox.getChildren().add(spacer);
+        VBox.setVgrow(spacer, Priority.ALWAYS);
 
         try{
             FXMLLoader loader = new FXMLLoader();
