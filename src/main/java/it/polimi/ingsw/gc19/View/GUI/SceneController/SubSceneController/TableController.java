@@ -53,6 +53,21 @@ public class TableController extends AbstractController implements TableListener
         buildTable();
 
         this.gridPane.hgapProperty().bind(this.gridPane.widthProperty().multiply(2).divide(7));
+        this.gridPane.vgapProperty().bind(this.gridPane.heightProperty().divide(9));
+
+        this.gridPane.hgapProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(newValue.doubleValue());
+            if(newValue.doubleValue() < 10 * this.gridPane.paddingProperty().get().getLeft()){
+                super.getStage().setResizable(false);
+            }
+        });
+
+        this.gridPane.hgapProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(newValue.doubleValue());
+            if(newValue.doubleValue() < 10 * this.gridPane.paddingProperty().get().getLeft()){
+                super.getStage().setResizable(false);
+            }
+        });
     }
 
     private void buildTable(){
@@ -78,16 +93,16 @@ public class TableController extends AbstractController implements TableListener
 
         for(int i = 0; i < 2; i++){
             for(int k = 0; k < 2; k++){
-                this.gridPane.add(this.drawableTableCards[i][k], k, 2 * i);
+                this.gridPane.add(this.drawableTableCards[i][k], k, i);
             }
         }
 
         for(int i = 0; i < 2; i++){
-            this.gridPane.add(this.publicGoals[i], i, 4);
+            this.gridPane.add(this.publicGoals[i], i, 2);
         }
 
         for(int i = 0; i < 3; i++){
-            this.gridPane.add(this.decks[i], 2, 2 * i);
+            this.gridPane.add(this.decks[i], 2, i);
         }
     }
 

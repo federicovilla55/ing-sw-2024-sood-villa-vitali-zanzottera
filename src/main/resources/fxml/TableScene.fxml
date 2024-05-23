@@ -6,7 +6,7 @@
 
 <BorderPane fx:id="tableBorderPane" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.TableController"-->
    <center>
-      <GridPane id="gridPane" fx:id="gridPane" alignment="CENTER" hgap="400.0" maxHeight="-Infinity" maxWidth="-Infinity" BorderPane.alignment="CENTER">
+      <GridPane id="gridPane" fx:id="gridPane" alignment="CENTER" hgap="400.0" maxHeight="-Infinity" maxWidth="-Infinity" vgap="50.0" BorderPane.alignment="CENTER">
         <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
@@ -14,9 +14,7 @@
         </columnConstraints>
         <rowConstraints>
             <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <BorderPane.margin>
@@ -31,6 +29,6 @@
          </padding></Label>
    </top>
    <padding>
-      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+      <Insets left="25.0" right="25.0" top="25.0" />
    </padding>
 </BorderPane>
