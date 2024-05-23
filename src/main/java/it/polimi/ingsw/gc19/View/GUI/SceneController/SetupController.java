@@ -66,9 +66,9 @@ public class SetupController extends AbstractController implements SetupListener
 
         buildInfoHBox();
 
-        Region spacer = new Region();
+        /*Region spacer = new Region();
         leftVBox.getChildren().add(spacer);
-        VBox.setVgrow(spacer, Priority.ALWAYS);
+        VBox.setVgrow(spacer, Priority.ALWAYS);*/
 
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
         rightVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.25));
@@ -90,9 +90,9 @@ public class SetupController extends AbstractController implements SetupListener
         ((ScrollPane) chat.getChildren().getFirst()).setPrefHeight(super.getStage().getHeight() -
                                                                            (this.availableColorsPane.getHeight() + this.privateGoalCardSelectionPane.getHeight() + this.privateGoalCardSelectionPane.getHeight()));
 
-        spacer = new Region();
+        /*spacer = new Region();
         leftVBox.getChildren().add(spacer);
-        VBox.setVgrow(spacer, Priority.ALWAYS);
+        VBox.setVgrow(spacer, Priority.ALWAYS);*/
 
         try{
             FXMLLoader loader = new FXMLLoader();
@@ -109,9 +109,9 @@ public class SetupController extends AbstractController implements SetupListener
             throw new RuntimeException(e);
         }
 
-        spacer = new Region();
+        /*spacer = new Region();
         leftVBox.getChildren().add(spacer);
-        VBox.setVgrow(spacer, Priority.ALWAYS);
+        VBox.setVgrow(spacer, Priority.ALWAYS);*/
 
         try{
             FXMLLoader loader = new FXMLLoader();
