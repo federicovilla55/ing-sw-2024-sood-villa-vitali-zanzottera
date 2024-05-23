@@ -51,17 +51,8 @@ public class TableController extends AbstractController implements TableListener
     @FXML
     public void initialize(){
         buildTable();
-    }
 
-    @FXML
-    public void resize(){
-
-        /*((Region) this.tableBorderPane.getParent()).widthProperty().addListener((observable, oldValue, newValue) -> {
-            this.gridPane.getColumnConstraints().get(1).setPrefWidth(400 + 2 * (newValue.doubleValue() - oldValue.doubleValue()));
-            this.gridPane.getColumnConstraints().get(3).setPrefWidth(400 + 2 * (newValue.doubleValue() - oldValue.doubleValue()));
-
-            System.out.println(this.gridPane.getColumnConstraints().get(3).getPrefWidth());
-        });*/
+        this.gridPane.hgapProperty().bind(this.gridPane.widthProperty().multiply(2).divide(7));
     }
 
     private void buildTable(){
@@ -87,16 +78,16 @@ public class TableController extends AbstractController implements TableListener
 
         for(int i = 0; i < 2; i++){
             for(int k = 0; k < 2; k++){
-                this.gridPane.add(this.drawableTableCards[i][k], 2 * k, 2 * i);
+                this.gridPane.add(this.drawableTableCards[i][k], k, 2 * i);
             }
         }
 
         for(int i = 0; i < 2; i++){
-            this.gridPane.add(this.publicGoals[i], 2 * i, 4);
+            this.gridPane.add(this.publicGoals[i], i, 4);
         }
 
         for(int i = 0; i < 3; i++){
-            this.gridPane.add(this.decks[i], 4, 2 * i);
+            this.gridPane.add(this.decks[i], 2, 2 * i);
         }
     }
 

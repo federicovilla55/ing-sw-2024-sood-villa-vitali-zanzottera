@@ -66,12 +66,14 @@ public class SetupController extends AbstractController implements SetupListener
 
         buildInfoHBox();
 
-        /*Region spacer = new Region();
-        leftVBox.getChildren().add(spacer);
-        VBox.setVgrow(spacer, Priority.ALWAYS);*/
+        Region spacer = new Region();
+        ((HBox) stackPane.getChildren().getFirst()).getChildren().add(1, spacer);
+        spacer.setMinWidth(10);
+        spacer.setMaxWidth(50);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
-        rightVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.25));
+        rightVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.24));
 
         leftVBox.prefHeightProperty().bind(super.getStage().heightProperty());
         rightVBox.prefHeightProperty().bind(super.getStage().heightProperty());
@@ -107,7 +109,6 @@ public class SetupController extends AbstractController implements SetupListener
 
             leftVBox.getChildren().add(table);
 
-            controller.resize();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
