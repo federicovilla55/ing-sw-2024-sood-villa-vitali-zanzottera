@@ -53,7 +53,7 @@ public class TableController extends AbstractController implements TableListener
         buildTable();
 
         this.gridPane.hgapProperty().bind(this.gridPane.widthProperty().multiply(2).divide(7));
-        this.gridPane.vgapProperty().bind(this.gridPane.heightProperty().divide(9));
+        this.gridPane.vgapProperty().bind(this.gridPane.heightProperty().divide(15));
     }
 
     private void buildTable(){

@@ -66,17 +66,16 @@ public class SetupController extends AbstractController implements SetupListener
 
         buildInfoHBox();
 
-        Region spacer = new Region();
-        ((HBox) stackPane.getChildren().getFirst()).getChildren().add(1, spacer);
-        spacer.setMinWidth(10);
-        spacer.setMaxWidth(50);
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
-        rightVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.24));
+        rightVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.25));
 
         leftVBox.prefHeightProperty().bind(super.getStage().heightProperty());
         rightVBox.prefHeightProperty().bind(super.getStage().heightProperty());
+
+        leftVBox.spacingProperty().bind(super.getStage().heightProperty().divide(75));
+        rightVBox.spacingProperty().bind(super.getStage().heightProperty().divide(75));
+
+        ((HBox) stackPane.getChildren().getFirst()).spacingProperty().bind(super.getStage().widthProperty().divide(100));
 
         try{
             FXMLLoader loader = new FXMLLoader();
@@ -95,10 +94,6 @@ public class SetupController extends AbstractController implements SetupListener
         ((Region) chat.getChildren().getFirst()).setPrefHeight(super.getStage().getHeight() -
                                                                            (this.availableColorsPane.getHeight() + this.privateGoalCardSelectionPane.getHeight() + this.privateGoalCardSelectionPane.getHeight()));
 
-        /*spacer = new Region();
-        leftVBox.getChildren().add(spacer);
-        VBox.setVgrow(spacer, Priority.ALWAYS);*/
-
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/TableScene.fxml").toURL());
@@ -112,10 +107,6 @@ public class SetupController extends AbstractController implements SetupListener
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        /*spacer = new Region();
-        leftVBox.getChildren().add(spacer);
-        VBox.setVgrow(spacer, Priority.ALWAYS);*/
 
         try{
             FXMLLoader loader = new FXMLLoader();

@@ -13,7 +13,7 @@
                   <Insets />
                </HBox.margin>
                <children>
-                  <HBox fx:id="infoHBox" alignment="CENTER" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" spacing="100.0">
+                  <HBox fx:id="infoHBox" alignment="CENTER" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" spacing="100.0" VBox.vgrow="NEVER">
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
