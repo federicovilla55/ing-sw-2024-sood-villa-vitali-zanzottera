@@ -6,7 +6,7 @@
 
 <StackPane fx:id="stackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
+      <HBox alignment="CENTER" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
          <children>
             <VBox fx:id="leftVBox" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="25.0" VBox.vgrow="ALWAYS">
                <HBox.margin>
@@ -53,7 +53,7 @@
                         </HBox>
                      </center>
                   </BorderPane>
-                  <BorderPane fx:id="privateGoalCardSelectionPane" prefHeight="295.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css" VBox.vgrow="ALWAYS">
+                  <BorderPane fx:id="privateGoalCardSelectionPane" prefHeight="295.0" prefWidth="661.0" stylesheets="@../css/SetupScene.css" VBox.vgrow="NEVER">
                      <top>
                         <Label alignment="BOTTOM_LEFT" prefHeight="17.0" prefWidth="213.0" text="Choose your private goal card:" textAlignment="CENTER" BorderPane.alignment="TOP_LEFT" />
                      </top>
