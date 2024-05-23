@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane fx:id="tableBorderPane" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.TableController"-->
@@ -22,13 +21,4 @@
          </BorderPane.margin>
       </GridPane>
    </center>
-   <top>
-      <Label text="Table:" BorderPane.alignment="CENTER">
-         <padding>
-            <Insets bottom="10.0" />
-         </padding></Label>
-   </top>
-   <padding>
-      <Insets left="25.0" right="25.0" top="25.0" />
-   </padding>
 </BorderPane>

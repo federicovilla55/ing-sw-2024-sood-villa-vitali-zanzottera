@@ -54,20 +54,6 @@ public class TableController extends AbstractController implements TableListener
 
         this.gridPane.hgapProperty().bind(this.gridPane.widthProperty().multiply(2).divide(7));
         this.gridPane.vgapProperty().bind(this.gridPane.heightProperty().divide(9));
-
-        this.gridPane.hgapProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue.doubleValue());
-            if(newValue.doubleValue() < 10 * this.gridPane.paddingProperty().get().getLeft()){
-                super.getStage().setResizable(false);
-            }
-        });
-
-        this.gridPane.hgapProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue.doubleValue());
-            if(newValue.doubleValue() < 10 * this.gridPane.paddingProperty().get().getLeft()){
-                super.getStage().setResizable(false);
-            }
-        });
     }
 
     private void buildTable(){
