@@ -5,7 +5,7 @@
 
 <BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <left>
-      <VBox fx:id="leftVBox" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="50.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="leftVBox" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" spacing="50.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
             <Insets bottom="25.0" top="25.0" />
          </BorderPane.margin>
@@ -14,7 +14,7 @@
          </padding></VBox>
    </left>
    <right>
-      <VBox fx:id="rightVBox" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="100.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="rightVBox" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" spacing="100.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
             <Insets />
          </BorderPane.margin>

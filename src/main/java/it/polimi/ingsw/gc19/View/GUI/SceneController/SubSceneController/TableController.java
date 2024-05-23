@@ -56,8 +56,8 @@ public class TableController extends AbstractController implements TableListener
     @FXML
     public void resize(){
         ((Region) this.tableBorderPane.getParent()).widthProperty().addListener((observable, oldValue, newValue) -> {
-            this.gridPane.getColumnConstraints().get(1).setPrefWidth(2 * newValue.doubleValue() / 10);
-            this.gridPane.getColumnConstraints().get(3).setPrefWidth(2 * newValue.doubleValue() / 10);
+            this.gridPane.getColumnConstraints().get(1).setPrefWidth(400 + (newValue.doubleValue() - oldValue.doubleValue()) / 10);
+            this.gridPane.getColumnConstraints().get(3).setPrefWidth(400 + (newValue.doubleValue() - oldValue.doubleValue()) / 10);
 
             System.out.println(this.gridPane.getColumnConstraints().get(3).getPrefWidth());
         });
