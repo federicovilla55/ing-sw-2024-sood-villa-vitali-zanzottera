@@ -8,8 +8,10 @@ import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationL
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -46,7 +48,12 @@ public class LoginController extends AbstractController implements PlayerCreatio
 
     @Override
     public void notifyPlayerCreationError(String error) {
-        System.out.println("Not Success");
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setContentText(error);
+            alert.showAndWait();
+        });
     }
 
     @Override
