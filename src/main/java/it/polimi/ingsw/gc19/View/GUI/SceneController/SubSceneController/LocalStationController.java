@@ -9,6 +9,7 @@ import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -44,6 +45,9 @@ public class LocalStationController extends AbstractController {
         initializePawns();
         initializeGameArea();
         initializeCards();
+
+        this.leftVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(20));
+        this.rightVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
     }
 
     protected void initializePawns(){
@@ -63,13 +67,14 @@ public class LocalStationController extends AbstractController {
     protected void initializeCards(){
         if(this.nickOwner.equals(this.getLocalModel().getNickname())){
             if(super.getLocalModel().getPersonalStation().getPrivateGoalCardInStation() != null) {
-                this.rightVBox.getChildren().add(new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation()));
+                this.rightVBox.getChildren().add(
+                        new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2));
             }
 
             this.leftVBox.getChildren().clear();
 
             for(PlayableCard p : this.getLocalModel().getPersonalStation().getCardsInHand()){
-                CardButton button = new CardButton(p);
+                CardButton button = new CardButton(p, super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
 
                 button.setOnMouseClicked(button.getDefaultMouseClickedHandler());
 
@@ -90,21 +95,23 @@ public class LocalStationController extends AbstractController {
                 Objects.requireNonNull(getClass().getResource("/images/back/" + type.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg"))
                        .toExternalForm()));
         imageView.setPreserveRatio(true);
-        imageView.setFitWidth(200);
+        imageView.fitWidthProperty().bind(this.leftVBox.widthProperty().divide(7));
+        //imageView.setFitWidth(200);
 
         return imageView;
     }
 
     protected void initializeGameArea(){
         if(!this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().isEmpty()){
-            this.borderPane.setCenter(new CardButton(this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().getFirst().x()));
+            this.borderPane.setCenter(
+                    new CardButton(this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().getFirst().x(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2));
         }
     }
 
     private ImageView pawnFactory(String name){
         ImageView color = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/pawns/" + name.toLowerCase() + "_pawn.png")).toExternalForm()));
         color.setPreserveRatio(true);
-        color.setFitHeight(50);
+        color.fitWidthProperty().bind(super.getStage().widthProperty().divide(50));
 
         return color;
     }

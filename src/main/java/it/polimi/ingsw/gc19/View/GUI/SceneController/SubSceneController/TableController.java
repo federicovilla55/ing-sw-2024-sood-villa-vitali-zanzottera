@@ -12,6 +12,10 @@ import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
@@ -66,10 +70,10 @@ public class TableController extends AbstractController implements TableListener
 
             drawableCardFactory(this.getLocalModel().getTable().getGold2(), 1, 1);
 
-            this.publicGoals[0] = new CardButton(this.getLocalModel().getTable().getPublicGoal1());
+            this.publicGoals[0] = new CardButton(this.getLocalModel().getTable().getPublicGoal1(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2); //(Region) this.gridPane.getParent()
             this.publicGoals[0].setOnMouseClicked(this.publicGoals[0].getDefaultMouseClickedHandler());
 
-            this.publicGoals[1] = new CardButton(this.getLocalModel().getTable().getPublicGoal2());
+            this.publicGoals[1] = new CardButton(this.getLocalModel().getTable().getPublicGoal2(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
             this.publicGoals[1].setOnMouseClicked(this.publicGoals[1].getDefaultMouseClickedHandler());
 
             this.decks[0] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfResourceDeck(), PlayableCardType.RESOURCE);
@@ -110,7 +114,7 @@ public class TableController extends AbstractController implements TableListener
 
     private void drawableCardFactory(PlayableCard card, int x, int y){
         if(card != null){
-            this.drawableTableCards[x][y] = new CardButton(card);
+            this.drawableTableCards[x][y] = new CardButton(card, super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
             this.drawableTableCards[x][y].setOnMouseClicked((event) -> handleClickDrawableTableCard(event, card, y));
         }
         else{
@@ -121,7 +125,10 @@ public class TableController extends AbstractController implements TableListener
     private ImageView factoryUpperDeckCard(){
         ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/back/goal.jpg")).toExternalForm()));
         imageView.setPreserveRatio(true);
-        imageView.setFitWidth(200);
+        //imageView.setFitWidth(200);
+        imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
+        imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
+
         return imageView;
     }
 
@@ -129,7 +136,9 @@ public class TableController extends AbstractController implements TableListener
         if(symbol != null) {
             ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/back/" + type.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg")).toExternalForm()));
             imageView.setPreserveRatio(true);
-            imageView.setFitWidth(200);
+            //imageView.setFitWidth(200);
+            imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
+            imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
 
             return imageView;
         }

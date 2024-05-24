@@ -2,6 +2,8 @@ package it.polimi.ingsw.gc19.View.GUI.Utils;
 
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Card.Card;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -12,6 +14,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
+import javafx.scene.layout.Region;
+import javafx.stage.Stage;
 
 import java.util.Objects;
 
@@ -51,6 +55,40 @@ public class CardButton extends Button{
         super.setGraphic(this.front);
     }
 
+    public CardButton(Card card, Region region, double scale) {
+        this(card);
+
+        this.front.fitWidthProperty().bind(region.widthProperty().multiply(scale));
+        this.back.fitWidthProperty().bind(region.widthProperty().multiply(scale));
+    }
+
+    public CardButton(Card card, Stage stage, Double scaleX, Double scaleY) {
+        this(card);
+
+        if(scaleX != null) {
+            this.front.fitWidthProperty().bind(stage.widthProperty().multiply(scaleX));
+            this.back.fitWidthProperty().bind(stage.widthProperty().multiply(scaleX));
+        }
+
+        if(scaleY != null){
+            this.front.fitHeightProperty().bind(stage.heightProperty().multiply(scaleY));
+            this.back.fitHeightProperty().bind(stage.heightProperty().multiply(scaleY));
+        }
+    }
+
+    public CardButton(Card card, Region region, Double scaleX, Double scaleY) {
+        this(card);
+
+        if(scaleX != null) {
+            this.front.fitWidthProperty().bind(region.widthProperty().multiply(scaleX));
+            this.back.fitWidthProperty().bind(region.widthProperty().multiply(scaleX));
+        }
+
+        if(scaleY != null){
+            this.front.fitHeightProperty().bind(region.heightProperty().multiply(scaleY));
+            this.back.fitHeightProperty().bind(region.heightProperty().multiply(scaleY));
+        }
+    }
 
     public Card getCard(){
         return this.card;

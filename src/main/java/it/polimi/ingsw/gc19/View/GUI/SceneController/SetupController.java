@@ -3,12 +3,11 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.ChatController;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.LocalStationTabController;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.TableController;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.*;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
+import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
@@ -16,6 +15,7 @@ import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -166,8 +166,8 @@ public class SetupController extends AbstractController implements SetupListener
     private void buildInitialCardHBox(){
         if(this.getLocalModel().getPersonalStation().getPlacedCardSequence().isEmpty()) {
 
-            CardButton initialCardUp = new CardButton(this.getLocalModel().getPersonalStation().getInitialCard());
-            CardButton initialCardDown = new CardButton(this.getLocalModel().getPersonalStation().getInitialCard());
+            CardButton initialCardUp = new CardButton(this.getLocalModel().getPersonalStation().getInitialCard(), super.getStage(), (double) 1 / 10, (double) 1 /7);
+            CardButton initialCardDown = new CardButton(this.getLocalModel().getPersonalStation().getInitialCard(), super.getStage(), (double) 1 / 10, (double) 1 /7);
             initialCardDown.swap();
 
             this.initialCardHBox.getChildren().addAll(List.of(initialCardUp, initialCardDown));
@@ -193,8 +193,8 @@ public class SetupController extends AbstractController implements SetupListener
     private void buildPrivateGoalCardSelectionHBox(){
         if(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation() == null){
             List<CardButton> cardButtons = new ArrayList<>(List.of(
-                    new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()[0]),
-                    new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()[1])));
+                    new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()[0], super.getStage(), (double) 1 / 10, (double) 1 /7),
+                    new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()[1], super.getStage(), (double) 1 / 10, (double) 1 /7)));
 
             cardButtons.forEach(c -> c.setOnMouseClicked((event) -> {
 
@@ -237,7 +237,11 @@ public class SetupController extends AbstractController implements SetupListener
         for(Color c : availableColors){
             Circle circlePawn = new Circle(25);
 
-            circlePawn.setFill(new ImagePattern(new Image(Objects.requireNonNull(getClass().getResource("/pawns/" + c.toString().toLowerCase() + "_pawn.png")).toExternalForm())));
+            circlePawn.setFill(new ImagePattern(
+                    new Image(Objects.requireNonNull(getClass().getResource("/pawns/" + c.toString().toLowerCase() + "_pawn.png"))
+                                     .toExternalForm())));
+
+            circlePawn.radiusProperty().bind(super.getStage().widthProperty().divide(128));
 
             Button button = buildColorButton(c, circlePawn);
 
