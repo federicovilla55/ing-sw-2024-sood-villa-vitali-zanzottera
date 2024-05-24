@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.GameSelectionController"-->
+
+<StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label contentDisplay="CENTER" layoutX="131.0" layoutY="28.0" text="Join Game" />
-      <ListView fx:id="availableGamesList" layoutX="34.0" layoutY="57.0" prefHeight="271.0" prefWidth="257.0" />
-      <Button layoutX="122.0" layoutY="348.0" mnemonicParsing="false" text="Join Game" fx:id="joinButton"/> <!--onAction="#onJoinPress"-->
-      <Label layoutX="414.0" layoutY="28.0" text="Create Game" />
-      <TextField layoutX="374.0" layoutY="111.0" fx:id="gameName"/>
-      <ChoiceBox fx:id="numPlayerBox" layoutX="380.0" layoutY="187.0" prefWidth="150.0" />
-      <Button layoutX="406.0" layoutY="261.0" mnemonicParsing="false" text="Create Game" fx:id="createButton"/> <!--onAction="#onCreatePress"-->
-      <Label alignment="CENTER" layoutX="398.0" layoutY="83.0" prefHeight="18.0" prefWidth="117.0" text="Game Name" />
-      <Label layoutX="413.0" layoutY="162.0" text="Num of player" />
+      <AnchorPane prefHeight="400.0" prefWidth="600.0"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.GameSelectionController"-->
+         <children>
+            <Label contentDisplay="CENTER" layoutX="131.0" layoutY="28.0" text="Join Game" />
+            <ListView fx:id="availableGamesList" layoutX="34.0" layoutY="57.0" prefHeight="271.0" prefWidth="257.0" />
+            <Button fx:id="joinButton" layoutX="122.0" layoutY="348.0" mnemonicParsing="false" text="Join Game" /> <!--onAction="#onJoinPress"-->
+            <Label layoutX="414.0" layoutY="28.0" text="Create Game" />
+            <TextField fx:id="gameName" layoutX="374.0" layoutY="111.0" />
+            <ChoiceBox fx:id="numPlayerBox" layoutX="380.0" layoutY="187.0" prefWidth="150.0" />
+            <Button fx:id="createButton" layoutX="406.0" layoutY="261.0" mnemonicParsing="false" text="Create Game" /> <!--onAction="#onCreatePress"-->
+            <Label alignment="CENTER" layoutX="398.0" layoutY="83.0" prefHeight="18.0" prefWidth="117.0" text="Game Name" />
+            <Label layoutX="413.0" layoutY="162.0" text="Num of player" />
+         </children>
+      </AnchorPane>
    </children>
-</AnchorPane>
+</StackPane>

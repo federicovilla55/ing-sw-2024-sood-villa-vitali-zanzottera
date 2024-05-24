@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="203.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" > <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.LoginController"-->
+
+<StackPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label alignment="CENTER" layoutX="220.0" layoutY="37.0" prefHeight="18.0" prefWidth="161.0" text="Choose Nickname" />
-      <TextField fx:id="loginTextField" layoutX="220.0" layoutY="75.0" />
-      <Button layoutX="234.0" layoutY="129.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="132.0" text="Login"  fx:id="loginButton"/> <!--onAction="#LoginPress"-->
+      <AnchorPane prefHeight="203.0" prefWidth="600.0"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.LoginController"-->
+         <children>
+            <Label alignment="CENTER" layoutX="220.0" layoutY="37.0" prefHeight="18.0" prefWidth="161.0" text="Choose Nickname" />
+            <TextField fx:id="loginTextField" layoutX="220.0" layoutY="75.0" />
+            <Button fx:id="loginButton" layoutX="234.0" layoutY="129.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="132.0" text="Login" /> <!--onAction="#LoginPress"-->
+         </children>
+      </AnchorPane>
    </children>
-</AnchorPane>
+</StackPane>

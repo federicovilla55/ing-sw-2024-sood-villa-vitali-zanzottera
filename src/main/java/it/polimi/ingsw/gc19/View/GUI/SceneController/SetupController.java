@@ -1,13 +1,11 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.Enums.Color;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedGameMessage;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.*;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
-import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
@@ -15,21 +13,15 @@ import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.ImagePattern;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import org.jetbrains.annotations.NotNull;
 
@@ -289,29 +281,6 @@ public class SetupController extends AbstractController implements SetupListener
         ((Region) chat.getChildren().getFirst()).setPrefHeight(((ScrollPane) chat.getChildren().getFirst()).getHeight() + 0.25 * ((Region) chat.getParent()).getHeight());
     }
 
-    private void notifyPossibleDisconnection(){
-        for(Node n : this.stackPane.getChildrenUnmodifiable()){
-            n.setOpacity(0.15);
-        }
-
-        super.getStage().getScene().setFill(javafx.scene.paint.Color.GREY);
-
-        try{
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/ReconnectionWaitScene.fxml").toURL());
-            ReconnectionWaitController controller = new ReconnectionWaitController(this);
-            loader.setController(controller);
-
-            StackPane waitStack = loader.load();
-
-            this.stackPane.getChildren().add(waitStack);
-            this.stackPane.requestLayout();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     public void notify(SetupEvent type) {
         Platform.runLater(() ->{
@@ -337,8 +306,8 @@ public class SetupController extends AbstractController implements SetupListener
     @Override
     public void notify(ViewState viewState) {
         switch (viewState){
-            case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> super.changeToNextScene(SceneStatesEnum.PlayingAreaScene);
-            case ViewState.DISCONNECT -> notifyPossibleDisconnection();
+            case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
+            case ViewState.DISCONNECT -> super.notifyPossibleDisconnection(this.stackPane);
             //@TODO: there are problems if game goes in pause when it should start?
             //@TODO: handle DISCONNECTED STATE
         }

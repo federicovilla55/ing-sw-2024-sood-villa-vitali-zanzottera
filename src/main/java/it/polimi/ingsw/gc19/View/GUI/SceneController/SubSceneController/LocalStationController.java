@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-//questo controllore si occupa solo di stampare il colore della pedina e la stazione di gioco
 public class LocalStationController extends AbstractController {
 
     @FXML

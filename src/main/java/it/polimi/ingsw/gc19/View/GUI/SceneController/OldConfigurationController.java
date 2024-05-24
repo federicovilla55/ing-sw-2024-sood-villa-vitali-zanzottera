@@ -2,35 +2,24 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.Configuration;
-import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.NewUserMessage;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.Disconnect;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
-import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
-import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
-import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
-import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
-import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -98,14 +87,14 @@ public class OldConfigurationController extends AbstractController implements St
         super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
         super.getClientController().getListenersManager().removeListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
 
-        changeToNextScene(SceneStatesEnum.NewConfigurationScene);
+        changeToNextScene(SceneStatesEnum.NEW_CONFIGURATION_SCENE);
     }
 
     @Override
     public void notify(ViewState viewState) {
         switch (viewState){
-            case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LoginScene);
-            case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GameSelectionScene);
+            case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
+            case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
             case ViewState.SETUP -> {
                 super.changeToNextScene(SceneStatesEnum.SETUP_SCENE);
             }

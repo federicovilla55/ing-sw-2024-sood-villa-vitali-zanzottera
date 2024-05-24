@@ -5,19 +5,18 @@ import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.Listeners.Listener;
-import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.UI;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.List;
 
 public class AbstractController implements UI , Listener {
     private LocalModel localModel;
@@ -98,9 +97,9 @@ public class AbstractController implements UI , Listener {
             FXMLLoader loader = new FXMLLoader();
             AbstractController controller;
             switch (nextScenePath){
-                case LoginScene -> controller = new LoginController(this);
-                case GameSelectionScene -> controller = new GameSelectionController(this);
-                case NewConfigurationScene -> controller = new NewConfigurationController(this);
+                case LOGIN_SCENE -> controller = new LoginController(this);
+                case GAME_SELECTION_SCENE -> controller = new GameSelectionController(this);
+                case NEW_CONFIGURATION_SCENE -> controller = new NewConfigurationController(this);
                 case SETUP_SCENE -> controller = new SetupController(this);
                 default -> controller = null;
             }
@@ -124,6 +123,29 @@ public class AbstractController implements UI , Listener {
         }
         catch (IOException ignored) {
             System.out.println(ignored.getMessage());
+        }
+    }
+
+    protected void notifyPossibleDisconnection(StackPane stackPane){
+        for(Node n : stackPane.getChildrenUnmodifiable()){
+            n.setOpacity(0.15);
+        }
+
+        getStage().getScene().setFill(javafx.scene.paint.Color.GREY);
+
+        try{
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(new File("src/main/resources/fxml/ReconnectionWaitScene.fxml").toURL());
+            ReconnectionWaitController controller = new ReconnectionWaitController(this);
+            loader.setController(controller);
+
+            StackPane waitStack = loader.load();
+
+            stackPane.getChildren().add(waitStack);
+            stackPane.requestLayout();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

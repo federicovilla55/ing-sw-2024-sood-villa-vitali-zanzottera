@@ -31,7 +31,7 @@ public class GUIView extends Application {
             FXMLLoader loader = new FXMLLoader();
             loader.setControllerFactory((c) -> new OldConfigurationController(clientController, commandParser, stage));
 
-            loader.setLocation(new File(SceneStatesEnum.OldConfigurationScene.value()).toURL());
+            loader.setLocation(new File(SceneStatesEnum.OLD_CONFIGURATION_SCENE.value()).toURL());
 
             root = loader.load();
 
@@ -47,7 +47,7 @@ public class GUIView extends Application {
             FXMLLoader loader = new FXMLLoader();
             //loader.setControllerFactory((c) -> new NewConfigurationController(clientController, commandParser, stage));
 
-            loader.setLocation(new File(SceneStatesEnum.NewConfigurationScene.value()).toURL());
+            loader.setLocation(new File(SceneStatesEnum.NEW_CONFIGURATION_SCENE.value()).toURL());
             loader.setController(new NewConfigurationController(clientController, commandParser, stage));
 
             root = loader.load();

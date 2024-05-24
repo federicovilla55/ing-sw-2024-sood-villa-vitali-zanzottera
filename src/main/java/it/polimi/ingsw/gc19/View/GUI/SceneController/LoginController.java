@@ -2,28 +2,25 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
-import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
-import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.PlayerCreationListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
+import javafx.scene.layout.StackPane;
 
-import java.util.List;
-
-public class LoginController extends AbstractController implements PlayerCreationListener, StateListener, GameHandlingListener {
+public class LoginController extends AbstractController implements PlayerCreationListener, StateListener {
 
     @FXML
     private TextField loginTextField;
     @FXML
     private Button loginButton;
+    @FXML
+    private StackPane stackPane;
 
     protected LoginController(AbstractController controller) {
         super(controller);
@@ -43,14 +40,14 @@ public class LoginController extends AbstractController implements PlayerCreatio
     public void notifyPlayerCreation(String name) {
         super.getClientController().getListenersManager().removeListener(ListenerType.PLAYER_CREATION_LISTENER, this);
 
-        super.changeToNextScene(SceneStatesEnum.GameSelectionScene);
+        super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
     }
 
     @Override
     public void notifyPlayerCreationError(String error) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
+            alert.setTitle("Player creation error");
             alert.setContentText(error);
             alert.showAndWait();
         });
@@ -58,9 +55,9 @@ public class LoginController extends AbstractController implements PlayerCreatio
 
     @Override
     public void notify(ViewState viewState) {
+        if(viewState == ViewState.DISCONNECT){
+            super.notifyPossibleDisconnection(stackPane);
+        }
     }
 
-    @Override
-    public void notify(GameHandlingEvents type, List<String> varArgs) {
-    }
 }
