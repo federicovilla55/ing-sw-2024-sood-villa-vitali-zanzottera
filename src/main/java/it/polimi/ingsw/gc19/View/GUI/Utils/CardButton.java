@@ -58,8 +58,8 @@ public class CardButton extends Button{
     public CardButton(Card card, Region region, double scale) {
         this(card);
 
-        this.front.fitWidthProperty().bind(region.widthProperty().multiply(scale));
-        this.back.fitWidthProperty().bind(region.widthProperty().multiply(scale));
+        this.front.fitHeightProperty().bind(region.heightProperty().multiply(scale));
+        this.back.fitHeightProperty().bind(region.heightProperty().multiply(scale));
     }
 
     public CardButton(Card card, Stage stage, Double scaleX, Double scaleY) {
@@ -102,6 +102,15 @@ public class CardButton extends Button{
         else{
             this.isUp = false;
             super.setGraphic(this.back);
+        }
+    }
+
+    public ImageView getOtherSide(){
+        if(this.isUp){
+            return this.back;
+        }
+        else{
+            return this.front;
         }
     }
 

@@ -16,6 +16,9 @@ import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -77,6 +80,14 @@ public class SetupController extends AbstractController implements SetupListener
 
         ((HBox) stackPane.getChildren().getFirst()).spacingProperty().bind(super.getStage().widthProperty().divide(100));
 
+        leftVBox.heightProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("left" + newValue);
+        });
+
+        /*super.getStage().heightProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("heght" + newValue);
+        });*/
+
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/ChatScene.fxml").toURL());
@@ -116,10 +127,11 @@ public class SetupController extends AbstractController implements SetupListener
 
             stations = loader.load();
 
-            stations.prefHeightProperty().bind(super.getStage().heightProperty().subtract(((Region) this.infoHBox.getParent()).getPrefHeight()).subtract(((Region) this.table.getParent()).getPrefHeight()));
-
             leftVBox.getChildren().add(stations);
-            VBox.setVgrow(stations, Priority.ALWAYS);
+
+            VBox.setVgrow(stations, Priority.SOMETIMES);
+
+            stations.heightProperty().addListener((observable, oldValue, newValue) -> System.out.println("stack " + stations.getHeight()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -242,7 +254,7 @@ public class SetupController extends AbstractController implements SetupListener
                     new Image(Objects.requireNonNull(getClass().getResource("/pawns/" + c.toString().toLowerCase() + "_pawn.png"))
                                      .toExternalForm())));
 
-            circlePawn.radiusProperty().bind(super.getStage().widthProperty().divide(128));
+            circlePawn.radiusProperty().bind(super.getStage().heightProperty().divide(58));
 
             Button button = buildColorButton(c, circlePawn);
 

@@ -18,9 +18,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,12 +62,21 @@ public class LocalStationController extends AbstractController {
         initializeGameArea();
         initializeCards();
 
-        this.leftVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(20));
+        /*this.leftVBox.heightProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue.doubleValue() + 50 > ((Region) borderPane.getParent()).getHeight()){
+                ScrollPane scrollPane = new ScrollPane();
+                this.borderPane.setLeft(scrollPane);
+                scrollPane.setContent(this.leftVBox);
+            }
+        });*/
+
+        this.leftVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
+        this.rightVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
+
         this.centerPane.prefHeightProperty().bind(this.borderPane.prefHeightProperty());
         this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().multiply(0.80));
         this.centerPane.minHeightProperty().bind(this.centerPane.prefHeightProperty());
         this.centerPane.minWidthProperty().bind(this.centerPane.prefWidthProperty());
-        this.rightVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
     }
 
     protected void initializePawns(){
@@ -111,7 +124,7 @@ public class LocalStationController extends AbstractController {
                 Objects.requireNonNull(getClass().getResource("/images/back/" + type.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg"))
                        .toExternalForm()));
         imageView.setPreserveRatio(true);
-        imageView.fitWidthProperty().bind(this.leftVBox.widthProperty().divide(7));
+        //imageView.fitWidthProperty().bind(this.leftVBox.widthProperty().divide(7));
         //imageView.setFitWidth(200);
 
         return imageView;
@@ -143,8 +156,8 @@ public class LocalStationController extends AbstractController {
         int lastRow = placedCardSequence.stream().mapToInt(x -> x.y().x()).max().orElse(0);
         int lastCol = placedCardSequence.stream().mapToInt(x -> x.y().y()).max().orElse(0);
 
-        int numOfRow = lastRow - firstRow + 3;
-        int numOfCol = lastCol - firstCol + 3;
+        int numOfRow = lastRow - firstRow + 10;
+        int numOfCol = lastCol - firstCol + 10;
 
         // calculate aspect ratio of the grid
         final double ASPECT_RATIO = ((CARD_PIXEL_WIDTH - CORNER_PIXEL_WIDTH) / (CARD_PIXEL_HEIGHT - CORNER_PIXEL_HEIGHT)) * ((double) numOfCol / numOfRow);

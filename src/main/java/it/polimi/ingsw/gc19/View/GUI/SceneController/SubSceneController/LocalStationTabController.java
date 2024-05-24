@@ -19,10 +19,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.ImagePattern;
 
 import java.io.File;
@@ -75,8 +72,6 @@ public class LocalStationTabController extends AbstractController implements Loc
                 catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
-
 
                 Tab tab = new Tab();
 

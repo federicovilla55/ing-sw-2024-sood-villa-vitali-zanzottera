@@ -3,9 +3,9 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" VBox.vgrow="NEVER">
    <left>
-      <VBox fx:id="leftVBox" alignment="CENTER" spacing="50.0" BorderPane.alignment="CENTER" VBox.vgrow="ALWAYS">
+      <VBox fx:id="leftVBox" alignment="CENTER" spacing="50.0" BorderPane.alignment="CENTER" VBox.vgrow="NEVER">
          <BorderPane.margin>
             <Insets bottom="25.0" top="25.0" />
          </BorderPane.margin>
@@ -15,13 +15,13 @@
       </VBox>
    </left>
    <center>
-      <StackPane fx:id="centerPane">
-         <GridPane fx:id="cardGrid" alignment="CENTER">
+      <StackPane fx:id="centerPane" VBox.vgrow="NEVER">
+         <GridPane fx:id="cardGrid" alignment="CENTER" minHeight="10.0" VBox.vgrow="NEVER">
          </GridPane>
       </StackPane>
    </center>
    <right>
-      <VBox fx:id="rightVBox" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="100.0" BorderPane.alignment="CENTER" VBox.vgrow="ALWAYS">
+      <VBox fx:id="rightVBox" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="100.0" BorderPane.alignment="CENTER" VBox.vgrow="NEVER">
          <BorderPane.margin>
             <Insets />
          </BorderPane.margin>
