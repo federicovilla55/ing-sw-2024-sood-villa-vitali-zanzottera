@@ -2,13 +2,19 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Model.Chat.Message;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.SetupController;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
+import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
+import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.ChatListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListener;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
+import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
+import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -21,8 +27,9 @@ import javafx.stage.Stage;
 import org.controlsfx.control.CheckComboBox;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
-public class ChatController extends AbstractController implements ChatListener, LocalModelListener {
+public class ChatController extends AbstractController implements ChatListener, LocalModelListener, StationListener {
 
     @FXML
     private ScrollPane scrollText, scrollPaneSend;
@@ -44,6 +51,7 @@ public class ChatController extends AbstractController implements ChatListener, 
 
         controller.getClientController().getListenersManager().attachListener(ListenerType.CHAT_LISTENER, this);
         controller.getClientController().getListenersManager().attachListener(ListenerType.LOCAL_MODEL_LISTENER, this);
+        controller.getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
     }
 
     public void initialize(){
@@ -66,14 +74,24 @@ public class ChatController extends AbstractController implements ChatListener, 
         receivers.setTitle("Receivers");
         receivers.setStyle(style + "-fx-border: none");
 
-        if(this.getLocalModel() != null && this.getLocalModel().getPersonalStation() != null){
-            receivers.getItems().add(this.getLocalModel().getNickname());
+        receivers.getItems().clear();
+        if(this.getLocalModel() != null && this.getLocalModel().getStations() != null){
+            receivers.getItems().addAll(this.getLocalModel().getStations().keySet());
+        }
+
+        textFlow.getChildren().clear();
+        if(this.getLocalModel() != null && this.getLocalModel().getMessages() != null){
+            showChat(this.getLocalModel().getMessages());
         }
 
     }
 
     @Override
     public void notify(ArrayList<Message> msg) {
+        showChat(msg);
+    }
+
+    private void showChat(ArrayList<Message> msg){
         Platform.runLater(() -> {
 
             textFlow.getChildren().clear();
@@ -128,9 +146,21 @@ public class ChatController extends AbstractController implements ChatListener, 
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
         Platform.runLater(() -> {
-            this.receivers.getItems().clear();
-            this.receivers.getItems().addAll(this.getLocalModel().getStations().keySet().stream().toList());
+            switch (type){
+                case LocalModelEvents.NEW_PLAYER_CONNECTED, LocalModelEvents.RECONNECTED_PLAYER -> this.receivers.getItems().add(varArgs[0]);
+                case LocalModelEvents.DISCONNECTED_PLAYER -> this.receivers.getItems().remove(varArgs[0]);
+            }
         });
     }
 
+    @Override
+    public void notify(PersonalStation localStationPlayer) { }
+
+    @Override
+    public void notify(OtherStation otherStation) {
+        showChat(this.getLocalModel().getMessages());
+    }
+
+    @Override
+    public void notifyErrorStation(String... varArgs) { }
 }

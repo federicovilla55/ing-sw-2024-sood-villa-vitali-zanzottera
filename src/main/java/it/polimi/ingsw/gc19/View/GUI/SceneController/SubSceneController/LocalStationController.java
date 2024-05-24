@@ -62,14 +62,6 @@ public class LocalStationController extends AbstractController {
         initializeGameArea();
         initializeCards();
 
-        /*this.leftVBox.heightProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue.doubleValue() + 50 > ((Region) borderPane.getParent()).getHeight()){
-                ScrollPane scrollPane = new ScrollPane();
-                this.borderPane.setLeft(scrollPane);
-                scrollPane.setContent(this.leftVBox);
-            }
-        });*/
-
         this.leftVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
         this.rightVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
 
@@ -124,7 +116,8 @@ public class LocalStationController extends AbstractController {
                 Objects.requireNonNull(getClass().getResource("/images/back/" + type.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg"))
                        .toExternalForm()));
         imageView.setPreserveRatio(true);
-        //imageView.fitWidthProperty().bind(this.leftVBox.widthProperty().divide(7));
+        imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
+        imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
         //imageView.setFitWidth(200);
 
         return imageView;
