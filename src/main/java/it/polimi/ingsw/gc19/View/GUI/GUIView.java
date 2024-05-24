@@ -6,7 +6,6 @@ import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.NewConfigurationController;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.OldConfigurationController;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.PlayingAreaController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

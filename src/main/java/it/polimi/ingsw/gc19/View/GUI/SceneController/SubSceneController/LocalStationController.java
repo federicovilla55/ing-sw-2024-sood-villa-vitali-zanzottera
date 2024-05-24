@@ -10,12 +10,16 @@ import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
 //questo controllore si occupa solo di stampare il colore della pedina e la stazione di gioco
@@ -97,7 +101,20 @@ public class LocalStationController extends AbstractController {
 
     protected void initializeGameArea(){
         if(!this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().isEmpty()){
-            this.borderPane.setCenter(new CardButton(this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().getFirst().x()));
+            FXMLLoader loader;
+            PlayingAreaController controller;
+            try{
+                loader = new FXMLLoader();
+                loader.setLocation(new File("src/main/resources/fxml/PlayingArea.fxml").toURL());
+                controller = new PlayingAreaController(this);
+                loader.setController(controller);
+
+                this.borderPane.setCenter(loader.load());
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            controller.setCardGrid(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
         }
     }
 
