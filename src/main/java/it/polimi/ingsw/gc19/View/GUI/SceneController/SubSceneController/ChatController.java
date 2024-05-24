@@ -55,24 +55,24 @@ public class ChatController extends AbstractController implements ChatListener, 
     }
 
     public void initialize(){
-        String style = "-fx-background-color:transparent;"+
+        /*String style = "-fx-background-color:transparent;"+
                        "-fx-border-style: solid inside; " +
                        "-fx-border-color: black; " +
-                       "-fx-border-insets: 5;";
+                       "-fx-border-insets: 5;";*/
 
-        scrollText.setStyle(style);
-        scrollPaneSend.setStyle(style);
-        textAreaSend.setStyle("-fx-background-color:transparent;");
-        textFlow.setStyle("-fx-background-color:transparent;");
+        //scrollText.setStyle(style);
+        //scrollPaneSend.setStyle(style);
+        //textAreaSend.setStyle("-fx-background-color:transparent;");
+        //textFlow.setStyle("-fx-background-color:transparent;");
 
         textAreaSend.textProperty().addListener((observable, oldValue, newValue) -> textAreaSend.setStyle("-fx-border: none"));
 
         sendButton.setOnMouseClicked((event) -> sendMessage());
-        sendButton.setStyle(style);
+        //sendButton.setStyle(style);
         sendButton.setBackground(Background.fill(Color.LIGHTBLUE));
 
         receivers.setTitle("Receivers");
-        receivers.setStyle(style + "-fx-border: none");
+        //receivers.setStyle(style + "-fx-border: none");
 
         receivers.getItems().clear();
         if(this.getLocalModel() != null && this.getLocalModel().getStations() != null){

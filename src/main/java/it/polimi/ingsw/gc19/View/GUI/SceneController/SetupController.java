@@ -72,14 +72,6 @@ public class SetupController extends AbstractController implements SetupListener
 
         ((HBox) stackPane.getChildren().getFirst()).spacingProperty().bind(super.getStage().widthProperty().divide(100));
 
-        leftVBox.heightProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("left" + newValue);
-        });
-
-        /*super.getStage().heightProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("heght" + newValue);
-        });*/
-
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/ChatScene.fxml").toURL());
@@ -229,11 +221,11 @@ public class SetupController extends AbstractController implements SetupListener
             this.hbox.getChildren().add(button.getFirst());
         }
 
-        availableColorsPane.setStyle("""
+        /*availableColorsPane.setStyle("""
                                         -fx-border-style: solid inside;
                                         -fx-border-color: black;
                                         -fx-border-insets: 5;
-                                     """);
+                                     """);*/
     }
 
     private ArrayList<Button> colorButtonFactory(List<Color> availableColors){

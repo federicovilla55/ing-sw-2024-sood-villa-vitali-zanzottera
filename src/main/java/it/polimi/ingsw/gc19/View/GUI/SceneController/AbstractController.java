@@ -46,7 +46,7 @@ public class AbstractController implements UI , Listener {
     public void notifyGenericError(String errorDescription) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
+            alert.setTitle("Generic error");
             alert.setContentText(errorDescription);
             alert.showAndWait();
         });
@@ -71,6 +71,7 @@ public class AbstractController implements UI , Listener {
     public void setCommandParser(CommandParser commandParser) {
         this.commandParser = commandParser;
     }
+
     public void setClientController(ClientController clientController) {
         this.clientController = clientController;
     }
@@ -95,7 +96,9 @@ public class AbstractController implements UI , Listener {
 
         try{
             FXMLLoader loader = new FXMLLoader();
+
             AbstractController controller;
+
             switch (nextScenePath){
                 case LOGIN_SCENE -> controller = new LoginController(this);
                 case GAME_SELECTION_SCENE -> controller = new GameSelectionController(this);
