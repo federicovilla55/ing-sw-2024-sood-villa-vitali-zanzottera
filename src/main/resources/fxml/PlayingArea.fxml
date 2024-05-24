@@ -6,8 +6,4 @@
 <?import javafx.scene.layout.VBox?>
 <StackPane fx:id="centerPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
 
-    <GridPane fx:id="cardGrid" alignment="CENTER">
-
-    </GridPane>
-
 </StackPane>

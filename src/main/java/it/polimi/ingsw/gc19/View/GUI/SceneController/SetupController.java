@@ -119,6 +119,7 @@ public class SetupController extends AbstractController implements SetupListener
             stations.prefHeightProperty().bind(super.getStage().heightProperty().subtract(((Region) this.infoHBox.getParent()).getPrefHeight()).subtract(((Region) this.table.getParent()).getPrefHeight()));
 
             leftVBox.getChildren().add(stations);
+            VBox.setVgrow(stations, Priority.ALWAYS);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
