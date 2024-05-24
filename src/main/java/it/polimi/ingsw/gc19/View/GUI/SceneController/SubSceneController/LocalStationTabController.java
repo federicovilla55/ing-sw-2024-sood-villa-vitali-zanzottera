@@ -76,6 +76,8 @@ public class LocalStationTabController extends AbstractController implements Loc
                     throw new RuntimeException(e);
                 }
 
+
+
                 Tab tab = new Tab();
 
                 tab.setText(l.getOwnerPlayer());

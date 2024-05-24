@@ -11,15 +11,13 @@
          </BorderPane.margin>
          <padding>
             <Insets left="25.0" right="25.0" />
-         </padding></VBox>
+         </padding>
+      </VBox>
    </left>
    <center>
       <StackPane fx:id="centerPane">
-
          <GridPane fx:id="cardGrid" alignment="CENTER">
-
          </GridPane>
-
       </StackPane>
    </center>
    <right>
@@ -29,6 +27,7 @@
          </BorderPane.margin>
          <padding>
             <Insets bottom="50.0" left="25.0" right="25.0" top="50.0" />
-         </padding></VBox>
+         </padding>
+      </VBox>
    </right>
 </BorderPane>
