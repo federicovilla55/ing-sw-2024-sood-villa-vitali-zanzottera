@@ -59,6 +59,10 @@ public class LocalStationController extends AbstractController {
         initializeCards();
 
         this.leftVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(20));
+        this.centerPane.prefHeightProperty().bind(this.borderPane.prefHeightProperty());
+        this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().multiply(0.80));
+        this.centerPane.minHeightProperty().bind(this.centerPane.prefHeightProperty());
+        this.centerPane.minWidthProperty().bind(this.centerPane.prefWidthProperty());
         this.rightVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
     }
 
