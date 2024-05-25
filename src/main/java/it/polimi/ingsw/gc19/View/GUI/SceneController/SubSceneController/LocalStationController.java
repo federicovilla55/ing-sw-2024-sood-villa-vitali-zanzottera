@@ -24,8 +24,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.transform.Scale;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -63,6 +66,13 @@ public class LocalStationController extends AbstractController {
 
         this.leftVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
         this.rightVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
+
+        //super.getStage().setHeight(0.4 * super.getStage().getWidth() + 800);
+
+        super.getStage().widthProperty().addListener((observable, oldValue, newValue) -> {
+            //System.out.println(newValue.doubleValue());
+            super.getStage().setMinHeight(0.4 * newValue.doubleValue() + 257);
+        });
 
         this.centerPane.prefHeightProperty().bind(this.borderPane.prefHeightProperty());
         this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().multiply(0.80));
