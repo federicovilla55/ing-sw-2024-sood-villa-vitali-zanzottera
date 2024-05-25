@@ -52,7 +52,7 @@ public class LocalStationTabController extends AbstractController implements Loc
 
             for(LocalStationPlayer l : new ArrayList<>(this.getLocalModel().getStations().values())) {
 
-                LocalStationController controller;
+                LocalStationController controller = null;
                 BorderPane tabContent;
 
                 try{
@@ -61,8 +61,8 @@ public class LocalStationTabController extends AbstractController implements Loc
 
                     switch (this.getClientController().getState()){
                         case ViewState.SETUP -> controller = new LocalStationControllerForSetup(this, l.getOwnerPlayer());
+                        case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> controller = new LocalStationController(this, l.getOwnerPlayer());
                         //@TODO: add controller for game. What happens if game is in pause, I shut off machine and then reconnect?
-                        default -> controller = null;
                     }
 
                     loader.setController(controller);

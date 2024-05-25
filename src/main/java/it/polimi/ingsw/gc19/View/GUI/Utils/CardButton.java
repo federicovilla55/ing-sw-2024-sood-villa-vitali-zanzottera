@@ -129,7 +129,7 @@ public class CardButton extends Button{
 
     public EventHandler<MouseEvent> getDefaultMouseClickedHandler(){
         return (event) -> {
-            if(event.getClickCount() == 1) {
+            if(event.getClickCount() == 2) {
                 this.swap();
             }
         };

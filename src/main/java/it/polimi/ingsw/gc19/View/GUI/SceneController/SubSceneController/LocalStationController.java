@@ -17,6 +17,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
+import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -48,6 +49,9 @@ public class LocalStationController extends AbstractController {
     protected BorderPane borderPane;
 
     protected String nickOwner;
+
+    private double startX;
+    private double startY;
 
     public LocalStationController(AbstractController controller,String nickOwner) {
         super(controller);
@@ -109,6 +113,8 @@ public class LocalStationController extends AbstractController {
                 button.setOnMouseClicked(button.getDefaultMouseClickedHandler());
 
                 this.leftVBox.getChildren().add(button);
+
+                this.leftVBox.getChildren().forEach(this::makeNodeDraggable);
             }
         }
         else{
@@ -118,6 +124,43 @@ public class LocalStationController extends AbstractController {
                 this.leftVBox.getChildren().add(factoryUnswappableCard(v.x(), v.y()));
             }
         }
+    }
+
+    private void makeNodeDraggable(Node node){
+
+        node.setOnMousePressed(e -> {
+            startX = e.getSceneX() - node.getTranslateX();
+            startY = e.getSceneY() - node.getTranslateY();
+        });
+
+        node.setOnMouseDragged(e -> {
+            node.setTranslateX(e.getSceneX() - startX);
+            node.setTranslateY(e.getSceneY() - startY);
+        });
+
+        node.setOnMouseReleased(e -> {
+            // Get the scene coordinates where the card is released
+            double sceneX = e.getSceneX();
+            double sceneY = e.getSceneY();
+
+            // Convert scene coordinates to GridPane local coordinates
+            Point2D localCoords = cardGrid.sceneToLocal(sceneX, sceneY);
+
+            // Determine the cell in the GridPane
+            int column = (int) (localCoords.getX() / (cardGrid.getWidth() / cardGrid.getColumnCount()));
+            int row = (int) (localCoords.getY() / (cardGrid.getHeight() / cardGrid.getRowCount()));
+
+            // Ensure the calculated cell is within bounds
+            if (localCoords.getX() >= 0 && column < cardGrid.getColumnCount() && localCoords.getY() >= 0 && row < cardGrid.getRowCount()) {
+                System.out.println("column: " + column + ", row: " + row);
+            } else {
+                // Handle the case where the drop is outside the gridPane
+                System.out.println("Dropped outside of grid");
+            }
+
+            node.setTranslateX(0);
+            node.setTranslateY(0);
+        });
     }
 
     private ImageView factoryUnswappableCard(Symbol symbol, PlayableCardType type){
@@ -158,8 +201,8 @@ public class LocalStationController extends AbstractController {
         int lastRow = placedCardSequence.stream().mapToInt(x -> x.y().x()).max().orElse(0);
         int lastCol = placedCardSequence.stream().mapToInt(x -> x.y().y()).max().orElse(0);
 
-        int numOfRow = lastRow - firstRow + 10;
-        int numOfCol = lastCol - firstCol + 10;
+        int numOfRow = lastRow - firstRow + 3;
+        int numOfCol = lastCol - firstCol + 3;
 
         // calculate aspect ratio of the grid
         final double ASPECT_RATIO = ((CARD_PIXEL_WIDTH - CORNER_PIXEL_WIDTH) / (CARD_PIXEL_HEIGHT - CORNER_PIXEL_HEIGHT)) * ((double) numOfCol / numOfRow);
