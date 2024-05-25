@@ -3,7 +3,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" VBox.vgrow="NEVER">
+<BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <left>
       <VBox fx:id="leftVBox" alignment="CENTER" spacing="50.0" BorderPane.alignment="CENTER" VBox.vgrow="NEVER">
          <BorderPane.margin>
@@ -16,7 +16,7 @@
    </left>
    <center>
       <StackPane fx:id="centerPane" VBox.vgrow="NEVER">
-         <GridPane fx:id="cardGrid" alignment="CENTER" minHeight="10.0" VBox.vgrow="NEVER">
+         <GridPane fx:id="cardGrid" alignment="CENTER" StackPane.alignment="CENTER" VBox.vgrow="NEVER">
          </GridPane>
       </StackPane>
    </center>

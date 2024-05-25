@@ -32,10 +32,12 @@ import javafx.stage.Stage;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class LocalStationController extends AbstractController {
+public class LocalStationController extends AbstractController{
 
     @FXML
     protected StackPane centerPane;
@@ -73,10 +75,10 @@ public class LocalStationController extends AbstractController {
 
         //super.getStage().setHeight(0.4 * super.getStage().getWidth() + 800);
 
-        super.getStage().widthProperty().addListener((observable, oldValue, newValue) -> {
+        /*super.getStage().widthProperty().addListener((observable, oldValue, newValue) -> {
             //System.out.println(newValue.doubleValue());
             super.getStage().setMinHeight(0.4 * newValue.doubleValue() + 257);
-        });
+        });*/
 
         this.centerPane.prefHeightProperty().bind(this.borderPane.prefHeightProperty());
         this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().multiply(0.80));
@@ -177,7 +179,10 @@ public class LocalStationController extends AbstractController {
 
     protected void initializeGameArea(){
         if(!this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().isEmpty()){
-            this.setCardGrid(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
+            ArrayList<Tuple<PlayableCard, Tuple<Integer, Integer>>> sequence = new ArrayList<>(List.of(new Tuple<>(this.getLocalModel().getPersonalStation().getCardsInHand().get(1), new Tuple<>(26, 26)),
+                                                                                                       new Tuple<>(this.getLocalModel().getPersonalStation().getCardsInHand().get(2), new Tuple<>(27, 27))));
+            sequence.addAll(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
+            this.setCardGrid(sequence);
         }
     }
 
@@ -201,41 +206,45 @@ public class LocalStationController extends AbstractController {
         int lastRow = placedCardSequence.stream().mapToInt(x -> x.y().x()).max().orElse(0);
         int lastCol = placedCardSequence.stream().mapToInt(x -> x.y().y()).max().orElse(0);
 
-        int numOfRow = lastRow - firstRow + 3;
-        int numOfCol = lastCol - firstCol + 3;
-
-        // calculate aspect ratio of the grid
-        final double ASPECT_RATIO = ((CARD_PIXEL_WIDTH - CORNER_PIXEL_WIDTH) / (CARD_PIXEL_HEIGHT - CORNER_PIXEL_HEIGHT)) * ((double) numOfCol / numOfRow);
-
         //remove all cards from the grid
         cardGrid.getChildren().clear();
 
-        //create resize dimention properties
-        DoubleProperty widthProperty = new SimpleDoubleProperty();
-        DoubleProperty heightProperty = new SimpleDoubleProperty();
+        //create resize dimension properties
         DoubleProperty cellWidthProperty = new SimpleDoubleProperty();
         DoubleProperty cellHeightProperty = new SimpleDoubleProperty();
-        DoubleProperty cardWidthProperty = new SimpleDoubleProperty();
-        DoubleProperty cardHeightProperty = new SimpleDoubleProperty();
 
-        heightProperty.bind(Bindings.min(
-                centerPane.heightProperty(), centerPane.widthProperty().divide(ASPECT_RATIO)));
-        widthProperty.bind(heightProperty.multiply(ASPECT_RATIO));
+        ArrayList<ImageView> cardImages = new ArrayList<>();
 
-        cellHeightProperty.bind(heightProperty.divide(numOfRow));
-        cellWidthProperty.bind(widthProperty.divide(numOfCol));
+        for(var t : this.getLocalModel().getPersonalStation().getPlacedCardSequence()){
+            ImageView cardImage = new ImageView(
+                    new Image(Objects.requireNonNull(
+                            getClass().getResource("/images/" + t.x().getCardCode() + "_" + (t.x().getCardOrientation() == CardOrientation.UP ? "front" : "back") + ".jpg"))
+                                     .toExternalForm()));
 
-        cardWidthProperty.bind(cellWidthProperty.multiply(CARD_PIXEL_WIDTH / (CARD_PIXEL_WIDTH - CORNER_PIXEL_WIDTH)));
-        cardHeightProperty.bind(cellHeightProperty.multiply(CARD_PIXEL_HEIGHT / (CARD_PIXEL_HEIGHT - CORNER_PIXEL_HEIGHT)));
+            //keep card aspect ratio
+            cardImage.setPreserveRatio(true);
 
+            cardImage.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
+
+            cardImages.add(cardImage);
+        }
+
+        cellWidthProperty.bind(cardImages.getFirst()
+                                         .fitWidthProperty()
+                                         .multiply(1 - 2 * CORNER_PIXEL_WIDTH / CARD_PIXEL_WIDTH));
+
+        cellHeightProperty.bind(cardImages.getFirst()
+                                          .fitWidthProperty()
+                                          .multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH)
+                                          .multiply(1 - 2 * CORNER_PIXEL_HEIGHT / CARD_PIXEL_HEIGHT));
 
         //set dimensions of rows and columns
         for (int i = firstRow - 1; i <= lastRow + 1; i++) {
             RowConstraints row = new RowConstraints();
             row.setValignment(VPos.CENTER);
             row.prefHeightProperty().bind(cellHeightProperty);
-            row.minHeightProperty().bind(row.prefHeightProperty());
-            row.maxHeightProperty().bind(row.prefHeightProperty());
+            row.minHeightProperty().bind(cellHeightProperty);
+            row.maxHeightProperty().bind(cellHeightProperty);
             cardGrid.getRowConstraints().add(row);
         }
 
@@ -243,26 +252,15 @@ public class LocalStationController extends AbstractController {
             ColumnConstraints col = new ColumnConstraints();
             col.setHalignment(HPos.CENTER);
             col.prefWidthProperty().bind(cellWidthProperty);
-            col.minWidthProperty().bind(col.prefWidthProperty());
-            col.maxWidthProperty().bind(col.prefWidthProperty());
+            col.minWidthProperty().bind(cellWidthProperty);
+            col.maxWidthProperty().bind(cellWidthProperty);
             cardGrid.getColumnConstraints().add(col);
         }
 
         cardGrid.setGridLinesVisible(true);
 
-        for (Tuple<PlayableCard, Tuple<Integer, Integer>> card : placedCardSequence) {
-
-            ImageView cardImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/" + card.x().getCardCode() + "_" +
-                    (card.x().getCardOrientation() == CardOrientation.UP ? "front" : "back")
-                    + ".jpg")).toExternalForm()));
-
-            //keep card aspect ratio
-            cardImage.setPreserveRatio(true);
-
-            cardImage.fitWidthProperty().bind(cardWidthProperty);
-            cardImage.fitHeightProperty().bind(cardHeightProperty);
-
-            cardGrid.add(cardImage, card.y().y() - firstCol + 1, card.y().x() - firstRow + 1);
+        for (int i = 0; i < cardImages.size(); i++) {
+            cardGrid.add(cardImages.get(i), placedCardSequence.get(i).y().y() - firstCol + 1, placedCardSequence.get(i).y().x() - firstRow + 1);
         }
 
     }
