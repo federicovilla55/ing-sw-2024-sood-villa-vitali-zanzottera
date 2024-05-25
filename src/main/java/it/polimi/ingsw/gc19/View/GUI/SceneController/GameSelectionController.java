@@ -60,8 +60,8 @@ public class GameSelectionController extends AbstractController implements State
         createButton.setOnMouseClicked((event) -> {
             String name = gameName.getText();
             int numPlayer = numPlayerBox.getValue();
-
-            if(name != null) {
+            if(name != null && !name.isEmpty()) {
+                System.out.println(gameName);
                 super.getClientController().createGame(name, numPlayer);
             }
         });
