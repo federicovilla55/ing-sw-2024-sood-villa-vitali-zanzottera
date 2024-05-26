@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
+import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
@@ -8,6 +9,12 @@ import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
 import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
+import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
+import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
+import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
+import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
+import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
@@ -27,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class LocalStationController extends AbstractController{
+public class LocalStationController extends AbstractController implements StationListener, SetupListener {
 
     @FXML
     protected StackPane centerPane;
@@ -47,6 +54,7 @@ public class LocalStationController extends AbstractController{
     private double startX, startY;
     private double anchorX, anchorY;
     private double translateAnchorX, translateAnchorY;
+    private int absGridRow, absGridCol;
 
     private double scale = 1.0;
     private final double delta = 1.1;
@@ -64,6 +72,9 @@ public class LocalStationController extends AbstractController{
         this.translate = new Translate();
 
         this.renderedCars = new ArrayList<>();
+
+        super.getClientController().getListenersManager().attachListener(ListenerType.SETUP_LISTENER, this);
+        super.getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
     }
 
     @FXML
@@ -118,7 +129,7 @@ public class LocalStationController extends AbstractController{
 
                 this.leftVBox.getChildren().add(button);
 
-                this.leftVBox.getChildren().forEach(this::makeNodeDraggable);
+                this.leftVBox.getChildren().forEach(this::makeCardDraggable);
             }
         }
         else{
@@ -130,7 +141,7 @@ public class LocalStationController extends AbstractController{
         }
     }
 
-    private void makeNodeDraggable(Node node){
+    private void makeCardDraggable(Node node){
         node.setOnMousePressed(e -> {
             startX = e.getSceneX() - node.getTranslateX();
             startY = e.getSceneY() - node.getTranslateY();
@@ -161,7 +172,39 @@ public class LocalStationController extends AbstractController{
 
             // Ensure the calculated cell is within bounds
             if (localCoords.getX() >= 0 && column < cardGrid.getColumnCount() && localCoords.getY() >= 0 && row < cardGrid.getRowCount()) {
-                System.out.println("column: " + column + ", row: " + row);
+                PlayableCard toPlace = (PlayableCard) ((CardButton) node).getCard();
+                int localModelX = absGridRow + row;
+                int localModelY = absGridCol + column;
+                System.out.println("row: " + localModelX + ", column: " + localModelY);
+
+                //check if a card is already present at given position
+                PlayableCard card = super.getLocalModel().getPersonalStation().getPlacedCardAtPosition(localModelX,localModelY);
+                if(card != null) {
+                    super.notifyGenericError("A card is already present at this position!");
+                }
+                else {
+                    //try to find an anchor to place
+                    PlayableCard anchor = null;
+                    Iterator<Direction> directionIterator = Arrays.stream(Direction.values()).iterator();
+                    Direction direction = null;
+                    while (directionIterator.hasNext() && anchor == null ) {
+                        direction = directionIterator.next();
+                        anchor = super.getLocalModel().getPersonalStation().getPlacedCardAtPosition(localModelX - direction.getX(), localModelY - direction.getY());
+                    }
+
+                    if(anchor == null) {
+                        super.notifyGenericError("There is no available anchor card!");
+                    }
+                    else {
+                        if(super.getLocalModel().getPersonalStation().cardIsPlaceable(anchor,toPlace,direction)) {
+                            super.getClientController().placeCard(toPlace.getCardCode(),anchor.getCardCode(),direction,toPlace.getCardOrientation());
+                        }
+                        else {
+                            super.notifyGenericError("This card is not placeable here!");
+                        }
+                    }
+
+                }
             } else {
                 // Handle the case where the drop is outside the gridPane
                 System.out.println("Dropped outside of grid");
@@ -187,10 +230,7 @@ public class LocalStationController extends AbstractController{
 
     protected void initializeGameArea(){
         if(!this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().isEmpty()){
-            ArrayList<Tuple<PlayableCard, Tuple<Integer, Integer>>> sequence = new ArrayList<>(List.of(new Tuple<>(this.getLocalModel().getPersonalStation().getCardsInHand().get(1), new Tuple<>(26, 26)),
-                                                                                                       new Tuple<>(this.getLocalModel().getPersonalStation().getCardsInHand().get(2), new Tuple<>(27, 27))));
-            sequence.addAll(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
-            this.buildCardGrid(sequence);
+            this.buildCardGrid(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
         }
     }
 
@@ -209,7 +249,13 @@ public class LocalStationController extends AbstractController{
         int lastRow = placedCardSequence.stream().mapToInt(x -> x.y().x()).max().orElse(0);
         int lastCol = placedCardSequence.stream().mapToInt(x -> x.y().y()).max().orElse(0);
 
+        //save current position of cell in upper left corner of view,
+        absGridRow = firstRow - 1;
+        absGridCol = firstCol - 1;
+
         //remove all cards from the grid
+        cardGrid.getColumnConstraints().clear();
+        cardGrid.getRowConstraints().clear();
         cardGrid.getChildren().clear();
 
         //create resize dimension properties
@@ -243,6 +289,11 @@ public class LocalStationController extends AbstractController{
                                             .multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH)
                                             .multiply(1 - CORNER_PIXEL_HEIGHT / CARD_PIXEL_HEIGHT));
 
+        cardGrid.prefWidthProperty().bind(cellWidthProperty.multiply(lastCol - firstCol + 3));
+        cardGrid.prefHeightProperty().bind(cellHeightProperty.multiply(lastRow - firstRow + 3));
+        cardGrid.maxWidthProperty().bind(cardGrid.prefWidthProperty());
+        cardGrid.maxHeightProperty().bind(cardGrid.prefHeightProperty());
+
         //set dimensions of rows and columns
         for (int i = firstRow - 1; i <= lastRow + 1; i++) {
             RowConstraints row = new RowConstraints();
@@ -262,6 +313,7 @@ public class LocalStationController extends AbstractController{
             cardGrid.getColumnConstraints().add(col);
         }
 
+        cardGrid.setGridLinesVisible(false);
         cardGrid.setGridLinesVisible(true);
 
         for (int i = 0; i < renderedCars.size(); i++) {
@@ -340,5 +392,37 @@ public class LocalStationController extends AbstractController{
 
         });
     }
+
+    @Override
+    public void notify(SetupEvent type) {
+        Platform.runLater(() -> {
+            switch (type){
+                case SetupEvent.ACCEPTED_COLOR -> this.initializePawns();
+                case SetupEvent.ACCEPTED_INITIAL_CARD -> this.initialize();
+                case SetupEvent.ACCEPTED_PRIVATE_GOAL_CARD -> this.initializeCards();
+            }
+        });
+
+    }
+
+    @Override
+    public void notify(SetupEvent type, String error) { }
+
+    @Override
+    public void notify(PersonalStation localStationPlayer) {
+        Platform.runLater(() -> {
+            if (localStationPlayer.getOwnerPlayer().equals(this.nickOwner)) initialize();
+        });
+    }
+
+    @Override
+    public void notify(OtherStation otherStation) {
+        Platform.runLater(() -> {
+            if (otherStation.getOwnerPlayer().equals(this.nickOwner)) initialize();
+        });
+    }
+
+    @Override
+    public void notifyErrorStation(String... varArgs) { }
 
 }

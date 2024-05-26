@@ -193,6 +193,16 @@ public abstract class LocalStationPlayer {
     }
 
     /**
+     * Returns the card at given position, else null
+     * @param x first dimension of the matrix
+     * @param y second dimension of the matrix
+     * @return the card at given position, if the card is not present returns null
+     */
+    public PlayableCard getPlacedCardAtPosition(int x, int y) {
+        return this.cardSchema[x][y];
+    }
+
+    /**
      * To return the list of placed card and their positions.
      * @return the list containing the card placed in the station so far and their position.
      */

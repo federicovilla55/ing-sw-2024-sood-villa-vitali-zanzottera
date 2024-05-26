@@ -59,11 +59,7 @@ public class LocalStationTabController extends AbstractController implements Loc
                     FXMLLoader loader = new FXMLLoader();
                     loader.setLocation(new File("src/main/resources/fxml/LocalStationScene.fxml").toURL());
 
-                    switch (this.getClientController().getState()){
-                        case ViewState.SETUP -> controller = new LocalStationControllerForSetup(this, l.getOwnerPlayer());
-                        case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> controller = new LocalStationController(this, l.getOwnerPlayer());
-                        //@TODO: add controller for game. What happens if game is in pause, I shut off machine and then reconnect?
-                    }
+                    controller = new LocalStationController(this, l.getOwnerPlayer());
 
                     loader.setController(controller);
 
