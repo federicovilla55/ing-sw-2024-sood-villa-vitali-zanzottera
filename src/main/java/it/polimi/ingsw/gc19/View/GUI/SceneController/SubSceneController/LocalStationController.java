@@ -206,6 +206,9 @@ public class LocalStationController extends AbstractController{
         int lastRow = placedCardSequence.stream().mapToInt(x -> x.y().x()).max().orElse(0);
         int lastCol = placedCardSequence.stream().mapToInt(x -> x.y().y()).max().orElse(0);
 
+        System.out.println(firstRow + "  " + lastRow);
+        System.out.println(firstCol + "  " + lastCol);
+
         //remove all cards from the grid
         cardGrid.getChildren().clear();
 
@@ -215,7 +218,7 @@ public class LocalStationController extends AbstractController{
 
         ArrayList<ImageView> cardImages = new ArrayList<>();
 
-        for(var t : this.getLocalModel().getPersonalStation().getPlacedCardSequence()){
+        for(var t : placedCardSequence){
             ImageView cardImage = new ImageView(
                     new Image(Objects.requireNonNull(
                             getClass().getResource("/images/" + t.x().getCardCode() + "_" + (t.x().getCardOrientation() == CardOrientation.UP ? "front" : "back") + ".jpg"))
@@ -231,12 +234,12 @@ public class LocalStationController extends AbstractController{
 
         cellWidthProperty.bind(cardImages.getFirst()
                                          .fitWidthProperty()
-                                         .multiply(1 - 2 * CORNER_PIXEL_WIDTH / CARD_PIXEL_WIDTH));
+                                         .multiply(1 - CORNER_PIXEL_WIDTH / CARD_PIXEL_WIDTH));
 
         cellHeightProperty.bind(cardImages.getFirst()
                                           .fitWidthProperty()
                                           .multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH)
-                                          .multiply(1 - 2 * CORNER_PIXEL_HEIGHT / CARD_PIXEL_HEIGHT));
+                                          .multiply(1 - CORNER_PIXEL_HEIGHT / CARD_PIXEL_HEIGHT));
 
         //set dimensions of rows and columns
         for (int i = firstRow - 1; i <= lastRow + 1; i++) {
