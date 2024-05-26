@@ -12,7 +12,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -20,14 +19,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 
-import javax.sound.sampled.Clip;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class LocalStationController extends AbstractController{
 
@@ -44,14 +41,21 @@ public class LocalStationController extends AbstractController{
 
     protected String nickOwner;
 
+    private final Translate translate;
+
     private double startX, startY;
     private double anchorX, anchorY;
     private double translateAnchorX, translateAnchorY;
+
+    private double scale = 1.0;
+    private final double delta = 1.1;
 
     public LocalStationController(AbstractController controller,String nickOwner) {
         super(controller);
 
         this.nickOwner = nickOwner;
+
+        translate = new Translate();
     }
 
     @FXML
@@ -256,17 +260,17 @@ public class LocalStationController extends AbstractController{
             cardGrid.add(cardImages.get(i), placedCardSequence.get(i).y().y() - firstCol + 1, placedCardSequence.get(i).y().x() - firstRow + 1);
         }
 
-        makeGridPaneMovable();
+        makeGridPaneDraggable();
+
+        makeCenterPaneScrollable();
     }
 
-    private void makeGridPaneMovable(){
+    private void makeGridPaneDraggable(){
         centerPane.setStyle("""
                                 -fx-padding: 5;
                                 -fx-border-color: black;
                                 -fx-border-style: solid inside;                                                                
                             """);
-
-        Translate translate = new Translate();
 
         cardGrid.getTransforms().add(translate);
 
@@ -286,6 +290,34 @@ public class LocalStationController extends AbstractController{
         borderPane.getCenter().setOnMouseDragged(event -> {
             translate.setX(translateAnchorX + event.getSceneX() - anchorX);
             translate.setY(translateAnchorY + event.getSceneY() - anchorY);
+        });
+    }
+
+    private void makeCenterPaneScrollable(){
+        Scale centerPaneScale = new Scale(scale, scale);
+        this.cardGrid.getTransforms().add(centerPaneScale);
+
+        this.centerPane.setOnScroll(event -> {
+
+            double factor;
+
+            if(event.getDeltaY() != 0) {
+                if (event.getDeltaY() > 0) {
+                    factor = delta;
+                    scale = scale * delta;
+                }
+                else {
+                    factor = 1 / delta;
+                    scale = scale / delta;
+                }
+
+                translate.setX(translate.getX() - (factor - 1) * event.getSceneX());
+                translate.setY(translate.getY() - (factor - 1) * event.getSceneY());
+
+                centerPaneScale.setX(scale);
+                centerPaneScale.setY(scale);
+            }
+
         });
     }
 

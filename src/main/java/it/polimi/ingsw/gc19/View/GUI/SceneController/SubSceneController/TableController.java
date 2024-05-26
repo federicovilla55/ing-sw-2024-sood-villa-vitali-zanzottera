@@ -12,6 +12,7 @@ import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ChangeListener;
@@ -148,7 +149,7 @@ public class TableController extends AbstractController implements TableListener
 
     @Override
     public void notify(LocalTable localTable) {
-        buildTable();
+        Platform.runLater(this::buildTable);
     }
 
 }
