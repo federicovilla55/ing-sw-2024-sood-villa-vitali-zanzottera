@@ -18,6 +18,7 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
@@ -50,12 +51,19 @@ public class LocalStationController extends AbstractController{
     private double scale = 1.0;
     private final double delta = 1.1;
 
+    private final double CARD_PIXEL_WIDTH = 832.0;
+    private final double CARD_PIXEL_HEIGHT = 558.0;
+
+    private final ArrayList<ImageView> renderedCars;
+
     public LocalStationController(AbstractController controller,String nickOwner) {
         super(controller);
 
         this.nickOwner = nickOwner;
 
-        translate = new Translate();
+        this.translate = new Translate();
+
+        this.renderedCars = new ArrayList<>();
     }
 
     @FXML
@@ -72,10 +80,7 @@ public class LocalStationController extends AbstractController{
 
         //super.getStage().setHeight(0.4 * super.getStage().getWidth() + 800);
 
-        /*super.getStage().widthProperty().addListener((observable, oldValue, newValue) -> {
-            //System.out.println(newValue.doubleValue());
-            super.getStage().setMinHeight(0.4 * newValue.doubleValue() + 257);
-        });*/
+        //super.getStage().minHeightProperty().bind(super.getStage().widthProperty().multiply(0.4).add(257));
 
         this.centerPane.prefHeightProperty().bind(this.borderPane.prefHeightProperty());
         this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().multiply(0.80));
@@ -126,10 +131,15 @@ public class LocalStationController extends AbstractController{
     }
 
     private void makeNodeDraggable(Node node){
-
         node.setOnMousePressed(e -> {
             startX = e.getSceneX() - node.getTranslateX();
             startY = e.getSceneY() - node.getTranslateY();
+
+            /*if(!renderedCars.isEmpty()){
+                CardButton button = (CardButton) e.getSource();
+                System.out.println(scale);
+                button.getSide().fitWidthProperty().multiply(scale);
+            }*/
         });
 
         node.setOnMouseDragged(e -> {
@@ -192,11 +202,6 @@ public class LocalStationController extends AbstractController{
     }
 
     public void buildCardGrid(List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
-        final double CARD_PIXEL_WIDTH = 832.0;
-        final double CARD_PIXEL_HEIGHT = 558.0;
-        final double CORNER_PIXEL_WIDTH = 184.0;
-        final double CORNER_PIXEL_HEIGHT = 227.0;
-
         //find first and last row with a card placed
         int firstRow = placedCardSequence.stream().mapToInt(x -> x.y().x()).min().orElse(0);
         int firstCol = placedCardSequence.stream().mapToInt(x -> x.y().y()).min().orElse(0);
@@ -210,8 +215,6 @@ public class LocalStationController extends AbstractController{
         DoubleProperty cellWidthProperty = new SimpleDoubleProperty();
         DoubleProperty cellHeightProperty = new SimpleDoubleProperty();
 
-        ArrayList<ImageView> cardImages = new ArrayList<>();
-
         for(var t : placedCardSequence){
             ImageView cardImage = new ImageView(
                     new Image(Objects.requireNonNull(
@@ -223,17 +226,21 @@ public class LocalStationController extends AbstractController{
 
             cardImage.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
 
-            cardImages.add(cardImage);
+            clipCardImage(cardImage);
+
+            renderedCars.add(cardImage);
         }
 
-        cellWidthProperty.bind(cardImages.getFirst()
-                                         .fitWidthProperty()
-                                         .multiply(1 - CORNER_PIXEL_WIDTH / CARD_PIXEL_WIDTH));
+        double CORNER_PIXEL_WIDTH = 184.0;
+        cellWidthProperty.bind(renderedCars.getFirst()
+                                           .fitWidthProperty()
+                                           .multiply(1 - CORNER_PIXEL_WIDTH / CARD_PIXEL_WIDTH));
 
-        cellHeightProperty.bind(cardImages.getFirst()
-                                          .fitWidthProperty()
-                                          .multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH)
-                                          .multiply(1 - CORNER_PIXEL_HEIGHT / CARD_PIXEL_HEIGHT));
+        double CORNER_PIXEL_HEIGHT = 227.0;
+        cellHeightProperty.bind(renderedCars.getFirst()
+                                            .fitWidthProperty()
+                                            .multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH)
+                                            .multiply(1 - CORNER_PIXEL_HEIGHT / CARD_PIXEL_HEIGHT));
 
         //set dimensions of rows and columns
         for (int i = firstRow - 1; i <= lastRow + 1; i++) {
@@ -256,13 +263,25 @@ public class LocalStationController extends AbstractController{
 
         cardGrid.setGridLinesVisible(true);
 
-        for (int i = 0; i < cardImages.size(); i++) {
-            cardGrid.add(cardImages.get(i), placedCardSequence.get(i).y().y() - firstCol + 1, placedCardSequence.get(i).y().x() - firstRow + 1);
+        for (int i = 0; i < renderedCars.size(); i++) {
+            cardGrid.add(renderedCars.get(i), placedCardSequence.get(i).y().y() - firstCol + 1, placedCardSequence.get(i).y().x() - firstRow + 1);
         }
 
         makeGridPaneDraggable();
 
         makeCenterPaneScrollable();
+    }
+
+    private void clipCardImage(ImageView cardImage){
+        Rectangle rectangle = new Rectangle();
+        rectangle.widthProperty().bind(cardImage.fitWidthProperty());
+        rectangle.heightProperty().bind(cardImage.fitWidthProperty().multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH));
+
+        double CORNER_RADIUS = 27.0;
+        rectangle.arcWidthProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
+        rectangle.arcHeightProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
+
+        cardImage.setClip(rectangle);
     }
 
     private void makeGridPaneDraggable(){
