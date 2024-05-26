@@ -3,39 +3,31 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
-import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
 import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
-import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
-import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.transform.Scale;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Translate;
 
+import javax.sound.sampled.Clip;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LocalStationController extends AbstractController{
 
@@ -52,8 +44,9 @@ public class LocalStationController extends AbstractController{
 
     protected String nickOwner;
 
-    private double startX;
-    private double startY;
+    private double startX, startY;
+    private double anchorX, anchorY;
+    private double translateAnchorX, translateAnchorY;
 
     public LocalStationController(AbstractController controller,String nickOwner) {
         super(controller);
@@ -182,7 +175,7 @@ public class LocalStationController extends AbstractController{
             ArrayList<Tuple<PlayableCard, Tuple<Integer, Integer>>> sequence = new ArrayList<>(List.of(new Tuple<>(this.getLocalModel().getPersonalStation().getCardsInHand().get(1), new Tuple<>(26, 26)),
                                                                                                        new Tuple<>(this.getLocalModel().getPersonalStation().getCardsInHand().get(2), new Tuple<>(27, 27))));
             sequence.addAll(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
-            this.setCardGrid(sequence);
+            this.buildCardGrid(sequence);
         }
     }
 
@@ -194,7 +187,7 @@ public class LocalStationController extends AbstractController{
         return color;
     }
 
-    public void setCardGrid(List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
+    public void buildCardGrid(List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
         final double CARD_PIXEL_WIDTH = 832.0;
         final double CARD_PIXEL_HEIGHT = 558.0;
         final double CORNER_PIXEL_WIDTH = 184.0;
@@ -205,9 +198,6 @@ public class LocalStationController extends AbstractController{
         int firstCol = placedCardSequence.stream().mapToInt(x -> x.y().y()).min().orElse(0);
         int lastRow = placedCardSequence.stream().mapToInt(x -> x.y().x()).max().orElse(0);
         int lastCol = placedCardSequence.stream().mapToInt(x -> x.y().y()).max().orElse(0);
-
-        System.out.println(firstRow + "  " + lastRow);
-        System.out.println(firstCol + "  " + lastCol);
 
         //remove all cards from the grid
         cardGrid.getChildren().clear();
@@ -266,6 +256,37 @@ public class LocalStationController extends AbstractController{
             cardGrid.add(cardImages.get(i), placedCardSequence.get(i).y().y() - firstCol + 1, placedCardSequence.get(i).y().x() - firstRow + 1);
         }
 
+        makeGridPaneMovable();
+    }
+
+    private void makeGridPaneMovable(){
+        centerPane.setStyle("""
+                                -fx-padding: 5;
+                                -fx-border-color: black;
+                                -fx-border-style: solid inside;                                                                
+                            """);
+
+        Translate translate = new Translate();
+
+        cardGrid.getTransforms().add(translate);
+
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(this.centerPane.widthProperty());
+        clip.heightProperty().bind(this.centerPane.heightProperty());
+
+        centerPane.setClip(clip);
+
+        borderPane.getCenter().setOnMousePressed(event -> {
+            anchorX = event.getSceneX();
+            anchorY = event.getSceneY();
+            translateAnchorX = translate.getX();
+            translateAnchorY = translate.getY();
+        });
+
+        borderPane.getCenter().setOnMouseDragged(event -> {
+            translate.setX(translateAnchorX + event.getSceneX() - anchorX);
+            translate.setY(translateAnchorY + event.getSceneY() - anchorY);
+        });
     }
 
 }
