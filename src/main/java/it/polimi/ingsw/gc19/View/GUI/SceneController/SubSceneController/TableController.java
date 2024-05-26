@@ -23,6 +23,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -130,6 +131,8 @@ public class TableController extends AbstractController implements TableListener
         imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
         imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
 
+        clipCardImage(imageView);
+
         return imageView;
     }
 
@@ -141,6 +144,8 @@ public class TableController extends AbstractController implements TableListener
             imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
             imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
 
+            clipCardImage(imageView);
+
             return imageView;
         }
 
@@ -150,6 +155,21 @@ public class TableController extends AbstractController implements TableListener
     @Override
     public void notify(LocalTable localTable) {
         Platform.runLater(this::buildTable);
+    }
+
+    private void clipCardImage(ImageView cardImage){
+        double CARD_PIXEL_HEIGHT = 558.0;
+        double CARD_PIXEL_WIDTH = 832.0;
+
+        javafx.scene.shape.Rectangle rectangle = new Rectangle();
+        rectangle.widthProperty().bind(cardImage.fitWidthProperty());
+        rectangle.heightProperty().bind(cardImage.fitWidthProperty().multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH));
+
+        double CORNER_RADIUS = 27.0;
+        rectangle.arcWidthProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
+        rectangle.arcHeightProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
+
+        cardImage.setClip(rectangle);
     }
 
 }

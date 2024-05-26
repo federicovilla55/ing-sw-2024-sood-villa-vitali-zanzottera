@@ -23,6 +23,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -173,8 +174,6 @@ public class SetupController extends AbstractController implements SetupListener
 
                 b.setOnMouseClicked((event) -> {
 
-                    System.out.println(b.getCardOrientation());
-
                     getClientController().placeInitialCard(b.getCardOrientation());
                     initialCardHBox.getChildren().clear();
                     rightVBox.getChildren().remove(initialCardOrientationPane);
@@ -220,12 +219,6 @@ public class SetupController extends AbstractController implements SetupListener
             this.hbox.getChildren().clear();
             this.hbox.getChildren().add(button.getFirst());
         }
-
-        /*availableColorsPane.setStyle("""
-                                        -fx-border-style: solid inside;
-                                        -fx-border-color: black;
-                                        -fx-border-insets: 5;
-                                     """);*/
     }
 
     private ArrayList<Button> colorButtonFactory(List<Color> availableColors){

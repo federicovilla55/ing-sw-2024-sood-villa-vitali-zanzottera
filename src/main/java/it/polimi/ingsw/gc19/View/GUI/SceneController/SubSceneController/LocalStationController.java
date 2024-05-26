@@ -179,6 +179,7 @@ public class LocalStationController extends AbstractController{
         imageView.setPreserveRatio(true);
         imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
         imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
+        clipCardImage(imageView);
         //imageView.setFitWidth(200);
 
         return imageView;

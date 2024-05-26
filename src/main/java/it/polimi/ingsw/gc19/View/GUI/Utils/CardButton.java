@@ -15,6 +15,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.Region;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.util.Objects;
@@ -37,8 +38,10 @@ public class CardButton extends Button{
 
         this.front.setPreserveRatio(true);
         this.front.setFitWidth(200);
+        clipCardImage(this.front);
         this.back.setPreserveRatio(true);
         this.back.setFitWidth(200);
+        clipCardImage(this.back);
 
         super.setPadding(Insets.EMPTY);
         super.setBorder(Border.EMPTY);
@@ -53,6 +56,10 @@ public class CardButton extends Button{
         });*/
 
         super.setGraphic(this.front);
+        super.setStyle("""
+                        -fx-focus-color: transparent;
+                        -fx-background-color: transparent;
+                        """);
     }
 
     public CardButton(Card card, Region region, double scale) {
@@ -88,6 +95,21 @@ public class CardButton extends Button{
             this.front.fitHeightProperty().bind(region.heightProperty().multiply(scaleY));
             this.back.fitHeightProperty().bind(region.heightProperty().multiply(scaleY));
         }
+    }
+
+    private void clipCardImage(ImageView cardImage){
+        double CARD_PIXEL_HEIGHT = 558.0;
+        double CARD_PIXEL_WIDTH = 832.0;
+
+        Rectangle rectangle = new Rectangle();
+        rectangle.widthProperty().bind(cardImage.fitWidthProperty());
+        rectangle.heightProperty().bind(cardImage.fitWidthProperty().multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH));
+
+        double CORNER_RADIUS = 27.0;
+        rectangle.arcWidthProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
+        rectangle.arcHeightProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
+
+        cardImage.setClip(rectangle);
     }
 
     public Card getCard(){
