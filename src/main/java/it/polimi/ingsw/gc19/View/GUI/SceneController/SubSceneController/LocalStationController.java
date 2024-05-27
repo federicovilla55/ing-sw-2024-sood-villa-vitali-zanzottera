@@ -1,14 +1,15 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
-import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
 import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
 import it.polimi.ingsw.gc19.View.GUI.Utils.PlayableCardButton;
+import it.polimi.ingsw.gc19.View.GUI.Utils.CardImageLoader;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
@@ -49,6 +50,11 @@ public class LocalStationController extends AbstractController implements Statio
 
     private Translate translate;
 
+    private final ImageView bluePawnImageView;
+    private final ImageView redPawnImageView;
+    private final ImageView greenPawnImageView;
+    private final ImageView yellowPawnImageView;
+
     private double startX, startY;
     private double anchorX, anchorY;
     private double translateAnchorX, translateAnchorY;
@@ -64,6 +70,11 @@ public class LocalStationController extends AbstractController implements Statio
 
     public LocalStationController(AbstractController controller,String nickOwner) {
         super(controller);
+
+        bluePawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/blue_pawn.png"))));
+        redPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/red_pawn.png"))));
+        greenPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/green_pawn.png"))));
+        yellowPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/yellow_pawn.png"))));
 
         this.nickOwner = nickOwner;
 
@@ -145,6 +156,9 @@ public class LocalStationController extends AbstractController implements Statio
 
     private void makeCardDraggable(Node node){
         node.setOnMousePressed(e -> {
+            //always center card with respect to mouse
+            node.setTranslateX(node.getTranslateX() + e.getSceneX() - node.localToScene(0,0).getX() - node.getBoundsInLocal().getWidth()/2);
+            node.setTranslateY(node.getTranslateY() + e.getSceneY() - node.localToScene(0,0).getY() - node.getBoundsInLocal().getHeight()/2);
             startX = e.getSceneX() - node.getTranslateX();
             startY = e.getSceneY() - node.getTranslateY();
 
@@ -197,8 +211,9 @@ public class LocalStationController extends AbstractController implements Statio
                         super.notifyGenericError("There is no available anchor card!");
                     }
                     else {
-                        if(super.getLocalModel().getPersonalStation().cardIsPlaceable(anchor,toPlace,direction)) {
+                        if(getClientController().getState().equals(ViewState.PLACE) && super.getLocalModel().getPersonalStation().cardIsPlaceable(anchor,toPlace,direction)) {
                             super.getClientController().placeCard(toPlace.getCardCode(),anchor.getCardCode(),direction,toPlace.getCardOrientation());
+                            return;
                         }
                         else {
                             super.notifyGenericError("This card is not placeable here!");
@@ -217,9 +232,7 @@ public class LocalStationController extends AbstractController implements Statio
     }
 
     private ImageView factoryUnswappableCard(Symbol symbol, PlayableCardType type){
-        ImageView imageView = new ImageView(new Image(
-                Objects.requireNonNull(getClass().getResource("/images/back/" + type.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg"))
-                       .toExternalForm()));
+        ImageView imageView = new ImageView(CardImageLoader.getBackImage(symbol,type));
         imageView.setPreserveRatio(true);
         imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
         imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
@@ -236,7 +249,13 @@ public class LocalStationController extends AbstractController implements Statio
     }
 
     private ImageView pawnFactory(String name){
-        ImageView color = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/pawns/" + name.toLowerCase() + "_pawn.png")).toExternalForm()));
+        ImageView color = switch (name.toLowerCase()) {
+            case "red" -> redPawnImageView;
+            case "green" -> greenPawnImageView;
+            case  "blue" -> bluePawnImageView;
+            case "yellow" -> yellowPawnImageView;
+            default -> redPawnImageView;
+        };
         color.setPreserveRatio(true);
         color.fitWidthProperty().bind(super.getStage().widthProperty().divide(50));
 
@@ -265,10 +284,7 @@ public class LocalStationController extends AbstractController implements Statio
         DoubleProperty cellHeightProperty = new SimpleDoubleProperty();
 
         for(var t : placedCardSequence){
-            ImageView cardImage = new ImageView(
-                    new Image(Objects.requireNonNull(
-                            getClass().getResource("/images/" + t.x().getCardCode() + "_" + (t.x().getCardOrientation() == CardOrientation.UP ? "front" : "back") + ".jpg"))
-                                     .toExternalForm()));
+            ImageView cardImage = CardImageLoader.getImageView(t.x(),t.x().getCardOrientation());
 
             //keep card aspect ratio
             cardImage.setPreserveRatio(true);

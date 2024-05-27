@@ -621,7 +621,7 @@
     "playable_card_type": "RESOURCE",
     "front_grid": [
       [[ "empty", "EMPTY" ], [ "not_available", "NOT_AVAILABLE" ]],
-      [[ "not_available", "NOT_AVAILABLE" ], [ "symbol", "ANIMAL" ]]
+      [[ "empty", "EMPTY" ], [ "symbol", "ANIMAL" ]]
     ],
     "required_symbol": {
     },

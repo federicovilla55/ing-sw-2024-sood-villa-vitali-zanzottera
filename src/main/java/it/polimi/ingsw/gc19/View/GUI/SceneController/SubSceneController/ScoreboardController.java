@@ -54,6 +54,16 @@ public class ScoreboardController extends AbstractController implements StationL
             {591, 472}   // 29
     };
 
+    private final Image bluePawnImage;
+    private final Image redPawnImage;
+    private final Image greenPawnImage;
+    private final Image yellowPawnImage;
+
+    private final ImageView bluePawnImageView;
+    private final ImageView redPawnImageView;
+    private final ImageView greenPawnImageView;
+    private final ImageView yellowPawnImageView;
+
     private final HashMap<String, ImageView> pawnScoreboard = new HashMap<>();
     private final HashMap<Integer, ArrayList<ImageView>> pawnPositions = new HashMap<>();
 
@@ -71,6 +81,17 @@ public class ScoreboardController extends AbstractController implements StationL
 
     public ScoreboardController(AbstractController controller) {
         super(controller);
+
+        bluePawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/blue_pawn.png")));
+        redPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/red_pawn.png")));
+        greenPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/green_pawn.png")));
+        yellowPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/yellow_pawn.png")));
+
+        bluePawnImageView = new ImageView(bluePawnImage);
+        redPawnImageView = new ImageView(redPawnImage);
+        greenPawnImageView = new ImageView(greenPawnImage);
+        yellowPawnImageView = new ImageView(yellowPawnImage);
+
 
         controller.getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
     }
@@ -103,58 +124,66 @@ public class ScoreboardController extends AbstractController implements StationL
 
 
     public void updateAllPawns(){
-        System.out.println("Aggiornato....");
         ratio = scoreboardView.getFitHeight() / scoreboardImage.getHeight();
         pawnSize = scoreboardImage.getHeight() * ratio * proportions / 8;
         ArrayList<LocalStationPlayer> stations = new ArrayList<>(getLocalModel().getStations().values());
         for(LocalStationPlayer station : stations){
             placePawn(station);
         }
-        System.out.println();
     }
 
 
     public void placePawn(LocalStationPlayer station) {
         if (station.getChosenColor() == null) return;
-        System.out.print("place pawn");
-        String pawnColor = station.getChosenColor().toString().toLowerCase();
+        Color pawnColor = station.getChosenColor();
+        String pawnColorString = pawnColor.toString().toLowerCase();
         int scoredPoints = station.getNumPoints();
         if (scoredPoints > 29) scoredPoints = 29;
-        Image pawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/" + pawnColor + "_pawn.png")));
+        Image pawnImage = switch (pawnColor) {
+            case BLUE -> bluePawnImage;
+            case RED -> redPawnImage;
+            case GREEN -> greenPawnImage;
+            case YELLOW -> yellowPawnImage;
+        };
         if (pawnImage.isError()) {
-            System.err.println("Error while loading image for " + pawnColor + " pawn.");
+            System.err.println("Error while loading image for " + pawnColorString + " pawn.");
             return;
         }
 
-        if (pawnScoreboard.containsKey(pawnColor)) {
-            ImageView oldPawn = pawnScoreboard.get(pawnColor);
+        ImageView pawnImageView = null;
+
+        if (pawnScoreboard.containsKey(pawnColorString)) {
+            pawnImageView = pawnScoreboard.get(pawnColorString);
             for(Map.Entry<Integer, ArrayList<ImageView>> entry : pawnPositions.entrySet()) {
-                if(entry.getValue().contains(oldPawn)){
-                    entry.getValue().remove(oldPawn);
+                if(entry.getValue().contains(pawnImageView)){
+                    entry.getValue().remove(pawnImageView);
                     updatePositions(entry.getKey());
                     break;
                 }
             }
-            scoreboardPane.getChildren().remove(oldPawn);
+        }else{
+            pawnImageView = new ImageView(pawnImage);
+            scoreboardPane.getChildren().add(pawnImageView);
+            pawnScoreboard.put(pawnColorString, pawnImageView);
         }
 
         double[] basePosition = scoreboardPositions[scoredPoints];
 
         ArrayList<ImageView> pawnsAtPosition = pawnPositions.getOrDefault(scoredPoints, new ArrayList<>());
 
-        ImageView pawnImageView = new ImageView(pawnImage);
+        ImageView pawnImageView = switch (pawnColor) {
+            case BLUE -> bluePawnImageView;
+            case RED -> redPawnImageView;
+            case GREEN -> greenPawnImageView;
+            case YELLOW -> yellowPawnImageView;
+        };
+
         pawnImageView.setFitWidth(pawnSize);
         pawnImageView.setFitHeight(pawnSize);
         pawnImageView.setPreserveRatio(true);
         pawnImageView.setLayoutX(scoreboardView.getX() + basePosition[0] * ratio - pawnSize / 2);
         pawnImageView.setLayoutY(scoreboardView.getY() + basePosition[1] * ratio - pawnSize / 2);
 
-
-        System.out.println((scoreboardView.getX() + basePosition[0] * ratio - pawnSize / 2)
-                + " " + (scoreboardView.getY() + basePosition[1] * ratio - pawnSize / 2));
-
-        scoreboardPane.getChildren().add(pawnImageView);
-        pawnScoreboard.put(pawnColor, pawnImageView);
 
         pawnsAtPosition.add(pawnImageView);
 
