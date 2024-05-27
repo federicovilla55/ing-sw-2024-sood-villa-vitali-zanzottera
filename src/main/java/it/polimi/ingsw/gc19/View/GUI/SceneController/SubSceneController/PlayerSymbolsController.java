@@ -10,6 +10,7 @@ import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TurnStateListener;
 import javafx.application.Platform;
+import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -18,9 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -62,15 +61,12 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
         }
 
         borderPane = (BorderPane) Objects.requireNonNull(root).lookup("#symbolsBorderPane");
-        borderPane.setPrefSize(400, 200);
-        borderPane.setMaxSize(400, 200);
 
         updatePlayerState(getLocalModel().getFirstPlayer(), TurnState.PLACE);
     }
 
-    public void updatePlayerState(String nickname, TurnState turnState){
-        String firstPlayer = getLocalModel().getFirstPlayer();
-        Label nicknameLabel = new Label(firstPlayer);
+    public void updatePlayerState(String nickname, TurnState turnState) {
+        Label nicknameLabel = new Label(nickname);
         Label stateLabel = new Label(stateStrings[0]);
         HBox hbox = (HBox) borderPane.lookup("#hbox");
         hbox.getChildren().clear();
@@ -78,11 +74,18 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
 
         GridPane gridPane = (GridPane) borderPane.lookup("#gridPane");
         gridPane.getChildren().clear();
-        for(String s : symbolImages) {
-            Image symbolImage = new Image(getClass().getResourceAsStream("/symbols/"+s+".png"));
+
+        gridPane.hgapProperty().bind(super.getStage().widthProperty().multiply(0.25 / 7).divide(7));
+
+        gridPane.vgapProperty().bind(super.getStage().widthProperty().multiply(0.25 / 500));
+
+        for (String s : symbolImages) {
+            Image symbolImage = new Image(getClass().getResourceAsStream("/symbols/" + s + ".png"));
             ImageView symbolImageView = new ImageView(symbolImage);
-            symbolImageView.setFitHeight(40);
-            symbolImageView.setFitWidth(40);
+            symbolImageView.setPreserveRatio(true);
+            symbolImageView.fitWidthProperty().bind(super.getStage().widthProperty().multiply(0.2 / 10));
+
+
             gridPane.add(symbolImageView, symbolImages.indexOf(s), 0);
             GridPane.setHalignment(symbolImageView, HPos.CENTER);
             GridPane.setValignment(symbolImageView, VPos.CENTER);
@@ -90,9 +93,9 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
             gridPane.add(countLabel, symbolImages.indexOf(s), 1);
             GridPane.setHalignment(countLabel, HPos.CENTER);
             GridPane.setValignment(countLabel, VPos.CENTER);
-
         }
     }
+
 
     @Override
     public void notify(String nick, TurnState turnState) {

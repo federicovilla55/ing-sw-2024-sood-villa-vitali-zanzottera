@@ -15,6 +15,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -67,6 +68,8 @@ public class ScoreboardController extends AbstractController implements StationL
 
     private double pawnSize;
 
+    private double proportions;
+
     private double ratio;
 
     public ScoreboardController(AbstractController controller) {
@@ -82,27 +85,43 @@ public class ScoreboardController extends AbstractController implements StationL
             return;
         }
 
-        double scoreboardHeight = 700;
-        double proportions = scoreboardImage.getWidth() / scoreboardImage.getHeight();
-        ratio = scoreboardHeight / scoreboardImage.getHeight();
-        pawnSize = scoreboardImage.getHeight() * ratio * proportions / 8;
+        proportions = scoreboardImage.getWidth() / scoreboardImage.getHeight();
         scoreboardView = new ImageView(scoreboardImage);
+
         scoreboardView.setPreserveRatio(true);
-        scoreboardView.setFitWidth(scoreboardHeight * proportions);
-        scoreboardView.setFitHeight(scoreboardHeight);
+        double factor = 3;
+        scoreboardView.fitWidthProperty().bind(super.getStage().widthProperty().multiply(1 / factor));
+        scoreboardView.fitHeightProperty().bind(super.getStage().heightProperty().multiply(1 / (factor * proportions)));
+
+
+        ratio = scoreboardView.getFitHeight() / scoreboardImage.getHeight();
 
         scoreboardPane = new Pane();
         scoreboardPane.getChildren().add(scoreboardView);
 
-        ArrayList<LocalStationPlayer> stations = new ArrayList<>(getLocalModel().getStations().values());
 
+        scoreboardView.fitHeightProperty().addListener((obs, oldVal, newVal) -> updateAllPawns());
+        scoreboardView.fitWidthProperty().addListener((obs, oldVal, newVal) -> updateAllPawns());
+
+        updateAllPawns();
+    }
+
+
+    public void updateAllPawns(){
+        System.out.println("Aggiornato....");
+        ratio = scoreboardView.getFitHeight() / scoreboardImage.getHeight();
+        pawnSize = scoreboardImage.getHeight() * ratio * proportions / 8;
+        ArrayList<LocalStationPlayer> stations = new ArrayList<>(getLocalModel().getStations().values());
         for(LocalStationPlayer station : stations){
             placePawn(station);
         }
+        System.out.println();
     }
+
 
     public void placePawn(LocalStationPlayer station) {
         if (station.getChosenColor() == null) return;
+        System.out.print("place pawn");
         String pawnColor = station.getChosenColor().toString().toLowerCase();
         int scoredPoints = station.getNumPoints();
         if (scoredPoints > 29) scoredPoints = 29;
@@ -132,8 +151,13 @@ public class ScoreboardController extends AbstractController implements StationL
         pawnImageView.setFitWidth(pawnSize);
         pawnImageView.setFitHeight(pawnSize);
         pawnImageView.setPreserveRatio(true);
-        pawnImageView.setLayoutX(scoreboardView.getTranslateX() + basePosition[0] * ratio - pawnSize / 2);
-        pawnImageView.setLayoutY(scoreboardView.getTranslateY() + basePosition[1] * ratio - pawnSize / 2);
+        pawnImageView.setLayoutX(scoreboardView.getX() + basePosition[0] * ratio - pawnSize / 2);
+        pawnImageView.setLayoutY(scoreboardView.getY() + basePosition[1] * ratio - pawnSize / 2);
+
+
+
+        System.out.println((scoreboardView.getX() + basePosition[0] * ratio - pawnSize / 2)
+                + " " + (scoreboardView.getY() + basePosition[1] * ratio - pawnSize / 2));
 
         scoreboardPane.getChildren().add(pawnImageView);
         pawnScoreboard.put(pawnColor, pawnImageView);
@@ -150,7 +174,7 @@ public class ScoreboardController extends AbstractController implements StationL
     private void updatePositions(int numPoints){
         double xOffset = 0;
         double yOffset = 0;
-        double offsetSize = 23;
+        double offsetSize = 23 * pawnSize / 40;
 
 
         for(Map.Entry<String, ImageView> entry : pawnScoreboard.entrySet()){
