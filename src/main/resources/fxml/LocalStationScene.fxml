@@ -5,7 +5,7 @@
 
 <BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <StackPane fx:id="centerPane" BorderPane.alignment="CENTER" VBox.vgrow="NEVER">
+      <StackPane fx:id="centerPane" BorderPane.alignment="CENTER" VBox.vgrow="NEVER" HBox.hgrow="NEVER">
          <GridPane fx:id="cardGrid" alignment="CENTER" StackPane.alignment="CENTER" VBox.vgrow="NEVER">
          </GridPane>
          <BorderPane.margin>
@@ -14,7 +14,7 @@
       </StackPane>
    </center>
    <left>
-      <VBox fx:id="leftVBox" alignment="CENTER" spacing="50.0" BorderPane.alignment="CENTER" VBox.vgrow="NEVER">
+      <VBox fx:id="leftVBox" alignment="CENTER" spacing="50.0" BorderPane.alignment="CENTER" VBox.vgrow="NEVER" HBox.hgrow="NEVER">
          <BorderPane.margin>
             <Insets bottom="25.0" top="25.0" />
          </BorderPane.margin>

@@ -59,11 +59,6 @@ public class ScoreboardController extends AbstractController implements StationL
     private final Image greenPawnImage;
     private final Image yellowPawnImage;
 
-    private final ImageView bluePawnImageView;
-    private final ImageView redPawnImageView;
-    private final ImageView greenPawnImageView;
-    private final ImageView yellowPawnImageView;
-
     private final HashMap<String, ImageView> pawnScoreboard = new HashMap<>();
     private final HashMap<Integer, ArrayList<ImageView>> pawnPositions = new HashMap<>();
 
@@ -86,12 +81,6 @@ public class ScoreboardController extends AbstractController implements StationL
         redPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/red_pawn.png")));
         greenPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/green_pawn.png")));
         yellowPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/yellow_pawn.png")));
-
-        bluePawnImageView = new ImageView(bluePawnImage);
-        redPawnImageView = new ImageView(redPawnImage);
-        greenPawnImageView = new ImageView(greenPawnImage);
-        yellowPawnImageView = new ImageView(yellowPawnImage);
-
 
         controller.getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
     }
@@ -135,26 +124,30 @@ public class ScoreboardController extends AbstractController implements StationL
 
     public void placePawn(LocalStationPlayer station) {
         if (station.getChosenColor() == null) return;
+
         Color pawnColor = station.getChosenColor();
         String pawnColorString = pawnColor.toString().toLowerCase();
+
         int scoredPoints = station.getNumPoints();
         if (scoredPoints > 29) scoredPoints = 29;
+
         Image pawnImage = switch (pawnColor) {
             case BLUE -> bluePawnImage;
             case RED -> redPawnImage;
             case GREEN -> greenPawnImage;
             case YELLOW -> yellowPawnImage;
         };
+
         if (pawnImage.isError()) {
             System.err.println("Error while loading image for " + pawnColorString + " pawn.");
             return;
         }
 
-        ImageView pawnImageView = null;
+        ImageView pawnImageView;
 
         if (pawnScoreboard.containsKey(pawnColorString)) {
             pawnImageView = pawnScoreboard.get(pawnColorString);
-            for(Map.Entry<Integer, ArrayList<ImageView>> entry : pawnPositions.entrySet()) {
+            for(var entry : pawnPositions.entrySet()) {
                 if(entry.getValue().contains(pawnImageView)){
                     entry.getValue().remove(pawnImageView);
                     updatePositions(entry.getKey());
@@ -170,13 +163,6 @@ public class ScoreboardController extends AbstractController implements StationL
         double[] basePosition = scoreboardPositions[scoredPoints];
 
         ArrayList<ImageView> pawnsAtPosition = pawnPositions.getOrDefault(scoredPoints, new ArrayList<>());
-
-        ImageView pawnImageView = switch (pawnColor) {
-            case BLUE -> bluePawnImageView;
-            case RED -> redPawnImageView;
-            case GREEN -> greenPawnImageView;
-            case YELLOW -> yellowPawnImageView;
-        };
 
         pawnImageView.setFitWidth(pawnSize);
         pawnImageView.setFitHeight(pawnSize);
