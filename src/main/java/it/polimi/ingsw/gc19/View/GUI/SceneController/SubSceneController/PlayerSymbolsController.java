@@ -30,15 +30,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class PlayerSymbolsController extends AbstractController implements TurnStateListener {
-    private static final ArrayList<String> symbolImages = new ArrayList<>(Arrays.asList(
-        "vegetable",
-        "scroll",
-        "potion",
-        "mushroom",
-        "insect",
-        "feather",
-        "animal"
-    ));
 
     private static final String[] stateStrings = {
         "Placing a card",
@@ -70,7 +61,11 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
 
     public void updatePlayerState(String nickname, TurnState turnState) {
         Label nicknameLabel = new Label(nickname);
-        Label stateLabel = new Label(stateStrings[0]);
+        Label stateLabel = switch (turnState) {
+            case TurnState.PLACE -> new Label(stateStrings[0]);
+            case TurnState.DRAW -> new Label(stateStrings[1]);
+        };
+
         HBox hbox = (HBox) borderPane.lookup("#hbox");
         hbox.getChildren().clear();
         hbox.getChildren().addAll(nicknameLabel, stateLabel);
@@ -82,17 +77,19 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
 
         gridPane.vgapProperty().bind(super.getStage().widthProperty().multiply(0.25 / 500));
 
-        for (String s : symbolImages) {
-            Image symbolImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/symbols/" + s + ".png")));
+        for (Symbol s : Symbol.values()) {
+            Image symbolImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/symbols/" + s.toString().toLowerCase() + ".png")));
             ImageView symbolImageView = new ImageView(symbolImage);
             symbolImageView.setPreserveRatio(true);
             symbolImageView.fitWidthProperty().bind(super.getStage().widthProperty().multiply(0.2 / 10));
 
-            gridPane.add(symbolImageView, symbolImages.indexOf(s), 0);
+            gridPane.add(symbolImageView, s.ordinal(), 0);
             GridPane.setHalignment(symbolImageView, HPos.CENTER);
             GridPane.setValignment(symbolImageView, VPos.CENTER);
-            Label countLabel = new Label(String.valueOf(0));
-            gridPane.add(countLabel, symbolImages.indexOf(s), 1);
+            Label countLabel = new Label(String.valueOf(
+                    this.getLocalModel().getStations().get(nickname).getVisibleSymbols().get(s)
+            ));
+            gridPane.add(countLabel, s.ordinal(), 1);
             GridPane.setHalignment(countLabel, HPos.CENTER);
             GridPane.setValignment(countLabel, VPos.CENTER);
         }
@@ -101,8 +98,6 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
 
     @Override
     public void notify(String nick, TurnState turnState) {
-        Platform.runLater(() -> {
-            updatePlayerState(nick, turnState);
-        });
+        Platform.runLater(() -> updatePlayerState(nick, turnState));
     }
 }
