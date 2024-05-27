@@ -138,7 +138,8 @@ public class PlayingAreaController extends AbstractController implements TurnSta
 
         VBox gamesStatsVBox = new VBox();
         gamesStatsVBox.setPadding(new Insets(20, 0, 0, 0));
-        gamesStatsVBox.setSpacing(40);
+        gamesStatsVBox.spacingProperty().bind(super.getStage().heightProperty().divide(20));
+        gamesStatsVBox.setAlignment(Pos.CENTER);
 
         HBox scoreboardHBox = new HBox();
         HBox visibleSymbolsHBox = new HBox();

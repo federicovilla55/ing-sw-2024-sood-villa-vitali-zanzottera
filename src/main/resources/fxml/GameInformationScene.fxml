@@ -10,22 +10,10 @@
 
     <center>
         <VBox id="symbolsBorderVBOX" alignment="CENTER" spacing="10" VBox.vgrow="ALWAYS" styleClass="bordered-vbox">
-            <HBox fx:id="hbox" alignment="CENTER" spacing="40">
+            <HBox fx:id="hbox" alignment="CENTER" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" spacing="40">
             </HBox>
-            <GridPane id="gridPane" fx:id="gridPane" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER">
-                <columnConstraints>
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
-                </columnConstraints>
-                <rowConstraints>
-                    <RowConstraints maxHeight="200.0" minHeight="5.0" prefHeight="50.0" vgrow="SOMETIMES" />
-                    <RowConstraints maxHeight="50.0" minHeight="5.0" prefHeight="50.0" vgrow="SOMETIMES" />
-                </rowConstraints>
+            <GridPane id="gridPane" fx:id="gridPane" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"
+                      minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER" HBox.hgrow="ALWAYS">
             </GridPane>
         </VBox>
     </center>
