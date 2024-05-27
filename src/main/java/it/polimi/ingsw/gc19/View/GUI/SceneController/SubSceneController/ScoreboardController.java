@@ -124,20 +124,17 @@ public class ScoreboardController extends AbstractController implements StationL
 
 
     public void updateAllPawns(){
-        System.out.println("Aggiornato....");
         ratio = scoreboardView.getFitHeight() / scoreboardImage.getHeight();
         pawnSize = scoreboardImage.getHeight() * ratio * proportions / 8;
         ArrayList<LocalStationPlayer> stations = new ArrayList<>(getLocalModel().getStations().values());
         for(LocalStationPlayer station : stations){
             placePawn(station);
         }
-        System.out.println();
     }
 
 
     public void placePawn(LocalStationPlayer station) {
         if (station.getChosenColor() == null) return;
-        System.out.print("place pawn");
         Color pawnColor = station.getChosenColor();
         String pawnColorString = pawnColor.toString().toLowerCase();
         int scoredPoints = station.getNumPoints();
@@ -153,16 +150,21 @@ public class ScoreboardController extends AbstractController implements StationL
             return;
         }
 
+        ImageView pawnImageView = null;
+
         if (pawnScoreboard.containsKey(pawnColorString)) {
-            ImageView oldPawn = pawnScoreboard.get(pawnColorString);
+            pawnImageView = pawnScoreboard.get(pawnColorString);
             for(Map.Entry<Integer, ArrayList<ImageView>> entry : pawnPositions.entrySet()) {
-                if(entry.getValue().contains(oldPawn)){
-                    entry.getValue().remove(oldPawn);
+                if(entry.getValue().contains(pawnImageView)){
+                    entry.getValue().remove(pawnImageView);
                     updatePositions(entry.getKey());
                     break;
                 }
             }
-            scoreboardPane.getChildren().remove(oldPawn);
+        }else{
+            pawnImageView = new ImageView(pawnImage);
+            scoreboardPane.getChildren().add(pawnImageView);
+            pawnScoreboard.put(pawnColorString, pawnImageView);
         }
 
         double[] basePosition = scoreboardPositions[scoredPoints];
@@ -182,12 +184,6 @@ public class ScoreboardController extends AbstractController implements StationL
         pawnImageView.setLayoutX(scoreboardView.getX() + basePosition[0] * ratio - pawnSize / 2);
         pawnImageView.setLayoutY(scoreboardView.getY() + basePosition[1] * ratio - pawnSize / 2);
 
-
-        System.out.println((scoreboardView.getX() + basePosition[0] * ratio - pawnSize / 2)
-                + " " + (scoreboardView.getY() + basePosition[1] * ratio - pawnSize / 2));
-
-        scoreboardPane.getChildren().add(pawnImageView);
-        pawnScoreboard.put(pawnColorString, pawnImageView);
 
         pawnsAtPosition.add(pawnImageView);
 
