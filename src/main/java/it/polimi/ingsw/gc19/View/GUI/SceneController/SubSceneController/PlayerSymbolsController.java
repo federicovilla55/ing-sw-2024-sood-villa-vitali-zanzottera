@@ -55,7 +55,7 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
     public void initialize() {
         Parent root = null;
         try {
-            root = FXMLLoader.load(getClass().getResource("/fxml/GameInformationScene.fxml"));
+            root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/fxml/GameInformationScene.fxml")));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -80,11 +80,10 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
         gridPane.vgapProperty().bind(super.getStage().widthProperty().multiply(0.25 / 500));
 
         for (String s : symbolImages) {
-            Image symbolImage = new Image(getClass().getResourceAsStream("/symbols/" + s + ".png"));
+            Image symbolImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/symbols/" + s + ".png")));
             ImageView symbolImageView = new ImageView(symbolImage);
             symbolImageView.setPreserveRatio(true);
             symbolImageView.fitWidthProperty().bind(super.getStage().widthProperty().multiply(0.2 / 10));
-
 
             gridPane.add(symbolImageView, symbolImages.indexOf(s), 0);
             GridPane.setHalignment(symbolImageView, HPos.CENTER);

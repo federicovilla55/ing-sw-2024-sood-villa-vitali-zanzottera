@@ -18,10 +18,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ScoreboardController extends AbstractController implements StationListener {
     private static final double[][] scoreboardPositions = {
@@ -79,7 +76,7 @@ public class ScoreboardController extends AbstractController implements StationL
     }
 
     public void initialize(){
-        scoreboardImage = new Image(getClass().getResourceAsStream("/score_table.jpg"));
+        scoreboardImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/score_table.jpg")));
         if (scoreboardImage.isError()) {
             System.err.println("Error while loading scoreboard");
             return;
@@ -93,12 +90,10 @@ public class ScoreboardController extends AbstractController implements StationL
         scoreboardView.fitWidthProperty().bind(super.getStage().widthProperty().multiply(1 / factor));
         scoreboardView.fitHeightProperty().bind(super.getStage().heightProperty().multiply(1 / (factor * proportions)));
 
-
         ratio = scoreboardView.getFitHeight() / scoreboardImage.getHeight();
 
         scoreboardPane = new Pane();
         scoreboardPane.getChildren().add(scoreboardView);
-
 
         scoreboardView.fitHeightProperty().addListener((obs, oldVal, newVal) -> updateAllPawns());
         scoreboardView.fitWidthProperty().addListener((obs, oldVal, newVal) -> updateAllPawns());
@@ -125,7 +120,7 @@ public class ScoreboardController extends AbstractController implements StationL
         String pawnColor = station.getChosenColor().toString().toLowerCase();
         int scoredPoints = station.getNumPoints();
         if (scoredPoints > 29) scoredPoints = 29;
-        Image pawnImage = new Image(getClass().getResourceAsStream("/pawns/" + pawnColor + "_pawn.png"));
+        Image pawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/" + pawnColor + "_pawn.png")));
         if (pawnImage.isError()) {
             System.err.println("Error while loading image for " + pawnColor + " pawn.");
             return;
@@ -155,7 +150,6 @@ public class ScoreboardController extends AbstractController implements StationL
         pawnImageView.setLayoutY(scoreboardView.getY() + basePosition[1] * ratio - pawnSize / 2);
 
 
-
         System.out.println((scoreboardView.getX() + basePosition[0] * ratio - pawnSize / 2)
                 + " " + (scoreboardView.getY() + basePosition[1] * ratio - pawnSize / 2));
 
@@ -182,24 +176,25 @@ public class ScoreboardController extends AbstractController implements StationL
             ArrayList<ImageView> pawnsAtPosition = pawnPositions.getOrDefault(numPoints, new ArrayList<>());
             if(pawnsAtPosition.contains(pawnImageView)) {
                 if (pawnsAtPosition.size() > 1) {
-                    switch (entry.getKey()) {
-                        case "red":
+                    yOffset = switch (entry.getKey()) {
+                        case "red" -> {
                             xOffset = offsetSize;
-                            yOffset = -offsetSize;
-                            break;
-                        case "yellow":
+                            yield -offsetSize;
+                        }
+                        case "yellow" -> {
                             xOffset = -offsetSize;
-                            yOffset = -offsetSize;
-                            break;
-                        case "blue":
+                            yield -offsetSize;
+                        }
+                        case "blue" -> {
                             xOffset = offsetSize;
-                            yOffset = offsetSize;
-                            break;
-                        case "green":
+                            yield offsetSize;
+                        }
+                        case "green" -> {
                             xOffset = -offsetSize;
-                            yOffset = offsetSize;
-                            break;
-                    }
+                            yield offsetSize;
+                        }
+                        default -> yOffset;
+                    };
                 }
                 pawnImageView.setFitWidth(pawnSize);
                 pawnImageView.setFitHeight(pawnSize);
