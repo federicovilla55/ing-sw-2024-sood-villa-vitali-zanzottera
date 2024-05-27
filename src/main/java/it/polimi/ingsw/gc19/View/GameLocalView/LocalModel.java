@@ -274,7 +274,7 @@ public class LocalModel {
         this.availableColors.remove(color);
 
         this.listenersManager.notifySetupListener(SetupEvent.ACCEPTED_COLOR);
-        //this.listenersManager.notifyStationListener((PersonalStation) this.playerStations.get(this.nickname));
+        this.listenersManager.notifyStationListener((PersonalStation) this.playerStations.get(this.nickname));
 
         if(finishedLocalSetup()){
             this.listenersManager.notifySetupListener(SetupEvent.COMPLETED);
