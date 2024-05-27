@@ -59,11 +59,6 @@ public class ScoreboardController extends AbstractController implements StationL
     private final Image greenPawnImage;
     private final Image yellowPawnImage;
 
-    private final ImageView bluePawnImageView;
-    private final ImageView redPawnImageView;
-    private final ImageView greenPawnImageView;
-    private final ImageView yellowPawnImageView;
-
     private final HashMap<String, ImageView> pawnScoreboard = new HashMap<>();
     private final HashMap<Integer, ArrayList<ImageView>> pawnPositions = new HashMap<>();
 
@@ -86,12 +81,6 @@ public class ScoreboardController extends AbstractController implements StationL
         redPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/red_pawn.png")));
         greenPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/green_pawn.png")));
         yellowPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/yellow_pawn.png")));
-
-        bluePawnImageView = new ImageView(bluePawnImage);
-        redPawnImageView = new ImageView(redPawnImage);
-        greenPawnImageView = new ImageView(greenPawnImage);
-        yellowPawnImageView = new ImageView(yellowPawnImage);
-
 
         controller.getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
     }
@@ -171,16 +160,9 @@ public class ScoreboardController extends AbstractController implements StationL
 
         ArrayList<ImageView> pawnsAtPosition = pawnPositions.getOrDefault(scoredPoints, new ArrayList<>());
 
-        ImageView pawnImageView = switch (pawnColor) {
-            case BLUE -> bluePawnImageView;
-            case RED -> redPawnImageView;
-            case GREEN -> greenPawnImageView;
-            case YELLOW -> yellowPawnImageView;
-        };
-
+        pawnImageView.setPreserveRatio(true);
         pawnImageView.setFitWidth(pawnSize);
         pawnImageView.setFitHeight(pawnSize);
-        pawnImageView.setPreserveRatio(true);
         pawnImageView.setLayoutX(scoreboardView.getX() + basePosition[0] * ratio - pawnSize / 2);
         pawnImageView.setLayoutY(scoreboardView.getY() + basePosition[1] * ratio - pawnSize / 2);
 

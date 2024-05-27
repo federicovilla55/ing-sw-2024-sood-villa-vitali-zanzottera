@@ -54,6 +54,7 @@ public class LocalStationController extends AbstractController implements Statio
     private final ImageView redPawnImageView;
     private final ImageView greenPawnImageView;
     private final ImageView yellowPawnImageView;
+    private final ImageView blackPawnImageView;
 
     private double startX, startY;
     private double anchorX, anchorY;
@@ -75,6 +76,7 @@ public class LocalStationController extends AbstractController implements Statio
         redPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/red_pawn.png"))));
         greenPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/green_pawn.png"))));
         yellowPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/yellow_pawn.png"))));
+        blackPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/black_pawn.png"))));
 
         this.nickOwner = nickOwner;
 
@@ -251,6 +253,7 @@ public class LocalStationController extends AbstractController implements Statio
             case "green" -> greenPawnImageView;
             case  "blue" -> bluePawnImageView;
             case "yellow" -> yellowPawnImageView;
+            case "black" -> blackPawnImageView;
             default -> redPawnImageView;
         };
         color.setPreserveRatio(true);
