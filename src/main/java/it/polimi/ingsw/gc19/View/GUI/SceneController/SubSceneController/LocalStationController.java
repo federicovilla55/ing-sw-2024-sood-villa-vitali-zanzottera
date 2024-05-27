@@ -17,7 +17,6 @@ import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;

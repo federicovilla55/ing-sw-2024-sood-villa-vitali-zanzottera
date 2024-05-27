@@ -164,9 +164,9 @@ public class ScoreboardController extends AbstractController implements StationL
 
         ArrayList<ImageView> pawnsAtPosition = pawnPositions.getOrDefault(scoredPoints, new ArrayList<>());
 
+        pawnImageView.setPreserveRatio(true);
         pawnImageView.setFitWidth(pawnSize);
         pawnImageView.setFitHeight(pawnSize);
-        pawnImageView.setPreserveRatio(true);
         pawnImageView.setLayoutX(scoreboardView.getX() + basePosition[0] * ratio - pawnSize / 2);
         pawnImageView.setLayoutY(scoreboardView.getY() + basePosition[1] * ratio - pawnSize / 2);
 
