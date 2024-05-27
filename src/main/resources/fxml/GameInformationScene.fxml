@@ -1,34 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane id="symbolsBorderPane" prefWidth="400.0" prefHeight="300.0" maxWidth="400.0" maxHeight="300.0" stylesheets="@../css/SetupScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<?import java.net.URL?>
+<BorderPane id="symbolsBorderPane" prefWidth="552.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <stylesheets>
+        <URL value="@../css/SymbolTable.css" />
+    </stylesheets>
+
     <center>
-        <VBox spacing="10" VBox.vgrow="ALWAYS" alignment="CENTER">
-            <HBox fx:id="hbox" spacing="60" alignment="CENTER">
+        <VBox id="symbolsBorderVBOX" alignment="CENTER" spacing="10" VBox.vgrow="ALWAYS" styleClass="bordered-vbox">
+            <HBox fx:id="hbox" alignment="CENTER" spacing="40">
             </HBox>
             <GridPane id="gridPane" fx:id="gridPane" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER">
                 <columnConstraints>
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="10.0" prefWidth="50.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="10.0" prefWidth="50.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="10.0" prefWidth="50.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="10.0" prefWidth="50.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="10.0" prefWidth="50.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="10.0" prefWidth="50.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="10.0" prefWidth="50.0" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="1.0" prefWidth="30.0" />
                 </columnConstraints>
                 <rowConstraints>
-                    <RowConstraints maxHeight="200.0" minHeight="60.0" prefHeight="50.0" vgrow="SOMETIMES" />
-                    <RowConstraints maxHeight="50.0" minHeight="60.0" prefHeight="50.0" vgrow="SOMETIMES" />
+                    <RowConstraints maxHeight="200.0" minHeight="5.0" prefHeight="50.0" vgrow="SOMETIMES" />
+                    <RowConstraints maxHeight="50.0" minHeight="5.0" prefHeight="50.0" vgrow="SOMETIMES" />
                 </rowConstraints>
-                <BorderPane.margin>
-                    <Insets top="25.0" />
-                </BorderPane.margin>
             </GridPane>
         </VBox>
     </center>
-    <padding>
-        <Insets bottom="25.0" left="25.0" top="25.0" right="25.0"/>
-    </padding>
 </BorderPane>

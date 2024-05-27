@@ -4,9 +4,7 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GameEventsMessageVisitor;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.ChatController;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.LocalStationTabController;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.TableController;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.*;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
@@ -26,10 +24,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -42,6 +37,8 @@ import java.io.IOException;
 import java.util.*;
 
 public class PlayingAreaController extends AbstractController implements TurnStateListener, StationListener, StateListener, LocalModelListener {
+    @FXML
+    private TabPane tabPane;
 
     @FXML
     private VBox leftVBox, rightVBox, chat;
@@ -69,7 +66,6 @@ public class PlayingAreaController extends AbstractController implements TurnSta
 
     @FXML
     public void initialize(){
-
         buildInfoHBox();
 
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
@@ -83,7 +79,7 @@ public class PlayingAreaController extends AbstractController implements TurnSta
 
         ((HBox) stackPane.getChildren().getFirst()).spacingProperty().bind(super.getStage().widthProperty().divide(100));
 
-        try{
+        try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/ChatScene.fxml").toURL());
             ChatController controller = new ChatController(this);
@@ -91,11 +87,10 @@ public class PlayingAreaController extends AbstractController implements TurnSta
 
             chat = loader.load();
 
-            rightVBox.getChildren().add(chat);
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
 
         ((Region) chat.getChildren().getFirst()).setPrefHeight(super.getStage().getHeight());
 
@@ -129,6 +124,42 @@ public class PlayingAreaController extends AbstractController implements TurnSta
             throw new RuntimeException(e);
         }
 
+        buildTabPane();
+        tabPane.getStyleClass().add("floating");
+    }
+
+    private void buildTabPane() {
+        this.tabPane.getTabs().clear();
+
+        Tab chatTab = new Tab("Chat");
+        Tab gameStatsTab = new Tab("Game Stats");
+
+        chatTab.setContent(chat);
+
+        VBox gamesStatsVBox = new VBox();
+        gamesStatsVBox.setPadding(new Insets(20, 0, 0, 0));
+        gamesStatsVBox.setSpacing(40);
+
+        HBox scoreboardHBox = new HBox();
+        HBox visibleSymbolsHBox = new HBox();
+        scoreboardHBox.setAlignment(Pos.CENTER);
+        visibleSymbolsHBox.setAlignment(Pos.CENTER);
+
+        PlayerSymbolsController playerSymbolsController = new PlayerSymbolsController(this);
+        playerSymbolsController.initialize();
+        ScoreboardController scoreboardController = new ScoreboardController(this);
+        scoreboardController.initialize();
+
+        scoreboardHBox.getChildren().add(scoreboardController.scoreboardPane);
+        visibleSymbolsHBox.getChildren().add(playerSymbolsController.borderPane);
+        gamesStatsVBox.getChildren().addAll(scoreboardHBox, visibleSymbolsHBox);
+
+        gameStatsTab.setContent(gamesStatsVBox);
+        tabPane.getTabs().addAll(chatTab, gameStatsTab);
+
+        if (!rightVBox.getChildren().contains(tabPane)) {
+            rightVBox.getChildren().add(tabPane);
+        }
     }
 
     private void buildInfoHBox(){
@@ -137,8 +168,6 @@ public class PlayingAreaController extends AbstractController implements TurnSta
         this.infoHBox.getChildren().add(new Label("Username: " + super.getClientController().getNickname()));
 
         this.infoHBox.getChildren().add(new Label("Game name: " + super.getLocalModel().getGameName()));
-
-        this.infoHBox.getChildren().add(new Label("Required number of player: " + super.getLocalModel().getNumPlayers()));
 
         this.infoHBox.getChildren().add(new Label("Current number of players: " + super.getLocalModel().getStations().size()));
 
