@@ -196,6 +196,7 @@ public class LocalStationController extends AbstractController implements Statio
                     else {
                         if(super.getLocalModel().getPersonalStation().cardIsPlaceable(anchor,toPlace,direction)) {
                             super.getClientController().placeCard(toPlace.getCardCode(),anchor.getCardCode(),direction,toPlace.getCardOrientation());
+                            return;
                         }
                         else {
                             super.notifyGenericError("This card is not placeable here!");

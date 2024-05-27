@@ -23,6 +23,7 @@ import javafx.scene.layout.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 
 public class PlayingAreaController extends AbstractController implements TurnStateListener, StationListener, StateListener, LocalModelListener {
@@ -137,14 +138,24 @@ public class PlayingAreaController extends AbstractController implements TurnSta
         scoreboardHBox.setAlignment(Pos.CENTER);
         visibleSymbolsHBox.setAlignment(Pos.CENTER);
 
-        PlayerSymbolsController playerSymbolsController = new PlayerSymbolsController(this);
-        playerSymbolsController.initialize();
         ScoreboardController scoreboardController = new ScoreboardController(this);
         scoreboardController.initialize();
 
         scoreboardHBox.getChildren().add(scoreboardController.scoreboardPane);
-        visibleSymbolsHBox.getChildren().add(playerSymbolsController.borderPane);
-        gamesStatsVBox.getChildren().addAll(scoreboardHBox, visibleSymbolsHBox);
+
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(new File("src/main/resources/fxml/GameInformationScene.fxml").toURL());
+            PlayerSymbolsController controller = new PlayerSymbolsController(this);
+            loader.setController(controller);
+
+            visibleSymbolsHBox.getChildren().add(loader.load());
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        gamesStatsVBox.getChildren().addAll(scoreboardHBox,visibleSymbolsHBox);
 
         gameStatsTab.setContent(gamesStatsVBox);
         tabPane.getTabs().addAll(chatTab, gameStatsTab);

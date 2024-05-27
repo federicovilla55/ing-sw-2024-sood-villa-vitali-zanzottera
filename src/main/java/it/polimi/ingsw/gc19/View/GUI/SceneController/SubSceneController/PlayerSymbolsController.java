@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
+import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
@@ -12,6 +13,7 @@ import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TurnStateListener
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -31,14 +33,11 @@ import java.util.Objects;
 
 public class PlayerSymbolsController extends AbstractController implements TurnStateListener {
 
-    private static final String[] stateStrings = {
-        "Placing a card",
-        "Picking a card",
-        "Not your turn"
-    };
+    @FXML
+    public BorderPane symbolsBorderPane;
 
-    public BorderPane borderPane;
-
+    @FXML
+    private VBox symbolsBorderVBOX;
 
     public PlayerSymbolsController(AbstractController controller) {
         super(controller);
@@ -47,57 +46,46 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
     }
 
     public void initialize() {
-        Parent root = null;
-        try {
-            root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/fxml/GameInformationScene.fxml")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        borderPane = (BorderPane) Objects.requireNonNull(root).lookup("#symbolsBorderPane");
-
-        updatePlayerState(getLocalModel().getFirstPlayer(), TurnState.PLACE);
+        updatePlayerState();
     }
 
-    public void updatePlayerState(String nickname, TurnState turnState) {
-        Label nicknameLabel = new Label(nickname);
-        Label stateLabel = switch (turnState) {
-            case TurnState.PLACE -> new Label(stateStrings[0]);
-            case TurnState.DRAW -> new Label(stateStrings[1]);
-        };
+    public void updatePlayerState() {
+        symbolsBorderVBOX.getChildren().clear();
 
-        HBox hbox = (HBox) borderPane.lookup("#hbox");
-        hbox.getChildren().clear();
-        hbox.getChildren().addAll(nicknameLabel, stateLabel);
+        for(String nickname : getLocalModel().getStations().keySet()) {
+            Label nicknameLabel = new Label(nickname);
 
-        GridPane gridPane = (GridPane) borderPane.lookup("#gridPane");
-        gridPane.getChildren().clear();
+            HBox labelBox = new HBox();
+            labelBox.getChildren().addAll(nicknameLabel);
 
-        gridPane.hgapProperty().bind(super.getStage().widthProperty().multiply(0.25 / 7).divide(7));
+            GridPane symbolsGrid = new GridPane();
+            symbolsGrid.hgapProperty().bind(super.getStage().widthProperty().multiply(0.25 / 7).divide(7));
+            symbolsGrid.vgapProperty().bind(super.getStage().widthProperty().multiply(0.25 / 500));
 
-        gridPane.vgapProperty().bind(super.getStage().widthProperty().multiply(0.25 / 500));
+            for (Symbol s : Symbol.values()) {
+                Image symbolImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/symbols/" + s.toString().toLowerCase() + ".png")));
+                ImageView symbolImageView = new ImageView(symbolImage);
+                symbolImageView.setPreserveRatio(true);
+                symbolImageView.fitWidthProperty().bind(super.getStage().widthProperty().multiply(0.2 / 10));
 
-        for (Symbol s : Symbol.values()) {
-            Image symbolImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/symbols/" + s.toString().toLowerCase() + ".png")));
-            ImageView symbolImageView = new ImageView(symbolImage);
-            symbolImageView.setPreserveRatio(true);
-            symbolImageView.fitWidthProperty().bind(super.getStage().widthProperty().multiply(0.2 / 10));
+                symbolsGrid.add(symbolImageView, s.ordinal(), 0);
+                GridPane.setHalignment(symbolImageView, HPos.CENTER);
+                GridPane.setValignment(symbolImageView, VPos.CENTER);
+                Label countLabel = new Label(String.valueOf(
+                        this.getLocalModel().getStations().get(nickname).getVisibleSymbols().get(s)
+                ));
+                symbolsGrid.add(countLabel, s.ordinal(), 1);
+                GridPane.setHalignment(countLabel, HPos.CENTER);
+                GridPane.setValignment(countLabel, VPos.CENTER);
+            }
 
-            gridPane.add(symbolImageView, s.ordinal(), 0);
-            GridPane.setHalignment(symbolImageView, HPos.CENTER);
-            GridPane.setValignment(symbolImageView, VPos.CENTER);
-            Label countLabel = new Label(String.valueOf(
-                    this.getLocalModel().getStations().get(nickname).getVisibleSymbols().get(s)
-            ));
-            gridPane.add(countLabel, s.ordinal(), 1);
-            GridPane.setHalignment(countLabel, HPos.CENTER);
-            GridPane.setValignment(countLabel, VPos.CENTER);
+            symbolsBorderVBOX.getChildren().addAll(labelBox, symbolsGrid);
         }
     }
 
 
     @Override
     public void notify(String nick, TurnState turnState) {
-        Platform.runLater(() -> updatePlayerState(nick, turnState));
+        Platform.runLater(this::updatePlayerState);
     }
 }
