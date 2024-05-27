@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
+import it.polimi.ingsw.gc19.View.GUI.GUIView;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.Listeners.Listener;
@@ -12,8 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.image.Image;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -118,7 +118,16 @@ public class AbstractController implements UI , Listener {
                 try {
                     root = loader.load();
 
-                    this.stage.setScene(new Scene(root));
+                    Scene scene = new Scene(root);
+
+                    String back = Objects.requireNonNull(GUIView.class.getResource("/images/back.svg")).toExternalForm();
+                    scene.getStylesheets().add("-fx-background-image: url(" + back + ");" +
+                                               "-fx-background-size: cover;" +
+                                               "-fx-background-position: center center;" +
+                                               "-fx-background-repeat: repeat;"
+                                               );
+
+                    this.stage.setScene(scene);
                     //this.stage.setMaximized(true);
                     this.stage.show();
 
