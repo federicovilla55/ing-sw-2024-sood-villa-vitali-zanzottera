@@ -47,7 +47,7 @@ public class LocalStationController extends AbstractController implements Statio
 
     protected String nickOwner;
 
-    private final Translate translate;
+    private Translate translate;
 
     private double startX, startY;
     private double anchorX, anchorY;
@@ -67,8 +67,6 @@ public class LocalStationController extends AbstractController implements Statio
 
         this.nickOwner = nickOwner;
 
-        this.translate = new Translate();
-
         this.renderedCards = new ArrayList<>();
 
         super.getClientController().getListenersManager().attachListener(ListenerType.SETUP_LISTENER, this);
@@ -77,6 +75,8 @@ public class LocalStationController extends AbstractController implements Statio
 
     @FXML
     protected void initialize(){
+        this.translate = new Translate();
+
         this.leftVBox.getChildren().clear();
         this.rightVBox.getChildren().clear();
 
@@ -139,16 +139,19 @@ public class LocalStationController extends AbstractController implements Statio
         }
     }
 
+    private void imageAutoSize(ImageView imageView){
+
+    }
+
     private void makeCardDraggable(Node node){
         node.setOnMousePressed(e -> {
             startX = e.getSceneX() - node.getTranslateX();
             startY = e.getSceneY() - node.getTranslateY();
 
-            /*if(!renderedCars.isEmpty()){
-                CardButton button = (CardButton) e.getSource();
-                System.out.println(scale);
-                button.getSide().fitWidthProperty().multiply(scale);
-            }*/
+            ((PlayableCardButton) node).getSide().fitWidthProperty().unbind();
+            System.out.println(renderedCards.getFirst().getFitWidth());
+            System.out.println(((PlayableCardButton) node).getSide().getFitWidth());
+            ((PlayableCardButton) node).getSide().setFitWidth(renderedCards.getFirst().getFitWidth() * scale);
         });
 
         node.setOnMouseDragged(e -> {
