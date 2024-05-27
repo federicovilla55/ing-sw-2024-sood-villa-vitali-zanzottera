@@ -9,6 +9,7 @@ import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TurnStateListener;
+import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXMLLoader;
@@ -50,6 +51,8 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
 
     public PlayerSymbolsController(AbstractController controller) {
         super(controller);
+
+        getClientController().getListenersManager().attachListener(ListenerType.TURN_LISTENER, this);
     }
 
     public void initialize() {

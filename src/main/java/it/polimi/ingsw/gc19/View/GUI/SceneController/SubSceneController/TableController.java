@@ -2,32 +2,22 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
-import it.polimi.ingsw.gc19.Model.Card.Card;
-import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
-import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
-import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
+import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
+import it.polimi.ingsw.gc19.View.GUI.Utils.PlayableCardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
 
-import java.awt.*;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class TableController extends AbstractController implements TableListener {
@@ -38,17 +28,17 @@ public class TableController extends AbstractController implements TableListener
     @FXML
     private BorderPane tableBorderPane;
 
-    private final CardButton[][] drawableTableCards;
+    private final PlayableCardButton[][] drawableTableCards;
 
-    private final CardButton[] publicGoals;
+    private final GoalCardButton[] publicGoals;
 
     private final ImageView[] decks;
 
     public TableController(AbstractController controller){
         super(controller);
 
-        this.drawableTableCards = new CardButton[2][2];
-        this.publicGoals = new CardButton[2];
+        this.drawableTableCards = new PlayableCardButton[2][2];
+        this.publicGoals = new GoalCardButton[2];
         this.decks = new ImageView[3];
 
         getClientController().getListenersManager().attachListener(ListenerType.TABLE_LISTENER, this);
@@ -72,10 +62,10 @@ public class TableController extends AbstractController implements TableListener
 
             drawableCardFactory(this.getLocalModel().getTable().getGold2(), 1, 1);
 
-            this.publicGoals[0] = new CardButton(this.getLocalModel().getTable().getPublicGoal1(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2); //(Region) this.gridPane.getParent()
+            this.publicGoals[0] = new GoalCardButton(this.getLocalModel().getTable().getPublicGoal1(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2); //(Region) this.gridPane.getParent()
             this.publicGoals[0].setOnMouseClicked(this.publicGoals[0].getDefaultMouseClickedHandler());
 
-            this.publicGoals[1] = new CardButton(this.getLocalModel().getTable().getPublicGoal2(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
+            this.publicGoals[1] = new GoalCardButton(this.getLocalModel().getTable().getPublicGoal2(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
             this.publicGoals[1].setOnMouseClicked(this.publicGoals[1].getDefaultMouseClickedHandler());
 
             this.decks[0] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfResourceDeck(), PlayableCardType.RESOURCE);
@@ -116,7 +106,7 @@ public class TableController extends AbstractController implements TableListener
 
     private void drawableCardFactory(PlayableCard card, int x, int y){
         if(card != null){
-            this.drawableTableCards[x][y] = new CardButton(card, super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
+            this.drawableTableCards[x][y] = new PlayableCardButton(card, super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
             this.drawableTableCards[x][y].setOnMouseClicked((event) -> handleClickDrawableTableCard(event, card, y));
         }
         else{

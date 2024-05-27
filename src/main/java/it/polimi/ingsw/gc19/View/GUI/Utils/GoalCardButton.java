@@ -2,14 +2,10 @@ package it.polimi.ingsw.gc19.View.GUI.Utils;
 
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Card.Card;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.value.ObservableDoubleValue;
+import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -20,14 +16,14 @@ import javafx.stage.Stage;
 
 import java.util.Objects;
 
-public class CardButton extends Button{
+public class GoalCardButton extends Button{
 
-    private final Card card;
+    private final GoalCard card;
     private final ImageView front;
     private final ImageView back;
     private boolean isUp;
 
-    public CardButton(Card card){
+    public GoalCardButton(GoalCard card){
         super();
 
         this.card = card;
@@ -62,14 +58,14 @@ public class CardButton extends Button{
                         """);
     }
 
-    public CardButton(Card card, Region region, double scale) {
+    public GoalCardButton(GoalCard card, Region region, double scale) {
         this(card);
 
         this.front.fitHeightProperty().bind(region.heightProperty().multiply(scale));
         this.back.fitHeightProperty().bind(region.heightProperty().multiply(scale));
     }
 
-    public CardButton(Card card, Stage stage, Double scaleX, Double scaleY) {
+    public GoalCardButton(GoalCard card, Stage stage, Double scaleX, Double scaleY) {
         this(card);
 
         if(scaleX != null) {
@@ -83,7 +79,7 @@ public class CardButton extends Button{
         }
     }
 
-    public CardButton(Card card, Region region, Double scaleX, Double scaleY) {
+    public GoalCardButton(GoalCard card, Region region, Double scaleX, Double scaleY) {
         this(card);
 
         if(scaleX != null) {

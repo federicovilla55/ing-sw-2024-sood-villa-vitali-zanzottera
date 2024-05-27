@@ -1,12 +1,8 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
-import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.TurnState;
-import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.GameEventsMessageVisitor;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.*;
-import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
-import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
@@ -15,8 +11,6 @@ import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListene
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TurnStateListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
-import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
-import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -25,12 +19,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.ImagePattern;
-import javafx.scene.shape.Circle;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +43,8 @@ public class PlayingAreaController extends AbstractController implements TurnSta
 
     @FXML
     private StackPane stations;
+
+    private Tab currentTab;
 
     public PlayingAreaController(AbstractController controller) {
         super(controller);
@@ -157,6 +148,21 @@ public class PlayingAreaController extends AbstractController implements TurnSta
 
         gameStatsTab.setContent(gamesStatsVBox);
         tabPane.getTabs().addAll(chatTab, gameStatsTab);
+
+        tabPane.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldTab, newTab) -> {
+                    if(newTab != null && !newTab.equals(oldTab)){
+                        currentTab = newTab;
+                    }
+                }
+        );
+
+        if(currentTab == null){
+            tabPane.getSelectionModel().select(gameStatsTab);
+        }
+        else {
+            tabPane.getSelectionModel().select(currentTab);
+        }
 
         if (!rightVBox.getChildren().contains(tabPane)) {
             rightVBox.getChildren().add(tabPane);

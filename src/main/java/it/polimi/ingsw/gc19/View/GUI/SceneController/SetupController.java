@@ -4,7 +4,8 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.*;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
-import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
+import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
+import it.polimi.ingsw.gc19.View.GUI.Utils.PlayableCardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListener;
@@ -23,7 +24,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -164,8 +164,8 @@ public class SetupController extends AbstractController implements SetupListener
     private void buildInitialCardHBox(){
         if(this.getLocalModel().getPersonalStation().getPlacedCardSequence().isEmpty()) {
 
-            CardButton initialCardUp = new CardButton(this.getLocalModel().getPersonalStation().getInitialCard(), super.getStage(), (double) 1 / 10, (double) 1 /7);
-            CardButton initialCardDown = new CardButton(this.getLocalModel().getPersonalStation().getInitialCard(), super.getStage(), (double) 1 / 10, (double) 1 /7);
+            PlayableCardButton initialCardUp = new PlayableCardButton(this.getLocalModel().getPersonalStation().getInitialCard(), super.getStage(), (double) 1 / 10, (double) 1 /7);
+            PlayableCardButton initialCardDown = new PlayableCardButton(this.getLocalModel().getPersonalStation().getInitialCard(), super.getStage(), (double) 1 / 10, (double) 1 /7);
             initialCardDown.swap();
 
             this.initialCardHBox.getChildren().addAll(List.of(initialCardUp, initialCardDown));
@@ -188,9 +188,9 @@ public class SetupController extends AbstractController implements SetupListener
 
     private void buildPrivateGoalCardSelectionHBox(){
         if(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation() == null){
-            List<CardButton> cardButtons = new ArrayList<>(List.of(
-                    new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()[0], super.getStage(), (double) 1 / 10, (double) 1 /7),
-                    new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()[1], super.getStage(), (double) 1 / 10, (double) 1 /7)));
+            List<GoalCardButton> cardButtons = new ArrayList<>(List.of(
+                    new GoalCardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()[0], super.getStage(), (double) 1 / 10, (double) 1 /7),
+                    new GoalCardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardsInStation()[1], super.getStage(), (double) 1 / 10, (double) 1 /7)));
 
             cardButtons.forEach(c -> c.setOnMouseClicked((event) -> {
 

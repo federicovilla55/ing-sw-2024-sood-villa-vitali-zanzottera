@@ -7,7 +7,8 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
-import it.polimi.ingsw.gc19.View.GUI.Utils.CardButton;
+import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
+import it.polimi.ingsw.gc19.View.GUI.Utils.PlayableCardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
@@ -114,13 +115,13 @@ public class LocalStationController extends AbstractController implements Statio
         if(this.nickOwner.equals(this.getLocalModel().getNickname())){
             if(super.getLocalModel().getPersonalStation().getPrivateGoalCardInStation() != null) {
                 this.rightVBox.getChildren().add(
-                        new CardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2));
+                        new GoalCardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2));
             }
 
             this.leftVBox.getChildren().clear();
 
             for(PlayableCard p : this.getLocalModel().getPersonalStation().getCardsInHand()){
-                CardButton button = new CardButton(p, super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
+                PlayableCardButton button = new PlayableCardButton(p, super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
 
                 button.setOnMouseClicked(button.getDefaultMouseClickedHandler());
 
@@ -169,7 +170,7 @@ public class LocalStationController extends AbstractController implements Statio
 
             // Ensure the calculated cell is within bounds
             if (localCoords.getX() >= 0 && column < cardGrid.getColumnCount() && localCoords.getY() >= 0 && row < cardGrid.getRowCount()) {
-                PlayableCard toPlace = (PlayableCard) ((CardButton) node).getCard();
+                PlayableCard toPlace = ((PlayableCardButton) node).getCard();
                 int localModelX = absGridRow + row;
                 int localModelY = absGridCol + column;
                 System.out.println("row: " + localModelX + ", column: " + localModelY);
@@ -395,9 +396,8 @@ public class LocalStationController extends AbstractController implements Statio
     public void notify(SetupEvent type) {
         Platform.runLater(() -> {
             switch (type){
-                case SetupEvent.ACCEPTED_COLOR -> this.initializePawns();
-                case SetupEvent.ACCEPTED_INITIAL_CARD -> this.initialize();
-                case SetupEvent.ACCEPTED_PRIVATE_GOAL_CARD -> this.initializeCards();
+                case SetupEvent.ACCEPTED_COLOR, SetupEvent.ACCEPTED_INITIAL_CARD,
+                     SetupEvent.ACCEPTED_PRIVATE_GOAL_CARD -> this.initialize();
             }
         });
 
