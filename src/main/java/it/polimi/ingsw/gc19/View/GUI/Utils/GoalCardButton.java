@@ -27,16 +27,14 @@ public class GoalCardButton extends Button{
         super();
 
         this.card = card;
-        this.front = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/" + card.getCardCode() + "_front.jpg")).toExternalForm()));
-        this.back = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/" + card.getCardCode() + "_back.jpg")).toExternalForm()));
+        this.front = CardImageLoader.getImageView(card, CardOrientation.UP);
+        this.back = CardImageLoader.getImageView(card, CardOrientation.DOWN);
 
         this.isUp = true;
 
         this.front.setPreserveRatio(true);
-        this.front.setFitWidth(200);
         clipCardImage(this.front);
         this.back.setPreserveRatio(true);
-        this.back.setFitWidth(200);
         clipCardImage(this.back);
 
         super.setPadding(Insets.EMPTY);

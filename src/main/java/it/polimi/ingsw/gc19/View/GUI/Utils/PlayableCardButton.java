@@ -1,20 +1,16 @@
 package it.polimi.ingsw.gc19.View.GUI.Utils;
 
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
-import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-
-import java.util.Objects;
 
 public class PlayableCardButton extends Button{
 
@@ -27,16 +23,14 @@ public class PlayableCardButton extends Button{
         super();
 
         this.card = card;
-        this.front = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/" + card.getCardCode() + "_front.jpg")).toExternalForm()));
-        this.back = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/" + card.getCardCode() + "_back.jpg")).toExternalForm()));
+        this.front = CardImageLoader.getImageView(card, CardOrientation.UP);
+        this.back = CardImageLoader.getImageView(card, CardOrientation.DOWN);
 
         this.isUp = true;
 
         this.front.setPreserveRatio(true);
-        this.front.setFitWidth(200);
         clipCardImage(this.front);
         this.back.setPreserveRatio(true);
-        this.back.setFitWidth(200);
         clipCardImage(this.back);
 
         super.setPadding(Insets.EMPTY);

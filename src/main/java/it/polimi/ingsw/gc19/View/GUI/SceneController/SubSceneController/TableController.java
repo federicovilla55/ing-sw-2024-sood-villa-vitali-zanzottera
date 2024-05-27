@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
+import it.polimi.ingsw.gc19.View.GUI.Utils.CardImageLoader;
 import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
 import it.polimi.ingsw.gc19.View.GUI.Utils.PlayableCardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
@@ -12,13 +13,10 @@ import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
-
-import java.util.Objects;
 
 public class TableController extends AbstractController implements TableListener {
 
@@ -115,7 +113,7 @@ public class TableController extends AbstractController implements TableListener
     }
 
     private ImageView factoryUpperDeckCard(){
-        ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/back/goal.jpg")).toExternalForm()));
+        ImageView imageView = CardImageLoader.getBackImageView();
         imageView.setPreserveRatio(true);
         //imageView.setFitWidth(200);
         imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
@@ -128,7 +126,7 @@ public class TableController extends AbstractController implements TableListener
 
     private ImageView factoryUpperDeckCard(Symbol symbol, PlayableCardType type){
         if(symbol != null) {
-            ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/back/" + type.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg")).toExternalForm()));
+            ImageView imageView = new ImageView(CardImageLoader.getBackImage(symbol,type));
             imageView.setPreserveRatio(true);
             //imageView.setFitWidth(200);
             imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
