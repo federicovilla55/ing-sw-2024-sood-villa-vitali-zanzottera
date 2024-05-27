@@ -25,14 +25,11 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class LocalStationController extends AbstractController implements StationListener, SetupListener {
 
@@ -62,7 +59,7 @@ public class LocalStationController extends AbstractController implements Statio
     private final double CARD_PIXEL_WIDTH = 832.0;
     private final double CARD_PIXEL_HEIGHT = 558.0;
 
-    private final ArrayList<ImageView> renderedCars;
+    private final ArrayList<ImageView> renderedCards;
 
     public LocalStationController(AbstractController controller,String nickOwner) {
         super(controller);
@@ -71,7 +68,7 @@ public class LocalStationController extends AbstractController implements Statio
 
         this.translate = new Translate();
 
-        this.renderedCars = new ArrayList<>();
+        this.renderedCards = new ArrayList<>();
 
         super.getClientController().getListenersManager().attachListener(ListenerType.SETUP_LISTENER, this);
         super.getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
@@ -257,6 +254,7 @@ public class LocalStationController extends AbstractController implements Statio
         cardGrid.getColumnConstraints().clear();
         cardGrid.getRowConstraints().clear();
         cardGrid.getChildren().clear();
+        renderedCards.clear();
 
         //create resize dimension properties
         DoubleProperty cellWidthProperty = new SimpleDoubleProperty();
@@ -275,16 +273,16 @@ public class LocalStationController extends AbstractController implements Statio
 
             clipCardImage(cardImage);
 
-            renderedCars.add(cardImage);
+            renderedCards.add(cardImage);
         }
 
         double CORNER_PIXEL_WIDTH = 184.0;
-        cellWidthProperty.bind(renderedCars.getFirst()
+        cellWidthProperty.bind(renderedCards.getFirst()
                                            .fitWidthProperty()
                                            .multiply(1 - CORNER_PIXEL_WIDTH / CARD_PIXEL_WIDTH));
 
         double CORNER_PIXEL_HEIGHT = 227.0;
-        cellHeightProperty.bind(renderedCars.getFirst()
+        cellHeightProperty.bind(renderedCards.getFirst()
                                             .fitWidthProperty()
                                             .multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH)
                                             .multiply(1 - CORNER_PIXEL_HEIGHT / CARD_PIXEL_HEIGHT));
@@ -316,8 +314,8 @@ public class LocalStationController extends AbstractController implements Statio
         cardGrid.setGridLinesVisible(false);
         cardGrid.setGridLinesVisible(true);
 
-        for (int i = 0; i < renderedCars.size(); i++) {
-            cardGrid.add(renderedCars.get(i), placedCardSequence.get(i).y().y() - firstCol + 1, placedCardSequence.get(i).y().x() - firstRow + 1);
+        for (int i = 0; i < renderedCards.size(); i++) {
+            cardGrid.add(renderedCards.get(i), placedCardSequence.get(i).y().y() - firstCol + 1, placedCardSequence.get(i).y().x() - firstRow + 1);
         }
 
         makeGridPaneDraggable();

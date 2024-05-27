@@ -64,7 +64,7 @@ public class OldConfigurationController extends AbstractController implements St
         confTable.setItems(FXCollections.observableArrayList(this.configs));
     }
     @FXML
-    public void onRecconectPress(ActionEvent e) {
+    public void onReconnectPress(ActionEvent e) {
         ClientInterface client;
         Configuration config = confTable.getSelectionModel().getSelectedItem();
         Configuration.ConnectionType connectionType;

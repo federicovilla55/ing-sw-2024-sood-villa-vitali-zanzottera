@@ -99,17 +99,17 @@ public class TableController extends AbstractController implements TableListener
     }
 
     private void handleClickDrawableTableCard(MouseEvent event, PlayableCard card, int position){
-        CardButton source = ((CardButton) event.getSource());
-
         if(event.getClickCount() == 1){
-            source.swap();
-        }
-        else{
             if(this.getClientController().getState() == ViewState.PICK) {
                 getClientController().pickCardFromTable(card.getCardType(), position);
+            }
+        }
+    }
 
-                this.gridPane.getChildren().removeIf(c -> ((CardButton) c).getCard().equals(card));
-                Arrays.stream(this.drawableTableCards).flatMap(Arrays::stream).forEach(b -> b.setOnMouseClicked(b.getDefaultMouseClickedHandler()));
+    private void handleClickDrawableDeck(MouseEvent event, PlayableCardType type){
+        if(event.getClickCount() == 1){
+            if(this.getClientController().getState() == ViewState.PICK) {
+                getClientController().pickCardFromDeck(type);
             }
         }
     }
@@ -145,6 +145,8 @@ public class TableController extends AbstractController implements TableListener
             imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
 
             clipCardImage(imageView);
+
+            imageView.setOnMouseClicked((event) -> handleClickDrawableDeck(event, type));
 
             return imageView;
         }

@@ -15,6 +15,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.SelectionModel;
+import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
@@ -31,6 +33,8 @@ public class LocalStationTabController extends AbstractController implements Loc
 
     @FXML
     private TabPane tabPane;
+
+    private Tab currentTab;
 
     public LocalStationTabController(AbstractController controller) {
         super(controller);
@@ -75,6 +79,21 @@ public class LocalStationTabController extends AbstractController implements Loc
                 tab.setContent(tabContent);
 
                 this.tabPane.getTabs().add(tab);
+
+                tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
+                    if(newTab != null && !newTab.equals(oldTab)){
+                        currentTab = newTab;
+                    }
+                });
+            }
+
+            //set current tab to previous selected one or default to own station of player
+            if(currentTab == null) {
+                tabPane.getSelectionModel().select(tabPane.getTabs().stream().filter(t -> t.getText().equals(this.getLocalModel().getNickname())).findFirst().get());
+                currentTab = tabPane.getSelectionModel().getSelectedItem();
+            }
+            else {
+                tabPane.getSelectionModel().select(currentTab);
             }
         }
     }
