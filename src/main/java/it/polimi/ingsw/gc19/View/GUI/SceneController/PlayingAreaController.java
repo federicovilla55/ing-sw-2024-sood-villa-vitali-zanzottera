@@ -31,8 +31,7 @@ public class PlayingAreaController extends AbstractController implements StateLi
 
     @FXML
     private TabPane tabPane;
-    
-    @FXML
+
     private TabPane stations;
 
     @FXML
@@ -113,18 +112,8 @@ public class PlayingAreaController extends AbstractController implements StateLi
 
             stations = loader.load();
 
-            stations.prefHeightProperty().bind(super.getStage().heightProperty().subtract(((Region) this.infoHBox.getParent()).getPrefHeight()).subtract(((Region) this.table.getParent()).getPrefHeight()));
-            stations.prefWidthProperty().bind(leftVBox.widthProperty());
-            stations.prefWidthProperty().addListener(
-                    (observable, oldValue, newValue) -> stations.setMaxSize(stations.getPrefWidth(), stations.getPrefHeight())
-            );
-            stations.prefHeightProperty().addListener(
-                    (observable, oldValue, newValue) -> stations.setMaxSize(stations.getPrefWidth(), stations.getPrefHeight())
-            );
-
-
             leftVBox.getChildren().add(stations);
-            VBox.setVgrow(stations, Priority.ALWAYS);
+            VBox.setVgrow(stations, Priority.SOMETIMES);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

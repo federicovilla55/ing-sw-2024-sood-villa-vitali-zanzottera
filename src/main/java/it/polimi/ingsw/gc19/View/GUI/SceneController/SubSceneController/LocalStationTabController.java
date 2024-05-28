@@ -32,7 +32,7 @@ import java.util.Objects;
 public class LocalStationTabController extends AbstractController implements LocalModelListener {
 
     @FXML
-    private TabPane tabPane;
+    private TabPane stations;
 
     private static Tab currentTab;
 
@@ -46,11 +46,11 @@ public class LocalStationTabController extends AbstractController implements Loc
     public void initialize(){
         buildTabs();
 
-        tabPane.getStyleClass().add("floating");
+        stations.getStyleClass().add("floating");
     }
 
     private void buildTabs(){
-        this.tabPane.getTabs().clear();
+        this.stations.getTabs().clear();
 
         if(this.getLocalModel() != null){
 
@@ -78,15 +78,15 @@ public class LocalStationTabController extends AbstractController implements Loc
                 tab.setText(l.getOwnerPlayer());
                 tab.setContent(tabContent);
 
-                tabContent.prefHeightProperty().bind(tabPane.heightProperty().subtract(65));
-                tabContent.prefWidthProperty().bind(tabPane.widthProperty());
+                tabContent.prefHeightProperty().bind(stations.heightProperty().subtract(65));
+                tabContent.prefWidthProperty().bind(stations.widthProperty());
                 tabContent.prefHeightProperty().addListener(
                         (observable, oldValue, newValue) -> tabContent.setMaxSize(tabContent.getPrefWidth(), tabContent.getPrefHeight())
                 );
 
-                this.tabPane.getTabs().add(tab);
+                this.stations.getTabs().add(tab);
 
-                tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
+                stations.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
                     if(newTab != null && !newTab.equals(oldTab)){
                         currentTab = newTab;
                     }
@@ -95,11 +95,11 @@ public class LocalStationTabController extends AbstractController implements Loc
 
             //set current tab to previous selected one or default to own station of player
             if(currentTab == null) {
-                tabPane.getSelectionModel().select(tabPane.getTabs().stream().filter(t -> t.getText().equals(this.getLocalModel().getNickname())).findFirst().get());
-                currentTab = tabPane.getSelectionModel().getSelectedItem();
+                stations.getSelectionModel().select(stations.getTabs().stream().filter(t -> t.getText().equals(this.getLocalModel().getNickname())).findFirst().get());
+                currentTab = stations.getSelectionModel().getSelectedItem();
             }
             else {
-                tabPane.getSelectionModel().select(currentTab);
+                stations.getSelectionModel().select(currentTab);
             }
         }
     }
