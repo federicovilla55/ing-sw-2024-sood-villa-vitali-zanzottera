@@ -1,6 +1,9 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
+import it.polimi.ingsw.gc19.View.ClientController.ClientState;
+import it.polimi.ingsw.gc19.View.ClientController.NotGame;
+import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.GUIView;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
@@ -8,23 +11,32 @@ import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.Listeners.Listener;
 import it.polimi.ingsw.gc19.View.UI;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 public class AbstractController implements UI , Listener {
     private LocalModel localModel;
     private CommandParser commandParser;
     private ClientController clientController;
     private Stage stage;
+
+    private boolean isCloseEventHandlerAdded = false;
 
     protected AbstractController(ClientController controller, CommandParser parser, Stage stage){
         this.clientController = controller;
@@ -42,6 +54,42 @@ public class AbstractController implements UI , Listener {
         this.stage = controller.stage;
 
         this.clientController.setView(this);
+
+        this.isCloseEventHandlerAdded = controller.isCloseEventHandlerAdded;
+
+        if(!this.isCloseEventHandlerAdded && this.clientController.getState() != ViewState.NOT_PLAYER){
+            stage.getScene().getWindow().addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
+        }
+    }
+
+    public void closeWindowEvent(WindowEvent event) {
+        if(this.clientController.getState() != ViewState.NOT_GAME &&
+            this.clientController.getState() != ViewState.NOT_PLAYER &&
+            this.clientController.getState() != ViewState.DISCONNECT){
+            Dialog<ButtonType> closeDialog = new Dialog<>();
+            closeDialog.initOwner(stage.getOwner());
+            closeDialog.setTitle("Closing Codex Naturalis");
+
+            ButtonType lobbyButton = new ButtonType("Return to Lobby", ButtonBar.ButtonData.LEFT);
+            ButtonType disconnectButton = new ButtonType("Disconnect", ButtonBar.ButtonData.RIGHT);
+
+            closeDialog.getDialogPane().getButtonTypes().addAll(lobbyButton, disconnectButton);
+
+            closeDialog.getDialogPane().setContentText("Do you want to close Codex Naturalis?");
+
+            closeDialog.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.CANCEL)
+                    event.consume();
+                else if (response.getText().equals("Return to Lobby")) {
+                    this.clientController.logoutFromGame();
+
+                    this.clientController.setNextState(new NotGame(clientController), true);
+                    this.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
+                } else if (response.getText().equals("Disconnect")) {
+                    this.clientController.disconnect();
+                }
+            });
+        }
     }
 
     @Override
@@ -68,7 +116,9 @@ public class AbstractController implements UI , Listener {
         this.stage = stage;
     }
 
-    public void setLocalModel(LocalModel localModel){this.localModel = localModel; }
+    public void setLocalModel(LocalModel localModel){
+        this.localModel = localModel;
+    }
 
     public void setCommandParser(CommandParser commandParser) {
         this.commandParser = commandParser;
@@ -87,6 +137,9 @@ public class AbstractController implements UI , Listener {
     }
 
     public LocalModel getLocalModel() {
+        if(this.localModel == null){
+            this.localModel = this.clientController.getLocalModel();
+        }
         return localModel;
     }
 
@@ -95,7 +148,6 @@ public class AbstractController implements UI , Listener {
     }
 
     public void changeToNextScene(SceneStatesEnum nextScenePath) {
-
         try{
             FXMLLoader loader = new FXMLLoader();
 
