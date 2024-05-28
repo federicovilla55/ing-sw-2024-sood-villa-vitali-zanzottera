@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  * The client is connected to the server, but it is in no game.
  * Methods to determine the available games and to join/create games are permitted.
  */
-public class NotGame extends ClientState {
+class NotGame extends ClientState {
 
     private final ScheduledExecutorService gameSearcher;
 

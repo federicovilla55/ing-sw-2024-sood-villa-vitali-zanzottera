@@ -2,7 +2,6 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.ClientState;
-import it.polimi.ingsw.gc19.View.ClientController.NotGame;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.GUIView;
@@ -83,7 +82,6 @@ public class AbstractController implements UI , Listener {
                 else if (response.getText().equals("Return to Lobby")) {
                     this.clientController.logoutFromGame();
 
-                    this.clientController.setNextState(new NotGame(clientController), true);
                     this.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
                 } else if (response.getText().equals("Disconnect")) {
                     this.clientController.disconnect();
