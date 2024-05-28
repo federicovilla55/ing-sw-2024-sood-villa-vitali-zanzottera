@@ -30,6 +30,9 @@ public class PlayingAreaController extends AbstractController implements StateLi
 
     @FXML
     private TabPane tabPane;
+    
+    @FXML
+    private TabPane stations;
 
     @FXML
     private VBox leftVBox, rightVBox, chat;
@@ -102,26 +105,26 @@ public class PlayingAreaController extends AbstractController implements StateLi
             LocalStationTabController controller = new LocalStationTabController(this);
             loader.setController(controller);
 
-            tabPane = loader.load();
+            stations = loader.load();
 
-            tabPane.prefHeightProperty().bind(super.getStage().heightProperty().subtract(((Region) this.infoHBox.getParent()).getPrefHeight()).subtract(((Region) this.table.getParent()).getPrefHeight()));
-            tabPane.prefWidthProperty().bind(leftVBox.widthProperty());
-            tabPane.prefWidthProperty().addListener(
-                    (observable, oldValue, newValue) -> tabPane.setMaxSize(tabPane.getPrefWidth(), tabPane.getPrefHeight())
+            stations.prefHeightProperty().bind(super.getStage().heightProperty().subtract(((Region) this.infoHBox.getParent()).getPrefHeight()).subtract(((Region) this.table.getParent()).getPrefHeight()));
+            stations.prefWidthProperty().bind(leftVBox.widthProperty());
+            stations.prefWidthProperty().addListener(
+                    (observable, oldValue, newValue) -> stations.setMaxSize(stations.getPrefWidth(), stations.getPrefHeight())
             );
-            tabPane.prefHeightProperty().addListener(
-                    (observable, oldValue, newValue) -> tabPane.setMaxSize(tabPane.getPrefWidth(), tabPane.getPrefHeight())
+            stations.prefHeightProperty().addListener(
+                    (observable, oldValue, newValue) -> stations.setMaxSize(stations.getPrefWidth(), stations.getPrefHeight())
             );
 
 
-            leftVBox.getChildren().add(tabPane);
-            VBox.setVgrow(tabPane, Priority.ALWAYS);
+            leftVBox.getChildren().add(stations);
+            VBox.setVgrow(stations, Priority.ALWAYS);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         buildTabPane();
-        tabPane.getStyleClass().add("floating");
+        stations.getStyleClass().add("floating");
     }
 
     private void buildTabPane() {
