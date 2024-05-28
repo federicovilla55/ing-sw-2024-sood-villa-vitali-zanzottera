@@ -46,9 +46,6 @@ public class PlayingAreaController extends AbstractController implements StateLi
     @FXML
     private StackPane stackPane;
 
-    @FXML
-    private StackPane stations;
-
     private PaneFireworks paneFireworks;
 
     private Tab currentTab;
