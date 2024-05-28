@@ -658,6 +658,13 @@ public class LocalModel {
         synchronized (this.playerStations){
             this.playerStations.get(nickname).setNumPoints(numPoints);
         }
+
+        if(nickname.equals(this.getNickname())) {
+            this.listenersManager.notifyStationListener(this.getPersonalStation());
+        }
+        else {
+            this.listenersManager.notifyStationListener(this.getOtherStations().get(nickname));
+        };
     }
 
     /**

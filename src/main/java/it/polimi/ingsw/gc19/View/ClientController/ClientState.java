@@ -104,7 +104,7 @@ public abstract class ClientState {
     public void nextState(EndGameMessage message){
         for(String s: this.clientController.getLocalModel().getOtherStations().keySet()){
             if(message.getUpdatedPoints().containsKey(s)) {
-                this.clientController.getLocalModel().getOtherStations().get(s).setNumPoints(message.getUpdatedPoints().get(s));
+                this.clientController.getLocalModel().setNumPoints(s, message.getUpdatedPoints().get(s));
             }
         }
     }
