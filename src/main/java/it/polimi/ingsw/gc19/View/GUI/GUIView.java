@@ -10,10 +10,12 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 public class GUIView extends Application {
 
@@ -24,6 +26,8 @@ public class GUIView extends Application {
 
         CommandParser commandParser = new CommandParser(new ClientController());
         ClientController clientController = commandParser.getClientController();
+
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo.png"))));
 
         try {
             configs = ConfigurationManager.retrieveConfiguration();

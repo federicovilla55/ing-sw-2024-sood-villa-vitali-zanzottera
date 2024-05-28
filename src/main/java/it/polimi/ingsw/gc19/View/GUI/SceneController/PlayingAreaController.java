@@ -27,9 +27,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 
-public class PlayingAreaController extends AbstractController implements TurnStateListener, StationListener, StateListener, LocalModelListener {
+public class PlayingAreaController extends AbstractController implements StateListener, LocalModelListener {
+
     @FXML
     private TabPane tabPane;
+    
+    @FXML
+    private TabPane stations;
 
     @FXML
     private VBox leftVBox, rightVBox, chat;
@@ -55,8 +59,6 @@ public class PlayingAreaController extends AbstractController implements TurnSta
 
         getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
         getClientController().getListenersManager().attachListener(ListenerType.LOCAL_MODEL_LISTENER, this);
-        getClientController().getListenersManager().attachListener(ListenerType.TURN_LISTENER, this);
-        getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
     }
 
     @FXML
@@ -112,6 +114,14 @@ public class PlayingAreaController extends AbstractController implements TurnSta
             stations = loader.load();
 
             stations.prefHeightProperty().bind(super.getStage().heightProperty().subtract(((Region) this.infoHBox.getParent()).getPrefHeight()).subtract(((Region) this.table.getParent()).getPrefHeight()));
+            stations.prefWidthProperty().bind(leftVBox.widthProperty());
+            stations.prefWidthProperty().addListener(
+                    (observable, oldValue, newValue) -> stations.setMaxSize(stations.getPrefWidth(), stations.getPrefHeight())
+            );
+            stations.prefHeightProperty().addListener(
+                    (observable, oldValue, newValue) -> stations.setMaxSize(stations.getPrefWidth(), stations.getPrefHeight())
+            );
+
 
             leftVBox.getChildren().add(stations);
             VBox.setVgrow(stations, Priority.ALWAYS);
@@ -186,22 +196,33 @@ public class PlayingAreaController extends AbstractController implements TurnSta
     }
 
     private void buildInfoHBox(){
-        this.infoHBox.getChildren().clear();
 
-        this.infoHBox.getChildren().add(new Label("Username: " + super.getClientController().getNickname()));
+        if(this.infoHBox.getChildren().size() == 0) {
 
-        this.infoHBox.getChildren().add(new Label("Game name: " + super.getLocalModel().getGameName()));
+            this.infoHBox.getChildren().add(new Label("Username: " + super.getClientController().getNickname()));
 
-        this.infoHBox.getChildren().add(new Label("Current number of players: " + super.getLocalModel().getStations().size()));
+            this.infoHBox.getChildren().add(new Label("Game name: " + super.getLocalModel().getGameName()));
 
-        this.infoHBox.getChildren().add(new Label("Current game state:" + super.getClientController().getState().toString()));
+            this.infoHBox.getChildren().add(new Label("Current number of players: " + super.getLocalModel().getStations().size()));
 
-        this.infoHBox.spacingProperty().bind(((Region) this.infoHBox.getParent()).widthProperty()
-                                                                                 .subtract(this.infoHBox.getChildren().stream()
-                                                                                                                      .map(c -> ((Region) c).getWidth())
-                                                                                                                      .mapToDouble(Double::doubleValue)
-                                                                                                                      .sum())
-                                                                                 .divide(20));
+            this.infoHBox.getChildren().add(new Label("Current game state: " + super.getClientController().getState().toString()));
+
+            this.infoHBox.spacingProperty().bind(((Region) this.infoHBox.getParent()).widthProperty()
+                    .subtract(this.infoHBox.getChildren().stream()
+                            .map(c -> ((Region) c).getWidth())
+                            .mapToDouble(Double::doubleValue)
+                            .sum())
+                    .divide(20));
+        }
+        else {
+            ((Label) infoHBox.getChildren().get(0)).setText("Username: " + super.getClientController().getNickname());
+
+            ((Label) infoHBox.getChildren().get(1)).setText("Game name: " + super.getLocalModel().getGameName());
+
+            ((Label) infoHBox.getChildren().get(2)).setText("Current number of players: " + super.getLocalModel().getStations().size());
+
+            ((Label) infoHBox.getChildren().get(3)).setText("Current game state: " + super.getClientController().getState().toString());
+        }
     }
 
     private void notifyPossibleDisconnection(){
@@ -238,6 +259,11 @@ public class PlayingAreaController extends AbstractController implements TurnSta
 
     @Override
     public void notify(ViewState viewState) {
+        Platform.runLater(() -> {
+            if (!infoHBox.getChildren().isEmpty())
+                ((Label) infoHBox.getChildren().get(3)).setText("Current game state: " + super.getClientController().getState().toString());
+        });
+
         switch (viewState){
             case ViewState.DISCONNECT -> notifyPossibleDisconnection();
             case ViewState.END -> endGame();
@@ -276,25 +302,5 @@ public class PlayingAreaController extends AbstractController implements TurnSta
 
             }, 5000);
         });
-    }
-
-    @Override
-    public void notify(PersonalStation localStationPlayer) {
-//TODO
-    }
-
-    @Override
-    public void notify(OtherStation otherStation) {
-//TODO
-    }
-
-    @Override
-    public void notifyErrorStation(String... varArgs) {
-//TODO
-    }
-
-    @Override
-    public void notify(String nick, TurnState turnState) {
-//TODO
     }
 }

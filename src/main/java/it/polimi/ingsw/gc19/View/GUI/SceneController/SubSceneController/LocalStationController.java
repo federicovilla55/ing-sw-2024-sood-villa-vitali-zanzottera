@@ -17,6 +17,7 @@ import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
@@ -48,13 +49,10 @@ public class LocalStationController extends AbstractController implements Statio
 
     protected String nickOwner;
 
-    private final Translate translate;
+    private Translate translate;
+    private Scale centerPaneScale;
 
-    private final ImageView bluePawnImageView;
-    private final ImageView redPawnImageView;
-    private final ImageView greenPawnImageView;
-    private final ImageView yellowPawnImageView;
-    private final ImageView blackPawnImageView;
+    private final ImageView bluePawnImageView, redPawnImageView, greenPawnImageView, yellowPawnImageView, blackPawnImageView;
 
     private double startX, startY;
     private double anchorX, anchorY;
@@ -80,8 +78,6 @@ public class LocalStationController extends AbstractController implements Statio
 
         this.nickOwner = nickOwner;
 
-        this.translate = new Translate();
-
         this.renderedCards = new ArrayList<>();
 
         super.getClientController().getListenersManager().attachListener(ListenerType.SETUP_LISTENER, this);
@@ -89,7 +85,12 @@ public class LocalStationController extends AbstractController implements Statio
     }
 
     @FXML
-    protected void initialize(){
+    private void initialize(){
+        this.translate = new Translate();
+        this.centerPaneScale = new Scale(scale, scale);
+
+        this.centerPane.getTransforms().clear();
+
         this.leftVBox.getChildren().clear();
         this.rightVBox.getChildren().clear();
 
@@ -105,9 +106,17 @@ public class LocalStationController extends AbstractController implements Statio
         //super.getStage().minHeightProperty().bind(super.getStage().widthProperty().multiply(0.4).add(257));
 
         this.centerPane.prefHeightProperty().bind(this.borderPane.prefHeightProperty());
-        this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().multiply(0.80));
+        this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().subtract(leftVBox.widthProperty()).subtract(rightVBox.widthProperty()));
         this.centerPane.minHeightProperty().bind(this.centerPane.prefHeightProperty());
         this.centerPane.minWidthProperty().bind(this.centerPane.prefWidthProperty());
+        this.centerPane.prefHeightProperty().addListener((observable, oldValue, newValue) -> {
+            this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
+        });
+        this.centerPane.prefWidthProperty().addListener((observable, oldValue, newValue) -> {
+            this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
+        });
+
+
     }
 
     protected void initializePawns(){
@@ -152,6 +161,25 @@ public class LocalStationController extends AbstractController implements Statio
         }
     }
 
+    private void checkIStackPaneContainsImage(Node node){
+        PlayableCardButton button = (PlayableCardButton) node;
+
+        Point2D upperLeftCornerCard = new Point2D(node.localToScene(node.getBoundsInLocal()).getMinX(),
+                                              node.localToScene(node.getBoundsInLocal()).getMinY());
+        Point2D upperLeftCornerStack = new Point2D(this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMinX(),
+                                                   this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMinX());
+
+        //System.out.println(upperLeftCorner.getX() + "  " + upperLeftCorner.getY());
+        if(upperLeftCornerStack.getX() + button.getSide().fitWidthProperty().get() < upperLeftCornerCard.getX()){
+            button.getSide().fitWidthProperty().bind(super.getStage().widthProperty()
+                                                                     .divide(12.8)
+                                                                     .multiply(scale));
+        }
+        else{
+            button.getSide().fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
+        }
+    }
+
     private void makeCardDraggable(Node node){
         node.setOnMousePressed(e -> {
             //always center card with respect to mouse
@@ -159,17 +187,13 @@ public class LocalStationController extends AbstractController implements Statio
             node.setTranslateY(node.getTranslateY() + e.getSceneY() - node.localToScene(0,0).getY() - node.getBoundsInLocal().getHeight()/2);
             startX = e.getSceneX() - node.getTranslateX();
             startY = e.getSceneY() - node.getTranslateY();
-
-            /*if(!renderedCars.isEmpty()){
-                CardButton button = (CardButton) e.getSource();
-                System.out.println(scale);
-                button.getSide().fitWidthProperty().multiply(scale);
-            }*/
         });
 
         node.setOnMouseDragged(e -> {
             node.setTranslateX(e.getSceneX() - startX);
             node.setTranslateY(e.getSceneY() - startY);
+
+            //checkIStackPaneContainsImage(node);
         });
 
         node.setOnMouseReleased(e -> {
@@ -236,7 +260,6 @@ public class LocalStationController extends AbstractController implements Statio
         imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
         imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
         clipCardImage(imageView);
-        //imageView.setFitWidth(200);
 
         return imageView;
     }
@@ -253,8 +276,7 @@ public class LocalStationController extends AbstractController implements Statio
             case "green" -> greenPawnImageView;
             case  "blue" -> bluePawnImageView;
             case "yellow" -> yellowPawnImageView;
-            case "black" -> blackPawnImageView;
-            default -> redPawnImageView;
+            default -> blackPawnImageView;
         };
         color.setPreserveRatio(true);
         color.fitWidthProperty().bind(super.getStage().widthProperty().divide(50));
@@ -384,12 +406,11 @@ public class LocalStationController extends AbstractController implements Statio
     }
 
     private void makeCenterPaneScrollable(){
-        Scale centerPaneScale = new Scale(scale, scale);
-        this.cardGrid.getTransforms().add(centerPaneScale);
-
         this.centerPane.setOnScroll(event -> {
 
             double factor;
+
+            if(!this.cardGrid.getTransforms().contains(centerPaneScale)) this.cardGrid.getTransforms().add(centerPaneScale);
 
             if(event.getDeltaY() != 0) {
                 if (event.getDeltaY() > 0) {
@@ -401,8 +422,10 @@ public class LocalStationController extends AbstractController implements Statio
                     scale = scale / delta;
                 }
 
-                translate.setX(translate.getX() - (factor - 1) * event.getSceneX());
-                translate.setY(translate.getY() - (factor - 1) * event.getSceneY());
+                System.out.println(scale);
+
+                translate.setX((translate.getX() - (factor - 1) * event.getSceneX()) / 2);
+                translate.setY((translate.getY() - (factor - 1) * event.getSceneY()) / 2);
 
                 centerPaneScale.setX(scale);
                 centerPaneScale.setY(scale);
@@ -414,9 +437,8 @@ public class LocalStationController extends AbstractController implements Statio
     @Override
     public void notify(SetupEvent type) {
         Platform.runLater(() -> {
-            switch (type){
-                case SetupEvent.ACCEPTED_COLOR, SetupEvent.ACCEPTED_INITIAL_CARD,
-                     SetupEvent.ACCEPTED_PRIVATE_GOAL_CARD -> this.initialize();
+            if(type == SetupEvent.ACCEPTED_COLOR || type == SetupEvent.ACCEPTED_INITIAL_CARD || type == SetupEvent.ACCEPTED_PRIVATE_GOAL_CARD){
+                this.initialize();
             }
         });
 

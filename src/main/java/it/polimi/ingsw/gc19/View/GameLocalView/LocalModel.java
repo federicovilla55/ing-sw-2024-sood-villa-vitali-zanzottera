@@ -409,6 +409,20 @@ public class LocalModel {
     }
 
     /**
+     * To add a card in station to another player {@link OtherStation} hand.
+     * @param nickname the nickname of the other player
+     * @param seed the seed of the card
+     * @param cardType the type of the card
+     */
+    public void updateCardsInHand(String nickname, Symbol seed, PlayableCardType cardType){
+        synchronized (this.playerStations) {
+            this.getOtherStations().get(nickname).addBackCard(new Tuple<>(seed, cardType));
+        }
+
+        this.listenersManager.notifyStationListener((OtherStation) this.playerStations.get(nickname));
+    }
+
+    /**
      * After a message {@link AcceptedPickCardFromTable} arrived.
      * To update the cards in table after a card is picked, given:
      * @param playableCard, the card that is now in the Table.

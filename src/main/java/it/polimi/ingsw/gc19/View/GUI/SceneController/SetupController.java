@@ -45,7 +45,7 @@ public class SetupController extends AbstractController implements SetupListener
     private StackPane stackPane;
 
     @FXML
-    private StackPane stations;
+    private TabPane tabPane;
 
     public SetupController(AbstractController controller) {
         super(controller);
@@ -110,13 +110,13 @@ public class SetupController extends AbstractController implements SetupListener
             LocalStationTabController controller = new LocalStationTabController(this);
             loader.setController(controller);
 
-            stations = loader.load();
+            tabPane = loader.load();
 
-            leftVBox.getChildren().add(stations);
+            leftVBox.getChildren().add(tabPane);
 
-            VBox.setVgrow(stations, Priority.SOMETIMES);
+            VBox.setVgrow(tabPane, Priority.SOMETIMES);
 
-            stations.heightProperty().addListener((observable, oldValue, newValue) -> System.out.println("stack " + stations.getHeight()));
+            tabPane.heightProperty().addListener((observable, oldValue, newValue) -> System.out.println("stack " + tabPane.getHeight()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

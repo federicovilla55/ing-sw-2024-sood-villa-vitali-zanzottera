@@ -169,7 +169,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(OtherAcceptedPickCardFromDeckMessage message) {
         waitForLocalModel();
-        this.localModel.getOtherStations().get(message.getNick()).addBackCard(new Tuple<>(message.getBackPickedCard().x(), message.getBackPickedCard().y()));
+        this.localModel.updateCardsInHand(message.getNick(), message.getBackPickedCard().x(), message.getBackPickedCard().y());
         this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());
         clientController.getCurrentState().nextState(message);
     }
@@ -186,7 +186,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
             this.localModel.updateCardsInHand(message.getPickedCard());
         }
         else {
-            this.localModel.getOtherStations().get(message.getNick()).addBackCard(new Tuple<>(message.getPickedCard().getSeed(), message.getPickedCard().getCardType()));
+            this.localModel.updateCardsInHand(message.getNick(), message.getPickedCard().getSeed(), message.getPickedCard().getCardType());
         }
         this.localModel.updateCardsInTable(message.getCardToPutInSlot(), message.getDeckType(), message.getCoords());
         this.localModel.setNextSeedOfDeck(message.getDeckType(), message.getSymbol());

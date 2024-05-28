@@ -4,17 +4,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane fx:id="stations" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" VBox.vgrow="NEVER">
-   <children>
-      <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" stylesheets="@../css/LocalStationTabScene.css" tabClosingPolicy="UNAVAILABLE" StackPane.alignment="CENTER" VBox.vgrow="NEVER">
-      <tabs>
-      </tabs>
-         <StackPane.margin>
-            <Insets />
-         </StackPane.margin>
-         <padding>
-            <Insets left="5.0" right="5.0" />
-         </padding>
-      </TabPane>
-   </children>
-</StackPane>
+
+<TabPane fx:id="stations" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+         stylesheets="@../css/LocalStationTabScene.css" tabClosingPolicy="UNAVAILABLE" StackPane.alignment="CENTER"
+         VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <StackPane.margin>
+      <Insets/>
+   </StackPane.margin>
+   <padding>
+      <Insets left="5.0" right="5.0"/>
+   </padding>
+</TabPane>

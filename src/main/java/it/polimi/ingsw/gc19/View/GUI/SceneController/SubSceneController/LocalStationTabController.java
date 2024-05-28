@@ -34,7 +34,7 @@ public class LocalStationTabController extends AbstractController implements Loc
     @FXML
     private TabPane tabPane;
 
-    private Tab currentTab;
+    private static Tab currentTab;
 
     public LocalStationTabController(AbstractController controller) {
         super(controller);
@@ -77,6 +77,12 @@ public class LocalStationTabController extends AbstractController implements Loc
 
                 tab.setText(l.getOwnerPlayer());
                 tab.setContent(tabContent);
+
+                tabContent.prefHeightProperty().bind(tabPane.heightProperty().subtract(65));
+                tabContent.prefWidthProperty().bind(tabPane.widthProperty());
+                tabContent.prefHeightProperty().addListener(
+                        (observable, oldValue, newValue) -> tabContent.setMaxSize(tabContent.getPrefWidth(), tabContent.getPrefHeight())
+                );
 
                 this.tabPane.getTabs().add(tab);
 
