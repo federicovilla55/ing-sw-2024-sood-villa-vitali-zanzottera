@@ -81,8 +81,12 @@ public class TableController extends AbstractController implements TableListener
             this.gridPane.add(this.publicGoals[i], i, 2);
         }
 
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < 2; i++){
             this.gridPane.add(this.decks[i], 2, i);
+        }
+
+        if(!this.gridPane.getChildren().contains(factoryUpperDeckCard())){
+            this.gridPane.add(this.decks[2], 2, 2);
         }
     }
 

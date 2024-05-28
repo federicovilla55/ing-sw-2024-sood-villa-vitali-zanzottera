@@ -78,15 +78,15 @@ public class OldConfigurationController extends AbstractController implements St
             }
             client.configure(config.getNick(), config.getToken());
             super.getClientController().setNickname(config.getNick());
+            this.getClientController().getListenersManager().removeListener(this);
             super.getClientController().setClientInterface(client);
-            super.getClientController().setNextState(new Disconnect(super.getClientController()), false);
+            super.getClientController().getListenersManager().attachListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
+            super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
+            super.getClientController().setNextState(new Disconnect(super.getClientController()), true);
         }
     }
     @FXML
     public void onNewConfigurationPressed(ActionEvent e){
-        super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
-        super.getClientController().getListenersManager().removeListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
-
         changeToNextScene(SceneStatesEnum.NEW_CONFIGURATION_SCENE);
     }
 
@@ -99,9 +99,11 @@ public class OldConfigurationController extends AbstractController implements St
                 super.setLocalModel(super.getClientController().getLocalModel());
                 super.changeToNextScene(SceneStatesEnum.SETUP_SCENE);
             }
-            case ViewState.PAUSE -> System.out.println("Game is in pause! Sorry, you have to wait...");
+            case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN, ViewState.PAUSE, ViewState.END -> {
+                super.setLocalModel(super.getClientController().getLocalModel());
+                super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
+            }
             case ViewState.DISCONNECT -> System.err.println("[NETWORK PROBLEMS]: there are network problems. In background, we are trying to fix them...");
-            case ViewState.END -> System.out.println("ciao");
         }
         System.out.println(viewState);
     }

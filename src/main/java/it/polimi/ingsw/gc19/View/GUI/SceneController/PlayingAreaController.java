@@ -206,29 +206,6 @@ public class PlayingAreaController extends AbstractController implements StateLi
         }
     }
 
-    private void notifyPossibleDisconnection(){
-        for(Node n : this.stackPane.getChildrenUnmodifiable()){
-            n.setOpacity(0.15);
-        }
-
-        super.getStage().getScene().setFill(javafx.scene.paint.Color.GREY);
-
-        try{
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/ReconnectionWaitScene.fxml").toURL());
-            ReconnectionWaitController controller = new ReconnectionWaitController(this);
-            loader.setController(controller);
-
-            StackPane waitStack = loader.load();
-
-            this.stackPane.getChildren().add(waitStack);
-            this.stackPane.requestLayout();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     public void notify(ViewState viewState) {
         Platform.runLater(() -> {
@@ -237,7 +214,10 @@ public class PlayingAreaController extends AbstractController implements StateLi
         });
 
         switch (viewState){
-            case ViewState.DISCONNECT -> notifyPossibleDisconnection();
+            case ViewState.DISCONNECT -> {
+                this.getClientController().getListenersManager().removeListener(this);
+                notifyPossibleDisconnection(stackPane);
+            }
             //@TODO: Handle pause and end of game
             //@TODO: handle DISCONNECTED STATE
         }
