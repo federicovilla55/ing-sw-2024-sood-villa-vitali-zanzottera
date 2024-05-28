@@ -17,6 +17,7 @@ import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
@@ -106,7 +107,7 @@ public class LocalStationController extends AbstractController implements Statio
 
         this.centerPane.prefHeightProperty().bind(this.borderPane.prefHeightProperty());
         this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().multiply(0.80));
-        this.centerPane.minHeightProperty().bind(Bindings.max(this.centerPane.prefHeightProperty(), this.leftVBox.prefHeightProperty()));
+        this.centerPane.minHeightProperty().bind(this.centerPane.prefHeightProperty());
         this.centerPane.minWidthProperty().bind(this.centerPane.prefWidthProperty());
     }
 

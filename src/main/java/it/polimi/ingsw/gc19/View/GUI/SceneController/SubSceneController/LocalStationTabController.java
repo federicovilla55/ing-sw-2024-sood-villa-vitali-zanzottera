@@ -34,7 +34,7 @@ public class LocalStationTabController extends AbstractController implements Loc
     @FXML
     private TabPane tabPane;
 
-    private Tab currentTab;
+    private static Tab currentTab;
 
     public LocalStationTabController(AbstractController controller) {
         super(controller);

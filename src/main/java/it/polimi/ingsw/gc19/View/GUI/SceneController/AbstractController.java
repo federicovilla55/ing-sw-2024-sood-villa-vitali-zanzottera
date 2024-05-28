@@ -99,6 +99,8 @@ public class AbstractController implements UI , Listener {
         try{
             FXMLLoader loader = new FXMLLoader();
 
+            this.getClientController().getListenersManager().removeListener(this);
+
             AbstractController controller;
 
             switch (nextScenePath){
