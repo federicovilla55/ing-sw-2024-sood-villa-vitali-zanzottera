@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.util.*;
 
 public class PlayingAreaController extends AbstractController implements StateListener, LocalModelListener {
+
     @FXML
     private TabPane tabPane;
 
@@ -41,9 +42,6 @@ public class PlayingAreaController extends AbstractController implements StateLi
 
     @FXML
     private StackPane stackPane;
-
-    @FXML
-    private StackPane stations;
 
     private Tab currentTab;
 
@@ -104,12 +102,20 @@ public class PlayingAreaController extends AbstractController implements StateLi
             LocalStationTabController controller = new LocalStationTabController(this);
             loader.setController(controller);
 
-            stations = loader.load();
+            tabPane = loader.load();
 
-            stations.prefHeightProperty().bind(super.getStage().heightProperty().subtract(((Region) this.infoHBox.getParent()).getPrefHeight()).subtract(((Region) this.table.getParent()).getPrefHeight()));
+            tabPane.prefHeightProperty().bind(super.getStage().heightProperty().subtract(((Region) this.infoHBox.getParent()).getPrefHeight()).subtract(((Region) this.table.getParent()).getPrefHeight()));
+            tabPane.prefWidthProperty().bind(leftVBox.widthProperty());
+            tabPane.prefWidthProperty().addListener(
+                    (observable, oldValue, newValue) -> tabPane.setMaxSize(tabPane.getPrefWidth(), tabPane.getPrefHeight())
+            );
+            tabPane.prefHeightProperty().addListener(
+                    (observable, oldValue, newValue) -> tabPane.setMaxSize(tabPane.getPrefWidth(), tabPane.getPrefHeight())
+            );
 
-            leftVBox.getChildren().add(stations);
-            VBox.setVgrow(stations, Priority.ALWAYS);
+
+            leftVBox.getChildren().add(tabPane);
+            VBox.setVgrow(tabPane, Priority.ALWAYS);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

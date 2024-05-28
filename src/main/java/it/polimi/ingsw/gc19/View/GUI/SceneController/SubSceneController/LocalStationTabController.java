@@ -78,6 +78,12 @@ public class LocalStationTabController extends AbstractController implements Loc
                 tab.setText(l.getOwnerPlayer());
                 tab.setContent(tabContent);
 
+                tabContent.prefHeightProperty().bind(tabPane.heightProperty().subtract(65));
+                tabContent.prefWidthProperty().bind(tabPane.widthProperty());
+                tabContent.prefHeightProperty().addListener(
+                        (observable, oldValue, newValue) -> tabContent.setMaxSize(tabContent.getPrefWidth(), tabContent.getPrefHeight())
+                );
+
                 this.tabPane.getTabs().add(tab);
 
                 tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {

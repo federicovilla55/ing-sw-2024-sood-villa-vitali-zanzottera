@@ -106,9 +106,17 @@ public class LocalStationController extends AbstractController implements Statio
         //super.getStage().minHeightProperty().bind(super.getStage().widthProperty().multiply(0.4).add(257));
 
         this.centerPane.prefHeightProperty().bind(this.borderPane.prefHeightProperty());
-        this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().multiply(0.80));
+        this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().subtract(leftVBox.widthProperty()).subtract(rightVBox.widthProperty()));
         this.centerPane.minHeightProperty().bind(this.centerPane.prefHeightProperty());
         this.centerPane.minWidthProperty().bind(this.centerPane.prefWidthProperty());
+        this.centerPane.prefHeightProperty().addListener((observable, oldValue, newValue) -> {
+            this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
+        });
+        this.centerPane.prefWidthProperty().addListener((observable, oldValue, newValue) -> {
+            this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
+        });
+
+
     }
 
     protected void initializePawns(){
