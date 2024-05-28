@@ -20,6 +20,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,8 @@ public class PlayingAreaController extends AbstractController implements TurnSta
 
     @FXML
     private StackPane stations;
+
+    private PaneFireworks paneFireworks;
 
     private Tab currentTab;
 
@@ -118,6 +121,8 @@ public class PlayingAreaController extends AbstractController implements TurnSta
 
         buildTabPane();
         tabPane.getStyleClass().add("floating");
+
+        paneFireworks = new PaneFireworks(stackPane, super.getStage(), super.getLocalModel());
     }
 
     private void buildTabPane() {
@@ -222,11 +227,21 @@ public class PlayingAreaController extends AbstractController implements TurnSta
         }
     }
 
+    public void endGame(){
+        Platform.runLater(() -> {
+            buildInfoHBox();
+            paneFireworks.start();
+        });
+        System.out.println("GIOCO FINITO...");
+
+    }
+
     @Override
     public void notify(ViewState viewState) {
         switch (viewState){
             case ViewState.DISCONNECT -> notifyPossibleDisconnection();
-            //@TODO: Handle pause and end of game
+            case ViewState.END -> endGame();
+            //@TODO: Handle pause
             //@TODO: handle DISCONNECTED STATE
         }
     }
