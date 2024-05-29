@@ -104,7 +104,6 @@ public class ClientController {
      */
     public synchronized void signalPossibleNetworkProblem(){
         if(this.viewState.getState().equals(ViewState.DISCONNECT)) return;
-        this.prevState = viewState;
         this.setNextState(new Disconnect(this), true);
     }
 
@@ -120,11 +119,9 @@ public class ClientController {
     }
 
     public synchronized void setNextState(ClientState clientState, boolean notify){
-        if(notify && !viewState.getState().equals(clientState.getState())){
-            this.listenersManager.notifyStateListener(clientState.getState());
-        }
         this.prevState = viewState;
         this.viewState = clientState;
+        this.listenersManager.notifyStateListener(clientState.getState());
     }
 
     public synchronized ClientState getCurrentState(){
@@ -346,7 +343,6 @@ public class ClientController {
             return;
         }
         if((cardIdx >= 0) && (cardIdx < 2)) {
-            System.out.println("eeeeeeeeeeeeeeeeee");
             clientNetwork.choosePrivateGoalCard(cardIdx);
         }
         else{

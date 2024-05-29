@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.*;
+import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
@@ -218,8 +219,8 @@ public class PlayingAreaController extends AbstractController implements StateLi
                 this.getClientController().getListenersManager().removeListener(this);
                 notifyPossibleDisconnection(stackPane);
             }
-            //@TODO: Handle pause and end of game
-            //@TODO: handle DISCONNECTED STATE
+            case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
+            case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
         }
     }
 

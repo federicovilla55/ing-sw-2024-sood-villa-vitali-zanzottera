@@ -125,7 +125,6 @@ public abstract class ClientState {
      */
     public void nextState(GamePausedMessage message) {
         clientController.setNextState(new Pause(clientController), true);
-        //this.listenersManager.notifyStateListener(ViewState.PAUSE);
     }
 
     /**
