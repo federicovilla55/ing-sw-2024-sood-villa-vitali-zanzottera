@@ -70,9 +70,8 @@ public class GameSelectionController extends AbstractController implements State
     }
     @Override
     public void notify(ViewState viewState) {
-        super.getClientController().getListenersManager().removeListener(this);
-
         if(viewState == ViewState.DISCONNECT){
+            super.getClientController().getListenersManager().removeListener(this);
             super.notifyPossibleDisconnection(this.stackPane);
         }
     }

@@ -37,8 +37,6 @@ public class OldConfigurationController extends AbstractController implements St
     private TableColumn<Configuration, String> timeCol;
     @FXML
     private TableColumn<Configuration, Configuration.ConnectionType> conTypeCol;
-    @FXML
-    private StackPane stackPane;
 
     public OldConfigurationController(ClientController controller, CommandParser parser, Stage stage){
         super(controller, parser, stage);
@@ -124,7 +122,6 @@ public class OldConfigurationController extends AbstractController implements St
                 super.setLocalModel(super.getClientController().getLocalModel());
                 super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
             }
-            case ViewState.DISCONNECT -> super.notifyPossibleDisconnection(stackPane);
         }
     }
 

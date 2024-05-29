@@ -25,8 +25,6 @@ public class NewConfigurationController extends AbstractController implements St
     private ClientInterface client;
     @FXML
     private Button TCPButton, RMIButton;
-    @FXML
-    private StackPane stackPane;
 
     protected NewConfigurationController(AbstractController controller) {
         super(controller);
@@ -75,11 +73,6 @@ public class NewConfigurationController extends AbstractController implements St
     public void notify(ViewState viewState) {
         super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
 
-        if (Objects.requireNonNull(viewState) == ViewState.DISCONNECT) {
-            super.notifyPossibleDisconnection(stackPane);
-        }
-        else {
-            super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
-        }
+        super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
     }
 }

@@ -6,7 +6,8 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane fx:id="stackPane" prefHeight="360.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.OldConfigurationController">
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane prefHeight="360.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.OldConfigurationController">
    <children>
       <Button layoutX="33.0" layoutY="278.0" mnemonicParsing="false" onAction="#onReconnectPress" prefHeight="27.0" prefWidth="98.0" text="Reconnect" />
       <Button layoutX="480.0" layoutY="278.0" mnemonicParsing="false" onAction="#onNewConfigurationPressed" prefHeight="27.0" prefWidth="98.0" text="New Conf" />
@@ -22,4 +23,4 @@
       <Button layoutX="179.0" layoutY="278.0" mnemonicParsing="false" onAction="#onDeleteConf" prefHeight="27.0" prefWidth="98.0" text="Delete Conf" />
       <Button layoutX="326.0" layoutY="278.0" mnemonicParsing="false" onAction="#onDeleteAll" prefHeight="27.0" prefWidth="98.0" text="Delete All" />
    </children>
-</StackPane>
+</AnchorPane>

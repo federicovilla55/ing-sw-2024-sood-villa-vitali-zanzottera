@@ -181,6 +181,8 @@ public class LocalStationController extends AbstractController implements Statio
     }
 
     private void makeCardDraggable(Node node){
+        if(super.getClientController().getState() == ViewState.SETUP) return;
+
         node.setOnMousePressed(e -> {
             //always center card with respect to mouse
             node.setTranslateX(node.getTranslateX() + e.getSceneX() - node.localToScene(0,0).getX() - node.getBoundsInLocal().getWidth()/2);
