@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.Configuration.Configuration;
+import it.polimi.ingsw.gc19.Networking.Client.Configuration.ConfigurationManager;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.Disconnect;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
@@ -21,11 +22,12 @@ import javafx.stage.Stage;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OldConfigurationController extends AbstractController implements StateListener, GameHandlingListener{
 
-    private List<Configuration> configs;
+    private ArrayList<Configuration> configs;
 
     @FXML
     private TableView<Configuration> confTable;
@@ -53,7 +55,7 @@ public class OldConfigurationController extends AbstractController implements St
         super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
     }
 
-    public void setConfig(List<Configuration> configs) {
+    public void setConfig(ArrayList<Configuration> configs) {
         this.configs = configs;
     }
 
@@ -88,6 +90,24 @@ public class OldConfigurationController extends AbstractController implements St
     @FXML
     public void onNewConfigurationPressed(ActionEvent e){
         changeToNextScene(SceneStatesEnum.NEW_CONFIGURATION_SCENE);
+    }
+
+    @FXML
+    public synchronized void onDeleteAll(ActionEvent e){
+        for(Configuration conf : configs){
+            ConfigurationManager.deleteConfiguration(conf.getNick());
+        }
+        configs.removeAll(configs);
+        confTable.setItems(FXCollections.observableArrayList(this.configs));
+    }
+    @FXML
+    public void onDeleteConf(ActionEvent e){
+        Configuration config = confTable.getSelectionModel().getSelectedItem();
+        configs.remove(config);
+        confTable.setItems(FXCollections.observableArrayList(this.configs));
+        if(config != null){
+            ConfigurationManager.deleteConfiguration(config.getNick());
+        }
     }
 
     @Override

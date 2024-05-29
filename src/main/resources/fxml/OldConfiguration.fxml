@@ -8,8 +8,8 @@
 
 <AnchorPane prefHeight="360.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.OldConfigurationController">
    <children>
-      <Button layoutX="146.0" layoutY="284.0" mnemonicParsing="false" onAction="#onReconnectPress" prefHeight="27.0" prefWidth="98.0" text="Reconnect" />
-      <Button layoutX="356.0" layoutY="285.0" mnemonicParsing="false" onAction="#onNewConfigurationPressed" prefHeight="27.0" prefWidth="98.0" text="New Conf" />
+      <Button layoutX="33.0" layoutY="278.0" mnemonicParsing="false" onAction="#onReconnectPress" prefHeight="27.0" prefWidth="98.0" text="Reconnect" />
+      <Button layoutX="480.0" layoutY="278.0" mnemonicParsing="false" onAction="#onNewConfigurationPressed" prefHeight="27.0" prefWidth="98.0" text="New Conf" />
       <Label alignment="CENTER" layoutX="214.0" layoutY="23.0" prefHeight="18.0" prefWidth="172.0" text="Configuration Found" />
       <Label layoutX="300.0" layoutY="71.0" prefHeight="200.0" prefWidth="248.0" />
       <TableView fx:id="confTable" layoutX="33.0" layoutY="58.0" prefHeight="200.0" prefWidth="545.0">
@@ -19,5 +19,7 @@
             <TableColumn fx:id="conTypeCol" prefWidth="115.0" text="Type" />
         </columns>
       </TableView>
+      <Button layoutX="179.0" layoutY="278.0" mnemonicParsing="false" onAction="#onDeleteConf" prefHeight="27.0" prefWidth="98.0" text="Delete Conf" />
+      <Button layoutX="326.0" layoutY="278.0" mnemonicParsing="false" onAction="#onDeleteAll" prefHeight="27.0" prefWidth="98.0" text="Delete All" />
    </children>
 </AnchorPane>

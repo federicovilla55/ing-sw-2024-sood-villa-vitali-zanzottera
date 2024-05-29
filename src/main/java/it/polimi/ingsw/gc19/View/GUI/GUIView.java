@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,7 +40,7 @@ public class GUIView extends Application {
 
             root = loader.load();
 
-            ((OldConfigurationController) loader.getController()).setConfig(configs);
+            ((OldConfigurationController) loader.getController()).setConfig(new ArrayList<>(configs));
             ((OldConfigurationController) loader.getController()).setUpConfigTable();
 
             Scene scene = new Scene(root);
