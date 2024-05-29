@@ -5,6 +5,7 @@ import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.ClientController.Disconnect;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
 import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
@@ -24,6 +25,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -37,13 +39,11 @@ import java.util.*;
 public class LocalStationController extends AbstractController implements StationListener, SetupListener {
 
     @FXML
-    protected StackPane centerPane;
+    private StackPane centerPane;
     @FXML
-    protected GridPane cardGrid;
+    private GridPane cardGrid;
     @FXML
-    protected VBox leftVBox;
-    @FXML
-    protected VBox rightVBox;
+    private VBox leftVBox, rightVBox;
     @FXML
     protected BorderPane borderPane;
 
@@ -66,6 +66,8 @@ public class LocalStationController extends AbstractController implements Statio
     private final double CARD_PIXEL_HEIGHT = 558.0;
 
     private final ArrayList<ImageView> renderedCards;
+
+    private PlayableCardButton draggedCard = null;
 
     public LocalStationController(AbstractController controller,String nickOwner) {
         super(controller);
@@ -116,7 +118,21 @@ public class LocalStationController extends AbstractController implements Statio
             this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
         });
 
+        this.borderPane.getCenter().setOnDragEntered(event -> {
+            System.out.println("okkkkkkkkkk");
+            if(draggedCard != null) {
+                draggedCard.getSide().fitWidthProperty().unbind();
+                draggedCard.getSide().fitWidthProperty().set(super.getStage().getWidth() * scale / 12.8);
+            }
+        });
 
+        this.centerPane.setOnMouseExited(event -> {
+            if(draggedCard != null) {
+                draggedCard.getSide().fitWidthProperty().unbind();
+                draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
+                draggedCard = null;
+            }
+        });
     }
 
     protected void initializePawns(){
@@ -181,7 +197,7 @@ public class LocalStationController extends AbstractController implements Statio
     }
 
     private void makeCardDraggable(Node node){
-        if(super.getClientController().getState() == ViewState.SETUP) return;
+        //if(super.getClientController().getState() == ViewState.SETUP) return;
 
         node.setOnMousePressed(e -> {
             //always center card with respect to mouse
@@ -195,7 +211,7 @@ public class LocalStationController extends AbstractController implements Statio
             node.setTranslateX(e.getSceneX() - startX);
             node.setTranslateY(e.getSceneY() - startY);
 
-            //checkIStackPaneContainsImage(node);
+            this.draggedCard = (PlayableCardButton) node;
         });
 
         node.setOnMouseReleased(e -> {
@@ -408,8 +424,10 @@ public class LocalStationController extends AbstractController implements Statio
     }
 
     private void makeCenterPaneScrollable(){
-        this.centerPane.setOnScroll(event -> {
+        final double MAX_SCALE = 2;
+        final double MIN_SCALE = 0.25;
 
+        this.centerPane.setOnScroll(event -> {
             double factor;
 
             if(!this.cardGrid.getTransforms().contains(centerPaneScale)) this.cardGrid.getTransforms().add(centerPaneScale);
@@ -417,14 +435,12 @@ public class LocalStationController extends AbstractController implements Statio
             if(event.getDeltaY() != 0) {
                 if (event.getDeltaY() > 0) {
                     factor = delta;
-                    scale = scale * delta;
+                    if(scale * delta < MAX_SCALE) scale = scale * delta;
                 }
                 else {
                     factor = 1 / delta;
-                    scale = scale / delta;
+                    if(scale * factor > MIN_SCALE) scale = scale / delta;
                 }
-
-                System.out.println(scale);
 
                 translate.setX((translate.getX() - (factor - 1) * event.getSceneX()) / 2);
                 translate.setY((translate.getY() - (factor - 1) * event.getSceneY()) / 2);
@@ -432,7 +448,6 @@ public class LocalStationController extends AbstractController implements Statio
                 centerPaneScale.setX(scale);
                 centerPaneScale.setY(scale);
             }
-
         });
     }
 
@@ -464,6 +479,6 @@ public class LocalStationController extends AbstractController implements Statio
     }
 
     @Override
-    public void notifyErrorStation(String... varArgs) { }
+    public void notifyErrorStation(String... varArgs){ }
 
 }

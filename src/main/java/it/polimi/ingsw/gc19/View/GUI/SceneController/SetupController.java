@@ -300,6 +300,7 @@ public class SetupController extends AbstractController implements SetupListener
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.initOwner(super.getStage().getScene().getWindow());
 
             switch (type) {
                 case LocalModelEvents.NEW_PLAYER_CONNECTED -> {
