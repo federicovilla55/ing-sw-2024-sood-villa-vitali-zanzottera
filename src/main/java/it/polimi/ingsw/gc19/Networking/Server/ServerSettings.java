@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.Networking.Server;
 public class ServerSettings {
 
     public static long MAX_DELTA_TIME_BETWEEN_HEARTBEATS = 10;
-    public static long TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 5 * 60;
+    public static long TIME_TO_WAIT_BEFORE_IN_GAME_CLIENT_DISCONNECTION = 60;
     public static long TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL =  20 * 60;
 
     public static final String DEFAULT_RMI_SERVER_NAME = "RMIMainServer";

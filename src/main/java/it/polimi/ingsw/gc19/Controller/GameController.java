@@ -505,11 +505,11 @@ public class GameController{
                 && sortedPlayers.getFirst().getStation().getPointsFromGoals() == p.getStation().getPointsFromGoals());
 
         this.gameAssociated.setGameState(GameState.END);
-        MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());
-
         this.messageFactory.sendMessageToAllGamePlayers(
                 new EndGameMessage(winnerPlayers.stream().map(Player::getName).collect(Collectors.toList()), scoreboard)
         );
+
+        MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());
     }
 
     /**
