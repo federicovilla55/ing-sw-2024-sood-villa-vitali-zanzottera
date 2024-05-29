@@ -46,6 +46,7 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
     public PlayerSymbolsController(AbstractController controller) {
         super(controller);
 
+        getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
         getClientController().getListenersManager().attachListener(ListenerType.TURN_LISTENER, this);
     }
 
