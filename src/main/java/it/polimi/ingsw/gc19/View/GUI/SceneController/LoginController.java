@@ -38,7 +38,7 @@ public class LoginController extends AbstractController implements PlayerCreatio
 
     @Override
     public void notifyPlayerCreation(String name) {
-        super.getClientController().getListenersManager().removeListener(ListenerType.PLAYER_CREATION_LISTENER, this);
+        super.getClientController().getListenersManager().removeListener(this);
 
         super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
     }
@@ -55,6 +55,8 @@ public class LoginController extends AbstractController implements PlayerCreatio
 
     @Override
     public void notify(ViewState viewState) {
+        super.getClientController().getListenersManager().removeListener(this);
+
         if(viewState == ViewState.DISCONNECT){
             super.notifyPossibleDisconnection(stackPane);
         }

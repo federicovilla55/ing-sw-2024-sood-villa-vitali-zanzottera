@@ -12,10 +12,12 @@ import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.fxml.FXML;
 
 import javafx.scene.control.Button;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Objects;
 
 
 public class NewConfigurationController extends AbstractController implements StateListener {
@@ -23,6 +25,8 @@ public class NewConfigurationController extends AbstractController implements St
     private ClientInterface client;
     @FXML
     private Button TCPButton, RMIButton;
+    @FXML
+    private StackPane stackPane;
 
     protected NewConfigurationController(AbstractController controller) {
         super(controller);
@@ -71,6 +75,11 @@ public class NewConfigurationController extends AbstractController implements St
     public void notify(ViewState viewState) {
         super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
 
-        super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
+        if (Objects.requireNonNull(viewState) == ViewState.DISCONNECT) {
+            super.notifyPossibleDisconnection(stackPane);
+        }
+        else {
+            super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
+        }
     }
 }

@@ -87,7 +87,7 @@ public class ReconnectionWaitController extends AbstractController implements St
     public void notify(ViewState viewState) {
         this.thread.interrupt();
 
-        //@TODO: what to do in PAUSE? And END?
+        super.getClientController().getListenersManager().removeListener(this);
 
         switch (viewState){
             case ViewState.SETUP -> changeToNextScene(SceneStatesEnum.SETUP_SCENE);

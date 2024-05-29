@@ -34,18 +34,15 @@ public class SetupController extends AbstractController implements SetupListener
 
     @FXML
     private VBox leftVBox, rightVBox, chat;
-
     @FXML
     private HBox hbox, goalCardsHBox, initialCardHBox, infoHBox;
-
     @FXML
     private BorderPane availableColorsPane, initialCardOrientationPane, privateGoalCardSelectionPane, table;
-
     @FXML
     private StackPane stackPane;
-
     @FXML
     private TabPane tabPane;
+    private AbstractController chatController, tableController, localStationController;
 
     public SetupController(AbstractController controller) {
         super(controller);
@@ -76,8 +73,8 @@ public class SetupController extends AbstractController implements SetupListener
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/ChatScene.fxml").toURL());
-            ChatController controller = new ChatController(this);
-            loader.setController(controller);
+            chatController = new ChatController(this);
+            loader.setController(chatController);
 
             chat = loader.load();
 
@@ -93,8 +90,8 @@ public class SetupController extends AbstractController implements SetupListener
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/TableScene.fxml").toURL());
-            TableController controller = new TableController(this);
-            loader.setController(controller);
+            tableController = new TableController(this);
+            loader.setController(tableController);
 
             table = loader.load();
 
@@ -107,8 +104,8 @@ public class SetupController extends AbstractController implements SetupListener
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/LocalStationTab.fxml").toURL());
-            LocalStationTabController controller = new LocalStationTabController(this);
-            loader.setController(controller);
+            localStationController = new LocalStationTabController(this);
+            loader.setController(localStationController);
 
             tabPane = loader.load();
 
@@ -171,18 +168,14 @@ public class SetupController extends AbstractController implements SetupListener
             this.initialCardHBox.getChildren().addAll(List.of(initialCardUp, initialCardDown));
 
             for(var b : List.of(initialCardUp, initialCardDown)){
-
                 b.setOnMouseClicked((event) -> {
-
                     getClientController().placeInitialCard(b.getCardOrientation());
                     initialCardHBox.getChildren().clear();
                     rightVBox.getChildren().remove(initialCardOrientationPane);
 
                     resizeChat();
                 });
-
             }
-
         }
     }
 
@@ -290,16 +283,16 @@ public class SetupController extends AbstractController implements SetupListener
 
     @Override
     public void notify(ViewState viewState) {
+        super.getClientController().getListenersManager().removeListener(this);
+        super.getClientController().getListenersManager().removeListener(chatController);
+        super.getClientController().getListenersManager().removeListener(tableController);
+        super.getClientController().getListenersManager().removeListener(localStationController);
+
         switch (viewState){
             case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
-            case ViewState.DISCONNECT -> {
-                this.getClientController().getListenersManager().removeListener(this);
-                super.notifyPossibleDisconnection(this.stackPane);
-            }
+            case ViewState.DISCONNECT -> super.notifyPossibleDisconnection(this.stackPane);
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
-            //@TODO: there are problems if game goes in pause when it should start?
-            //@TODO: handle DISCONNECTED STATE
         }
     }
 

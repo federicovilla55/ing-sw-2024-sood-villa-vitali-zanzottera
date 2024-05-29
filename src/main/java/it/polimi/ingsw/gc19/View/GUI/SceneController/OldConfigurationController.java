@@ -18,6 +18,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 
@@ -28,28 +29,19 @@ import java.util.List;
 public class OldConfigurationController extends AbstractController implements StateListener, GameHandlingListener{
 
     private ArrayList<Configuration> configs;
-
     @FXML
     private TableView<Configuration> confTable;
-
     @FXML
     private TableColumn<Configuration, String> nicknameCol;
-
     @FXML
     private TableColumn<Configuration, String> timeCol;
-
     @FXML
     private TableColumn<Configuration, Configuration.ConnectionType> conTypeCol;
+    @FXML
+    private StackPane stackPane;
 
     public OldConfigurationController(ClientController controller, CommandParser parser, Stage stage){
         super(controller, parser, stage);
-
-        super.getClientController().getListenersManager().attachListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
-        super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
-    }
-
-    public OldConfigurationController(AbstractController controller) {
-        super(controller);
 
         super.getClientController().getListenersManager().attachListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
         super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
@@ -73,22 +65,27 @@ public class OldConfigurationController extends AbstractController implements St
         if(config != null) {
             System.out.println(config.getNick());
             connectionType = config.getConnectionType();
+
             try {
                 client = connectionType.getClientFactory().createClient(super.getClientController());
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
+
             client.configure(config.getNick(), config.getToken());
+
             super.getClientController().setNickname(config.getNick());
             this.getClientController().getListenersManager().removeListener(this);
             super.getClientController().setClientInterface(client);
-            super.getClientController().getListenersManager().attachListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
-            super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
+
             super.getClientController().setNextState(new Disconnect(super.getClientController()), true);
         }
     }
+
     @FXML
     public void onNewConfigurationPressed(ActionEvent e){
+        super.getClientController().getListenersManager().removeListener(this);
+
         changeToNextScene(SceneStatesEnum.NEW_CONFIGURATION_SCENE);
     }
 
@@ -97,14 +94,16 @@ public class OldConfigurationController extends AbstractController implements St
         for(Configuration conf : configs){
             ConfigurationManager.deleteConfiguration(conf.getNick());
         }
-        configs.removeAll(configs);
+
         confTable.setItems(FXCollections.observableArrayList(this.configs));
     }
+
     @FXML
     public void onDeleteConf(ActionEvent e){
         Configuration config = confTable.getSelectionModel().getSelectedItem();
         configs.remove(config);
         confTable.setItems(FXCollections.observableArrayList(this.configs));
+
         if(config != null){
             ConfigurationManager.deleteConfiguration(config.getNick());
         }
@@ -112,6 +111,8 @@ public class OldConfigurationController extends AbstractController implements St
 
     @Override
     public void notify(ViewState viewState) {
+        super.getClientController().getListenersManager().removeListener(this);
+
         switch (viewState){
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
@@ -123,14 +124,13 @@ public class OldConfigurationController extends AbstractController implements St
                 super.setLocalModel(super.getClientController().getLocalModel());
                 super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
             }
-            case ViewState.DISCONNECT -> System.err.println("[NETWORK PROBLEMS]: there are network problems. In background, we are trying to fix them...");
+            case ViewState.DISCONNECT -> super.notifyPossibleDisconnection(stackPane);
         }
-        System.out.println(viewState);
     }
 
     @Override
     public void notify(GameHandlingEvents type, List<String> varArgs) {
-
+        //@TODO: here...
     }
 
 }

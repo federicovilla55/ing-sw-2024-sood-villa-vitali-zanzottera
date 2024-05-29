@@ -31,22 +31,16 @@ public class PlayingAreaController extends AbstractController implements StateLi
 
     @FXML
     private TabPane tabPane;
-
-    private TabPane stations;
-
     @FXML
     private VBox leftVBox, rightVBox, chat;
-
     @FXML
     private HBox hbox, infoHBox;
-
     @FXML
     private BorderPane table;
-
     @FXML
     private StackPane stackPane;
-
     private Tab currentTab;
+    private AbstractController chatController, tableController, localStationController;
 
     public PlayingAreaController(AbstractController controller) {
         super(controller);
@@ -62,8 +56,8 @@ public class PlayingAreaController extends AbstractController implements StateLi
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
         rightVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.25));
 
-        leftVBox.prefHeightProperty().bind(super.getStage().heightProperty());
         rightVBox.prefHeightProperty().bind(super.getStage().heightProperty());
+        leftVBox.prefHeightProperty().bind(super.getStage().heightProperty());
 
         leftVBox.spacingProperty().bind(super.getStage().heightProperty().divide(75));
         rightVBox.spacingProperty().bind(super.getStage().heightProperty().divide(75));
@@ -73,8 +67,8 @@ public class PlayingAreaController extends AbstractController implements StateLi
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/ChatScene.fxml").toURL());
-            ChatController controller = new ChatController(this);
-            loader.setController(controller);
+            chatController = new ChatController(this);
+            loader.setController(chatController);
 
             chat = loader.load();
 
@@ -82,14 +76,13 @@ public class PlayingAreaController extends AbstractController implements StateLi
             throw new RuntimeException(e);
         }
 
-
         ((Region) chat.getChildren().getFirst()).setPrefHeight(super.getStage().getHeight());
 
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/TableScene.fxml").toURL());
-            TableController controller = new TableController(this);
-            loader.setController(controller);
+            tableController = new TableController(this);
+            loader.setController(tableController);
 
             table = loader.load();
 
@@ -102,10 +95,10 @@ public class PlayingAreaController extends AbstractController implements StateLi
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/LocalStationTab.fxml").toURL());
-            LocalStationTabController controller = new LocalStationTabController(this);
-            loader.setController(controller);
+            localStationController = new LocalStationTabController(this);
+            loader.setController(localStationController);
 
-            stations = loader.load();
+            TabPane stations = loader.load();
 
             leftVBox.getChildren().add(stations);
             VBox.setVgrow(stations, Priority.SOMETIMES);
@@ -178,8 +171,7 @@ public class PlayingAreaController extends AbstractController implements StateLi
     }
 
     private void buildInfoHBox(){
-
-        if(this.infoHBox.getChildren().size() == 0) {
+        if(this.infoHBox.getChildren().isEmpty()) {
 
             this.infoHBox.getChildren().add(new Label("Username: " + super.getClientController().getNickname()));
 
@@ -190,11 +182,11 @@ public class PlayingAreaController extends AbstractController implements StateLi
             this.infoHBox.getChildren().add(new Label("Current game state: " + super.getClientController().getState().toString()));
 
             this.infoHBox.spacingProperty().bind(((Region) this.infoHBox.getParent()).widthProperty()
-                    .subtract(this.infoHBox.getChildren().stream()
-                            .map(c -> ((Region) c).getWidth())
-                            .mapToDouble(Double::doubleValue)
-                            .sum())
-                    .divide(20));
+                                                                                     .subtract(this.infoHBox.getChildren().stream()
+                                                                                                            .map(c -> ((Region) c).getWidth())
+                                                                                                            .mapToDouble(Double::doubleValue)
+                                                                                                            .sum())
+                                                                                    .divide(20));
         }
         else {
             ((Label) infoHBox.getChildren().get(0)).setText("Username: " + super.getClientController().getNickname());
@@ -214,11 +206,13 @@ public class PlayingAreaController extends AbstractController implements StateLi
                 ((Label) infoHBox.getChildren().get(3)).setText("Current game state: " + super.getClientController().getState().toString());
         });
 
+        super.getClientController().getListenersManager().removeListener(this);
+        super.getClientController().getListenersManager().removeListener(chatController);
+        super.getClientController().getListenersManager().removeListener(localStationController);
+        super.getClientController().getListenersManager().removeListener(tableController);
+
         switch (viewState){
-            case ViewState.DISCONNECT -> {
-                this.getClientController().getListenersManager().removeListener(this);
-                notifyPossibleDisconnection(stackPane);
-            }
+            case ViewState.DISCONNECT -> super.notifyPossibleDisconnection(stackPane);
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
         }
