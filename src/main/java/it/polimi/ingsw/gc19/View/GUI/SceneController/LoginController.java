@@ -48,7 +48,7 @@ public class LoginController extends AbstractController implements PlayerCreatio
     public void notifyPlayerCreationError(String error) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.initOwner(super.getStage());
+            alert.initOwner(super.getStage().getScene().getWindow());
             alert.setTitle("Player creation error");
             alert.setContentText(error);
             alert.showAndWait();

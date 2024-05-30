@@ -292,9 +292,7 @@ public class SetupController extends AbstractController implements SetupListener
             }
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
-            default -> {
-                return;
-            }
+            default -> {return;}
         }
 
         super.getClientController().getListenersManager().removeListener(chatController);
@@ -307,6 +305,7 @@ public class SetupController extends AbstractController implements SetupListener
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.initOwner(super.getStage());
+            alert.initOwner(super.getStage().getScene().getWindow());
 
             switch (type) {
                 case LocalModelEvents.NEW_PLAYER_CONNECTED -> {
