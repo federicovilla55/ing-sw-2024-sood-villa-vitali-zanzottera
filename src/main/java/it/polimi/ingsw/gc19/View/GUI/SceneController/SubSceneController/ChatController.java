@@ -19,13 +19,16 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.Background;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import org.controlsfx.control.CheckComboBox;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -65,13 +68,13 @@ public class ChatController extends AbstractController implements ChatListener, 
         receivers.getItems().clear();
         if(this.getLocalModel() != null && this.getLocalModel().getStations() != null){
             receivers.getItems().addAll(this.getLocalModel().getStations().keySet());
+            receivers.getCheckModel().check(this.getLocalModel().getNickname());
         }
 
         textFlow.getChildren().clear();
         if(this.getLocalModel() != null && this.getLocalModel().getMessages() != null){
             showChat(this.getLocalModel().getMessages());
         }
-
     }
 
     @Override
