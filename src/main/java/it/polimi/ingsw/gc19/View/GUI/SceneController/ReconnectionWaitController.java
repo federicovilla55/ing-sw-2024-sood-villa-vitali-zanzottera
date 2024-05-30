@@ -87,14 +87,17 @@ public class ReconnectionWaitController extends AbstractController implements St
     public void notify(ViewState viewState) {
         this.thread.interrupt();
 
-        super.getClientController().getListenersManager().removeListener(this);
-
         switch (viewState){
             case ViewState.SETUP -> changeToNextScene(SceneStatesEnum.SETUP_SCENE);
             case ViewState.PICK, ViewState.OTHER_TURN, ViewState.PLACE, ViewState.PAUSE, ViewState.END -> changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
             case ViewState.NOT_GAME -> changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
             case ViewState.NOT_PLAYER -> changeToNextScene(SceneStatesEnum.NEW_CONFIGURATION_SCENE);
+            default -> {
+                return;
+            }
         }
+
+        super.getClientController().getListenersManager().removeListener(this);
     }
 
 }

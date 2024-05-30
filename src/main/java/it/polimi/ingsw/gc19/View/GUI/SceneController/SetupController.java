@@ -283,23 +283,25 @@ public class SetupController extends AbstractController implements SetupListener
 
     @Override
     public void notify(ViewState viewState) {
-        super.getClientController().getListenersManager().removeListener(this);
-        super.getClientController().getListenersManager().removeListener(chatController);
-        super.getClientController().getListenersManager().removeListener(tableController);
-        super.getClientController().getListenersManager().removeListener(localStationController);
 
         switch (viewState){
             case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
             case ViewState.DISCONNECT -> super.notifyPossibleDisconnection(this.stackPane);
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
+            default -> {return;}
         }
+
+        super.getClientController().getListenersManager().removeListener(chatController);
+        super.getClientController().getListenersManager().removeListener(tableController);
+        super.getClientController().getListenersManager().removeListener(localStationController);
     }
 
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.initOwner(super.getStage());
             alert.initOwner(super.getStage().getScene().getWindow());
 
             switch (type) {

@@ -126,8 +126,6 @@ public class AbstractController implements UI , Listener {
                                                );
 
                     this.stage.setScene(scene);
-                    //this.stage.setMaximized(true);
-                    this.stage.show();
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);

@@ -206,16 +206,16 @@ public class PlayingAreaController extends AbstractController implements StateLi
                 ((Label) infoHBox.getChildren().get(3)).setText("Current game state: " + super.getClientController().getState().toString());
         });
 
-        super.getClientController().getListenersManager().removeListener(this);
-        super.getClientController().getListenersManager().removeListener(chatController);
-        super.getClientController().getListenersManager().removeListener(localStationController);
-        super.getClientController().getListenersManager().removeListener(tableController);
-
         switch (viewState){
             case ViewState.DISCONNECT -> super.notifyPossibleDisconnection(stackPane);
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
+            default -> {return;}
         }
+
+        super.getClientController().getListenersManager().removeListener(chatController);
+        super.getClientController().getListenersManager().removeListener(localStationController);
+        super.getClientController().getListenersManager().removeListener(tableController);
     }
 
     @Override
