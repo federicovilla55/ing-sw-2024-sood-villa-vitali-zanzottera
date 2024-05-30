@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  */
 class NotGame extends ClientState {
 
-    private final ScheduledExecutorService gameSearcher;
+    private ScheduledExecutorService gameSearcher;
 
     public NotGame(ClientController clientController) {
         super(clientController);
@@ -24,9 +24,11 @@ class NotGame extends ClientState {
      * asks server about available games.
      */
     public void startGameSearch(){
-        if(!this.gameSearcher.isShutdown()){
-            this.gameSearcher.scheduleAtFixedRate(() -> clientInterface.availableGames(), 0, ClientSettings.TIME_BETWEEN_CONSECUTIVE_AVAILABLE_GAMES_REQUESTS, TimeUnit.SECONDS);
+        if(this.gameSearcher.isShutdown()){
+            gameSearcher = new ScheduledThreadPoolExecutor(1);
         }
+
+        this.gameSearcher.scheduleAtFixedRate(() -> clientInterface.availableGames(), 0, ClientSettings.TIME_BETWEEN_CONSECUTIVE_AVAILABLE_GAMES_REQUESTS, TimeUnit.SECONDS);
     }
 
     /**

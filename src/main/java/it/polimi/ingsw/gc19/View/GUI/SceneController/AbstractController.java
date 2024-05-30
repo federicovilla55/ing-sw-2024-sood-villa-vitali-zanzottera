@@ -114,6 +114,8 @@ public class AbstractController implements UI , Listener {
             Platform.runLater(() -> {
                 Parent root = null;
                 try {
+                    stage.close();
+
                     root = loader.load();
 
                     Scene scene = new Scene(root);
@@ -126,6 +128,8 @@ public class AbstractController implements UI , Listener {
                                                );
 
                     this.stage.setScene(scene);
+
+                    this.stage.show();
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
