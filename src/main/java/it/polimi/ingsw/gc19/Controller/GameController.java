@@ -325,7 +325,7 @@ public class GameController{
                 return;
             }
 
-            if(this.gameAssociated.getActivePlayer().getStation().getNumPoints() >= 1)
+            if(this.gameAssociated.getActivePlayer().getStation().getNumPoints() >= 20)
                 this.gameAssociated.setFinalCondition(true);
 
             if(this.gameAssociated.drawableCardsArePresent())

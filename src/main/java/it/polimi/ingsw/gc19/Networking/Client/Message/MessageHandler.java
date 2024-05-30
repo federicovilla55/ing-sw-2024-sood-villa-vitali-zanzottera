@@ -396,7 +396,6 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
     @Override
     public void visit(DisconnectedPlayerMessage message) {
         if(this.localModel != null){
-            //waitForLocalModel();
             this.localModel.setPlayerInactive(message.getRemovedNick());
             clientController.getCurrentState().nextState(message);
         }
