@@ -79,9 +79,9 @@ public class MainController {
                 gameController = gamesInfo.remove(gameName);
             }
             if(gameController!=null) {
-                gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectFromGameMessage(gameName));
-                activePlayersToRemove = gameController.getConnectedClients();
                 synchronized (playerInfo) {
+                    gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectFromGameMessage(gameName));
+                    activePlayersToRemove = gameController.getConnectedClients();
                     for (String p : activePlayersToRemove) {
                         playerInfo.put(p, new Tuple<>(MainController.State.ACTIVE, null));
                         gameController.removeClient(p);
