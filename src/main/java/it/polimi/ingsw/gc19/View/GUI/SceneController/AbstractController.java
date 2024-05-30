@@ -19,11 +19,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
@@ -171,13 +173,6 @@ public class AbstractController implements UI , Listener {
                     root = loader.load();
 
                     Scene scene = new Scene(root);
-
-                    String back = Objects.requireNonNull(GUIView.class.getResource("/images/back.svg")).toExternalForm();
-                    scene.getStylesheets().add("-fx-background-image: url(" + back + ");" +
-                                               "-fx-background-size: cover;" +
-                                               "-fx-background-position: center center;" +
-                                               "-fx-background-repeat: repeat;"
-                                               );
 
                     this.stage.setScene(scene);
                     //this.stage.setMaximized(true);

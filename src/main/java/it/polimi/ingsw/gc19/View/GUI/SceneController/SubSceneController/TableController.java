@@ -13,10 +13,14 @@ import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class TableController extends AbstractController implements TableListener {
 

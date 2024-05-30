@@ -32,6 +32,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class LocalStationController extends AbstractController implements StationListener, SetupListener {
@@ -100,6 +102,22 @@ public class LocalStationController extends AbstractController implements Statio
 
         this.leftVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
         this.rightVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
+
+        Image backgroundImage = null;
+        try {
+            backgroundImage = new Image(new FileInputStream("src/main/resources/images/background_light.png"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
+        BackgroundImage background = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.REPEAT,
+                BackgroundRepeat.REPEAT,
+                BackgroundPosition.DEFAULT,
+                backgroundSize);
+
+        borderPane.setBackground(new Background(background));
 
         //super.getStage().setHeight(0.4 * super.getStage().getWidth() + 800);
 

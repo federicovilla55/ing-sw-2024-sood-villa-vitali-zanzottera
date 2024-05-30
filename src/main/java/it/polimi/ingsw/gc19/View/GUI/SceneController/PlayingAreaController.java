@@ -19,10 +19,13 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
@@ -118,6 +121,7 @@ public class PlayingAreaController extends AbstractController implements StateLi
         buildTabPane();
         tabPane.getStyleClass().add("floating");
 
+        setBackgrounds();
         paneFireworks = new PaneFireworks(stackPane, super.getStage(), super.getLocalModel());
     }
 
@@ -209,6 +213,46 @@ public class PlayingAreaController extends AbstractController implements StateLi
 
             ((Label) infoHBox.getChildren().get(3)).setText("Current game state: " + super.getClientController().getState().toString());
         }
+    }
+
+    private void setBackgrounds(){
+        setBackground(stackPane, true);
+        setBackground(infoHBox, false);
+        setBackground(table, false);
+        for (Tab tab : tabPane.getTabs()) {
+            if(tab.getContent() instanceof Pane pane) {
+                setBackground(pane, false);
+            }
+        }
+        for (Tab tab : stations.getTabs()) {
+            if(tab.getContent() instanceof Pane pane) {
+                setBackground(pane, false);
+            }
+        }
+    }
+
+    private void setBackground(Pane pane, Boolean element){
+        Image backgroundImage = null;
+        String location = "";
+        if(element) {
+            location = "src/main/resources/images/background_dark.png";
+        }else {
+            location = "src/main/resources/images/background_light.png";
+        }
+        try {
+            backgroundImage = new Image(new FileInputStream(location));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
+        BackgroundImage background = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.REPEAT,
+                BackgroundRepeat.REPEAT,
+                BackgroundPosition.DEFAULT,
+                backgroundSize);
+
+        pane.setBackground(new Background(background));
     }
 
     private void notifyPossibleDisconnection(){

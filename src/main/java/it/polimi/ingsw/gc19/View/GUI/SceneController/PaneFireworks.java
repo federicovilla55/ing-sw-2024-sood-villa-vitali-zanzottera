@@ -7,6 +7,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.Reflection;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -27,6 +30,7 @@ public class PaneFireworks {
     private final Paint[] colors;
     private final Stage upperStage;
     private final Pane background;
+    private final Background backgroundImage;
     private final StringBuilder winners;
     private final LocalModel localModel;
     private int countDownTillNextFirework = 40;
@@ -57,6 +61,7 @@ public class PaneFireworks {
         background = back;
         upperStage = stage;
         this.localModel = localModel;
+        backgroundImage = background.getBackground();
 
         timer = new AnimationTimer() {
             @Override public void handle(long now) {
@@ -93,7 +98,7 @@ public class PaneFireworks {
         for(Node n : background.getChildrenUnmodifiable()){
             n.setOpacity(0.15);
         }
-        background.setStyle("-fx-background-color: black;");
+        background.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, null)));
 
         background.getChildren().add(canvas);
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -108,19 +113,18 @@ public class PaneFireworks {
             winners.setLength(winners.length() - 2);
         }
 
-        upperStage.getScene().setFill(Color.BLACK);
         timer.start();
     }
 
     public void stop() {
         timer.stop();
         background.getChildren().remove(canvas);
-        background.setStyle("-fx-background-color: transparent;");
+        background.setBackground(backgroundImage);
+        System.out.println("Background restored");
         for(Node n : background.getChildrenUnmodifiable()){
             n.setOpacity(1);
         }
 
-        upperStage.getScene().setFill(Color.TRANSPARENT);
     }
 
     private void drawFireworks(GraphicsContext gc) {
