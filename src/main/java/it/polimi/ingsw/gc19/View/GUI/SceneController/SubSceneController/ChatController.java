@@ -125,6 +125,7 @@ public class ChatController extends AbstractController implements ChatListener, 
         }
         else{
             Alert noReceiversAlert = new Alert(Alert.AlertType.ERROR);
+            noReceiversAlert.initOwner(super.getStage());
             noReceiversAlert.setTitle("Chat error");
             noReceiversAlert.setContentText("No receivers specified! Please specify alt least one receiver.");
             Platform.runLater(noReceiversAlert::show);

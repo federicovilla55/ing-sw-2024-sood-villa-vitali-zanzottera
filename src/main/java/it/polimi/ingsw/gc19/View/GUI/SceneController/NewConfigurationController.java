@@ -49,7 +49,7 @@ public class NewConfigurationController extends AbstractController implements St
 
         try {
             this.client = connectionRMI.createClient(super.getClientController());
-        } catch (RemoteException ex) {
+        } catch (RemoteException | RuntimeException ex) {
             System.exit(1);
             return;
         }

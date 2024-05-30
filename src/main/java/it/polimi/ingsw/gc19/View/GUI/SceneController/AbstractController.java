@@ -49,6 +49,7 @@ public class AbstractController implements UI , Listener {
     public void notifyGenericError(String errorDescription) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.initOwner(stage);
             alert.setTitle("Generic error");
             alert.setContentText(errorDescription);
             alert.showAndWait();
@@ -59,6 +60,7 @@ public class AbstractController implements UI , Listener {
     public void notify(String message) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.initOwner(stage);
             alert.setTitle("Info");
             alert.setContentText(message);
             alert.showAndWait();
@@ -131,8 +133,6 @@ public class AbstractController implements UI , Listener {
                                                );
 
                     this.stage.setScene(scene);
-                    //this.stage.setMaximized(true);
-                    this.stage.show();
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);

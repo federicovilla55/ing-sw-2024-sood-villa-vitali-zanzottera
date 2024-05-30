@@ -73,7 +73,6 @@ public class OldConfigurationController extends AbstractController implements St
             client.configure(config.getNick(), config.getToken());
 
             super.getClientController().setNickname(config.getNick());
-            this.getClientController().getListenersManager().removeListener(this);
             super.getClientController().setClientInterface(client);
 
             super.getClientController().setNextState(new Disconnect(super.getClientController()), true);
@@ -90,6 +89,7 @@ public class OldConfigurationController extends AbstractController implements St
     @FXML
     public synchronized void onDeleteAll(ActionEvent e){
         for(Configuration conf : configs){
+            configs.remove(conf);
             ConfigurationManager.deleteConfiguration(conf.getNick());
         }
 
@@ -109,8 +109,6 @@ public class OldConfigurationController extends AbstractController implements St
 
     @Override
     public void notify(ViewState viewState) {
-        super.getClientController().getListenersManager().removeListener(this);
-
         switch (viewState){
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);

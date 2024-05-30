@@ -42,11 +42,6 @@ public class GUIView extends Application {
 
             ((OldConfigurationController) loader.getController()).setConfig(new ArrayList<>(configs));
             ((OldConfigurationController) loader.getController()).setUpConfigTable();
-
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-
         }
         catch (RuntimeException e) {
             FXMLLoader loader = new FXMLLoader();
@@ -56,11 +51,12 @@ public class GUIView extends Application {
             loader.setController(new NewConfigurationController(clientController, commandParser, stage));
 
             root = loader.load();
-
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
         }
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+        stage.setMaximized(true);
     }
     public static void main(String[] args) {
         launch(args);

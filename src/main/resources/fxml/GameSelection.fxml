@@ -6,7 +6,7 @@
 
 <StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <AnchorPane prefHeight="400.0" prefWidth="600.0"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.GameSelectionController"-->
+      <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.GameSelectionController"-->
          <children>
             <Label contentDisplay="CENTER" layoutX="131.0" layoutY="28.0" text="Join Game" />
             <ListView fx:id="availableGamesList" layoutX="34.0" layoutY="57.0" prefHeight="271.0" prefWidth="257.0" />
