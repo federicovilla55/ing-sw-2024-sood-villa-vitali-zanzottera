@@ -286,7 +286,10 @@ public class SetupController extends AbstractController implements SetupListener
 
         switch (viewState){
             case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
-            case ViewState.DISCONNECT -> super.notifyPossibleDisconnection(this.stackPane);
+            case ViewState.DISCONNECT -> {
+                super.getClientController().getListenersManager().removeListener(this);
+                super.notifyPossibleDisconnection(this.stackPane);
+            }
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
             default -> {return;}

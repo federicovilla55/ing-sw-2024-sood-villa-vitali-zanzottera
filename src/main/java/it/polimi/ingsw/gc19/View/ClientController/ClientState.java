@@ -102,7 +102,7 @@ public abstract class ClientState {
      * @param message a {@link CreatedGameMessage}.
      */
     public void nextState(EndGameMessage message){
-        for(String s: this.clientController.getLocalModel().getOtherStations().keySet()){
+        for(String s: this.clientController.getLocalModel().getStations().keySet()){
             if(message.getUpdatedPoints().containsKey(s)) {
                 this.clientController.getLocalModel().setNumPoints(s, message.getUpdatedPoints().get(s));
             }

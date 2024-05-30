@@ -78,11 +78,9 @@ public class GameSelectionController extends AbstractController implements State
 
     @Override
     public void notify(GameHandlingEvents type, List<String> varArgs) {
-        System.out.println(type);
         switch (type){
             case GameHandlingEvents.CREATED_GAME, GameHandlingEvents.JOINED_GAMES -> {
-                super.getClientController().getListenersManager().removeListener(this);
-                super.changeToNextScene(SceneStatesEnum.SETUP_SCENE);
+                changeToNextScene(SceneStatesEnum.SETUP_SCENE);
             }
             case GameHandlingEvents.AVAILABLE_GAMES -> Platform.runLater(() -> availableGamesList.setItems(FXCollections.observableArrayList(new ArrayList<>(varArgs))));
         }
