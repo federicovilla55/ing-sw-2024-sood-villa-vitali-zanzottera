@@ -84,7 +84,6 @@ public class GameSelectionController extends AbstractController implements State
     public void notify(GameHandlingEvents type, List<String> varArgs) {
         switch (type){
             case GameHandlingEvents.CREATED_GAME, GameHandlingEvents.JOINED_GAMES -> {
-                super.getClientController().getListenersManager().removeListener(this);
                 changeToNextScene(SceneStatesEnum.SETUP_SCENE);
             }
             case GameHandlingEvents.AVAILABLE_GAMES -> updateAvailableGames(new ArrayList<>(varArgs));
