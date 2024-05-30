@@ -88,12 +88,13 @@ public class OldConfigurationController extends AbstractController implements St
 
     @FXML
     public synchronized void onDeleteAll(ActionEvent e){
-        for(Configuration conf : configs){
-            configs.remove(conf);
-            ConfigurationManager.deleteConfiguration(conf.getNick());
+        List<Configuration> toRemove = configs.stream().toList();
+        for(Configuration conf : toRemove){
+            confTable.getSelectionModel().select(conf);
+            onDeleteConf(e);
         }
 
-        confTable.setItems(FXCollections.observableArrayList(this.configs));
+
     }
 
     @FXML
