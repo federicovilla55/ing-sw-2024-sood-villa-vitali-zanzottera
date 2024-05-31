@@ -203,7 +203,7 @@ public class PlayingAreaController extends AbstractController implements StateLi
     public void notify(ViewState viewState) {
         Platform.runLater(() -> {
             if (!infoHBox.getChildren().isEmpty())
-                ((Label) infoHBox.getChildren().get(3)).setText("Current game state: " + super.getClientController().getState().toString());
+                ((Label) infoHBox.getChildren().get(3)).setText("Current game state: " + super.getClientController().getState().toString().toLowerCase().replace('_', ' '));
         });
 
         switch (viewState){

@@ -154,25 +154,27 @@ public class AbstractController implements UI , Listener {
     }
 
     protected void notifyPossibleDisconnection(StackPane stackPane){
-        for(Node n : stackPane.getChildrenUnmodifiable()){
-            n.setOpacity(0.15);
-        }
+        Platform.runLater(() -> {
+            for (Node n : stackPane.getChildrenUnmodifiable()) {
+                n.setOpacity(0.15);
+            }
 
-        getStage().getScene().setFill(javafx.scene.paint.Color.GREY);
+            getStage().getScene().setFill(javafx.scene.paint.Color.GREY);
 
-        try{
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/ReconnectionWaitScene.fxml").toURL());
-            ReconnectionWaitController controller = new ReconnectionWaitController(this);
-            loader.setController(controller);
+            try {
+                FXMLLoader loader = new FXMLLoader();
+                loader.setLocation(new File("src/main/resources/fxml/ReconnectionWaitScene.fxml").toURL());
+                ReconnectionWaitController controller = new ReconnectionWaitController(this);
+                loader.setController(controller);
 
-            StackPane waitStack = loader.load();
+                StackPane waitStack = loader.load();
 
-            stackPane.getChildren().add(waitStack);
-            stackPane.requestLayout();
+                stackPane.getChildren().add(waitStack);
+                stackPane.requestLayout();
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

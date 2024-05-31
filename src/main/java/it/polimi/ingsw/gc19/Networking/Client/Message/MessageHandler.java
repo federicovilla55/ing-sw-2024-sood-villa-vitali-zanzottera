@@ -112,7 +112,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
                 message = this.messagesToHandle.remove();
                 this.messagesToHandle.notifyAll();
             }
-
+            System.out.println(message);
             message.accept(this);
         }
     }
