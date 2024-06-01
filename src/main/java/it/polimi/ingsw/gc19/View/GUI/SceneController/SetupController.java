@@ -14,6 +14,8 @@ import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -53,10 +55,12 @@ public class SetupController extends AbstractController implements SetupListener
     }
 
     public void initialize(){
+        super.getStage().setMinWidth(1280.0);
+        super.getStage().setMinHeight(820.0);
+
         buildAvailableColorsPane();
         buildPrivateGoalCardSelectionHBox();
         buildInitialCardHBox();
-
         buildInfoHBox();
 
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
@@ -283,7 +287,6 @@ public class SetupController extends AbstractController implements SetupListener
 
     @Override
     public void notify(ViewState viewState) {
-
         switch (viewState){
             case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
             case ViewState.DISCONNECT -> {

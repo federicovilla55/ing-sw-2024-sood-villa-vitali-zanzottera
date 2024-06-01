@@ -29,6 +29,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
@@ -118,21 +119,9 @@ public class LocalStationController extends AbstractController implements Statio
             this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
         });
 
-        this.borderPane.getCenter().setOnDragEntered(event -> {
-            System.out.println("okkkkkkkkkk");
-            if(draggedCard != null) {
-                draggedCard.getSide().fitWidthProperty().unbind();
-                draggedCard.getSide().fitWidthProperty().set(super.getStage().getWidth() * scale / 12.8);
-            }
-        });
-
-        this.centerPane.setOnMouseExited(event -> {
-            if(draggedCard != null) {
-                draggedCard.getSide().fitWidthProperty().unbind();
-                draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
-                draggedCard = null;
-            }
-        });
+        ((VBox) this.borderPane.getLeft()).prefWidthProperty().bind(super.getStage().widthProperty().divide(12.8).add(30));
+        ((VBox) this.borderPane.getLeft()).maxWidthProperty().bind(super.getStage().widthProperty().divide(12.8).add(30));
+        ((VBox) this.borderPane.getLeft()).minWidthProperty().bind(super.getStage().widthProperty().divide(12.8).add(30));
     }
 
     protected void initializePawns(){
@@ -177,29 +166,33 @@ public class LocalStationController extends AbstractController implements Statio
         }
     }
 
-    private void checkIStackPaneContainsImage(Node node){
-        PlayableCardButton button = (PlayableCardButton) node;
+    private void checkIStackPaneContainsImage(MouseEvent mouse){
+        Point2D mousePosition = new Point2D(mouse.getSceneX(), mouse.getSceneY());
 
-        Point2D upperLeftCornerCard = new Point2D(node.localToScene(node.getBoundsInLocal()).getMinX(),
-                                              node.localToScene(node.getBoundsInLocal()).getMinY());
         Point2D upperLeftCornerStack = new Point2D(this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMinX(),
-                                                   this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMinX());
+                                                   this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMinY());
+        Point2D lowerRightCornerStack = new Point2D(this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMaxX(),
+                                                    this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMaxY());
 
-        //System.out.println(upperLeftCorner.getX() + "  " + upperLeftCorner.getY());
-        if(upperLeftCornerStack.getX() + button.getSide().fitWidthProperty().get() < upperLeftCornerCard.getX()){
-            button.getSide().fitWidthProperty().bind(super.getStage().widthProperty()
+        System.out.println((mousePosition.getX() < lowerRightCornerStack.getX() && mousePosition.getX() > upperLeftCornerStack.getX()));
+        System.out.println(mousePosition.getY() < lowerRightCornerStack.getY() && mousePosition.getY() > upperLeftCornerStack.getY());
+
+        if((mousePosition.getX() < lowerRightCornerStack.getX() && mousePosition.getX() > upperLeftCornerStack.getX()) &&
+                (mousePosition.getY() < lowerRightCornerStack.getY() && mousePosition.getY() > upperLeftCornerStack.getY())){
+            this.draggedCard.getSide().fitWidthProperty().unbind();
+            this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty()
                                                                      .divide(12.8)
                                                                      .multiply(scale));
         }
         else{
-            button.getSide().fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
+            this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
         }
     }
 
     private void makeCardDraggable(Node node){
-        //if(super.getClientController().getState() == ViewState.SETUP) return;
-
         node.setOnMousePressed(e -> {
+            //if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
+
             //always center card with respect to mouse
             node.setTranslateX(node.getTranslateX() + e.getSceneX() - node.localToScene(0,0).getX() - node.getBoundsInLocal().getWidth()/2);
             node.setTranslateY(node.getTranslateY() + e.getSceneY() - node.localToScene(0,0).getY() - node.getBoundsInLocal().getHeight()/2);
@@ -208,13 +201,19 @@ public class LocalStationController extends AbstractController implements Statio
         });
 
         node.setOnMouseDragged(e -> {
+            //if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
+
             node.setTranslateX(e.getSceneX() - startX);
             node.setTranslateY(e.getSceneY() - startY);
 
             this.draggedCard = (PlayableCardButton) node;
+
+            this.checkIStackPaneContainsImage(e);
         });
 
         node.setOnMouseReleased(e -> {
+            //if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
+
             // Get the scene coordinates where the card is released
             double sceneX = e.getSceneX();
             double sceneY = e.getSceneY();
