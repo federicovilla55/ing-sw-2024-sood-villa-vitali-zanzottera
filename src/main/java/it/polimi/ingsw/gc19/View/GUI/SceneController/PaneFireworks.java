@@ -7,10 +7,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.Reflection;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.Paint;
@@ -30,7 +27,8 @@ public class PaneFireworks {
     private final Paint[] colors;
     private final Stage upperStage;
     private final Pane background;
-    private final Background backgroundImage;
+    private final Background backgroundImageDark;
+    private Background backgroundImageLight;
     private final StringBuilder winners;
     private final LocalModel localModel;
     private int countDownTillNextFirework = 40;
@@ -61,7 +59,14 @@ public class PaneFireworks {
         background = back;
         upperStage = stage;
         this.localModel = localModel;
-        backgroundImage = background.getBackground();
+        backgroundImageDark = background.getBackground();
+
+        for(Node n : background.getChildren()){
+            if(n instanceof BorderPane){
+                backgroundImageLight = ((BorderPane) n).getBackground();
+                break;
+            }
+        }
 
         timer = new AnimationTimer() {
             @Override public void handle(long now) {
@@ -100,6 +105,12 @@ public class PaneFireworks {
         }
         background.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, null)));
 
+        for(Node n : background.getChildren()){
+            if(n instanceof Pane){
+                ((Pane) n).setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, null)));
+            }
+        }
+
         background.getChildren().add(canvas);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.WHITE);
@@ -119,7 +130,13 @@ public class PaneFireworks {
     public void stop() {
         timer.stop();
         background.getChildren().remove(canvas);
-        background.setBackground(backgroundImage);
+        background.setBackground(backgroundImageDark);
+        for(Node n : background.getChildren()){
+            if(n instanceof Pane){
+                ((Pane) n).setBackground(backgroundImageLight);
+            }
+        }
+
         System.out.println("Background restored");
         for(Node n : background.getChildrenUnmodifiable()){
             n.setOpacity(1);

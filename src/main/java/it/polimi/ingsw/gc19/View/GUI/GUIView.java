@@ -11,9 +11,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,6 +62,24 @@ public class GUIView extends Application {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
+        }
+
+        Image backgroundImage = null;
+        try {
+            backgroundImage = new Image(new FileInputStream("src/main/resources/images/background_light.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
+        BackgroundImage background = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.REPEAT,
+                BackgroundRepeat.REPEAT,
+                BackgroundPosition.DEFAULT,
+                backgroundSize);
+
+        if (root instanceof Region) {
+            ((Region) root).setBackground(new Background(background));
         }
     }
     public static void main(String[] args) {

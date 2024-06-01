@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.geometry.Insets?>
 
-
-<StackPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <AnchorPane prefHeight="203.0" prefWidth="600.0"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.LoginController"-->
-         <children>
-            <Label alignment="CENTER" layoutX="220.0" layoutY="37.0" prefHeight="18.0" prefWidth="161.0" text="Choose Nickname" />
-            <TextField fx:id="loginTextField" layoutX="220.0" layoutY="75.0" />
-            <Button fx:id="loginButton" layoutX="234.0" layoutY="129.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="132.0" text="Login" /> <!--onAction="#LoginPress"-->
-         </children>
-      </AnchorPane>
-   </children>
-</StackPane>
+<AnchorPane prefHeight="293.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <VBox fx:id="contentVBox" alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <padding>
+         <Insets top="10.0" right="40.0" bottom="10.0" left="40.0"/>
+      </padding>
+      <children>
+         <ImageView fx:id="logoImageView" fitHeight="80.0" preserveRatio="true" />
+         <Label fx:id="titleLabel" alignment="CENTER" layoutX="220.0" layoutY="37.0" text="Choose a Nickname:" />
+         <TextField fx:id="loginTextField" alignment="CENTER" prefWidth="160" maxWidth="800" maxHeight="40" />
+         <Button fx:id="loginButton" layoutX="234.0" layoutY="129.0" prefHeight="27.0" prefWidth="120.0" mnemonicParsing="false" text="Login" /> <!--onAction="#LoginPress"-->
+      </children>
+   </VBox>
+</AnchorPane>

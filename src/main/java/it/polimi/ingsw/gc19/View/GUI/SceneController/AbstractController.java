@@ -174,6 +174,25 @@ public class AbstractController implements UI , Listener {
 
                     Scene scene = new Scene(root);
 
+                    Image backgroundImage = null;
+                    try {
+                        backgroundImage = new Image(new FileInputStream("src/main/resources/images/background_light.png"));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
+                    BackgroundImage background = new BackgroundImage(
+                            backgroundImage,
+                            BackgroundRepeat.REPEAT,
+                            BackgroundRepeat.REPEAT,
+                            BackgroundPosition.DEFAULT,
+                            backgroundSize);
+
+                    if (root instanceof Region) {
+                        ((Region) root).setBackground(new Background(background));
+                    }
+
+
                     this.stage.setScene(scene);
                     //this.stage.setMaximized(true);
                     this.stage.show();

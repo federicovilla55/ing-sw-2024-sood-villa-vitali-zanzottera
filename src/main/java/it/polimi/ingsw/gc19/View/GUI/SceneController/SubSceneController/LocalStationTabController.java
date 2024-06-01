@@ -86,15 +86,13 @@ public class LocalStationTabController extends AbstractController implements Loc
 
                 if(this.getLocalModel().getNickname().equals(l.getOwnerPlayer())) {
                     this.stations.getTabs().addFirst(tab);
+                    stations.getSelectionModel().select(currentTab);
+                    System.out.println(l.getOwnerPlayer());
                 }else{
                     this.stations.getTabs().add(tab);
                 }
 
-                stations.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
-                    if(newTab != null && !newTab.equals(oldTab)){
-                        currentTab = newTab;
-                    }
-                });
+
             }
         }
     }
