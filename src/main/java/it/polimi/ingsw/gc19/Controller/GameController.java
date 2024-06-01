@@ -462,6 +462,10 @@ public class GameController{
      * If the player is not connected, the turn will go to the successive player
      */
     private synchronized void setNextPlayer() throws GameFinishedException {
+        if(this.gameAssociated.getGameState().equals(GameState.END)) {
+            throw new GameFinishedException();
+        }
+
         Player selectedPlayer;
         do {
             selectedPlayer = this.gameAssociated.getNextPlayer();
@@ -494,8 +498,8 @@ public class GameController{
 
         List<Player> winnerPlayers = new ArrayList<>();
 
-        //remove not connected players from possible winners
-        sortedPlayers.removeIf(p -> !this.connectedClients.containsKey(p.getName()));
+//        //remove not connected players from possible winners
+//        sortedPlayers.removeIf(p -> !this.connectedClients.containsKey(p.getName()));
 
         Player p;
         do {

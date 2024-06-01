@@ -73,23 +73,20 @@ public class MainController {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.schedule(() -> {
             GameController gameController;
-            List<String> activePlayersToRemove;
-            List<String> inactivePlayersToRemove;
+            List<String> playersToRemove;
             synchronized(gamesInfo){
                 gameController = gamesInfo.remove(gameName);
             }
             if(gameController!=null) {
                 synchronized (playerInfo) {
+                    playersToRemove = playerInfo.entrySet().stream()
+                            .filter(e -> gameName.equals(e.getValue().y())).map(Map.Entry::getKey).toList();
+
                     gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectFromGameMessage(gameName));
-                    activePlayersToRemove = gameController.getConnectedClients();
-                    for (String p : activePlayersToRemove) {
-                        playerInfo.put(p, new Tuple<>(MainController.State.ACTIVE, null));
-                        gameController.removeClient(p);
-                    }
-                    inactivePlayersToRemove = playerInfo.entrySet().stream()
-                            .filter(e -> e.getValue().x().equals(State.INACTIVE)  && gameName.equals(e.getValue().y())).map(Map.Entry::getKey).toList();
-                    for (String p : inactivePlayersToRemove) {
-                        playerInfo.put(p, new Tuple<>(State.INACTIVE, null));
+
+                    for (String p : playersToRemove) {
+                        MainController.State playerState = playerInfo.get(p).x();
+                        playerInfo.put(p, new Tuple<>(playerState, null));
                         gameController.removeClient(p);
                     }
                 }
