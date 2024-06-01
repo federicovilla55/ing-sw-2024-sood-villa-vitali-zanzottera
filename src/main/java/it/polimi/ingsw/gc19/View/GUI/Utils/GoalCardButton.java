@@ -6,15 +6,12 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-
-import java.util.Objects;
 
 public class GoalCardButton extends Button{
 
@@ -27,8 +24,8 @@ public class GoalCardButton extends Button{
         super();
 
         this.card = card;
-        this.front = CardImageLoader.getImageView(card, CardOrientation.UP);
-        this.back = CardImageLoader.getImageView(card, CardOrientation.DOWN);
+        this.front = new ImageView(CardImageLoader.getImage(card, CardOrientation.UP));
+        this.back = new ImageView(CardImageLoader.getImage(card, CardOrientation.DOWN));
 
         this.isUp = true;
 

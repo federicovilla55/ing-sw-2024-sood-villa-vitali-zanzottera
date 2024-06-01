@@ -5,7 +5,6 @@ import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
-import it.polimi.ingsw.gc19.View.ClientController.Disconnect;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
 import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
@@ -18,14 +17,12 @@ import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -147,7 +144,7 @@ public class LocalStationController extends AbstractController implements Statio
 
             this.leftVBox.getChildren().clear();
 
-            for(PlayableCard p : this.getLocalModel().getPersonalStation().getCardsInHand()){
+            for(PlayableCard p : List.copyOf(this.getLocalModel().getPersonalStation().getCardsInHand())){
                 PlayableCardButton button = new PlayableCardButton(p, super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
 
                 button.setOnMouseClicked(button.getDefaultMouseClickedHandler());
@@ -160,7 +157,7 @@ public class LocalStationController extends AbstractController implements Statio
         else{
             this.leftVBox.getChildren().clear();
 
-            for(var v : ((OtherStation) this.getLocalModel().getStations().get(this.nickOwner)).getBackCardHand()){
+            for(var v : List.copyOf(((OtherStation) this.getLocalModel().getStations().get(this.nickOwner)).getBackCardHand())){
                 this.leftVBox.getChildren().add(factoryUnswappableCard(v.x(), v.y()));
             }
         }
@@ -322,8 +319,8 @@ public class LocalStationController extends AbstractController implements Statio
         DoubleProperty cellWidthProperty = new SimpleDoubleProperty();
         DoubleProperty cellHeightProperty = new SimpleDoubleProperty();
 
-        for(var t : placedCardSequence){
-            ImageView cardImage = CardImageLoader.getImageView(t.x(),t.x().getCardOrientation());
+        for(var t : List.copyOf(placedCardSequence)){
+            ImageView cardImage = new ImageView(CardImageLoader.getImage(t.x(),t.x().getCardOrientation()));
 
             //keep card aspect ratio
             cardImage.setPreserveRatio(true);

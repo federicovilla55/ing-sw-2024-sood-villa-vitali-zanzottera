@@ -447,8 +447,10 @@ public class LocalModel {
             }
         }
 
-        synchronized (previousPlayableCards){
-            previousPlayableCards.put(playableCard.getCardCode(), playableCard);
+        if(playableCard != null) {
+            synchronized (previousPlayableCards) {
+                previousPlayableCards.put(playableCard.getCardCode(), playableCard);
+            }
         }
         
         this.listenersManager.notifyTableListener(table);

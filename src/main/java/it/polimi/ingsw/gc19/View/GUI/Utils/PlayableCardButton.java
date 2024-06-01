@@ -23,8 +23,8 @@ public class PlayableCardButton extends Button{
         super();
 
         this.card = card;
-        this.front = CardImageLoader.getImageView(card, CardOrientation.UP);
-        this.back = CardImageLoader.getImageView(card, CardOrientation.DOWN);
+        this.front = new ImageView(CardImageLoader.getImage(card, CardOrientation.UP));
+        this.back = new ImageView(CardImageLoader.getImage(card, CardOrientation.DOWN));
 
         this.isUp = true;
 
