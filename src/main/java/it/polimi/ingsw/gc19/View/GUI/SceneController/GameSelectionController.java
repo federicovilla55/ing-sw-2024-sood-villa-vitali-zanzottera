@@ -7,17 +7,21 @@ import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingLis
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +38,18 @@ public class GameSelectionController extends AbstractController implements State
     private ListView<String> availableGamesList;
     @FXML
     private StackPane stackPane;
+
+    @FXML
+    private ImageView logoImageView;
+
+    @FXML
+    private VBox contentVBox, leftVBox, rightVBox;
+
+    @FXML
+    private HBox createAndJoin;
+
+    @FXML
+    private Label createGameLabel, joinGameLabel, gameNameLabel, numberOfPlayers;
 
     private final Integer[] possibleNumPlayer = {2,3,4};
 
@@ -67,7 +83,54 @@ public class GameSelectionController extends AbstractController implements State
         });
 
         super.getClientController().availableGames();
+
+        loadLogo();
+        contentVBox.spacingProperty().bind(super.getStage().heightProperty().divide(14));
+        logoImageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(4));
+
+        createAndJoin.spacingProperty().bind(super.getStage().widthProperty().divide(15));
+
+        leftVBox.spacingProperty().bind(super.getStage().heightProperty().divide(14));
+        rightVBox.spacingProperty().bind(super.getStage().heightProperty().divide(12));
+
+        createGameLabel.fontProperty().bind(Bindings.createObjectBinding(
+                () -> Font.font(super.getStage().getWidth() / 70),
+                super.getStage().widthProperty()
+        ));
+        joinGameLabel.fontProperty().bind(Bindings.createObjectBinding(
+                () -> Font.font(super.getStage().getWidth() / 70),
+                super.getStage().widthProperty()
+        ));
+        joinButton.fontProperty().bind(Bindings.createObjectBinding(
+                () -> Font.font(super.getStage().getWidth() / 70),
+                super.getStage().widthProperty()
+        ));
+        createButton.fontProperty().bind(Bindings.createObjectBinding(
+                () -> Font.font(super.getStage().getWidth() / 70),
+                super.getStage().widthProperty()
+        ));
+        gameNameLabel.fontProperty().bind(Bindings.createObjectBinding(
+                () -> Font.font(super.getStage().getWidth() / 90),
+                super.getStage().widthProperty()
+        ));
+        numberOfPlayers.fontProperty().bind(Bindings.createObjectBinding(
+                () -> Font.font(super.getStage().getWidth() / 90),
+                super.getStage().widthProperty()
+        ));
+
     }
+
+    private void loadLogo() {
+        try {
+            Image logoImage = new Image(new FileInputStream("src/main/resources/images/logo.png"));
+            logoImageView.setImage(logoImage);
+            System.out.println("Logo loaded");
+            logoImageView.setPreserveRatio(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void notify(ViewState viewState) {
         if(viewState == ViewState.DISCONNECT){

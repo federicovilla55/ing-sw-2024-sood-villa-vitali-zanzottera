@@ -13,7 +13,7 @@
          <ImageView fx:id="logoImageView" fitHeight="80.0" preserveRatio="true" />
          <Label fx:id="titleLabel" alignment="CENTER" layoutX="220.0" layoutY="37.0" text="Choose a Nickname:" />
          <TextField fx:id="loginTextField" alignment="CENTER" prefWidth="160" maxWidth="800" maxHeight="40" />
-         <Button fx:id="loginButton" layoutX="234.0" layoutY="129.0" prefHeight="27.0" prefWidth="120.0" mnemonicParsing="false" text="Login" /> <!--onAction="#LoginPress"-->
+         <Button fx:id="loginButton" layoutX="234.0" layoutY="129.0" mnemonicParsing="false" text="Login" /> <!--onAction="#LoginPress"-->
       </children>
    </VBox>
 </AnchorPane>
