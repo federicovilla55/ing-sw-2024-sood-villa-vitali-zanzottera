@@ -4,6 +4,7 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.*;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
+import it.polimi.ingsw.gc19.View.GUI.Utils.CardImageLoader;
 import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
 import it.polimi.ingsw.gc19.View.GUI.Utils.PlayableCardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
@@ -53,6 +54,8 @@ public class SetupController extends AbstractController implements SetupListener
     }
 
     public void initialize(){
+        CardImageLoader.clearAll();
+
         buildAvailableColorsPane();
         buildPrivateGoalCardSelectionHBox();
         buildInitialCardHBox();

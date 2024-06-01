@@ -505,7 +505,8 @@ public class GameController{
         do {
             p = sortedPlayers.removeFirst();
             winnerPlayers.add(p);
-        }while(sortedPlayers.getFirst().getStation().getNumPoints() == p.getStation().getNumPoints()
+        }while(!sortedPlayers.isEmpty()
+                && sortedPlayers.getFirst().getStation().getNumPoints() == p.getStation().getNumPoints()
                 && sortedPlayers.getFirst().getStation().getPointsFromGoals() == p.getStation().getPointsFromGoals());
 
         this.gameAssociated.setGameState(GameState.END);

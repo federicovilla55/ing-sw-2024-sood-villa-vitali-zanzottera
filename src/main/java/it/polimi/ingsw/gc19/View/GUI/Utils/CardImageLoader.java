@@ -39,4 +39,9 @@ public class CardImageLoader {
         }
         return loadedImageViews.get("goal");
     }
+
+    public static void clearAll() {
+        loadedImageViews.clear();
+        loadedImages.clear();
+    }
 }
