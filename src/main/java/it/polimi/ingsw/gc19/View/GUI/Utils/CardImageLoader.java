@@ -16,12 +16,12 @@ public class CardImageLoader {
     private static final Map<String, ImageView> loadedImageViews = new ConcurrentHashMap<>();
     private static final Map<String, Image> loadedImages = new ConcurrentHashMap<>();
 
-    public static ImageView getImageView(Card card, CardOrientation orientation) {
-        if (!loadedImageViews.containsKey(card.getCardCode().concat(orientation.toString()))) {
-            loadedImageViews.put(card.getCardCode().concat(orientation.toString()), new ImageView(new Image(Objects.requireNonNull(CardImageLoader.class.getResource("/images/" + card.getCardCode() + "_"
-                    + (orientation.equals(CardOrientation.UP) ? "front" : "back") + ".jpg")).toExternalForm())));
+    public static Image getImage(Card card, CardOrientation orientation) {
+        if (!loadedImages.containsKey(card.getCardCode().concat(orientation.toString()))) {
+            loadedImages.put(card.getCardCode().concat(orientation.toString()), new Image(Objects.requireNonNull(CardImageLoader.class.getResource("/images/" + card.getCardCode() + "_"
+                    + (orientation.equals(CardOrientation.UP) ? "front" : "back") + ".jpg")).toExternalForm()));
         }
-        return loadedImageViews.get(card.getCardCode().concat(orientation.toString()));
+        return loadedImages.get(card.getCardCode().concat(orientation.toString()));
     }
 
     public static Image getBackImage(Symbol symbol, PlayableCardType cardType) {
@@ -38,10 +38,5 @@ public class CardImageLoader {
             loadedImageViews.put("goal", new ImageView(new Image(Objects.requireNonNull(CardImageLoader.class.getResource("/images/back/goal.jpg")).toExternalForm())));
         }
         return loadedImageViews.get("goal");
-    }
-
-    public static void clearAll() {
-        loadedImageViews.clear();
-        loadedImages.clear();
     }
 }

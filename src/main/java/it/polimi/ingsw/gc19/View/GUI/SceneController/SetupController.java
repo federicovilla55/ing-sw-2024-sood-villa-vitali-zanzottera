@@ -54,8 +54,6 @@ public class SetupController extends AbstractController implements SetupListener
     }
 
     public void initialize(){
-        CardImageLoader.clearAll();
-
         buildAvailableColorsPane();
         buildPrivateGoalCardSelectionHBox();
         buildInitialCardHBox();
