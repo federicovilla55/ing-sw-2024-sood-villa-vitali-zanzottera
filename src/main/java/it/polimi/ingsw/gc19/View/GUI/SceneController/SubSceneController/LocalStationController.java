@@ -323,7 +323,7 @@ public class LocalStationController extends AbstractController implements Statio
         DoubleProperty cellWidthProperty = new SimpleDoubleProperty();
         DoubleProperty cellHeightProperty = new SimpleDoubleProperty();
 
-        for(var t : placedCardSequence){
+        for(var t : List.copyOf(placedCardSequence)){
             ImageView cardImage = CardImageLoader.getImageView(t.x(),t.x().getCardOrientation());
 
             //keep card aspect ratio

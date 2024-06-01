@@ -12,11 +12,15 @@ import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
+
+import java.util.List;
 
 public class TableController extends AbstractController implements TableListener {
 
@@ -25,6 +29,8 @@ public class TableController extends AbstractController implements TableListener
 
     @FXML
     private BorderPane tableBorderPane;
+
+    private static final double ASPECT_RATIO = 832.0 / 558.0;
 
     private final PlayableCardButton[][] drawableTableCards;
 
@@ -51,6 +57,19 @@ public class TableController extends AbstractController implements TableListener
     }
 
     private void buildTable(){
+        gridPane.getChildren().clear();
+
+        for(int i = 0; i <= 2; i++) {
+            for(int j = 0; j <= 2; j++) {
+                Pane pane = new Pane();
+                pane.prefWidthProperty().bind(Bindings.min(super.getStage().widthProperty().divide(12.8), super.getStage().heightProperty().divide(7.2).multiply(ASPECT_RATIO)));
+                pane.prefHeightProperty().bind(Bindings.min(super.getStage().heightProperty().divide(7.2), super.getStage().widthProperty().divide(12.8).divide(ASPECT_RATIO)));
+                pane.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+                pane.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+                gridPane.add(pane, i, j);
+            }
+        }
+
         if(this.getLocalModel().getTable() != null){
             drawableCardFactory(this.getLocalModel().getTable().getResource1(), 0,0);
 
@@ -66,23 +85,63 @@ public class TableController extends AbstractController implements TableListener
             this.publicGoals[1] = new GoalCardButton(this.getLocalModel().getTable().getPublicGoal2(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
             this.publicGoals[1].setOnMouseClicked(this.publicGoals[1].getDefaultMouseClickedHandler());
 
-            this.decks[0] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfResourceDeck(), PlayableCardType.RESOURCE);
-            this.decks[1] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfGoldDeck(), PlayableCardType.GOLD);
+            if(this.getLocalModel().getTable().getNextSeedOfResourceDeck() != null) {
+                this.decks[0] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfResourceDeck(), PlayableCardType.RESOURCE);
+            }
+            else {
+                this.decks[0] = null;
+            }
+            if(this.getLocalModel().getTable().getNextSeedOfGoldDeck() != null) {
+                this.decks[1] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfGoldDeck(), PlayableCardType.GOLD);
+            }
+            else {
+                this.decks[1] = null;
+            }
             this.decks[2] = factoryUpperDeckCard();
         }
 
         for(int i = 0; i < 2; i++){
             for(int k = 0; k < 2; k++){
-                this.gridPane.add(this.drawableTableCards[i][k], k, i);
+                if(this.drawableTableCards[i][k] != null) {
+                    this.gridPane.add(this.drawableTableCards[i][k], k, i);
+                }
+                else {
+                    List<Node> gridNodes = List.copyOf(gridPane.getChildren());
+                    for(Node n : gridNodes) {
+                        if(n instanceof PlayableCardButton && GridPane.getRowIndex(n) == i && GridPane.getColumnIndex(n) == k) {
+                            gridPane.getChildren().remove(n);
+                        }
+                    }
+                }
             }
         }
 
         for(int i = 0; i < 2; i++){
-            this.gridPane.add(this.publicGoals[i], i, 2);
+            if(this.publicGoals != null) {
+                this.gridPane.add(this.publicGoals[i], i, 2);
+            }
+            else {
+                List<Node> gridNodes = List.copyOf(gridPane.getChildren());
+                for(Node n : gridNodes) {
+                    if(n instanceof GoalCardButton && GridPane.getRowIndex(n) == 2 && GridPane.getColumnIndex(n) == i) {
+                        gridPane.getChildren().remove(n);
+                    }
+                }
+            }
         }
 
         for(int i = 0; i < 2; i++){
-            this.gridPane.add(this.decks[i], 2, i);
+            if (this.decks[i] != null) {
+                this.gridPane.add(this.decks[i], 2, i);
+            }
+            else {
+                List<Node> gridNodes = List.copyOf(gridPane.getChildren());
+                for(Node n : gridNodes) {
+                    if(n instanceof ImageView && GridPane.getRowIndex(n) == i && GridPane.getColumnIndex(n) == 2) {
+                        gridPane.getChildren().remove(n);
+                    }
+                }
+            }
         }
 
         if(!this.gridPane.getChildren().contains(factoryUpperDeckCard())){

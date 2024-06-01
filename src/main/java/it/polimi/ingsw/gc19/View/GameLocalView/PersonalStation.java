@@ -104,7 +104,7 @@ public class PersonalStation extends LocalStationPlayer {
         }
 
         for(Direction dir : Direction.values()){
-            PlayableCard neighborCard = this.cardSchema[currentX + dir.getX()][currentY + dir.getY()];
+                PlayableCard neighborCard = this.cardSchema[currentX + dir.getX()][currentY + dir.getY()];
             if(neighborCard != null && !neighborCard.canPlaceOver(dir.getOtherCornerPosition())){
                 return false;
             }
