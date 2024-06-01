@@ -158,7 +158,7 @@ public class LocalStationController extends AbstractController implements Statio
 
             this.leftVBox.getChildren().clear();
 
-            for(PlayableCard p : this.getLocalModel().getPersonalStation().getCardsInHand()){
+            for(PlayableCard p : List.copyOf(this.getLocalModel().getPersonalStation().getCardsInHand())){
                 PlayableCardButton button = new PlayableCardButton(p, super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
 
                 button.setOnMouseClicked(button.getDefaultMouseClickedHandler());
@@ -171,7 +171,7 @@ public class LocalStationController extends AbstractController implements Statio
         else{
             this.leftVBox.getChildren().clear();
 
-            for(var v : ((OtherStation) this.getLocalModel().getStations().get(this.nickOwner)).getBackCardHand()){
+            for(var v : List.copyOf(((OtherStation) this.getLocalModel().getStations().get(this.nickOwner)).getBackCardHand())){
                 this.leftVBox.getChildren().add(factoryUnswappableCard(v.x(), v.y()));
             }
         }
