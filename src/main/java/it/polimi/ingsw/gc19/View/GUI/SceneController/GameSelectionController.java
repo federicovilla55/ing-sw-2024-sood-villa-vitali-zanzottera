@@ -94,6 +94,9 @@ public class GameSelectionController extends AbstractController implements State
         leftVBox.spacingProperty().bind(super.getStage().heightProperty().divide(16));
         rightVBox.spacingProperty().bind(super.getStage().heightProperty().divide(16));
 
+        leftVBox.prefWidthProperty().bind(createAndJoin.widthProperty().subtract(createAndJoin.getSpacing()).divide(2));
+        rightVBox.prefWidthProperty().bind(createAndJoin.widthProperty().subtract(createAndJoin.getSpacing()).divide(2));
+
         createGameLabel.fontProperty().bind(Bindings.createObjectBinding(
                 () -> Font.font(super.getStage().getHeight() / 30),
                 super.getStage().heightProperty()
@@ -132,8 +135,6 @@ public class GameSelectionController extends AbstractController implements State
             ));
             return cell;
         });
-
-
     }
 
     private void loadLogo() {

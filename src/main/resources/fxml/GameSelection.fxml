@@ -13,7 +13,7 @@
       <VBox fx:id="contentVBox" alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <ImageView fx:id="logoImageView" fitHeight="80.0" preserveRatio="true" />
-            <HBox fx:id="createAndJoin" alignment="CENTER" spacing="20.0">
+            <HBox fx:id="createAndJoin" alignment="CENTER" HBox.hgrow="ALWAYS">
                <children>
                   <VBox fx:id="leftVBox" alignment="CENTER" styleClass="vbox-border" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
                      <padding>
