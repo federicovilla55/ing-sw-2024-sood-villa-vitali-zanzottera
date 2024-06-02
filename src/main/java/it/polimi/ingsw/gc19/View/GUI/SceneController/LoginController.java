@@ -64,8 +64,8 @@ public class LoginController extends AbstractController implements PlayerCreatio
         ));
 
         loginButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getWidth() / 65),
-                super.getStage().widthProperty()
+                () -> Font.font(super.getStage().getHeight() / 40),
+                super.getStage().heightProperty()
         ));
 
         loginTextField.fontProperty().bind(Bindings.createObjectBinding(

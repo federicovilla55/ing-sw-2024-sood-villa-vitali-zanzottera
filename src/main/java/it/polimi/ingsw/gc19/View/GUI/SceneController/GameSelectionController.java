@@ -16,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -49,7 +50,7 @@ public class GameSelectionController extends AbstractController implements State
     private HBox createAndJoin;
 
     @FXML
-    private Label createGameLabel, joinGameLabel, gameNameLabel, numberOfPlayers;
+    private Label createGameLabel, joinGameLabel, gameNameLabel, numberOfPlayers, availableGamesText;
 
     private final Integer[] possibleNumPlayer = {2,3,4};
 
@@ -90,33 +91,48 @@ public class GameSelectionController extends AbstractController implements State
 
         createAndJoin.spacingProperty().bind(super.getStage().widthProperty().divide(15));
 
-        leftVBox.spacingProperty().bind(super.getStage().heightProperty().divide(14));
-        rightVBox.spacingProperty().bind(super.getStage().heightProperty().divide(12));
+        leftVBox.spacingProperty().bind(super.getStage().heightProperty().divide(16));
+        rightVBox.spacingProperty().bind(super.getStage().heightProperty().divide(16));
 
         createGameLabel.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getWidth() / 70),
-                super.getStage().widthProperty()
+                () -> Font.font(super.getStage().getHeight() / 30),
+                super.getStage().heightProperty()
         ));
         joinGameLabel.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getWidth() / 70),
-                super.getStage().widthProperty()
+                () -> Font.font(super.getStage().getHeight() / 30),
+                super.getStage().heightProperty()
         ));
         joinButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getWidth() / 70),
-                super.getStage().widthProperty()
+                () -> Font.font(super.getStage().getHeight() / 50),
+                super.getStage().heightProperty()
         ));
         createButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getWidth() / 70),
-                super.getStage().widthProperty()
+                () -> Font.font(super.getStage().getHeight() / 50),
+                super.getStage().heightProperty()
         ));
         gameNameLabel.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getWidth() / 90),
-                super.getStage().widthProperty()
+                () -> Font.font(super.getStage().getHeight() / 50),
+                super.getStage().heightProperty()
         ));
         numberOfPlayers.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getWidth() / 90),
-                super.getStage().widthProperty()
+                () -> Font.font(super.getStage().getHeight() / 50),
+                super.getStage().heightProperty()
         ));
+        availableGamesText.fontProperty().bind(Bindings.createObjectBinding(
+                () -> Font.font(super.getStage().getHeight() / 50),
+                super.getStage().heightProperty()
+        ));
+
+        availableGamesList.setCellFactory(list -> {
+            ListCell<String> cell = new ListCell<>();
+            cell.textProperty().bind(cell.itemProperty());
+            cell.fontProperty().bind(Bindings.createObjectBinding(
+                    () -> Font.font(super.getStage().getHeight() / 50),
+                    super.getStage().heightProperty()
+            ));
+            return cell;
+        });
+
 
     }
 

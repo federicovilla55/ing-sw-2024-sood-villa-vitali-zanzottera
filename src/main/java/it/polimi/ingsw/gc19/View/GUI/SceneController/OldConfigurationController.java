@@ -15,10 +15,7 @@ import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -98,6 +95,7 @@ public class OldConfigurationController extends AbstractController implements St
         timeCol.prefWidthProperty().bind(confTable.widthProperty().divide(3));
         conTypeCol.prefWidthProperty().bind(confTable.widthProperty().divide(3));
 
+
         loadLogo();
 
         double fontSizeFactor = 0.03;
@@ -107,13 +105,17 @@ public class OldConfigurationController extends AbstractController implements St
         ));
 
         NewConfButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getWidth() / 70),
-                super.getStage().widthProperty()
+                () -> Font.font(super.getStage().getHeight() / 60),
+                super.getStage().heightProperty()
         ));
         ReconnectButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getWidth() / 70),
-                super.getStage().widthProperty()
+                () -> Font.font(super.getStage().getHeight() / 60),
+                super.getStage().heightProperty()
         ));
+
+
+
+
     }
 
     private void loadLogo() {

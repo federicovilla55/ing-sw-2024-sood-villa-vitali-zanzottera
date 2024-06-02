@@ -20,8 +20,8 @@
             <Label fx:id="titleLabel" alignment="CENTER" text="Choose connection Type" />
             <HBox fx:id="buttonsHBox" alignment="CENTER" spacing="20.0">
                <children>
-                  <Button mnemonicParsing="false" fx:id="TCPButton" prefHeight="27.0" prefWidth="120.0" text="TCP" />
-                  <Button mnemonicParsing="false" fx:id="RMIButton" prefHeight="27.0" prefWidth="120.0" text="RMI" />
+                  <Button mnemonicParsing="false" fx:id="TCPButton" text="TCP" />
+                  <Button mnemonicParsing="false" fx:id="RMIButton" text="RMI" />
                </children>
             </HBox>
          </children>

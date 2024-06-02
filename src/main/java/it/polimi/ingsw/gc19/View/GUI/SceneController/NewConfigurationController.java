@@ -73,12 +73,12 @@ public class NewConfigurationController extends AbstractController implements St
         ));
 
         TCPButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getWidth() / 60),
-                super.getStage().widthProperty()
+                () -> Font.font(super.getStage().getHeight() / 40),
+                super.getStage().heightProperty()
         ));
         RMIButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getWidth() / 60),
-                super.getStage().widthProperty()
+                () -> Font.font(super.getStage().getHeight() / 40),
+                super.getStage().heightProperty()
         ));
     }
 
