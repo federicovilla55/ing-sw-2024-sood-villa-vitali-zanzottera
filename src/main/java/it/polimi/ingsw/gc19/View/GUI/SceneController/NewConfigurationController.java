@@ -13,6 +13,7 @@ import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 
 import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -31,6 +32,10 @@ import java.util.Objects;
 public class NewConfigurationController extends AbstractController implements StateListener {
 
     private ClientInterface client;
+
+    @FXML
+    private AnchorPane anchorPane;
+
     @FXML
     private Button TCPButton, RMIButton;
 
@@ -82,6 +87,8 @@ public class NewConfigurationController extends AbstractController implements St
                 () -> Font.font(super.getStage().getHeight() / 40),
                 super.getStage().heightProperty()
         ));
+
+        super.setBackground(anchorPane, false);
     }
 
     private void loadLogo() {

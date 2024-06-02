@@ -248,30 +248,6 @@ public class SetupController extends AbstractController implements SetupListener
         setBackground(privateGoalCardSelectionPane, false);
     }
 
-    private void setBackground(Pane pane, Boolean element){
-        Image backgroundImage = null;
-        String location = "";
-        if(element) {
-            location = "src/main/resources/images/background_dark.png";
-        }else {
-            location = "src/main/resources/images/background_light.png";
-        }
-        try {
-            backgroundImage = new Image(new FileInputStream(location));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
-        BackgroundImage background = new BackgroundImage(
-                backgroundImage,
-                BackgroundRepeat.REPEAT,
-                BackgroundRepeat.REPEAT,
-                BackgroundPosition.DEFAULT,
-                backgroundSize);
-
-        pane.setBackground(new Background(background));
-    }
-
     @NotNull
     private Button buildColorButton(Color c, Circle circlePawn) {
         Button button = new Button();

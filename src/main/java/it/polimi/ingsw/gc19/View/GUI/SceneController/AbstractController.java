@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
@@ -67,33 +68,41 @@ public class AbstractController implements UI , Listener {
     }
 
     public void closeWindowEvent(WindowEvent event) {
-        if(this.clientController.getState() != ViewState.NOT_GAME &&
-            this.clientController.getState() != ViewState.NOT_PLAYER &&
-            this.clientController.getState() != ViewState.DISCONNECT){
+        if (this.clientController.getState() != ViewState.NOT_GAME &&
+                this.clientController.getState() != ViewState.NOT_PLAYER &&
+                this.clientController.getState() != ViewState.DISCONNECT) {
             Dialog<ButtonType> closeDialog = new Dialog<>();
             closeDialog.initOwner(stage.getOwner());
             closeDialog.setTitle("Closing Codex Naturalis");
 
             ButtonType lobbyButton = new ButtonType("Return to Lobby", ButtonBar.ButtonData.LEFT);
             ButtonType disconnectButton = new ButtonType("Disconnect", ButtonBar.ButtonData.RIGHT);
+            ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
-            closeDialog.getDialogPane().getButtonTypes().addAll(lobbyButton, disconnectButton);
+            closeDialog.getDialogPane().getButtonTypes().addAll(lobbyButton, disconnectButton, cancelButton);
 
             closeDialog.getDialogPane().setContentText("Do you want to close Codex Naturalis?");
 
-            closeDialog.showAndWait().ifPresent(response -> {
-                if (response == ButtonType.CANCEL)
-                    event.consume();
-                else if (response.getText().equals("Return to Lobby")) {
+            Optional<ButtonType> response = closeDialog.showAndWait();
+            if (response.isPresent()) {
+                if (response.get() == cancelButton) {
+                    event.consume(); // User cancelled the dialog, so consume the event
+                } else if (response.get().getText().equals("Return to Lobby")) {
                     this.clientController.logoutFromGame();
                     this.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
-                    event.consume();
-                } else if (response.getText().equals("Disconnect")) {
+                    event.consume(); // Prevent the window from closing
+                } else if (response.get().getText().equals("Disconnect")) {
                     this.clientController.disconnect();
                 }
-            });
+
+                // Remove the close event handler to ensure it doesn't show the dialog again
+                stage.getScene().getWindow().removeEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
+            } else {
+                event.consume(); // User cancelled the dialog, so consume the event
+            }
         }
     }
+
 
     @Override
     public void notifyGenericError(String errorDescription) {
@@ -170,25 +179,6 @@ public class AbstractController implements UI , Listener {
 
                     Scene scene = new Scene(root);
 
-                    Image backgroundImage = null;
-                    try {
-                        backgroundImage = new Image(new FileInputStream("src/main/resources/images/background_light.png"));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
-                    BackgroundImage background = new BackgroundImage(
-                            backgroundImage,
-                            BackgroundRepeat.REPEAT,
-                            BackgroundRepeat.REPEAT,
-                            BackgroundPosition.DEFAULT,
-                            backgroundSize);
-
-                    if (root instanceof Region) {
-                        ((Region) root).setBackground(new Background(background));
-                    }
-
-
                     this.stage.setScene(scene);
 
                 } catch (IOException e) {
@@ -199,6 +189,30 @@ public class AbstractController implements UI , Listener {
         catch (IOException ignored) {
             System.out.println(ignored.getMessage());
         }
+    }
+
+    public void setBackground(Pane pane, Boolean isDark){
+        Image backgroundImage = null;
+        String location = "";
+        if(isDark) {
+            location = "src/main/resources/images/background_dark.png";
+        }else {
+            location = "src/main/resources/images/background_light.png";
+        }
+        try {
+            backgroundImage = new Image(new FileInputStream(location));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
+        BackgroundImage background = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.REPEAT,
+                BackgroundRepeat.REPEAT,
+                BackgroundPosition.DEFAULT,
+                backgroundSize);
+
+        pane.setBackground(new Background(background));
     }
 
     @Nullable

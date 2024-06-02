@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -30,7 +31,8 @@ public class LoginController extends AbstractController implements PlayerCreatio
     private Button loginButton;
     @FXML
     private StackPane stackPane;
-
+    @FXML
+    private AnchorPane anchorPane;
     @FXML
     private ImageView logoImageView;
     @FXML
@@ -73,6 +75,8 @@ public class LoginController extends AbstractController implements PlayerCreatio
                 () -> Font.font(super.getStage().getHeight() * fontSizeFactor),
                 super.getStage().heightProperty()
         ));
+
+        super.setBackground(anchorPane, false);
     }
 
     private void loadLogo() {

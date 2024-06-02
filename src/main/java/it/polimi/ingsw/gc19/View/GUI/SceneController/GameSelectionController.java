@@ -15,10 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
 import java.io.File;
@@ -39,16 +36,12 @@ public class GameSelectionController extends AbstractController implements State
     private ListView<String> availableGamesList;
     @FXML
     private StackPane stackPane;
-
     @FXML
     private ImageView logoImageView;
-
     @FXML
     private VBox contentVBox, leftVBox, rightVBox;
-
     @FXML
     private HBox createAndJoin;
-
     @FXML
     private Label createGameLabel, joinGameLabel, gameNameLabel, numberOfPlayers, availableGamesText;
 
@@ -134,6 +127,8 @@ public class GameSelectionController extends AbstractController implements State
             ));
             return cell;
         });
+
+        super.setBackground(stackPane, false);
     }
 
     private void loadLogo() {
