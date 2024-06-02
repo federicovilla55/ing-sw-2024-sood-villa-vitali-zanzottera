@@ -31,6 +31,8 @@
             <HBox fx:id="buttonsHBox" alignment="CENTER" spacing="20.0">
                 <children>
                     <Button fx:id="ReconnectButton" mnemonicParsing="false" onAction="#onReconnectPress" text="Reconnect" />
+                    <Button fx:id="DeleteConf" mnemonicParsing="false" onAction="#onDeleteConf" text="Delete Conf" />
+                    <Button fx:id="DeleteAllConf" mnemonicParsing="false" onAction="#onDeleteAll" text="Delete All" />
                     <Button fx:id="NewConfButton" mnemonicParsing="false" onAction="#onNewConfigurationPressed" text="New Conf" />
                 </children>
             </HBox>

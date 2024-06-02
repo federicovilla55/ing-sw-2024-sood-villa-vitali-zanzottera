@@ -20,9 +20,11 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,10 +42,11 @@ public class AbstractController implements UI , Listener {
     private boolean isCloseEventHandlerAdded = false;
 
     protected AbstractController(ClientController controller, CommandParser parser, Stage stage){
+        this.localModel = controller.getLocalModel();
         this.clientController = controller;
         this.commandParser = parser;
-        this.localModel = new LocalModel();
         this.stage = stage;
+        this.clientController.setView(this);
     }
 
     protected AbstractController(AbstractController controller){
@@ -96,6 +99,7 @@ public class AbstractController implements UI , Listener {
     public void notifyGenericError(String errorDescription) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.initOwner(stage.getScene().getWindow());
             alert.setTitle("Generic error");
             alert.setContentText(errorDescription);
             alert.showAndWait();
@@ -106,6 +110,7 @@ public class AbstractController implements UI , Listener {
     public void notify(String message) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.initOwner(stage.getScene().getWindow());
             alert.setTitle("Info");
             alert.setContentText(message);
             alert.showAndWait();
@@ -153,16 +158,7 @@ public class AbstractController implements UI , Listener {
 
             this.getClientController().getListenersManager().removeListener(this);
 
-            AbstractController controller;
-
-            switch (nextScenePath){
-                case LOGIN_SCENE -> controller = new LoginController(this);
-                case GAME_SELECTION_SCENE -> controller = new GameSelectionController(this);
-                case NEW_CONFIGURATION_SCENE -> controller = new NewConfigurationController(this);
-                case SETUP_SCENE -> controller = new SetupController(this);
-                case PLAYING_AREA_SCENE -> controller = new PlayingAreaController(this);
-                default -> controller = null;
-            }
+            AbstractController controller = getController(nextScenePath);
 
             loader.setLocation(new File(nextScenePath.value()).toURL());
             loader.setController(controller);
@@ -194,8 +190,6 @@ public class AbstractController implements UI , Listener {
 
 
                     this.stage.setScene(scene);
-                    //this.stage.setMaximized(true);
-                    this.stage.show();
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -207,26 +201,44 @@ public class AbstractController implements UI , Listener {
         }
     }
 
+    @Nullable
+    private AbstractController getController(SceneStatesEnum nextScenePath) {
+        AbstractController controller;
+
+        switch (nextScenePath){
+            case LOGIN_SCENE -> controller = new LoginController(this);
+            case GAME_SELECTION_SCENE -> controller = new GameSelectionController(this);
+            case NEW_CONFIGURATION_SCENE -> controller = new NewConfigurationController(this);
+            case SETUP_SCENE -> controller = new SetupController(this);
+            case PLAYING_AREA_SCENE -> controller = new PlayingAreaController(this);
+            default -> controller = null;
+        }
+
+        return controller;
+    }
+
     protected void notifyPossibleDisconnection(StackPane stackPane){
-        for(Node n : stackPane.getChildrenUnmodifiable()){
-            n.setOpacity(0.15);
-        }
+        Platform.runLater(() -> {
+            for (Node n : stackPane.getChildrenUnmodifiable()) {
+                n.setOpacity(0.15);
+            }
 
-        getStage().getScene().setFill(javafx.scene.paint.Color.GREY);
+            getStage().getScene().setFill(javafx.scene.paint.Color.GREY);
 
-        try{
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/ReconnectionWaitScene.fxml").toURL());
-            ReconnectionWaitController controller = new ReconnectionWaitController(this);
-            loader.setController(controller);
+            try {
+                FXMLLoader loader = new FXMLLoader();
+                loader.setLocation(new File("src/main/resources/fxml/ReconnectionWaitScene.fxml").toURL());
+                ReconnectionWaitController controller = new ReconnectionWaitController(this);
+                loader.setController(controller);
 
-            StackPane waitStack = loader.load();
+                StackPane waitStack = loader.load();
 
-            stackPane.getChildren().add(waitStack);
-            stackPane.requestLayout();
+                stackPane.getChildren().add(waitStack);
+                stackPane.requestLayout();
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

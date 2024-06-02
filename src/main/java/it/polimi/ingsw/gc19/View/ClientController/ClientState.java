@@ -102,9 +102,9 @@ public abstract class ClientState {
      * @param message a {@link CreatedGameMessage}.
      */
     public void nextState(EndGameMessage message){
-        for(String s: this.clientController.getLocalModel().getOtherStations().keySet()){
+        for(String s: this.clientController.getLocalModel().getStations().keySet()){
             if(message.getUpdatedPoints().containsKey(s)) {
-                this.clientController.getLocalModel().getOtherStations().get(s).setNumPoints(message.getUpdatedPoints().get(s));
+                this.clientController.getLocalModel().setNumPoints(s, message.getUpdatedPoints().get(s));
             }
         }
     }
@@ -125,7 +125,6 @@ public abstract class ClientState {
      */
     public void nextState(GamePausedMessage message) {
         clientController.setNextState(new Pause(clientController), true);
-        //this.listenersManager.notifyStateListener(ViewState.PAUSE);
     }
 
     /**

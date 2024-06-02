@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,13 +43,8 @@ public class GUIView extends Application {
 
             root = loader.load();
 
-            ((OldConfigurationController) loader.getController()).setConfig(configs);
+            ((OldConfigurationController) loader.getController()).setConfig(new ArrayList<>(configs));
             ((OldConfigurationController) loader.getController()).setUpConfigTable();
-
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-
         }
         catch (RuntimeException e) {
             FXMLLoader loader = new FXMLLoader();
@@ -58,10 +54,6 @@ public class GUIView extends Application {
             loader.setController(new NewConfigurationController(clientController, commandParser, stage));
 
             root = loader.load();
-
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
         }
 
         Image backgroundImage = null;
@@ -81,6 +73,11 @@ public class GUIView extends Application {
         if (root instanceof Region) {
             ((Region) root).setBackground(new Background(background));
         }
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+        stage.setMaximized(true);
     }
     public static void main(String[] args) {
         launch(args);

@@ -43,6 +43,7 @@ public class LoginController extends AbstractController implements PlayerCreatio
         super(controller);
 
         super.getClientController().getListenersManager().attachListener(ListenerType.PLAYER_CREATION_LISTENER, this);
+        super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
     }
 
     public void initialize(){
@@ -88,7 +89,7 @@ public class LoginController extends AbstractController implements PlayerCreatio
 
     @Override
     public void notifyPlayerCreation(String name) {
-        super.getClientController().getListenersManager().removeListener(ListenerType.PLAYER_CREATION_LISTENER, this);
+        super.getClientController().getListenersManager().removeListener(this);
 
         super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
     }
@@ -97,6 +98,7 @@ public class LoginController extends AbstractController implements PlayerCreatio
     public void notifyPlayerCreationError(String error) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.initOwner(super.getStage().getScene().getWindow());
             alert.setTitle("Player creation error");
             alert.setContentText(error);
             alert.showAndWait();
@@ -105,8 +107,17 @@ public class LoginController extends AbstractController implements PlayerCreatio
 
     @Override
     public void notify(ViewState viewState) {
-        if(viewState == ViewState.DISCONNECT){
-            super.notifyPossibleDisconnection(stackPane);
+        switch (viewState){
+            case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
+            case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
+            case ViewState.SETUP -> {
+                super.setLocalModel(super.getClientController().getLocalModel());
+                super.changeToNextScene(SceneStatesEnum.SETUP_SCENE);
+            }
+            case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN, ViewState.PAUSE, ViewState.END -> {
+                super.setLocalModel(super.getClientController().getLocalModel());
+                super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
+            }
         }
     }
 

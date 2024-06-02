@@ -4,6 +4,7 @@ import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
+import it.polimi.ingsw.gc19.View.GUI.GUISettings;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
 import it.polimi.ingsw.gc19.View.GUI.Utils.CardImageLoader;
 import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
@@ -12,7 +13,9 @@ import it.polimi.ingsw.gc19.View.GameLocalView.LocalTable;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TableListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -22,6 +25,8 @@ import javafx.scene.shape.Rectangle;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import java.util.List;
+
 public class TableController extends AbstractController implements TableListener {
 
     @FXML
@@ -29,6 +34,8 @@ public class TableController extends AbstractController implements TableListener
 
     @FXML
     private BorderPane tableBorderPane;
+
+    private static final double ASPECT_RATIO = 832.0 / 558.0;
 
     private final PlayableCardButton[][] drawableTableCards;
 
@@ -55,6 +62,19 @@ public class TableController extends AbstractController implements TableListener
     }
 
     private void buildTable(){
+        gridPane.getChildren().clear();
+
+        for(int i = 0; i <= 2; i++) {
+            for(int j = 0; j <= 2; j++) {
+                Pane pane = new Pane();
+                pane.prefWidthProperty().bind(Bindings.min(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO), super.getStage().heightProperty().divide(GUISettings.HEIGHT_RATIO).multiply(ASPECT_RATIO)));
+                pane.prefHeightProperty().bind(Bindings.min(super.getStage().heightProperty().divide(GUISettings.HEIGHT_RATIO), super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).divide(ASPECT_RATIO)));
+                pane.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+                pane.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+                gridPane.add(pane, i, j);
+            }
+        }
+
         if(this.getLocalModel().getTable() != null){
             drawableCardFactory(this.getLocalModel().getTable().getResource1(), 0,0);
 
@@ -64,29 +84,73 @@ public class TableController extends AbstractController implements TableListener
 
             drawableCardFactory(this.getLocalModel().getTable().getGold2(), 1, 1);
 
-            this.publicGoals[0] = new GoalCardButton(this.getLocalModel().getTable().getPublicGoal1(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2); //(Region) this.gridPane.getParent()
+            this.publicGoals[0] = new GoalCardButton(this.getLocalModel().getTable().getPublicGoal1(), super.getStage(), (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO); //(Region) this.gridPane.getParent()
             this.publicGoals[0].setOnMouseClicked(this.publicGoals[0].getDefaultMouseClickedHandler());
 
-            this.publicGoals[1] = new GoalCardButton(this.getLocalModel().getTable().getPublicGoal2(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
+            this.publicGoals[1] = new GoalCardButton(this.getLocalModel().getTable().getPublicGoal2(), super.getStage(), (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO);
             this.publicGoals[1].setOnMouseClicked(this.publicGoals[1].getDefaultMouseClickedHandler());
 
-            this.decks[0] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfResourceDeck(), PlayableCardType.RESOURCE);
-            this.decks[1] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfGoldDeck(), PlayableCardType.GOLD);
+            if(this.getLocalModel().getTable().getNextSeedOfResourceDeck() != null) {
+                this.decks[0] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfResourceDeck(), PlayableCardType.RESOURCE);
+            }
+            else {
+                this.decks[0] = null;
+            }
+            if(this.getLocalModel().getTable().getNextSeedOfGoldDeck() != null) {
+                this.decks[1] = factoryUpperDeckCard(this.getLocalModel().getTable().getNextSeedOfGoldDeck(), PlayableCardType.GOLD);
+            }
+            else {
+                this.decks[1] = null;
+            }
             this.decks[2] = factoryUpperDeckCard();
         }
 
         for(int i = 0; i < 2; i++){
             for(int k = 0; k < 2; k++){
-                this.gridPane.add(this.drawableTableCards[i][k], k, i);
+                if(this.drawableTableCards[i][k] != null) {
+                    this.gridPane.add(this.drawableTableCards[i][k], k, i);
+                }
+                else {
+                    List<Node> gridNodes = List.copyOf(gridPane.getChildren());
+                    for(Node n : gridNodes) {
+                        if(n instanceof PlayableCardButton && GridPane.getRowIndex(n) == i && GridPane.getColumnIndex(n) == k) {
+                            gridPane.getChildren().remove(n);
+                        }
+                    }
+                }
             }
         }
 
         for(int i = 0; i < 2; i++){
-            this.gridPane.add(this.publicGoals[i], i, 2);
+            if(this.publicGoals != null) {
+                this.gridPane.add(this.publicGoals[i], i, 2);
+            }
+            else {
+                List<Node> gridNodes = List.copyOf(gridPane.getChildren());
+                for(Node n : gridNodes) {
+                    if(n instanceof GoalCardButton && GridPane.getRowIndex(n) == 2 && GridPane.getColumnIndex(n) == i) {
+                        gridPane.getChildren().remove(n);
+                    }
+                }
+            }
         }
 
-        for(int i = 0; i < 3; i++){
-            this.gridPane.add(this.decks[i], 2, i);
+        for(int i = 0; i < 2; i++){
+            if (this.decks[i] != null) {
+                this.gridPane.add(this.decks[i], 2, i);
+            }
+            else {
+                List<Node> gridNodes = List.copyOf(gridPane.getChildren());
+                for(Node n : gridNodes) {
+                    if(n instanceof ImageView && GridPane.getRowIndex(n) == i && GridPane.getColumnIndex(n) == 2) {
+                        gridPane.getChildren().remove(n);
+                    }
+                }
+            }
+        }
+
+        if(!this.gridPane.getChildren().contains(factoryUpperDeckCard())){
+            this.gridPane.add(this.decks[2], 2, 2);
         }
     }
 
@@ -108,7 +172,7 @@ public class TableController extends AbstractController implements TableListener
 
     private void drawableCardFactory(PlayableCard card, int x, int y){
         if(card != null){
-            this.drawableTableCards[x][y] = new PlayableCardButton(card, super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
+            this.drawableTableCards[x][y] = new PlayableCardButton(card, super.getStage(), (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO);
             this.drawableTableCards[x][y].setOnMouseClicked((event) -> handleClickDrawableTableCard(event, card, y));
         }
         else{
@@ -120,8 +184,8 @@ public class TableController extends AbstractController implements TableListener
         ImageView imageView = CardImageLoader.getBackImageView();
         imageView.setPreserveRatio(true);
         //imageView.setFitWidth(200);
-        imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
-        imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
+        imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO));
+        imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(GUISettings.HEIGHT_RATIO));
 
         clipCardImage(imageView);
 
@@ -133,8 +197,8 @@ public class TableController extends AbstractController implements TableListener
             ImageView imageView = new ImageView(CardImageLoader.getBackImage(symbol,type));
             imageView.setPreserveRatio(true);
             //imageView.setFitWidth(200);
-            imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
-            imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
+            imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO));
+            imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(GUISettings.HEIGHT_RATIO));
 
             clipCardImage(imageView);
 

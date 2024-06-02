@@ -112,7 +112,7 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
                 message = this.messagesToHandle.remove();
                 this.messagesToHandle.notifyAll();
             }
-
+            System.out.println(message);
             message.accept(this);
         }
     }
@@ -395,9 +395,10 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
      */
     @Override
     public void visit(DisconnectedPlayerMessage message) {
-        waitForLocalModel();
-        this.localModel.setPlayerInactive(message.getRemovedNick());
-        clientController.getCurrentState().nextState(message);
+        if(this.localModel != null){
+            this.localModel.setPlayerInactive(message.getRemovedNick());
+            clientController.getCurrentState().nextState(message);
+        }
     }
 
     /**

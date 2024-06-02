@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.View.GUI.Utils;
 
+import it.polimi.ingsw.gc19.View.GUI.GUISettings;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import javafx.event.EventHandler;
@@ -12,6 +13,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
+import static it.polimi.ingsw.gc19.View.GUI.GUISettings.CARD_PIXEL_HEIGHT;
+import static it.polimi.ingsw.gc19.View.GUI.GUISettings.CARD_PIXEL_WIDTH;
+
 public class PlayableCardButton extends Button{
 
     private final PlayableCard card;
@@ -23,8 +27,8 @@ public class PlayableCardButton extends Button{
         super();
 
         this.card = card;
-        this.front = CardImageLoader.getImageView(card, CardOrientation.UP);
-        this.back = CardImageLoader.getImageView(card, CardOrientation.DOWN);
+        this.front = new ImageView(CardImageLoader.getImage(card, CardOrientation.UP));
+        this.back = new ImageView(CardImageLoader.getImage(card, CardOrientation.DOWN));
 
         this.isUp = true;
 
@@ -88,9 +92,6 @@ public class PlayableCardButton extends Button{
     }
 
     private void clipCardImage(ImageView cardImage){
-        double CARD_PIXEL_HEIGHT = 558.0;
-        double CARD_PIXEL_WIDTH = 832.0;
-
         Rectangle rectangle = new Rectangle();
         rectangle.widthProperty().bind(cardImage.fitWidthProperty());
         rectangle.heightProperty().bind(cardImage.fitWidthProperty().multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH));

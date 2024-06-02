@@ -78,7 +78,6 @@ public class GameSelectionController extends AbstractController implements State
             String name = gameName.getText();
             int numPlayer = numPlayerBox.getValue();
             if(name != null && !name.isEmpty()) {
-                System.out.println(gameName);
                 super.getClientController().createGame(name, numPlayer);
             }
         });
@@ -151,22 +150,18 @@ public class GameSelectionController extends AbstractController implements State
     @Override
     public void notify(ViewState viewState) {
         if(viewState == ViewState.DISCONNECT){
+            super.getClientController().getListenersManager().removeListener(this);
             super.notifyPossibleDisconnection(this.stackPane);
         }
-    }
-
-    void updateAvailableGames(ArrayList<String> availableGames) {
-        Platform.runLater(() -> availableGamesList.setItems(FXCollections.observableArrayList(availableGames)));
     }
 
     @Override
     public void notify(GameHandlingEvents type, List<String> varArgs) {
         switch (type){
             case GameHandlingEvents.CREATED_GAME, GameHandlingEvents.JOINED_GAMES -> {
-                super.getClientController().getListenersManager().removeListener(this);
                 changeToNextScene(SceneStatesEnum.SETUP_SCENE);
             }
-            case GameHandlingEvents.AVAILABLE_GAMES -> updateAvailableGames(new ArrayList<>(varArgs));
+            case GameHandlingEvents.AVAILABLE_GAMES -> Platform.runLater(() -> availableGamesList.setItems(FXCollections.observableArrayList(new ArrayList<>(varArgs))));
         }
     }
 

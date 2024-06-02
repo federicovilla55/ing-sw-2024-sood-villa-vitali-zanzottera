@@ -36,18 +36,15 @@ public class SetupController extends AbstractController implements SetupListener
 
     @FXML
     private VBox leftVBox, rightVBox, chat;
-
     @FXML
     private HBox hbox, goalCardsHBox, initialCardHBox, infoHBox;
-
     @FXML
     private BorderPane availableColorsPane, initialCardOrientationPane, privateGoalCardSelectionPane, table;
-
     @FXML
     private StackPane stackPane;
-
     @FXML
     private TabPane tabPane;
+    private AbstractController chatController, tableController, localStationController;
 
     public SetupController(AbstractController controller) {
         super(controller);
@@ -58,10 +55,12 @@ public class SetupController extends AbstractController implements SetupListener
     }
 
     public void initialize(){
+        super.getStage().setMinWidth(1280.0);
+        super.getStage().setMinHeight(820.0);
+
         buildAvailableColorsPane();
         buildPrivateGoalCardSelectionHBox();
         buildInitialCardHBox();
-
         buildInfoHBox();
 
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
@@ -78,8 +77,8 @@ public class SetupController extends AbstractController implements SetupListener
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/ChatScene.fxml").toURL());
-            ChatController controller = new ChatController(this);
-            loader.setController(controller);
+            chatController = new ChatController(this);
+            loader.setController(chatController);
 
             chat = loader.load();
 
@@ -95,8 +94,8 @@ public class SetupController extends AbstractController implements SetupListener
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/TableScene.fxml").toURL());
-            TableController controller = new TableController(this);
-            loader.setController(controller);
+            tableController = new TableController(this);
+            loader.setController(tableController);
 
             table = loader.load();
 
@@ -109,8 +108,8 @@ public class SetupController extends AbstractController implements SetupListener
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(new File("src/main/resources/fxml/LocalStationTab.fxml").toURL());
-            LocalStationTabController controller = new LocalStationTabController(this);
-            loader.setController(controller);
+            localStationController = new LocalStationTabController(this);
+            loader.setController(localStationController);
 
             tabPane = loader.load();
 
@@ -137,7 +136,7 @@ public class SetupController extends AbstractController implements SetupListener
 
         this.infoHBox.getChildren().add(new Label("Current number of players: " + super.getLocalModel().getStations().size()));
 
-        gameStateFactory(super.getLocalModel().gameCanStart());
+        allPlayersConnectedFactory(super.getLocalModel().checkAllPlayersConnected());
 
         this.infoHBox.spacingProperty().bind(((Region) this.infoHBox.getParent()).widthProperty()
                                                                                  .subtract(this.infoHBox.getChildren().stream()
@@ -147,8 +146,8 @@ public class SetupController extends AbstractController implements SetupListener
                                                                                  .divide(20));
     }
 
-    private void gameStateFactory(boolean canStart){
-        String fileName = canStart ? "can_start" : "cannot_start";
+    private void allPlayersConnectedFactory(boolean canStart){
+        String fileName = canStart ? "all_connected" : "one_not_connected";
 
         ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/game state/" + fileName + ".png")).toExternalForm()));
         imageView.setPreserveRatio(true);
@@ -158,10 +157,10 @@ public class SetupController extends AbstractController implements SetupListener
         hBox.setAlignment(Pos.CENTER);
         hBox.setSpacing(25);
 
-        hBox.getChildren().add(new Label("Game can start: "));
+        hBox.getChildren().add(new Label("All players connected: "));
         hBox.getChildren().add(imageView);
 
-        this.infoHBox.getChildren().add(hBox);
+        this.infoHBox.getChildren().addLast(hBox);
     }
 
     private void buildInitialCardHBox(){
@@ -174,18 +173,14 @@ public class SetupController extends AbstractController implements SetupListener
             this.initialCardHBox.getChildren().addAll(List.of(initialCardUp, initialCardDown));
 
             for(var b : List.of(initialCardUp, initialCardDown)){
-
                 b.setOnMouseClicked((event) -> {
-
                     getClientController().placeInitialCard(b.getCardOrientation());
                     initialCardHBox.getChildren().clear();
                     rightVBox.getChildren().remove(initialCardOrientationPane);
 
                     resizeChat();
                 });
-
             }
-
         }
     }
 
@@ -327,17 +322,28 @@ public class SetupController extends AbstractController implements SetupListener
     @Override
     public void notify(ViewState viewState) {
         switch (viewState){
-            case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
-            case ViewState.DISCONNECT -> super.notifyPossibleDisconnection(this.stackPane);
-            //@TODO: there are problems if game goes in pause when it should start?
-            //@TODO: handle DISCONNECTED STATE
+            case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> {
+                super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
+            }
+            case ViewState.DISCONNECT -> {
+                super.getClientController().getListenersManager().removeListener(this);
+                super.notifyPossibleDisconnection(this.stackPane);
+            }
+            case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
+            case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
+            default -> {return;}
         }
+
+        super.getClientController().getListenersManager().removeListener(chatController);
+        super.getClientController().getListenersManager().removeListener(tableController);
+        super.getClientController().getListenersManager().removeListener(localStationController);
     }
 
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.initOwner(super.getStage().getScene().getWindow());
 
             switch (type) {
                 case LocalModelEvents.NEW_PLAYER_CONNECTED -> {
@@ -355,6 +361,8 @@ public class SetupController extends AbstractController implements SetupListener
             }
 
             buildInfoHBox();
+
+            alert.showAndWait();
 
             new Timer().schedule(new TimerTask() {
                 @Override

@@ -447,8 +447,10 @@ public class LocalModel {
             }
         }
 
-        synchronized (previousPlayableCards){
-            previousPlayableCards.put(playableCard.getCardCode(), playableCard);
+        if(playableCard != null) {
+            synchronized (previousPlayableCards) {
+                previousPlayableCards.put(playableCard.getCardCode(), playableCard);
+            }
         }
         
         this.listenersManager.notifyTableListener(table);
@@ -564,8 +566,8 @@ public class LocalModel {
      * This method checks if game can start
      * @return if game can start
      */
-    public boolean gameCanStart(){
-        return this.getStations().size() == this.numPlayers;
+    public boolean checkAllPlayersConnected(){
+        return !this.playerState.containsValue(State.INACTIVE);
     }
 
     /**
@@ -658,6 +660,13 @@ public class LocalModel {
         synchronized (this.playerStations){
             this.playerStations.get(nickname).setNumPoints(numPoints);
         }
+
+        if(nickname.equals(this.getNickname())) {
+            this.listenersManager.notifyStationListener(this.getPersonalStation());
+        }
+        else {
+            this.listenersManager.notifyStationListener(this.getOtherStations().get(nickname));
+        };
     }
 
     /**

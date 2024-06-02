@@ -10,7 +10,6 @@ import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Game.PlayerNotFoundException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
-import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OtherAcceptedPickCardFromDeckMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.OwnAcceptedPickCardFromDeckMessage;
@@ -37,6 +36,8 @@ import java.util.stream.Collectors;
  * the view necessary information, and call methods on the model (gameAssociated)
  */
 public class GameController{
+
+    private Timer stopGameTimer;
 
     private final MessageFactory messageFactory;
 
@@ -74,6 +75,7 @@ public class GameController{
      * @param timeout seconds before paused game is ended
      */
     public GameController(Game gameAssociated, long timeout) {
+        this.stopGameTimer = new Timer();
         this.messageFactory = new MessageFactory();
         this.gameAssociated = gameAssociated;
         gameAssociated.setMessageFactory(this.messageFactory);
@@ -118,8 +120,9 @@ public class GameController{
                         );
                     }
                     else if(this.connectedClients.size()>=2) {
-                        //if the game is in pause and there are 2 or more clients connected, unpause game
+                        //if the game is in pause and there are 2 or more clients connected, unpause game and stop timer task
                         this.gameAssociated.setGameState(GameState.PLAYING);
+                        this.stopGameTimer.cancel();
                         this.messageFactory.sendMessageToAllGamePlayers(new GameResumedMessage(
                                 this.gameAssociated.getTurnState(),
                                 this.gameAssociated.getActivePlayer().getName()
@@ -170,14 +173,13 @@ public class GameController{
             if (this.connectedClients.size() == 1 && this.gameAssociated.getGameState().equals(GameState.PLAYING)) {
                 // only a client is connected while game is playing: pause game
                 this.gameAssociated.setGameState(GameState.PAUSE);
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(timeout * 1000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                stopGameTimer = new Timer();
+                stopGameTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        stopGame();
                     }
-                    this.stopGame();
-                }).start();
+                }, timeout * 1000);
                 this.messageFactory.sendMessageToAllGamePlayers(new GamePausedMessage());
             }
         }
@@ -460,6 +462,10 @@ public class GameController{
      * If the player is not connected, the turn will go to the successive player
      */
     private synchronized void setNextPlayer() throws GameFinishedException {
+        if(this.gameAssociated.getGameState().equals(GameState.END)) {
+            throw new GameFinishedException();
+        }
+
         Player selectedPlayer;
         do {
             selectedPlayer = this.gameAssociated.getNextPlayer();
@@ -492,22 +498,23 @@ public class GameController{
 
         List<Player> winnerPlayers = new ArrayList<>();
 
-        //remove not connected players from possible winners
-        sortedPlayers.removeIf(p -> !this.connectedClients.containsKey(p.getName()));
+//        //remove not connected players from possible winners
+//        sortedPlayers.removeIf(p -> !this.connectedClients.containsKey(p.getName()));
 
         Player p;
         do {
             p = sortedPlayers.removeFirst();
             winnerPlayers.add(p);
-        }while(sortedPlayers.getFirst().getStation().getNumPoints() == p.getStation().getNumPoints()
+        }while(!sortedPlayers.isEmpty()
+                && sortedPlayers.getFirst().getStation().getNumPoints() == p.getStation().getNumPoints()
                 && sortedPlayers.getFirst().getStation().getPointsFromGoals() == p.getStation().getPointsFromGoals());
 
         this.gameAssociated.setGameState(GameState.END);
-        MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());
-
         this.messageFactory.sendMessageToAllGamePlayers(
                 new EndGameMessage(winnerPlayers.stream().map(Player::getName).collect(Collectors.toList()), scoreboard)
         );
+
+        MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());
     }
 
     /**
@@ -524,11 +531,12 @@ public class GameController{
                 );
             }
             this.gameAssociated.setGameState(GameState.END);
-            MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());
 
             this.messageFactory.sendMessageToAllGamePlayers(
                     new EndGameMessage(new ArrayList<>(), new HashMap<>())
             );
+
+            MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());
         }
     }
 

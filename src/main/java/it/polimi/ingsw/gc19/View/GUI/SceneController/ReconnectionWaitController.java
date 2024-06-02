@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
+import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
@@ -26,6 +27,8 @@ public class ReconnectionWaitController extends AbstractController implements St
 
     public ReconnectionWaitController(AbstractController controller) {
         super(controller);
+
+        this.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
 
         this.circles = new ArrayList<>();
     }
@@ -84,14 +87,17 @@ public class ReconnectionWaitController extends AbstractController implements St
     public void notify(ViewState viewState) {
         this.thread.interrupt();
 
-        //@TODO: what to do in PAUSE? And END?
-
         switch (viewState){
             case ViewState.SETUP -> changeToNextScene(SceneStatesEnum.SETUP_SCENE);
-            case ViewState.PICK, ViewState.OTHER_TURN, ViewState.PLACE -> changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
+            case ViewState.PICK, ViewState.OTHER_TURN, ViewState.PLACE, ViewState.PAUSE, ViewState.END -> changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
             case ViewState.NOT_GAME -> changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
             case ViewState.NOT_PLAYER -> changeToNextScene(SceneStatesEnum.NEW_CONFIGURATION_SCENE);
+            default -> {
+                return;
+            }
         }
+
+        super.getClientController().getListenersManager().removeListener(this);
     }
 
 }

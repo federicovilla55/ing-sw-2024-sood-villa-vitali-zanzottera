@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <StackPane fx:id="centerPane" BorderPane.alignment="CENTER" VBox.vgrow="NEVER" HBox.hgrow="NEVER">
+      <StackPane fx:id="centerPane" BorderPane.alignment="CENTER" HBox.hgrow="NEVER" VBox.vgrow="NEVER">
          <GridPane fx:id="cardGrid" alignment="CENTER" StackPane.alignment="CENTER" VBox.vgrow="NEVER">
          </GridPane>
+         <HBox alignment="TOP_RIGHT" spacing="50.0" HBox.hgrow="NEVER" StackPane.alignment="TOP_RIGHT" VBox.vgrow="NEVER">
+            <children>
+               <Button fx:id="center" mnemonicParsing="false" styleClass="center" stylesheets="@../css/LocalStationScene.css" text="Center" HBox.hgrow="NEVER" />
+               <Button fx:id="rescale" mnemonicParsing="false" styleClass="rescale" stylesheets="@../css/LocalStationScene.css" text="Rescale" HBox.hgrow="NEVER" />
+            </children>
+         </HBox>
          <BorderPane.margin>
             <Insets bottom="15.0" top="15.0" />
          </BorderPane.margin>
       </StackPane>
    </center>
    <left>
-      <VBox fx:id="leftVBox" alignment="CENTER" spacing="50.0" BorderPane.alignment="CENTER" VBox.vgrow="NEVER" HBox.hgrow="NEVER">
+      <VBox fx:id="leftVBox" alignment="CENTER" spacing="50.0" BorderPane.alignment="CENTER" HBox.hgrow="NEVER" VBox.vgrow="NEVER">
          <BorderPane.margin>
             <Insets bottom="25.0" top="25.0" />
          </BorderPane.margin>

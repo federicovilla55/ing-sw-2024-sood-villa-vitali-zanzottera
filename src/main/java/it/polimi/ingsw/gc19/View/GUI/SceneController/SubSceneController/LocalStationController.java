@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Enums.Direction;
+import it.polimi.ingsw.gc19.View.GUI.GUISettings;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
@@ -17,16 +18,18 @@ import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
@@ -36,20 +39,22 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.*;
 
+import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
+
 public class LocalStationController extends AbstractController implements StationListener, SetupListener {
 
     @FXML
-    protected StackPane centerPane;
+    private StackPane centerPane;
     @FXML
-    protected GridPane cardGrid;
+    private GridPane cardGrid;
     @FXML
-    protected VBox leftVBox;
+    private VBox leftVBox, rightVBox;
     @FXML
-    protected VBox rightVBox;
+    private BorderPane borderPane;
     @FXML
-    protected BorderPane borderPane;
+    private Button center, rescale;
 
-    protected String nickOwner;
+    private final String nickOwner;
 
     private Translate translate;
     private Scale centerPaneScale;
@@ -64,10 +69,9 @@ public class LocalStationController extends AbstractController implements Statio
     private double scale = 1.0;
     private final double delta = 1.1;
 
-    private final double CARD_PIXEL_WIDTH = 832.0;
-    private final double CARD_PIXEL_HEIGHT = 558.0;
-
     private final ArrayList<ImageView> renderedCards;
+
+    private PlayableCardButton draggedCard = null;
 
     public LocalStationController(AbstractController controller,String nickOwner) {
         super(controller);
@@ -134,7 +138,9 @@ public class LocalStationController extends AbstractController implements Statio
             this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
         });
 
-
+        ((VBox) this.borderPane.getLeft()).prefWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
+        ((VBox) this.borderPane.getLeft()).maxWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
+        ((VBox) this.borderPane.getLeft()).minWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
     }
 
     protected void initializePawns(){
@@ -155,13 +161,13 @@ public class LocalStationController extends AbstractController implements Statio
         if(this.nickOwner.equals(this.getLocalModel().getNickname())){
             if(super.getLocalModel().getPersonalStation().getPrivateGoalCardInStation() != null) {
                 this.rightVBox.getChildren().add(
-                        new GoalCardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2));
+                        new GoalCardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation(), super.getStage(), (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO));
             }
 
             this.leftVBox.getChildren().clear();
 
-            for(PlayableCard p : this.getLocalModel().getPersonalStation().getCardsInHand()){
-                PlayableCardButton button = new PlayableCardButton(p, super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
+            for(PlayableCard p : List.copyOf(this.getLocalModel().getPersonalStation().getCardsInHand())){
+                PlayableCardButton button = new PlayableCardButton(p, super.getStage(), (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO);
 
                 button.setOnMouseClicked(button.getDefaultMouseClickedHandler());
 
@@ -173,33 +179,39 @@ public class LocalStationController extends AbstractController implements Statio
         else{
             this.leftVBox.getChildren().clear();
 
-            for(var v : ((OtherStation) this.getLocalModel().getStations().get(this.nickOwner)).getBackCardHand()){
+            for(var v : List.copyOf(((OtherStation) this.getLocalModel().getStations().get(this.nickOwner)).getBackCardHand())){
                 this.leftVBox.getChildren().add(factoryUnswappableCard(v.x(), v.y()));
             }
         }
     }
 
-    private void checkIStackPaneContainsImage(Node node){
-        PlayableCardButton button = (PlayableCardButton) node;
+    private void checkIStackPaneContainsImage(MouseEvent mouse){
+        Point2D mousePosition = new Point2D(mouse.getSceneX(), mouse.getSceneY());
 
-        Point2D upperLeftCornerCard = new Point2D(node.localToScene(node.getBoundsInLocal()).getMinX(),
-                                              node.localToScene(node.getBoundsInLocal()).getMinY());
         Point2D upperLeftCornerStack = new Point2D(this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMinX(),
-                                                   this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMinX());
+                                                   this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMinY());
+        Point2D lowerRightCornerStack = new Point2D(this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMaxX(),
+                                                    this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMaxY());
 
-        //System.out.println(upperLeftCorner.getX() + "  " + upperLeftCorner.getY());
-        if(upperLeftCornerStack.getX() + button.getSide().fitWidthProperty().get() < upperLeftCornerCard.getX()){
-            button.getSide().fitWidthProperty().bind(super.getStage().widthProperty()
-                                                                     .divide(12.8)
+        System.out.println((mousePosition.getX() < lowerRightCornerStack.getX() && mousePosition.getX() > upperLeftCornerStack.getX()));
+        System.out.println(mousePosition.getY() < lowerRightCornerStack.getY() && mousePosition.getY() > upperLeftCornerStack.getY());
+
+        if((mousePosition.getX() < lowerRightCornerStack.getX() && mousePosition.getX() > upperLeftCornerStack.getX()) &&
+                (mousePosition.getY() < lowerRightCornerStack.getY() && mousePosition.getY() > upperLeftCornerStack.getY())){
+            this.draggedCard.getSide().fitWidthProperty().unbind();
+            this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty()
+                                                                     .divide(GUISettings.WIDTH_RATIO)
                                                                      .multiply(scale));
         }
         else{
-            button.getSide().fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
+            this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO));
         }
     }
 
     private void makeCardDraggable(Node node){
         node.setOnMousePressed(e -> {
+            //if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
+
             //always center card with respect to mouse
             node.setTranslateX(node.getTranslateX() + e.getSceneX() - node.localToScene(0,0).getX() - node.getBoundsInLocal().getWidth()/2);
             node.setTranslateY(node.getTranslateY() + e.getSceneY() - node.localToScene(0,0).getY() - node.getBoundsInLocal().getHeight()/2);
@@ -208,13 +220,19 @@ public class LocalStationController extends AbstractController implements Statio
         });
 
         node.setOnMouseDragged(e -> {
+            //if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
+
             node.setTranslateX(e.getSceneX() - startX);
             node.setTranslateY(e.getSceneY() - startY);
 
-            //checkIStackPaneContainsImage(node);
+            this.draggedCard = (PlayableCardButton) node;
+
+            this.checkIStackPaneContainsImage(e);
         });
 
         node.setOnMouseReleased(e -> {
+            //if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
+
             // Get the scene coordinates where the card is released
             double sceneX = e.getSceneX();
             double sceneY = e.getSceneY();
@@ -275,8 +293,8 @@ public class LocalStationController extends AbstractController implements Statio
     private ImageView factoryUnswappableCard(Symbol symbol, PlayableCardType type){
         ImageView imageView = new ImageView(CardImageLoader.getBackImage(symbol,type));
         imageView.setPreserveRatio(true);
-        imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
-        imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
+        imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO));
+        imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(GUISettings.HEIGHT_RATIO));
         clipCardImage(imageView);
 
         return imageView;
@@ -284,7 +302,29 @@ public class LocalStationController extends AbstractController implements Statio
 
     protected void initializeGameArea(){
         if(!this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().isEmpty()){
+            StackPane.setAlignment(this.center, Pos.TOP_RIGHT);
+            StackPane.setAlignment(this.rescale, Pos.TOP_RIGHT);
+
+            this.center.setVisible(true);
+            this.rescale.setVisible(true);
+
+            this.center.setOnMouseClicked((event) -> {
+                this.translate.setX((-1) * translate.getX() / 2);
+                this.translate.setY((-1) * translate.getY() / 2);
+            });
+
+            this.rescale.setOnMouseClicked(event -> {
+                this.scale = 1.0;
+
+                this.centerPaneScale.setX(1.0);
+                this.centerPaneScale.setY(1.0);
+            });
+
             this.buildCardGrid(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
+        }
+        else{
+            this.center.setVisible(false);
+            this.rescale.setVisible(false);
         }
     }
 
@@ -323,25 +363,23 @@ public class LocalStationController extends AbstractController implements Statio
         DoubleProperty cellWidthProperty = new SimpleDoubleProperty();
         DoubleProperty cellHeightProperty = new SimpleDoubleProperty();
 
-        for(var t : placedCardSequence){
-            ImageView cardImage = CardImageLoader.getImageView(t.x(),t.x().getCardOrientation());
+        for(var t : List.copyOf(placedCardSequence)){
+            ImageView cardImage = new ImageView(CardImageLoader.getImage(t.x(),t.x().getCardOrientation()));
 
             //keep card aspect ratio
             cardImage.setPreserveRatio(true);
 
-            cardImage.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
+            cardImage.fitWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO));
 
             clipCardImage(cardImage);
 
             renderedCards.add(cardImage);
         }
 
-        double CORNER_PIXEL_WIDTH = 184.0;
         cellWidthProperty.bind(renderedCards.getFirst()
                                            .fitWidthProperty()
                                            .multiply(1 - CORNER_PIXEL_WIDTH / CARD_PIXEL_WIDTH));
 
-        double CORNER_PIXEL_HEIGHT = 227.0;
         cellHeightProperty.bind(renderedCards.getFirst()
                                             .fitWidthProperty()
                                             .multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH)
@@ -424,8 +462,10 @@ public class LocalStationController extends AbstractController implements Statio
     }
 
     private void makeCenterPaneScrollable(){
-        this.centerPane.setOnScroll(event -> {
+        final double MAX_SCALE = 2;
+        final double MIN_SCALE = 0.25;
 
+        this.centerPane.setOnScroll(event -> {
             double factor;
 
             if(!this.cardGrid.getTransforms().contains(centerPaneScale)) this.cardGrid.getTransforms().add(centerPaneScale);
@@ -433,14 +473,12 @@ public class LocalStationController extends AbstractController implements Statio
             if(event.getDeltaY() != 0) {
                 if (event.getDeltaY() > 0) {
                     factor = delta;
-                    scale = scale * delta;
+                    if(scale * delta < MAX_SCALE) scale = scale * delta;
                 }
                 else {
                     factor = 1 / delta;
-                    scale = scale / delta;
+                    if(scale * factor > MIN_SCALE) scale = scale / delta;
                 }
-
-                System.out.println(scale);
 
                 translate.setX((translate.getX() - (factor - 1) * event.getSceneX()) / 2);
                 translate.setY((translate.getY() - (factor - 1) * event.getSceneY()) / 2);
@@ -448,7 +486,6 @@ public class LocalStationController extends AbstractController implements Statio
                 centerPaneScale.setX(scale);
                 centerPaneScale.setY(scale);
             }
-
         });
     }
 
@@ -480,6 +517,6 @@ public class LocalStationController extends AbstractController implements Statio
     }
 
     @Override
-    public void notifyErrorStation(String... varArgs) { }
+    public void notifyErrorStation(String... varArgs){ }
 
 }

@@ -6,7 +6,7 @@
 
 
 <TabPane fx:id="stations" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-         stylesheets="@../css/LocalStationTabScene.css" tabClosingPolicy="UNAVAILABLE" StackPane.alignment="CENTER"
+         stylesheets="@../css/LocalStationScene.css" tabClosingPolicy="UNAVAILABLE" StackPane.alignment="CENTER"
          VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <StackPane.margin>
       <Insets/>

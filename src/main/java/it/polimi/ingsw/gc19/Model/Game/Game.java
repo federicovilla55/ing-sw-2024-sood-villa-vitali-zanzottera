@@ -591,6 +591,16 @@ public class Game extends Publisher{
 
     public void setFinalRound(boolean finalRound) {
         this.finalRound = finalRound;
+        this.getMessageFactory().sendMessageToAllGamePlayers(
+                new GameConfigurationMessage(
+                        this.gameState,
+                        this.turnState,
+                        this.firstPlayer.getName(),
+                        this.activePlayer.getName(),
+                        this.finalRound,
+                        this.numPlayers
+                )
+        );
     }
 
     public boolean isFinalRound() {

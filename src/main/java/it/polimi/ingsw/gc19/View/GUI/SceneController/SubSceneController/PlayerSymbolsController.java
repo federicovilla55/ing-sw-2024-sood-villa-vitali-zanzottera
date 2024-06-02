@@ -31,7 +31,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.*;
 
-public class PlayerSymbolsController extends AbstractController implements TurnStateListener {
+public class PlayerSymbolsController extends AbstractController implements TurnStateListener, StationListener {
 
     @FXML
     public BorderPane symbolsBorderPane;
@@ -46,6 +46,7 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
     public PlayerSymbolsController(AbstractController controller) {
         super(controller);
 
+        getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
         getClientController().getListenersManager().attachListener(ListenerType.TURN_LISTENER, this);
     }
 
@@ -119,5 +120,20 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
     @Override
     public void notify(String nick, TurnState turnState) {
         Platform.runLater(() -> updatePlayerState(nick));
+    }
+
+    @Override
+    public void notify(PersonalStation localStationPlayer) {
+        Platform.runLater(() -> updatePlayerState(localStationPlayer.getOwnerPlayer()));
+    }
+
+    @Override
+    public void notify(OtherStation otherStation) {
+        Platform.runLater(() -> updatePlayerState(otherStation.getOwnerPlayer()));
+    }
+
+    @Override
+    public void notifyErrorStation(String... varArgs) {
+
     }
 }

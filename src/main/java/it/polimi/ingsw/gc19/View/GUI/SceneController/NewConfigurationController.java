@@ -13,6 +13,7 @@ import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 
 import javafx.scene.control.Button;
+import javafx.scene.layout.StackPane;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,6 +25,7 @@ import javafx.stage.Stage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Objects;
 
 
 public class NewConfigurationController extends AbstractController implements StateListener {
@@ -99,7 +101,7 @@ public class NewConfigurationController extends AbstractController implements St
 
         try {
             this.client = connectionRMI.createClient(super.getClientController());
-        } catch (RemoteException ex) {
+        } catch (RemoteException | RuntimeException ex) {
             System.exit(1);
             return;
         }

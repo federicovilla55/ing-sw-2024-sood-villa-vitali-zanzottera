@@ -1,12 +1,12 @@
 package it.polimi.ingsw.gc19.View.GUI.Utils;
 
+import it.polimi.ingsw.gc19.View.GUI.GUISettings;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
@@ -14,7 +14,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
-import java.util.Objects;
+import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
 
 public class GoalCardButton extends Button{
 
@@ -27,8 +27,8 @@ public class GoalCardButton extends Button{
         super();
 
         this.card = card;
-        this.front = CardImageLoader.getImageView(card, CardOrientation.UP);
-        this.back = CardImageLoader.getImageView(card, CardOrientation.DOWN);
+        this.front = new ImageView(CardImageLoader.getImage(card, CardOrientation.UP));
+        this.back = new ImageView(CardImageLoader.getImage(card, CardOrientation.DOWN));
 
         this.isUp = true;
 
@@ -92,14 +92,10 @@ public class GoalCardButton extends Button{
     }
 
     private void clipCardImage(ImageView cardImage){
-        double CARD_PIXEL_HEIGHT = 558.0;
-        double CARD_PIXEL_WIDTH = 832.0;
-
         Rectangle rectangle = new Rectangle();
         rectangle.widthProperty().bind(cardImage.fitWidthProperty());
         rectangle.heightProperty().bind(cardImage.fitWidthProperty().multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH));
 
-        double CORNER_RADIUS = 27.0;
         rectangle.arcWidthProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
         rectangle.arcHeightProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
 
