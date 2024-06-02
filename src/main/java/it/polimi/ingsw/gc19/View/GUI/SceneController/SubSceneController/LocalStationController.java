@@ -22,8 +22,10 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -43,9 +45,11 @@ public class LocalStationController extends AbstractController implements Statio
     @FXML
     private VBox leftVBox, rightVBox;
     @FXML
-    protected BorderPane borderPane;
+    private BorderPane borderPane;
+    @FXML
+    private Button center, rescale;
 
-    protected String nickOwner;
+    private final String nickOwner;
 
     private Translate translate;
     private Scale centerPaneScale;
@@ -280,7 +284,28 @@ public class LocalStationController extends AbstractController implements Statio
 
     protected void initializeGameArea(){
         if(!this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().isEmpty()){
+            StackPane.setAlignment(this.center, Pos.TOP_RIGHT);
+            StackPane.setAlignment(this.rescale, Pos.TOP_RIGHT);
+
+            this.center.setVisible(true);
+            this.rescale.setVisible(true);
+
+            this.center.setOnMouseClicked((event) -> {
+
+            });
+
+            this.rescale.setOnMouseClicked(event -> {
+                this.scale = 1.0;
+
+                this.centerPaneScale.setX(1.0);
+                this.centerPaneScale.setY(1.0);
+            });
+
             this.buildCardGrid(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
+        }
+        else{
+            this.center.setVisible(false);
+            this.rescale.setVisible(false);
         }
     }
 

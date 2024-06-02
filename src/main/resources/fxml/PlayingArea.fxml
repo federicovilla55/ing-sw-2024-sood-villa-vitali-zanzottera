@@ -25,7 +25,7 @@
                 </VBox>
                 <VBox fx:id="rightVBox" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="25.0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                     <children>
-                        <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" stylesheets="@../css/LocalStationTabScene.css" tabClosingPolicy="UNAVAILABLE" StackPane.alignment="CENTER"
+                        <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" stylesheets="@../css/LocalStationScene.css" tabClosingPolicy="UNAVAILABLE" StackPane.alignment="CENTER"
                                  VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
                             <tabs>
                             </tabs>
