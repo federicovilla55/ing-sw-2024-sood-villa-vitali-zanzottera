@@ -77,17 +77,14 @@ public class AbstractController implements UI , Listener {
 
             ButtonType lobbyButton = new ButtonType("Return to Lobby", ButtonBar.ButtonData.LEFT);
             ButtonType disconnectButton = new ButtonType("Disconnect", ButtonBar.ButtonData.RIGHT);
-            ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
-            closeDialog.getDialogPane().getButtonTypes().addAll(lobbyButton, disconnectButton, cancelButton);
+            closeDialog.getDialogPane().getButtonTypes().addAll(lobbyButton, disconnectButton);
 
             closeDialog.getDialogPane().setContentText("Do you want to close Codex Naturalis?");
 
             Optional<ButtonType> response = closeDialog.showAndWait();
             if (response.isPresent()) {
-                if (response.get() == cancelButton) {
-                    event.consume(); // User cancelled the dialog, so consume the event
-                } else if (response.get().getText().equals("Return to Lobby")) {
+                if (response.get().getText().equals("Return to Lobby")) {
                     this.clientController.logoutFromGame();
                     this.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
                     event.consume(); // Prevent the window from closing
@@ -95,10 +92,9 @@ public class AbstractController implements UI , Listener {
                     this.clientController.disconnect();
                 }
 
-                // Remove the close event handler to ensure it doesn't show the dialog again
                 stage.getScene().getWindow().removeEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
             } else {
-                event.consume(); // User cancelled the dialog, so consume the event
+                event.consume();
             }
         }
     }
