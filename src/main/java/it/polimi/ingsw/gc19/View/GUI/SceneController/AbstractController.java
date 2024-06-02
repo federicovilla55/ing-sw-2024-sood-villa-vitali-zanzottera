@@ -86,8 +86,8 @@ public class AbstractController implements UI , Listener {
                     event.consume();
                 else if (response.getText().equals("Return to Lobby")) {
                     this.clientController.logoutFromGame();
-
                     this.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
+                    event.consume();
                 } else if (response.getText().equals("Disconnect")) {
                     this.clientController.disconnect();
                 }
