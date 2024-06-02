@@ -4,7 +4,6 @@ import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.*;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
-import it.polimi.ingsw.gc19.View.GUI.Utils.CardImageLoader;
 import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
 import it.polimi.ingsw.gc19.View.GUI.Utils.PlayableCardButton;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
@@ -15,8 +14,6 @@ import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -136,7 +133,7 @@ public class SetupController extends AbstractController implements SetupListener
 
         this.infoHBox.getChildren().add(new Label("Current number of players: " + super.getLocalModel().getStations().size()));
 
-        gameStateFactory(super.getLocalModel().gameCanStart());
+        allPlayersConnectedFactory(super.getLocalModel().checkAllPlayersConnected());
 
         this.infoHBox.spacingProperty().bind(((Region) this.infoHBox.getParent()).widthProperty()
                                                                                  .subtract(this.infoHBox.getChildren().stream()
@@ -146,8 +143,8 @@ public class SetupController extends AbstractController implements SetupListener
                                                                                  .divide(20));
     }
 
-    private void gameStateFactory(boolean canStart){
-        String fileName = canStart ? "can_start" : "cannot_start";
+    private void allPlayersConnectedFactory(boolean canStart){
+        String fileName = canStart ? "all_connected" : "one_not_connected";
 
         ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/game state/" + fileName + ".png")).toExternalForm()));
         imageView.setPreserveRatio(true);
@@ -157,10 +154,10 @@ public class SetupController extends AbstractController implements SetupListener
         hBox.setAlignment(Pos.CENTER);
         hBox.setSpacing(25);
 
-        hBox.getChildren().add(new Label("Game can start: "));
+        hBox.getChildren().add(new Label("All players connected: "));
         hBox.getChildren().add(imageView);
 
-        this.infoHBox.getChildren().add(hBox);
+        this.infoHBox.getChildren().addLast(hBox);
     }
 
     private void buildInitialCardHBox(){
@@ -289,7 +286,9 @@ public class SetupController extends AbstractController implements SetupListener
     @Override
     public void notify(ViewState viewState) {
         switch (viewState){
-            case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
+            case ViewState.PICK, ViewState.PLACE, ViewState.OTHER_TURN -> {
+                super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
+            }
             case ViewState.DISCONNECT -> {
                 super.getClientController().getListenersManager().removeListener(this);
                 super.notifyPossibleDisconnection(this.stackPane);
@@ -308,7 +307,6 @@ public class SetupController extends AbstractController implements SetupListener
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.initOwner(super.getStage());
             alert.initOwner(super.getStage().getScene().getWindow());
 
             switch (type) {
@@ -327,6 +325,8 @@ public class SetupController extends AbstractController implements SetupListener
             }
 
             buildInfoHBox();
+
+            alert.showAndWait();
 
             new Timer().schedule(new TimerTask() {
                 @Override

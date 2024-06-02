@@ -20,6 +20,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
 import java.io.File;
@@ -179,7 +181,9 @@ public class PlayingAreaController extends AbstractController implements StateLi
 
             this.infoHBox.getChildren().add(new Label("Current number of players: " + super.getLocalModel().getStations().size()));
 
-            this.infoHBox.getChildren().add(new Label("Current game state: " + super.getClientController().getState().toString()));
+            this.infoHBox.getChildren().add(new Label("Current game state: " + super.getClientController().getState().toString().toLowerCase().replace('_', ' ')));
+
+            allPlayersConnectedFactory(super.getLocalModel().checkAllPlayersConnected());
 
             this.infoHBox.spacingProperty().bind(((Region) this.infoHBox.getParent()).widthProperty()
                                                                                      .subtract(this.infoHBox.getChildren().stream()
@@ -195,8 +199,27 @@ public class PlayingAreaController extends AbstractController implements StateLi
 
             ((Label) infoHBox.getChildren().get(2)).setText("Current number of players: " + super.getLocalModel().getStations().size());
 
-            ((Label) infoHBox.getChildren().get(3)).setText("Current game state: " + super.getClientController().getState().toString());
+            ((Label) infoHBox.getChildren().get(3)).setText("Current game state: " + super.getClientController().getState().toString().toLowerCase().replace('_', ' '));
+
+            allPlayersConnectedFactory(super.getLocalModel().checkAllPlayersConnected());
         }
+    }
+
+    private void allPlayersConnectedFactory(boolean canStart){
+        String fileName = canStart ? "all_connected" : "one_not_connected";
+
+        ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/game state/" + fileName + ".png")).toExternalForm()));
+        imageView.setPreserveRatio(true);
+        imageView.setFitHeight(25);
+
+        HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER);
+        hBox.setSpacing(25);
+
+        hBox.getChildren().add(new Label("All players connected: "));
+        hBox.getChildren().add(imageView);
+
+        this.infoHBox.getChildren().addLast(hBox);
     }
 
     @Override
@@ -240,6 +263,8 @@ public class PlayingAreaController extends AbstractController implements StateLi
             }
 
             buildInfoHBox();
+
+            alert.showAndWait();
 
             new Timer().schedule(new TimerTask() {
                 @Override

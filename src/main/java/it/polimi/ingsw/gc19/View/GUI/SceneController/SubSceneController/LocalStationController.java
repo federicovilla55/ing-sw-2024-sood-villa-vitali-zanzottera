@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Enums.Direction;
+import it.polimi.ingsw.gc19.View.GUI.GUISettings;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
@@ -36,6 +37,8 @@ import javafx.scene.transform.Translate;
 
 import java.util.*;
 
+import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
+
 public class LocalStationController extends AbstractController implements StationListener, SetupListener {
 
     @FXML
@@ -63,9 +66,6 @@ public class LocalStationController extends AbstractController implements Statio
 
     private double scale = 1.0;
     private final double delta = 1.1;
-
-    private final double CARD_PIXEL_WIDTH = 832.0;
-    private final double CARD_PIXEL_HEIGHT = 558.0;
 
     private final ArrayList<ImageView> renderedCards;
 
@@ -120,9 +120,9 @@ public class LocalStationController extends AbstractController implements Statio
             this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
         });
 
-        ((VBox) this.borderPane.getLeft()).prefWidthProperty().bind(super.getStage().widthProperty().divide(12.8).add(30));
-        ((VBox) this.borderPane.getLeft()).maxWidthProperty().bind(super.getStage().widthProperty().divide(12.8).add(30));
-        ((VBox) this.borderPane.getLeft()).minWidthProperty().bind(super.getStage().widthProperty().divide(12.8).add(30));
+        ((VBox) this.borderPane.getLeft()).prefWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
+        ((VBox) this.borderPane.getLeft()).maxWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
+        ((VBox) this.borderPane.getLeft()).minWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
     }
 
     protected void initializePawns(){
@@ -143,13 +143,13 @@ public class LocalStationController extends AbstractController implements Statio
         if(this.nickOwner.equals(this.getLocalModel().getNickname())){
             if(super.getLocalModel().getPersonalStation().getPrivateGoalCardInStation() != null) {
                 this.rightVBox.getChildren().add(
-                        new GoalCardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation(), super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2));
+                        new GoalCardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation(), super.getStage(), (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO));
             }
 
             this.leftVBox.getChildren().clear();
 
             for(PlayableCard p : List.copyOf(this.getLocalModel().getPersonalStation().getCardsInHand())){
-                PlayableCardButton button = new PlayableCardButton(p, super.getStage(), (double) 1 / 12.8, (double) 1 / 7.2);
+                PlayableCardButton button = new PlayableCardButton(p, super.getStage(), (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO);
 
                 button.setOnMouseClicked(button.getDefaultMouseClickedHandler());
 
@@ -182,11 +182,11 @@ public class LocalStationController extends AbstractController implements Statio
                 (mousePosition.getY() < lowerRightCornerStack.getY() && mousePosition.getY() > upperLeftCornerStack.getY())){
             this.draggedCard.getSide().fitWidthProperty().unbind();
             this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty()
-                                                                     .divide(12.8)
+                                                                     .divide(GUISettings.WIDTH_RATIO)
                                                                      .multiply(scale));
         }
         else{
-            this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
+            this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO));
         }
     }
 
@@ -275,8 +275,8 @@ public class LocalStationController extends AbstractController implements Statio
     private ImageView factoryUnswappableCard(Symbol symbol, PlayableCardType type){
         ImageView imageView = new ImageView(CardImageLoader.getBackImage(symbol,type));
         imageView.setPreserveRatio(true);
-        imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
-        imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(7.2));
+        imageView.fitWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO));
+        imageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(GUISettings.HEIGHT_RATIO));
         clipCardImage(imageView);
 
         return imageView;
@@ -291,7 +291,8 @@ public class LocalStationController extends AbstractController implements Statio
             this.rescale.setVisible(true);
 
             this.center.setOnMouseClicked((event) -> {
-
+                this.translate.setX((-1) * translate.getX() / 2);
+                this.translate.setY((-1) * translate.getY() / 2);
             });
 
             this.rescale.setOnMouseClicked(event -> {
@@ -350,19 +351,17 @@ public class LocalStationController extends AbstractController implements Statio
             //keep card aspect ratio
             cardImage.setPreserveRatio(true);
 
-            cardImage.fitWidthProperty().bind(super.getStage().widthProperty().divide(12.8));
+            cardImage.fitWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO));
 
             clipCardImage(cardImage);
 
             renderedCards.add(cardImage);
         }
 
-        double CORNER_PIXEL_WIDTH = 184.0;
         cellWidthProperty.bind(renderedCards.getFirst()
                                            .fitWidthProperty()
                                            .multiply(1 - CORNER_PIXEL_WIDTH / CARD_PIXEL_WIDTH));
 
-        double CORNER_PIXEL_HEIGHT = 227.0;
         cellHeightProperty.bind(renderedCards.getFirst()
                                             .fitWidthProperty()
                                             .multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH)

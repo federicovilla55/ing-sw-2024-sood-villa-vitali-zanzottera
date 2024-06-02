@@ -566,8 +566,8 @@ public class LocalModel {
      * This method checks if game can start
      * @return if game can start
      */
-    public boolean gameCanStart(){
-        return this.getStations().size() == this.numPlayers;
+    public boolean checkAllPlayersConnected(){
+        return !this.playerState.containsValue(State.INACTIVE);
     }
 
     /**
