@@ -1,9 +1,7 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Model.Chat.Message;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.SetupController;
-import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.GUIController;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
@@ -13,23 +11,18 @@ import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
-import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
-import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupListener;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
 import org.controlsfx.control.CheckComboBox;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
-public class ChatController extends AbstractController implements ChatListener, LocalModelListener, StationListener {
+public class ChatController extends GUIController implements ChatListener, LocalModelListener, StationListener {
 
     @FXML
     private ScrollPane scrollText, scrollPaneSend;
@@ -46,7 +39,7 @@ public class ChatController extends AbstractController implements ChatListener, 
     @FXML
     public Button sendButton;
 
-    public ChatController(AbstractController controller){
+    public ChatController(GUIController controller){
         super(controller);
 
         controller.getClientController().getListenersManager().attachListener(ListenerType.CHAT_LISTENER, this);

@@ -13,7 +13,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.Nullable;
@@ -22,13 +21,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-public class AbstractController implements UI , Listener {
+public class GUIController implements UI , Listener{
     private LocalModel localModel;
     private CommandParser commandParser;
     private ClientController clientController;
     private Stage stage;
 
-    protected AbstractController(ClientController controller, CommandParser parser, Stage stage){
+    protected GUIController(ClientController controller, CommandParser parser, Stage stage){
         this.localModel = controller.getLocalModel();
         this.clientController = controller;
         this.commandParser = parser;
@@ -36,7 +35,7 @@ public class AbstractController implements UI , Listener {
         this.clientController.setView(this);
     }
 
-    protected AbstractController(AbstractController controller){
+    protected GUIController(GUIController controller){
         this.localModel = controller.clientController.getLocalModel();
 
         this.clientController = controller.clientController;
@@ -106,7 +105,7 @@ public class AbstractController implements UI , Listener {
 
             this.getClientController().getListenersManager().removeListener(this);
 
-            AbstractController controller = getController(nextScenePath);
+            GUIController controller = getController(nextScenePath);
 
             loader.setLocation(new File(nextScenePath.value()).toURL());
             loader.setController(controller);
@@ -132,14 +131,12 @@ public class AbstractController implements UI , Listener {
                 }
             });
         }
-        catch (IOException ignored) {
-            System.out.println(ignored.getMessage());
-        }
+        catch (IOException ignored) { }
     }
 
     @Nullable
-    private AbstractController getController(SceneStatesEnum nextScenePath) {
-        AbstractController controller;
+    private GUIController getController(SceneStatesEnum nextScenePath) {
+        GUIController controller;
 
         switch (nextScenePath){
             case LOGIN_SCENE -> controller = new LoginController(this);
@@ -177,4 +174,5 @@ public class AbstractController implements UI , Listener {
             }
         });
     }
+
 }

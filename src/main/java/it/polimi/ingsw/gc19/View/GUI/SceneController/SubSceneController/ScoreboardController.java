@@ -1,8 +1,7 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Enums.Color;
-import it.polimi.ingsw.gc19.Enums.Symbol;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.GUIController;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
@@ -15,12 +14,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.*;
 
-public class ScoreboardController extends AbstractController implements StationListener {
+public class ScoreboardController extends GUIController implements StationListener {
     private static final double[][] scoreboardPositions = {
             {313, 2199}, // 0
             {591, 2199}, // 1
@@ -74,7 +72,7 @@ public class ScoreboardController extends AbstractController implements StationL
 
     private double ratio;
 
-    public ScoreboardController(AbstractController controller) {
+    public ScoreboardController(GUIController controller) {
         super(controller);
 
         bluePawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/blue_pawn.png")));

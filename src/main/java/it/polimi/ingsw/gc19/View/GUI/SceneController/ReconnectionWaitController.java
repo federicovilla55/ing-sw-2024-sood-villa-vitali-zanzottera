@@ -13,7 +13,7 @@ import javafx.scene.shape.Circle;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class ReconnectionWaitController extends AbstractController implements StateListener {
+public class ReconnectionWaitController extends GUIController implements StateListener {
 
     @FXML
     private Pane pane;
@@ -25,7 +25,7 @@ public class ReconnectionWaitController extends AbstractController implements St
 
     private Thread thread;
 
-    public ReconnectionWaitController(AbstractController controller) {
+    public ReconnectionWaitController(GUIController controller) {
         super(controller);
 
         this.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);

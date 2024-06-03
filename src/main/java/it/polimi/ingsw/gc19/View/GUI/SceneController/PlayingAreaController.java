@@ -1,16 +1,11 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
-import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.*;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
-import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
-import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelListener;
-import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
-import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TurnStateListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.application.Platform;
@@ -18,7 +13,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -26,10 +20,9 @@ import javafx.scene.layout.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.*;
 
-public class PlayingAreaController extends AbstractController implements StateListener, LocalModelListener {
+public class PlayingAreaController extends GUIController implements StateListener, LocalModelListener {
 
     @FXML
     private TabPane tabPane;
@@ -42,9 +35,9 @@ public class PlayingAreaController extends AbstractController implements StateLi
     @FXML
     private StackPane stackPane;
     private Tab currentTab;
-    private AbstractController chatController, tableController, localStationController;
+    private GUIController chatController, tableController, localStationController;
 
-    public PlayingAreaController(AbstractController controller) {
+    public PlayingAreaController(GUIController controller) {
         super(controller);
 
         getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);

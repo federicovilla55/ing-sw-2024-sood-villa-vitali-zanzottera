@@ -9,20 +9,16 @@ import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameSelectionController extends AbstractController implements StateListener, GameHandlingListener {
+public class GameSelectionController extends GUIController implements StateListener, GameHandlingListener {
 
     @FXML
     private Button joinButton, createButton;
@@ -37,7 +33,7 @@ public class GameSelectionController extends AbstractController implements State
 
     private final Integer[] possibleNumPlayer = {2,3,4};
 
-    protected GameSelectionController(AbstractController controller) {
+    protected GameSelectionController(GUIController controller) {
         super(controller);
 
         super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);

@@ -5,7 +5,7 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.GUI.GUISettings;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.GUIController;
 import it.polimi.ingsw.gc19.View.GUI.Utils.CardImageLoader;
 import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
 import it.polimi.ingsw.gc19.View.GUI.Utils.PlayableCardButton;
@@ -23,7 +23,7 @@ import javafx.scene.shape.Rectangle;
 
 import java.util.List;
 
-public class TableController extends AbstractController implements TableListener {
+public class TableController extends GUIController implements TableListener {
 
     @FXML
     private GridPane gridPane;
@@ -39,7 +39,7 @@ public class TableController extends AbstractController implements TableListener
 
     private final ImageView[] decks;
 
-    public TableController(AbstractController controller){
+    public TableController(GUIController controller){
         super(controller);
 
         this.drawableTableCards = new PlayableCardButton[2][2];

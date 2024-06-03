@@ -12,21 +12,19 @@ import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.fxml.FXML;
 
 import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.Objects;
 
 
-public class NewConfigurationController extends AbstractController implements StateListener {
+public class NewConfigurationController extends GUIController implements StateListener {
 
     private ClientInterface client;
     @FXML
     private Button TCPButton, RMIButton;
 
-    protected NewConfigurationController(AbstractController controller) {
+    protected NewConfigurationController(GUIController controller) {
         super(controller);
 
         super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);

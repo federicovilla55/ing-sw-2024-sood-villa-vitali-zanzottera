@@ -13,7 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
-public class LoginController extends AbstractController implements PlayerCreationListener, StateListener {
+public class LoginController extends GUIController implements PlayerCreationListener, StateListener {
 
     @FXML
     private TextField loginTextField;
@@ -22,7 +22,7 @@ public class LoginController extends AbstractController implements PlayerCreatio
     @FXML
     private StackPane stackPane;
 
-    protected LoginController(AbstractController controller) {
+    protected LoginController(GUIController controller) {
         super(controller);
 
         super.getClientController().getListenersManager().attachListener(ListenerType.PLAYER_CREATION_LISTENER, this);

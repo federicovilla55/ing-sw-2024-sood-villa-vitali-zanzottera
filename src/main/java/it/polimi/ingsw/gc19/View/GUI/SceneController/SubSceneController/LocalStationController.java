@@ -7,7 +7,7 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.GUIController;
 import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
 import it.polimi.ingsw.gc19.View.GUI.Utils.PlayableCardButton;
 import it.polimi.ingsw.gc19.View.GUI.Utils.CardImageLoader;
@@ -31,13 +31,12 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
-import javafx.stage.Screen;
 
 import java.util.*;
 
 import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
 
-public class LocalStationController extends AbstractController implements StationListener, SetupListener {
+public class LocalStationController extends GUIController implements StationListener, SetupListener {
 
     @FXML
     private StackPane centerPane;
@@ -70,7 +69,7 @@ public class LocalStationController extends AbstractController implements Statio
 
     private PlayableCardButton draggedCard = null;
 
-    public LocalStationController(AbstractController controller,String nickOwner) {
+    public LocalStationController(GUIController controller, String nickOwner) {
         super(controller);
 
         bluePawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/blue_pawn.png"))));

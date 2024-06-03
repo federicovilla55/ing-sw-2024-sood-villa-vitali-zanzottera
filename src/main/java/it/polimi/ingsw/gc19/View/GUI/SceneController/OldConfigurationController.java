@@ -18,7 +18,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 
@@ -26,7 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OldConfigurationController extends AbstractController implements StateListener, GameHandlingListener{
+public class OldConfigurationController extends GUIController implements StateListener, GameHandlingListener{
 
     private ArrayList<Configuration> configs;
     @FXML

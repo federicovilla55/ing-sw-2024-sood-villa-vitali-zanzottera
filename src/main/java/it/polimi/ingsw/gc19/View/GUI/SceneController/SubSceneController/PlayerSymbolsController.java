@@ -2,36 +2,26 @@ package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Enums.TurnState;
-import it.polimi.ingsw.gc19.Utils.Tuple;
-import it.polimi.ingsw.gc19.View.ClientController.ClientController;
-import it.polimi.ingsw.gc19.View.ClientController.ViewState;
-import it.polimi.ingsw.gc19.View.Command.CommandParser;
-import it.polimi.ingsw.gc19.View.GUI.SceneController.AbstractController;
+import it.polimi.ingsw.gc19.View.GUI.SceneController.GUIController;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.TurnStateListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import javafx.application.Platform;
-import javafx.beans.binding.DoubleBinding;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.*;
 
-public class PlayerSymbolsController extends AbstractController implements TurnStateListener, StationListener {
+public class PlayerSymbolsController extends GUIController implements TurnStateListener, StationListener {
 
     @FXML
     public BorderPane symbolsBorderPane;
@@ -43,7 +33,7 @@ public class PlayerSymbolsController extends AbstractController implements TurnS
 
     private HashMap<String, GridPane> tableElements;
 
-    public PlayerSymbolsController(AbstractController controller) {
+    public PlayerSymbolsController(GUIController controller) {
         super(controller);
 
         getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);

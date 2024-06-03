@@ -30,7 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class SetupController extends AbstractController implements SetupListener, StateListener, LocalModelListener {
+public class SetupController extends GUIController implements SetupListener, StateListener, LocalModelListener {
 
     @FXML
     private VBox leftVBox, rightVBox, chat;
@@ -42,9 +42,9 @@ public class SetupController extends AbstractController implements SetupListener
     private StackPane stackPane;
     @FXML
     private TabPane tabPane;
-    private AbstractController chatController, tableController, localStationController;
+    private GUIController chatController, tableController, localStationController;
 
-    public SetupController(AbstractController controller) {
+    public SetupController(GUIController controller) {
         super(controller);
 
         getClientController().getListenersManager().attachListener(ListenerType.SETUP_LISTENER, this);
