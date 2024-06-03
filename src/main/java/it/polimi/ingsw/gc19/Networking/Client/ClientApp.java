@@ -45,7 +45,26 @@ public class ClientApp {
                     ClientSettings.RMI_SERVER_IP = ip;
                 }
                 else{
-                    System.out.println("Error: invalid IP! Enter a valid IP':");
+                    System.out.println("Error: invalid IP! Enter a valid IP:");
+                }
+            }
+        }
+
+        System.out.println("Insert server RMI port (" + ClientSettings.SERVER_RMI_PORT + "):");
+
+        valid = false;
+        while(!valid){
+            String port = scanner.nextLine();
+            if(port.isEmpty()){
+                valid = true;
+            }
+            else{
+                valid = IPChecker.checkPort(port);
+                if(valid){
+                    ClientSettings.SERVER_RMI_PORT = Integer.parseInt(port);
+                }
+                else{
+                    System.out.println("Error: invalid port! Enter a valid port:");
                 }
             }
         }
@@ -65,6 +84,25 @@ public class ClientApp {
                 }
                 else{
                     System.out.println("Error: invalid IP! Enter a valid IP:");
+                }
+            }
+        }
+
+        System.out.println("Insert server TCP port (" + ClientSettings.SERVER_TCP_PORT + "):");
+
+        valid = false;
+        while(!valid){
+            String port = scanner.nextLine();
+            if(port.isEmpty()){
+                valid = true;
+            }
+            else{
+                valid = IPChecker.checkPort(port);
+                if(valid){
+                    ClientSettings.SERVER_TCP_PORT = Integer.parseInt(port);
+                }
+                else{
+                    System.out.println("Error: invalid port! Enter a valid port:");
                 }
             }
         }

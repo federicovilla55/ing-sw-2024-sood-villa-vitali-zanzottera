@@ -218,7 +218,7 @@ public class ClientController {
      */
     public synchronized void placeCard(String cardToInsert, String anchor, Direction direction, CardOrientation cardOrientation) {
         if(viewState.getState() != ViewState.PLACE){
-            this.view.notifyGenericError("Cannot place card!");
+            this.view.notifyGenericError("Cannot place card at this moment!");
             return;
         }
 
@@ -320,7 +320,7 @@ public class ClientController {
      */
     public synchronized void chooseColor(Color color) {
         if(viewState.getState() != ViewState.SETUP){
-            this.view.notifyGenericError("You cannot choose a color!");
+            this.view.notifyGenericError("You cannot choose a color at this moment!");
             return;
         }
         if(!localModel.getAvailableColors().contains(color)){
@@ -356,7 +356,7 @@ public class ClientController {
      */
     public synchronized void placeInitialCard(CardOrientation cardOrientation) {
         if(viewState.getState() != ViewState.SETUP) {
-            this.view.notifyGenericError("You cannot place initial card!");
+            this.view.notifyGenericError("You cannot place initial card at this moment!");
             return;
         }
         clientNetwork.placeInitialCard(cardOrientation);
@@ -368,7 +368,7 @@ public class ClientController {
      */
     public synchronized void availableGames() {
         if(viewState.getState() != ViewState.NOT_GAME){
-            this.view.notifyGenericError("You can not choose a game to play!");
+            this.view.notifyGenericError("You can not choose a game to play at this moment!");
             return;
         }
         else{
@@ -383,7 +383,7 @@ public class ClientController {
      */
     public synchronized void joinFirstAvailableGame() {
         if(viewState.getState() != ViewState.NOT_GAME){
-            this.view.notifyGenericError("You can not join a game to play!");
+            this.view.notifyGenericError("You can not join a game to play at this moment!");
             return;
         }
         ((NotGame) this.viewState).stopGameSearch();
@@ -399,7 +399,7 @@ public class ClientController {
      */
     public synchronized void joinGame(String gameName) {
         if(viewState.getState() != ViewState.NOT_GAME){
-            this.view.notifyGenericError("You can not join a game to play!");
+            this.view.notifyGenericError("You can not join a game to play at this moment!");
             return;
         }
         ((NotGame) this.viewState).stopGameSearch();
@@ -416,7 +416,7 @@ public class ClientController {
     public synchronized void createGame(String gameName, int numPlayers) {
         if(viewState.getState() != ViewState.NOT_GAME){
             if (this.view !=null)
-                this.view.notifyGenericError("You can not create a game!");
+                this.view.notifyGenericError("You can not create a game at this moment!");
             return;
         }
         if(numPlayers > 1 && numPlayers < 5){
@@ -507,7 +507,7 @@ public class ClientController {
 
     public void availableColors() {
         if(viewState.getState() != ViewState.SETUP){
-            this.view.notifyGenericError("You can not choose a color when not in setup!");
+            this.view.notifyGenericError("You can not choose a color at this moment!");
             return;
         }
         this.getListenersManager().notifySetupListener(SetupEvent.AVAILABLE_COLOR);

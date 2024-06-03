@@ -506,6 +506,10 @@ public class LocalStationController extends GUIController implements StationList
     }
 
     @Override
-    public void notifyErrorStation(String... varArgs){ }
+    public void notifyErrorStation(String... varArgs){
+        Platform.runLater(() -> {
+
+        });
+    }
 
 }
