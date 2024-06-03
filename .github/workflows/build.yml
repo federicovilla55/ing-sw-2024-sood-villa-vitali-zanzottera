@@ -25,15 +25,15 @@ jobs:
           java-version: '21'
 
       - name: Build ClientApp JAR
-        run: mvn clean package -DskipTests -Pclient
+        run: mvn clean package -DskipTests -Dmaven.test.skip=true -pl :GC19 -am -Dclassifier=client
 
       - name: Build ServerApp JAR
-        run: mvn clean package -DskipTests -Pserver
+        run: mvn clean package -DskipTests -Dmaven.test.skip=true -pl :GC19 -am -Dclassifier=server
 
       - name: Archive the JAR files
         uses: actions/upload-artifact@v3
         with:
           name: client-and-server-jars
           path: |
-            target/client-app.jar
-            target/server-app.jar
+            target/client-app-client.jar
+            target/server-app-server.jar

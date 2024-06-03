@@ -112,6 +112,7 @@
         <executions>
           <execution>
             <id>client-jar</id>
+            <phase>package</phase>
             <goals>
               <goal>jar</goal>
             </goals>
@@ -122,10 +123,12 @@
                 </manifest>
               </archive>
               <finalName>client-app</finalName>
+              <classifier>client</classifier>
             </configuration>
           </execution>
           <execution>
             <id>server-jar</id>
+            <phase>package</phase>
             <goals>
               <goal>jar</goal>
             </goals>
@@ -136,10 +139,12 @@
                 </manifest>
               </archive>
               <finalName>server-app</finalName>
+              <classifier>server</classifier>
             </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
+
 </project>
