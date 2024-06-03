@@ -1,13 +1,15 @@
 .rescale{
-    -fx-background-color: none;
+    -fx-background-color: white;
     -fx-border-style: solid inside;
     -fx-border-color: black;
-    -fx-border-insets: 5;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
 }
 
 .center{
-    -fx-background-color: none;
+    -fx-background-color: white;
     -fx-border-style: solid inside;
     -fx-border-color: black;
-    -fx-border-insets: 5;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
 }

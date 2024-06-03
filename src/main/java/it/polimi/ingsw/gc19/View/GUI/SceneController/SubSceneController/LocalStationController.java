@@ -104,27 +104,21 @@ public class LocalStationController extends AbstractController implements Statio
         this.leftVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
         this.rightVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
 
-        //super.getStage().setHeight(0.4 * super.getStage().getWidth() + 800);
-
         //super.getStage().minHeightProperty().bind(super.getStage().widthProperty().multiply(0.4).add(257));
+
+        this.leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
+        this.leftVBox.maxWidthProperty().bind(this.leftVBox.prefWidthProperty());
+        this.leftVBox.minWidthProperty().bind(this.leftVBox.prefWidthProperty());
 
         this.centerPane.prefHeightProperty().bind(this.borderPane.prefHeightProperty());
         this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().subtract(leftVBox.widthProperty()).subtract(rightVBox.widthProperty()));
         this.centerPane.minHeightProperty().bind(this.centerPane.prefHeightProperty());
         this.centerPane.minWidthProperty().bind(this.centerPane.prefWidthProperty());
-        this.centerPane.prefHeightProperty().addListener((observable, oldValue, newValue) -> {
-            this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
-        });
-        this.centerPane.prefWidthProperty().addListener((observable, oldValue, newValue) -> {
-            this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
-        });
 
-        ((VBox) this.borderPane.getLeft()).prefWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
-        ((VBox) this.borderPane.getLeft()).maxWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
-        ((VBox) this.borderPane.getLeft()).minWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
+        this.leftVBox.maxHeightProperty().bind(super.getStage().widthProperty().divide(HEIGHT_RATIO).add(this.leftVBox.spacingProperty()).multiply(3));
     }
 
-    protected void initializePawns(){
+    private void initializePawns(){
         if(!this.nickOwner.equals(this.getLocalModel().getNickname())){
             this.rightVBox.getChildren().clear();
         }
@@ -138,7 +132,7 @@ public class LocalStationController extends AbstractController implements Statio
         }
     }
 
-    protected void initializeCards(){
+    private void initializeCards(){
         if(this.nickOwner.equals(this.getLocalModel().getNickname())){
             if(super.getLocalModel().getPersonalStation().getPrivateGoalCardInStation() != null) {
                 this.rightVBox.getChildren().add(
@@ -176,13 +170,16 @@ public class LocalStationController extends AbstractController implements Statio
 
         if((mousePosition.getX() < lowerRightCornerStack.getX() && mousePosition.getX() > upperLeftCornerStack.getX()) &&
                 (mousePosition.getY() < lowerRightCornerStack.getY() && mousePosition.getY() > upperLeftCornerStack.getY())){
+
             this.draggedCard.getSide().fitWidthProperty().unbind();
             this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty()
-                                                                     .divide(GUISettings.WIDTH_RATIO)
-                                                                     .multiply(scale));
+                                                                    .divide(GUISettings.WIDTH_RATIO)
+                                                                    .multiply(scale));
         }
         else{
-            this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO));
+            this.draggedCard.getSide().fitWidthProperty().unbind();
+            this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty()
+                                                                               .divide(GUISettings.WIDTH_RATIO));
         }
     }
 
@@ -247,8 +244,8 @@ public class LocalStationController extends AbstractController implements Statio
                         super.notifyGenericError("There is no available anchor card!");
                     }
                     else {
-                        if(getClientController().getState().equals(ViewState.PLACE) && super.getLocalModel().getPersonalStation().cardIsPlaceable(anchor,toPlace,direction)) {
-                            super.getClientController().placeCard(toPlace.getCardCode(),anchor.getCardCode(),direction,toPlace.getCardOrientation());
+                        if(getClientController().getState().equals(ViewState.PLACE) && super.getLocalModel().getPersonalStation().cardIsPlaceable(anchor, toPlace, direction)) {
+                            super.getClientController().placeCard(toPlace.getCardCode(), anchor.getCardCode(), direction,toPlace.getCardOrientation());
                             return;
                         }
                         else {
@@ -258,6 +255,10 @@ public class LocalStationController extends AbstractController implements Statio
 
                 }
             }
+
+            this.draggedCard.getSide().fitWidthProperty().unbind();
+            this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty()
+                                                                               .divide(GUISettings.WIDTH_RATIO));
 
             node.setTranslateX(0);
             node.setTranslateY(0);
@@ -274,7 +275,7 @@ public class LocalStationController extends AbstractController implements Statio
         return imageView;
     }
 
-    protected void initializeGameArea(){
+    private void initializeGameArea(){
         if(!this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().isEmpty()){
             this.buildCardGrid(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
 
@@ -283,6 +284,9 @@ public class LocalStationController extends AbstractController implements Statio
 
             this.center.setVisible(true);
             this.rescale.setVisible(true);
+
+            this.center.toFront();
+            this.rescale.toFront();
 
             this.rescale.setOnMouseClicked(event -> {
                 this.scale = 1.0;
