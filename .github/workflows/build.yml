@@ -1,0 +1,39 @@
+name: Build and Package
+
+on:
+  push:
+    branches:
+      - main
+      - fvilla
+  pull_request:
+    branches:
+      - main
+      - fvilla
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '21'
+
+      - name: Build ClientApp JAR
+        run: mvn clean package -DskipTests -Pclient
+
+      - name: Build ServerApp JAR
+        run: mvn clean package -DskipTests -Pserver
+
+      - name: Archive the JAR files
+        uses: actions/upload-artifact@v3
+        with:
+          name: client-and-server-jars
+          path: |
+            target/client-app.jar
+            target/server-app.jar
