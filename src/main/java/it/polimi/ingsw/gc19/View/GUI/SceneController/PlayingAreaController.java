@@ -160,12 +160,7 @@ public class PlayingAreaController extends AbstractController implements StateLi
                 }
         );
 
-        if(currentTab == null){
-            tabPane.getSelectionModel().select(gameStatsTab);
-        }
-        else {
-            tabPane.getSelectionModel().select(currentTab);
-        }
+        tabPane.getSelectionModel().select(Objects.requireNonNullElse(currentTab, gameStatsTab));
 
         if (!rightVBox.getChildren().contains(tabPane)) {
             rightVBox.getChildren().add(tabPane);

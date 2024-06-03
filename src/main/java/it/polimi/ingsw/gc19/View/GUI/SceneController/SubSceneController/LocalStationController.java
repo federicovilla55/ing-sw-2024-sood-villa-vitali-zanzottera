@@ -21,10 +21,7 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.HPos;
-import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
-import javafx.geometry.VPos;
+import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -34,6 +31,7 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
+import javafx.stage.Screen;
 
 import java.util.*;
 
@@ -62,6 +60,7 @@ public class LocalStationController extends AbstractController implements Statio
     private double startX, startY;
     private double anchorX, anchorY;
     private double translateAnchorX, translateAnchorY;
+
     private int absGridRow, absGridCol;
 
     private double scale = 1.0;
@@ -167,16 +166,13 @@ public class LocalStationController extends AbstractController implements Statio
         }
     }
 
-    private void checkIStackPaneContainsImage(MouseEvent mouse){
+    private void checkStackPaneContainsImage(MouseEvent mouse){
         Point2D mousePosition = new Point2D(mouse.getSceneX(), mouse.getSceneY());
 
         Point2D upperLeftCornerStack = new Point2D(this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMinX(),
                                                    this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMinY());
         Point2D lowerRightCornerStack = new Point2D(this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMaxX(),
                                                     this.centerPane.localToScene(this.centerPane.getBoundsInLocal()).getMaxY());
-
-        System.out.println((mousePosition.getX() < lowerRightCornerStack.getX() && mousePosition.getX() > upperLeftCornerStack.getX()));
-        System.out.println(mousePosition.getY() < lowerRightCornerStack.getY() && mousePosition.getY() > upperLeftCornerStack.getY());
 
         if((mousePosition.getX() < lowerRightCornerStack.getX() && mousePosition.getX() > upperLeftCornerStack.getX()) &&
                 (mousePosition.getY() < lowerRightCornerStack.getY() && mousePosition.getY() > upperLeftCornerStack.getY())){
@@ -209,7 +205,7 @@ public class LocalStationController extends AbstractController implements Statio
 
             this.draggedCard = (PlayableCardButton) node;
 
-            this.checkIStackPaneContainsImage(e);
+            this.checkStackPaneContainsImage(e);
         });
 
         node.setOnMouseReleased(e -> {
@@ -231,7 +227,6 @@ public class LocalStationController extends AbstractController implements Statio
                 PlayableCard toPlace = ((PlayableCardButton) node).getCard();
                 int localModelX = absGridRow + row;
                 int localModelY = absGridCol + column;
-                System.out.println("row: " + localModelX + ", column: " + localModelY);
 
                 //check if a card is already present at given position
                 PlayableCard card = super.getLocalModel().getPersonalStation().getPlacedCardAtPosition(localModelX,localModelY);
@@ -262,9 +257,6 @@ public class LocalStationController extends AbstractController implements Statio
                     }
 
                 }
-            } else {
-                // Handle the case where the drop is outside the gridPane
-                System.out.println("Dropped outside of grid");
             }
 
             node.setTranslateX(0);
@@ -284,16 +276,13 @@ public class LocalStationController extends AbstractController implements Statio
 
     protected void initializeGameArea(){
         if(!this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().isEmpty()){
+            this.buildCardGrid(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
+
             StackPane.setAlignment(this.center, Pos.TOP_RIGHT);
             StackPane.setAlignment(this.rescale, Pos.TOP_RIGHT);
 
             this.center.setVisible(true);
             this.rescale.setVisible(true);
-
-            this.center.setOnMouseClicked((event) -> {
-                this.translate.setX((-1) * translate.getX() / 2);
-                this.translate.setY((-1) * translate.getY() / 2);
-            });
 
             this.rescale.setOnMouseClicked(event -> {
                 this.scale = 1.0;
@@ -302,7 +291,22 @@ public class LocalStationController extends AbstractController implements Statio
                 this.centerPaneScale.setY(1.0);
             });
 
-            this.buildCardGrid(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
+            this.center.setOnMouseClicked(event -> {
+                this.translate.setX(0.0);
+                this.translate.setY(0.0);
+
+                Point2D initialCardCenter = new Point2D(this.renderedCards.getFirst().getBoundsInParent().getCenterX(),
+                                                        this.renderedCards.getFirst().getBoundsInParent().getCenterY());
+
+                Point2D gridPaneUpperLeft = new Point2D(this.cardGrid.getBoundsInParent().getMinX(),
+                                                        this.cardGrid.getBoundsInParent().getMinY());
+
+                double x = this.centerPane.getBoundsInLocal().getCenterX() - (scale * initialCardCenter.getX() + gridPaneUpperLeft.getX());
+                double y = this.centerPane.getBoundsInLocal().getCenterY() - (scale * initialCardCenter.getY() + gridPaneUpperLeft.getY());
+
+                this.translate.setX(x);
+                this.translate.setY(y);
+            });
         }
         else{
             this.center.setVisible(false);
