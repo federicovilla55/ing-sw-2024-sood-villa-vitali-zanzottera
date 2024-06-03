@@ -7,12 +7,14 @@ import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
 
@@ -40,28 +42,15 @@ public class GoalCardButton extends Button{
         super.setPadding(Insets.EMPTY);
         super.setBorder(Border.EMPTY);
 
-        /*super.setOnMouseEntered(event -> {
-            Node source = (Node) event.getSource();
-
-            Tooltip infos = new Tooltip();
-            infos.setText(this.card.getCardDescription());
-
-            infos.show(source, event.getSceneX() + 50, event.getScreenY());
-        });*/
-
         super.setGraphic(this.front);
         super.setStyle("""
                         -fx-focus-color: transparent;
                         -fx-background-color: transparent;
                         """);
+
+        buildTooltip();
     }
 
-    public GoalCardButton(GoalCard card, Region region, double scale) {
-        this(card);
-
-        this.front.fitHeightProperty().bind(region.heightProperty().multiply(scale));
-        this.back.fitHeightProperty().bind(region.heightProperty().multiply(scale));
-    }
 
     public GoalCardButton(GoalCard card, Stage stage, Double scaleX, Double scaleY) {
         this(card);
@@ -75,20 +64,29 @@ public class GoalCardButton extends Button{
             this.front.fitHeightProperty().bind(stage.heightProperty().multiply(scaleY));
             this.back.fitHeightProperty().bind(stage.heightProperty().multiply(scaleY));
         }
+
+        buildTooltip();
     }
 
-    public GoalCardButton(GoalCard card, Region region, Double scaleX, Double scaleY) {
-        this(card);
+    private void buildTooltip(){
+        Tooltip infos = new Tooltip("Card description");
 
-        if(scaleX != null) {
-            this.front.fitWidthProperty().bind(region.widthProperty().multiply(scaleX));
-            this.back.fitWidthProperty().bind(region.widthProperty().multiply(scaleX));
-        }
+        infos.setText(this.card.getCardDescription());
+        infos.setShowDelay(Duration.ZERO);
 
-        if(scaleY != null){
-            this.front.fitHeightProperty().bind(region.heightProperty().multiply(scaleY));
-            this.back.fitHeightProperty().bind(region.heightProperty().multiply(scaleY));
-        }
+        this.setOnMouseEntered(event -> {
+            Tooltip.install(this, infos);
+        });
+
+        this.setOnMouseExited(event ->  {
+            infos.hide();
+            Tooltip.uninstall(this, infos);
+        });
+
+        this.setOnMouseMoved(event -> {
+            infos.setX(event.getScreenX() + 5);
+            infos.setY(event.getScreenY() + 5);
+        });
     }
 
     private void clipCardImage(ImageView cardImage){

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class GUIController implements UI , Listener{
+
     private LocalModel localModel;
     private CommandParser commandParser;
     private ClientController clientController;

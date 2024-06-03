@@ -5,13 +5,16 @@ import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import static it.polimi.ingsw.gc19.View.GUI.GUISettings.CARD_PIXEL_HEIGHT;
 import static it.polimi.ingsw.gc19.View.GUI.GUISettings.CARD_PIXEL_WIDTH;
@@ -40,27 +43,13 @@ public class PlayableCardButton extends Button{
         super.setPadding(Insets.EMPTY);
         super.setBorder(Border.EMPTY);
 
-        /*super.setOnMouseEntered(event -> {
-            Node source = (Node) event.getSource();
-
-            Tooltip infos = new Tooltip();
-            infos.setText(this.card.getCardDescription());
-
-            infos.show(source, event.getSceneX() + 50, event.getScreenY());
-        });*/
-
         super.setGraphic(this.front);
         super.setStyle("""
                         -fx-focus-color: transparent;
                         -fx-background-color: transparent;
                         """);
-    }
 
-    public PlayableCardButton(PlayableCard card, Region region, double scale) {
-        this(card);
-
-        this.front.fitHeightProperty().bind(region.heightProperty().multiply(scale));
-        this.back.fitHeightProperty().bind(region.heightProperty().multiply(scale));
+        buildTooltip();
     }
 
     public PlayableCardButton(PlayableCard card, Stage stage, Double scaleX, Double scaleY) {
@@ -75,20 +64,29 @@ public class PlayableCardButton extends Button{
             this.front.fitHeightProperty().bind(stage.heightProperty().multiply(scaleY));
             this.back.fitHeightProperty().bind(stage.heightProperty().multiply(scaleY));
         }
+
+        buildTooltip();
     }
 
-    public PlayableCardButton(PlayableCard card, Region region, Double scaleX, Double scaleY) {
-        this(card);
+    private void buildTooltip(){
+        Tooltip infos = new Tooltip("Card description");
 
-        if(scaleX != null) {
-            this.front.fitWidthProperty().bind(region.widthProperty().multiply(scaleX));
-            this.back.fitWidthProperty().bind(region.widthProperty().multiply(scaleX));
-        }
+        infos.setText(this.card.getCardDescription());
+        infos.setShowDelay(Duration.ZERO);
 
-        if(scaleY != null){
-            this.front.fitHeightProperty().bind(region.heightProperty().multiply(scaleY));
-            this.back.fitHeightProperty().bind(region.heightProperty().multiply(scaleY));
-        }
+        this.setOnMouseEntered(event -> {
+            Tooltip.install(this, infos);
+        });
+
+        this.setOnMouseExited(event ->  {
+            infos.hide();
+            Tooltip.uninstall(this, infos);
+        });
+
+        this.setOnMouseMoved(event -> {
+            infos.setX(event.getScreenX() + 5);
+            infos.setY(event.getScreenY() + 5);
+        });
     }
 
     private void clipCardImage(ImageView cardImage){

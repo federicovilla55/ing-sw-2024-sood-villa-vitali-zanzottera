@@ -25,12 +25,13 @@ public class CardImageLoader {
     }
 
     public static Image getBackImage(Symbol symbol, PlayableCardType cardType) {
-        if (!loadedImages.containsKey(symbol.toString().concat(cardType.toString()))) {
-            loadedImages.put(symbol.toString().concat(cardType.toString()), new Image(
+        String name = symbol.toString().concat(cardType.toString());
+        if (!loadedImages.containsKey(name)) {
+            loadedImages.put(name, new Image(
                     Objects.requireNonNull(CardImageLoader.class.getResource("/images/back/" + cardType.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg"))
                             .toExternalForm()));
         }
-        return loadedImages.get(symbol.toString().concat(cardType.toString()));
+        return loadedImages.get(name);
     }
 
     public static ImageView getBackImageView() {
