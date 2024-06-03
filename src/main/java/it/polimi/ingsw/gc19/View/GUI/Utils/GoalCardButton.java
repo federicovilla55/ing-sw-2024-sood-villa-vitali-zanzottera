@@ -72,7 +72,10 @@ public class GoalCardButton extends Button{
         Tooltip infos = new Tooltip("Card description");
 
         infos.setText(this.card.getCardDescription());
+
         infos.setShowDelay(Duration.ZERO);
+        infos.setShowDuration(Duration.INDEFINITE);
+        infos.setHideDelay(Duration.INDEFINITE);
 
         this.setOnMouseEntered(event -> {
             Tooltip.install(this, infos);

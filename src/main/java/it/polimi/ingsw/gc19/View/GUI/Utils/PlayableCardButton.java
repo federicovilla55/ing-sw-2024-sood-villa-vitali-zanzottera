@@ -16,8 +16,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import static it.polimi.ingsw.gc19.View.GUI.GUISettings.CARD_PIXEL_HEIGHT;
-import static it.polimi.ingsw.gc19.View.GUI.GUISettings.CARD_PIXEL_WIDTH;
+import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
 
 public class PlayableCardButton extends Button{
 
@@ -72,7 +71,10 @@ public class PlayableCardButton extends Button{
         Tooltip infos = new Tooltip("Card description");
 
         infos.setText(this.card.getCardDescription());
+
         infos.setShowDelay(Duration.ZERO);
+        infos.setShowDuration(Duration.INDEFINITE);
+        infos.setHideDelay(Duration.INDEFINITE);
 
         this.setOnMouseEntered(event -> {
             Tooltip.install(this, infos);
@@ -94,7 +96,6 @@ public class PlayableCardButton extends Button{
         rectangle.widthProperty().bind(cardImage.fitWidthProperty());
         rectangle.heightProperty().bind(cardImage.fitWidthProperty().multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH));
 
-        double CORNER_RADIUS = 27.0;
         rectangle.arcWidthProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
         rectangle.arcHeightProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
 
