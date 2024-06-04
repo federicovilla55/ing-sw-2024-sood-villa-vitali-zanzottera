@@ -215,11 +215,12 @@ public class ClientController {
     /**
      * To place a card given its anchor, the direction and the orientation.
      * place_card(cardToInsert, anchorCard, directionToInsert, cardOrientation)
+     * @return <code>true</code> if and only if card can be placed (locally).
      */
-    public synchronized void placeCard(String cardToInsert, String anchor, Direction direction, CardOrientation cardOrientation) {
+    public synchronized boolean placeCard(String cardToInsert, String anchor, Direction direction, CardOrientation cardOrientation) {
         if(viewState.getState() != ViewState.PLACE){
             this.view.notifyGenericError("Cannot place card at this moment!");
-            return;
+            return false;
         }
 
         PlayableCard cardToPlace = localModel.getPlayableCard(cardToInsert);
@@ -230,13 +231,13 @@ public class ClientController {
         }
         else{
             this.listenersManager.notifyErrorStationListener(cardToInsert, anchor, direction.toString().toLowerCase());
-            return;
+            return false;
         }
 
         //apply card orientation to see correctly if a card is placeable
         if(!localModel.isCardPlaceablePersonalStation(cardToPlace, anchorCard, direction)){
             this.listenersManager.notifyErrorStationListener(cardToInsert, anchor, direction.toString().toLowerCase());
-            return;
+            return false;
         }
 
         cardToPlace.setCardState(CardOrientation.UP);
@@ -245,6 +246,8 @@ public class ClientController {
 
         setNextState(new Wait(this), true);
         prevState = new Place(this);
+
+        return true;
     }
 
     /**

@@ -217,7 +217,5 @@ public abstract class LocalStationPlayer {
      * @param direction, the direction in which we want to place the card.
      * @return a boolean that is true only if the card can be placed in that position.
      */
-    public boolean cardIsPlaceable(PlayableCard cardToPlace, PlayableCard anchor, Direction direction){
-        return true;
-    }
+    public abstract boolean cardIsPlaceable(PlayableCard cardToPlace, PlayableCard anchor, Direction direction);
 }

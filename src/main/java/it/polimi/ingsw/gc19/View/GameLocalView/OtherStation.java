@@ -88,6 +88,18 @@ public class OtherStation extends LocalStationPlayer{
     }
 
     /**
+     * To ask if a card is placeable given. For other stations it returns always false.
+     * @param cardToPlace, the card we want to place.
+     * @param anchor, the anchor card from which we want to place the card.
+     * @param direction, the direction in which we want to place the card.
+     * @return a boolean that is true only if the card can be placed in that position.
+     */
+    @Override
+    public boolean cardIsPlaceable(PlayableCard cardToPlace, PlayableCard anchor, Direction direction) {
+        return false;
+    }
+
+    /**
      * Returns a UnsupportedOperationException because the Client cannot have access to which card
      * another player has chosen as their private Goal card.
      * @param goalCard the wrongly chosen GoalCard from the array of private goal cards.

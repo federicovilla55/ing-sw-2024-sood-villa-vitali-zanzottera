@@ -24,15 +24,19 @@ import javafx.fxml.FXML;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
 
@@ -55,6 +59,8 @@ public class LocalStationController extends GUIController implements StationList
     private Scale centerPaneScale;
 
     private final ImageView bluePawnImageView, redPawnImageView, greenPawnImageView, yellowPawnImageView, blackPawnImageView;
+
+    private Rectangle error;
 
     private double startX, startY;
     private double anchorX, anchorY;
@@ -191,6 +197,10 @@ public class LocalStationController extends GUIController implements StationList
             node.setTranslateY(node.getTranslateY() + e.getSceneY() - node.localToScene(0,0).getY() - node.getBoundsInLocal().getHeight()/2);
             startX = e.getSceneX() - node.getTranslateX();
             startY = e.getSceneY() - node.getTranslateY();
+
+            if(this.error != null){
+                this.error.setVisible(false);
+            }
         });
 
         node.setOnMouseDragged(e -> {
@@ -225,7 +235,7 @@ public class LocalStationController extends GUIController implements StationList
                 int localModelY = absGridCol + column;
 
                 //check if a card is already present at given position
-                PlayableCard card = super.getLocalModel().getPersonalStation().getPlacedCardAtPosition(localModelX,localModelY);
+                PlayableCard card = super.getLocalModel().getPersonalStation().getPlacedCardAtPosition(localModelX, localModelY);
                 if(card != null) {
                     super.notifyGenericError("A card is already present at this position!");
                 }
@@ -243,13 +253,7 @@ public class LocalStationController extends GUIController implements StationList
                         super.notifyGenericError("There is no available anchor card!");
                     }
                     else {
-                        if(getClientController().getState().equals(ViewState.PLACE) && super.getLocalModel().getPersonalStation().cardIsPlaceable(anchor, toPlace, direction)) {
-                            super.getClientController().placeCard(toPlace.getCardCode(), anchor.getCardCode(), direction,toPlace.getCardOrientation());
-                            return;
-                        }
-                        else {
-                            super.notifyGenericError("This card is not placeable here!");
-                        }
+                        if(super.getClientController().placeCard(toPlace.getCardCode(), anchor.getCardCode(), direction, toPlace.getCardOrientation())) return;
                     }
 
                 }
@@ -506,36 +510,32 @@ public class LocalStationController extends GUIController implements StationList
 
     @Override
     public void notifyErrorStation(String... varArgs){
-        System.out.println("qqqqqqqqqqqqqqq");
         Direction direction;
 
         try {
-            direction = Direction.valueOf(varArgs[2]);
+            direction = Direction.valueOf(varArgs[2].toUpperCase());
         }
         catch (IllegalArgumentException illegalArgumentException){
             return;
         }
 
         Tuple<Integer, Integer> coords = super.getLocalModel().getPersonalStation().getCoord(varArgs[1]);
-        int rowIndex = coords.x() + direction.getX() - super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().x()).min().orElse(0) - 1;
-        int columnIndex = coords.y() + direction.getY() - super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().y()).min().orElse(0) - 1;
+        int rowIndex = coords.x() + direction.getX() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().x()).min().orElse(0) - 1);
+        int columnIndex = coords.y() + direction.getY() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().y()).min().orElse(0) - 1);
 
         Platform.runLater(() -> {
-            Rectangle error = new Rectangle();
+            error = new Rectangle();
 
             error.widthProperty().bind(super.getStage().widthProperty().divide(WIDTH_RATIO).multiply(scale));
-            error.heightProperty().bind(super.getStage().widthProperty().divide(HEIGHT_RATIO).multiply(scale));
+            error.heightProperty().bind(error.widthProperty().multiply(CARD_PIXEL_HEIGHT).divide(CARD_PIXEL_WIDTH));
 
             error.arcWidthProperty().bind(error.widthProperty().multiply(2 * CORNER_RADIUS/ CARD_PIXEL_WIDTH));
             error.arcHeightProperty().bind(error.heightProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
 
-            error.setStyle("""
-                                -fx-fill: transparent;
-                                -fx-stroke: linear-gradient(to right, red, transparent);
-                                -fx-stroke-width: 5px;
-                           """);
+            error.setEffect(new DropShadow(20, 5, 5, Color.RED));
+            error.setFill(Color.TRANSPARENT);
 
-            this.cardGrid.getChildren().add(this.cardGrid.getRowCount() * rowIndex + columnIndex, error);
+            this.cardGrid.add(error, columnIndex, rowIndex);
         });
     }
 
