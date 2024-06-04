@@ -69,11 +69,11 @@ public class GoalCardButton extends Button{
     }
 
     private void buildTooltip(){
-        Tooltip infos = new Tooltip("Card description");
+        Tooltip infos = new Tooltip("Goal card ard description");
 
         infos.setText(this.card.getCardDescription());
 
-        infos.setShowDelay(Duration.ZERO);
+        infos.setShowDelay(Duration.seconds(1));
         infos.setShowDuration(Duration.INDEFINITE);
         infos.setHideDelay(Duration.INDEFINITE);
 

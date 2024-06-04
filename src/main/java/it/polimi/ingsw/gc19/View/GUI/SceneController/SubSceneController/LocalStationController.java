@@ -415,8 +415,7 @@ public class LocalStationController extends GUIController implements StationList
         rectangle.widthProperty().bind(cardImage.fitWidthProperty());
         rectangle.heightProperty().bind(cardImage.fitWidthProperty().multiply(CARD_PIXEL_HEIGHT / CARD_PIXEL_WIDTH));
 
-        double CORNER_RADIUS = 27.0;
-        rectangle.arcWidthProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
+        rectangle.arcWidthProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS/ CARD_PIXEL_WIDTH));
         rectangle.arcHeightProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
 
         cardImage.setClip(rectangle);
@@ -507,8 +506,36 @@ public class LocalStationController extends GUIController implements StationList
 
     @Override
     public void notifyErrorStation(String... varArgs){
-        Platform.runLater(() -> {
+        System.out.println("qqqqqqqqqqqqqqq");
+        Direction direction;
 
+        try {
+            direction = Direction.valueOf(varArgs[2]);
+        }
+        catch (IllegalArgumentException illegalArgumentException){
+            return;
+        }
+
+        Tuple<Integer, Integer> coords = super.getLocalModel().getPersonalStation().getCoord(varArgs[1]);
+        int rowIndex = coords.x() + direction.getX() - super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().x()).min().orElse(0) - 1;
+        int columnIndex = coords.y() + direction.getY() - super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().y()).min().orElse(0) - 1;
+
+        Platform.runLater(() -> {
+            Rectangle error = new Rectangle();
+
+            error.widthProperty().bind(super.getStage().widthProperty().divide(WIDTH_RATIO).multiply(scale));
+            error.heightProperty().bind(super.getStage().widthProperty().divide(HEIGHT_RATIO).multiply(scale));
+
+            error.arcWidthProperty().bind(error.widthProperty().multiply(2 * CORNER_RADIUS/ CARD_PIXEL_WIDTH));
+            error.arcHeightProperty().bind(error.heightProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
+
+            error.setStyle("""
+                                -fx-fill: transparent;
+                                -fx-stroke: linear-gradient(to right, red, transparent);
+                                -fx-stroke-width: 5px;
+                           """);
+
+            this.cardGrid.getChildren().add(this.cardGrid.getRowCount() * rowIndex + columnIndex, error);
         });
     }
 
