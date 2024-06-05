@@ -24,12 +24,10 @@ import javafx.fxml.FXML;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
@@ -37,8 +35,6 @@ import javafx.scene.transform.Translate;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
 
@@ -111,12 +107,7 @@ public class LocalStationController extends GUIController implements StationList
         this.leftVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
         this.rightVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
 
-        Image backgroundImage = null;
-        try {
-            backgroundImage = new Image(new FileInputStream("src/main/resources/images/background_light.png"));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        Image backgroundImage = new Image(Objects.requireNonNull(this.getClass().getResourceAsStream("/images/background_light.png")));
         BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
         BackgroundImage background = new BackgroundImage(
                 backgroundImage,

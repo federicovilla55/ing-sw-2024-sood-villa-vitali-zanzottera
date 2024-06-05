@@ -41,10 +41,9 @@ public class GUIController implements UI , Listener{
     private ClientController clientController;
     private Stage stage;
 
-    protected GUIController(ClientController controller, CommandParser parser, Stage stage){
     private boolean isCloseEventHandlerAdded = false;
 
-    protected AbstractController(ClientController controller, CommandParser parser, Stage stage){
+    protected GUIController(ClientController controller, CommandParser parser, Stage stage){
         this.localModel = controller.getLocalModel();
         this.clientController = controller;
         this.commandParser = parser;
@@ -166,7 +165,7 @@ public class GUIController implements UI , Listener{
 
             this.getClientController().getListenersManager().removeListener(this);
 
-            AbstractController controller = getController(nextScenePath);
+            GUIController controller = getController(nextScenePath);
 
             loader.setLocation(new File(nextScenePath.value()).toURL());
             loader.setController(controller);

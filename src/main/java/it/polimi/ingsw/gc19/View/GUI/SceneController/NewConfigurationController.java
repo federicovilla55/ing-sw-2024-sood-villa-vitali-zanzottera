@@ -50,7 +50,7 @@ public class NewConfigurationController extends GUIController implements StateLi
     @FXML
     private HBox buttonsHBox;
 
-    protected NewConfigurationController(AbstractController controller) {
+    protected NewConfigurationController(GUIController controller) {
         super(controller);
 
         super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
