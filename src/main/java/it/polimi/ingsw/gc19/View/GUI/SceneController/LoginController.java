@@ -81,7 +81,7 @@ public class LoginController extends GUIController implements PlayerCreationList
     }
 
     private void loadLogo() {
-        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("resources/images/logo.png")));
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("images/logo.png")));
         logoImageView.setImage(logoImage);
         logoImageView.setPreserveRatio(true);
     }

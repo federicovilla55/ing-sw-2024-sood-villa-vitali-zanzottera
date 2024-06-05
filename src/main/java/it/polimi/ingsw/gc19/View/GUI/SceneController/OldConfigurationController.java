@@ -116,7 +116,7 @@ public class OldConfigurationController extends GUIController implements StateLi
     }
 
     private void loadLogo() {
-        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("src/main/resources/images/logo.png")));
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("images/logo.png")));
         logoImageView.setImage(logoImage);
         logoImageView.setPreserveRatio(true);
     }

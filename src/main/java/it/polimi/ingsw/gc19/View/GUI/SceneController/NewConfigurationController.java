@@ -92,7 +92,7 @@ public class NewConfigurationController extends GUIController implements StateLi
     }
 
     private void loadLogo() {
-        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo.png")));
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("images/logo.png")));
         logoImageView.setImage(logoImage);
         logoImageView.setPreserveRatio(true);
     }

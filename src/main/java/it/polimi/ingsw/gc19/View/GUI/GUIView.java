@@ -31,7 +31,7 @@ public class GUIView extends Application {
         CommandParser commandParser = new CommandParser(new ClientController());
         ClientController clientController = commandParser.getClientController();
 
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo.png"))));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("images/logo.png"))));
 
         try {
             configs = ConfigurationManager.retrieveConfiguration();
@@ -48,7 +48,6 @@ public class GUIView extends Application {
         }
         catch (RuntimeException e) {
             FXMLLoader loader = new FXMLLoader();
-            //loader.setControllerFactory((c) -> new NewConfigurationController(clientController, commandParser, stage));
 
             loader.setLocation(new File(SceneStatesEnum.NEW_CONFIGURATION_SCENE.value()).toURL());
             loader.setController(new NewConfigurationController(clientController, commandParser, stage));
@@ -56,12 +55,8 @@ public class GUIView extends Application {
             root = loader.load();
         }
 
-        Image backgroundImage = null;
-        try {
-            backgroundImage = new Image(new FileInputStream("src/main/resources/images/background_light.png"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Image backgroundImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("images/background_light.png")));
+
         BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
         BackgroundImage background = new BackgroundImage(
                 backgroundImage,
