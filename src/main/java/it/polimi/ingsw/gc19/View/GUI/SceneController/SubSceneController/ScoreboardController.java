@@ -84,7 +84,7 @@ public class ScoreboardController extends GUIController implements StationListen
     }
 
     public void initialize(){
-        scoreboardImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("it/polimi/ingsw/gc19/score_table.jpg")));
+        scoreboardImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/score_table.jpg")));
         if (scoreboardImage.isError()) {
             System.err.println("Error while loading scoreboard");
             return;

@@ -14,39 +14,34 @@
     <junit.version>5.10.0</junit.version>  </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-controls</artifactId>
-      <version>21</version>
-    </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
-      <artifactId>javafx-graphics</artifactId>
+      <artifactId>javafx-controls</artifactId>
       <version>21</version>
       <classifier>win</classifier>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
-      <artifactId>javafx-graphics</artifactId>
+      <artifactId>javafx-controls</artifactId>
       <version>21</version>
       <classifier>linux</classifier>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
-      <artifactId>javafx-graphics</artifactId>
+      <artifactId>javafx-controls</artifactId>
       <version>21</version>
       <classifier>linux-aarch64</classifier>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
-      <artifactId>javafx-graphics</artifactId>
+      <artifactId>javafx-controls</artifactId>
       <version>21</version>
       <classifier>mac</classifier>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
-      <artifactId>javafx-graphics</artifactId>
+      <artifactId>javafx-controls</artifactId>
       <version>21</version>
       <classifier>mac-aarch64</classifier>
     </dependency>
@@ -55,7 +50,94 @@
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
       <version>21</version>
+      <classifier>win</classifier>
     </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>21</version>
+      <classifier>linux</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>21</version>
+      <classifier>linux-aarch64</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>21</version>
+      <classifier>mac</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>21</version>
+      <classifier>mac-aarch64</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>21</version>
+      <classifier>win</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>21</version>
+      <classifier>linux</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>21</version>
+      <classifier>linux-aarch64</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>21</version>
+      <classifier>mac</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>21</version>
+      <classifier>mac-aarch64</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>21</version>
+      <classifier>win</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>21</version>
+      <classifier>linux</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>21</version>
+      <classifier>linux-aarch64</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>21</version>
+      <classifier>mac</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>21</version>
+      <classifier>mac-aarch64</classifier>
+    </dependency>
+
     <dependency>
       <groupId>org.controlsfx</groupId>
       <artifactId>controlsfx</artifactId>
