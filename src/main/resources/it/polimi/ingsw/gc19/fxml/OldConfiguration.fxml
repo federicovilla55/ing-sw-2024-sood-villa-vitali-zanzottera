@@ -23,7 +23,7 @@
          
                <Label fx:id="titleLabel" alignment="CENTER" text="Configuration Found" />
          
-                  <TableView fx:id="confTable" maxHeight="750.0" maxWidth="1000.0" stylesheets="@../css/OldConfigurationScene.css">
+                  <TableView fx:id="confTable" maxHeight="750.0" maxWidth="1000.0" stylesheets="@../css/OldConfigurationScene.css" VBox.vgrow="NEVER">
                    <columns>
                        <TableColumn fx:id="nicknameCol" text="Nickname" />
                        <TableColumn fx:id="timeCol" text="Time Stamp" />
