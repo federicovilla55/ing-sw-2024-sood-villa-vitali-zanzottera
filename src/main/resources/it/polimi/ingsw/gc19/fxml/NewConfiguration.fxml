@@ -7,14 +7,13 @@
 
 <BorderPane fx:id="borderPane" stylesheets="@../css/NewConfigurationScene.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <VBox fx:id="contentVBox" alignment="CENTER" spacing="25.0" stylesheets="@../css/NewConfigurationScene.css" BorderPane.alignment="CENTER">
+      <VBox fx:id="contentVBox" alignment="CENTER" scaleShape="false" VBox.vgrow="NEVER" spacing="10.0" stylesheets="@../css/NewConfigurationScene.css" BorderPane.alignment="CENTER">
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </padding>
          <children>
-            <ImageView fx:id="logoImageView" fitHeight="80.0" preserveRatio="true" />
-            <Label fx:id="titleLabel" alignment="CENTER" text="Choose connection Type" />
-            <HBox fx:id="buttonsHBox" alignment="CENTER" spacing="20.0">
+            <Label fx:id="titleLabel" alignment="CENTER" text="Choose connection Type" VBox.vgrow="NEVER" />
+            <HBox fx:id="buttonsHBox" alignment="CENTER" spacing="25.0" VBox.vgrow="NEVER">
                <children>
                   <Button fx:id="TCPButton" mnemonicParsing="false" styleClass="TCPButton" stylesheets="@../css/NewConfigurationScene.css" text="TCP" textAlignment="CENTER" />
                   <Button fx:id="RMIButton" mnemonicParsing="false" styleClass="TCPButton" stylesheets="@../css/NewConfigurationScene.css" text="RMI" textAlignment="CENTER" />
@@ -23,4 +22,14 @@
          </children>
       </VBox>
    </center>
+   <top>
+      <ImageView fx:id="logoImageView" fitHeight="80.0" preserveRatio="true" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets left="15.0" right="15.0" top="15.0" />
+         </BorderPane.margin>
+      </ImageView>
+   </top>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
 </BorderPane>

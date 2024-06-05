@@ -46,8 +46,6 @@ public class LoginController extends GUIController implements PlayerCreationList
     }
 
     public void initialize(){
-        super.getStage().setMaximized(false);
-
         loginButton.setOnAction((event) -> {
             String username = loginTextField.getText();
             super.getCommandParser().createPlayer(username);
@@ -60,6 +58,7 @@ public class LoginController extends GUIController implements PlayerCreationList
         super.setBackground(borderPane, false);
 
         super.getStage().sizeToScene();
+        super.getStage().setMaximized(false);
         super.getStage().setResizable(false);
     }
 

@@ -63,9 +63,7 @@ public class NewConfigurationController extends GUIController implements StateLi
 
         TCPButton.setOnMouseClicked((event) -> TCPPress());
         RMIButton.setOnMouseClicked((event) -> RMIPress());
-        contentVBox.spacingProperty().bind(super.getStage().heightProperty().divide(7));
-        logoImageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(4));
-        buttonsHBox.spacingProperty().bind(super.getStage().widthProperty().divide(8));
+        logoImageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(3));
 
         loadLogo();
 
