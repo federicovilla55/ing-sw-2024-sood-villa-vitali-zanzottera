@@ -2,13 +2,8 @@ name: Create JARs
 
 on:
   push:
-    branches:
-      - main
-      - fvilla
-  pull_request:
-    branches:
-      - main
-      - fvilla
+    tags:
+      - 'v[0-9]+\.[0-9]+\.[0-9]+'
 
 permissions:
   id-token: write
@@ -47,8 +42,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v1.0.0
-          release_name: Release v1.0.0
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
 
