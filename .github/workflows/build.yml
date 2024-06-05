@@ -16,24 +16,21 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
+          distribution: 'oracle'
           java-version: '21'
 
-      - name: Build ClientApp JAR
-        run: mvn clean package -DskipTests -Dmaven.test.skip=true -pl :GC19 -am -Dclassifier=client
-
-      - name: Build ServerApp JAR
-        run: mvn clean package -DskipTests -Dmaven.test.skip=true -pl :GC19 -am -Dclassifier=server
+      - name: Build ClientApp and ServerApp JAR
+        run: mvn clean compile install -D"maven.test.skip"="true"
 
       - name: Archive the JAR files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: client-and-server-jars
           path: |
-            target/client-app-client.jar
-            target/server-app-server.jar
+            target/GC19-client.jar
+            target/GC19-server.jar
