@@ -1,12 +1,11 @@
-.vbox-border {
+.loginButton{
+    -fx-background-color:transparent;
+    -fx-border-style: solid inside;
     -fx-border-color: black;
-    -fx-border-width: 0.5;
-}
-.bold-label {
-    -fx-font-weight: bold;
+    -fx-border-insets: 5;
 }
 
-.button{
+.loginTextField{
     -fx-background-color:transparent;
     -fx-border-style: solid inside;
     -fx-border-color: black;

@@ -49,8 +49,6 @@ public class PlayingAreaController extends GUIController implements StateListene
 
     @FXML
     public void initialize(){
-        super.getStage().setMaximized(true);
-
         buildInfoHBox();
 
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
@@ -111,6 +109,9 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         setBackgrounds();
         paneFireworks = new PaneFireworks(stackPane, super.getStage(), super.getLocalModel());
+
+        super.getStage().setMaximized(true);
+        super.getStage().setResizable(true);
     }
 
     private void buildTabPane() {

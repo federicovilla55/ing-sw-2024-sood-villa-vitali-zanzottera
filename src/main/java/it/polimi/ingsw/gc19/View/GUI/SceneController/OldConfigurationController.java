@@ -76,7 +76,8 @@ public class OldConfigurationController extends GUIController implements StateLi
 
     @FXML
     public void initialize() {
-        contentVBox.spacingProperty().bind(super.getStage().heightProperty().divide(9));
+        super.getStage().sizeToScene();
+
         logoImageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(4));
         buttonsHBox.spacingProperty().bind(super.getStage().widthProperty().divide(8));
 
@@ -86,37 +87,13 @@ public class OldConfigurationController extends GUIController implements StateLi
 
         loadLogo();
 
-        super.getStage().sizeToScene();
-        super.getStage().setResizable(false);
-
-        /*double fontSizeFactor = 0.03;
-        titleLabel.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() * fontSizeFactor),
-                super.getStage().heightProperty()
-        ));
-
-        double dividButtonsSize = 55;
-        newConfButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / dividButtonsSize),
-                super.getStage().heightProperty()
-        ));
-        reconnectButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / dividButtonsSize),
-                super.getStage().heightProperty()
-        ));
-        deleteConf.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / dividButtonsSize),
-                super.getStage().heightProperty()
-        ));
-        deleteAllConf.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / dividButtonsSize),
-                super.getStage().heightProperty()
-        ));*/
-
         newConfButton.setOnAction(this::onNewConfigurationPressed);
         reconnectButton.setOnAction(this::onReconnectPress);
         deleteConf.setOnAction(this::onDeleteConf);
         deleteAllConf.setOnAction(this::onDeleteAll);
+
+        super.getStage().sizeToScene();
+        super.getStage().setResizable(false);
     }
 
     private void loadLogo() {
@@ -174,7 +151,6 @@ public class OldConfigurationController extends GUIController implements StateLi
 
     @Override
     public void notify(ViewState viewState) {
-        super.getStage().setResizable(true);
         switch (viewState){
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);

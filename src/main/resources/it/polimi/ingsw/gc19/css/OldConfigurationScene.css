@@ -1,0 +1,29 @@
+.reconnectButton{
+    -fx-background-color:transparent;
+    -fx-border-style: solid inside;
+    -fx-border-color: black;
+    -fx-border-insets: 5;
+}
+
+.deleteConf{
+    -fx-background-color:transparent;
+    -fx-border-style: solid inside;
+    -fx-border-color: black;
+    -fx-border-insets: 5;
+}
+
+.deleteAllConf{
+    -fx-background-color:transparent;
+    -fx-border-style: solid inside;
+    -fx-border-color: black;
+    -fx-border-insets: 5;
+}
+
+.newConfButton{
+    -fx-background-color:transparent;
+    -fx-border-style: solid inside;
+    -fx-border-color: black;
+    -fx-border-insets: 5;
+}
+
+

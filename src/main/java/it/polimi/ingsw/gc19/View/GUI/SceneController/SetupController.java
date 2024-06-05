@@ -53,8 +53,6 @@ public class SetupController extends GUIController implements SetupListener, Sta
     }
 
     public void initialize(){
-        super.getStage().setMaximized(true);
-
         super.getStage().setMinWidth(1280.0);
         super.getStage().setMinHeight(820.0);
 
@@ -122,6 +120,9 @@ public class SetupController extends GUIController implements SetupListener, Sta
         }
 
         setBackgrounds();
+
+        super.getStage().setMaximized(true);
+        super.getStage().setResizable(true);
     }
 
     private void buildInfoHBox(){

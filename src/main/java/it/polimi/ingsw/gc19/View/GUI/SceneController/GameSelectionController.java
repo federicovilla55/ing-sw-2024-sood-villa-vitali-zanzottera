@@ -92,35 +92,6 @@ public class GameSelectionController extends GUIController implements StateListe
         leftVBox.prefWidthProperty().bind(createAndJoin.widthProperty().subtract(createAndJoin.getSpacing()).divide(2));
         rightVBox.prefWidthProperty().bind(createAndJoin.widthProperty().subtract(createAndJoin.getSpacing()).divide(2));
 
-        createGameLabel.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / 30),
-                super.getStage().heightProperty()
-        ));
-        joinGameLabel.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / 30),
-                super.getStage().heightProperty()
-        ));
-        joinButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / 50),
-                super.getStage().heightProperty()
-        ));
-        createButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / 50),
-                super.getStage().heightProperty()
-        ));
-        gameNameLabel.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / 50),
-                super.getStage().heightProperty()
-        ));
-        numberOfPlayers.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / 50),
-                super.getStage().heightProperty()
-        ));
-        availableGamesText.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / 50),
-                super.getStage().heightProperty()
-        ));
-
         availableGamesList.setCellFactory(list -> {
             ListCell<String> cell = new ListCell<>();
             cell.textProperty().bind(cell.itemProperty());
@@ -132,6 +103,9 @@ public class GameSelectionController extends GUIController implements StateListe
         });
 
         super.setBackground(stackPane, false);
+
+        super.getStage().sizeToScene();
+        super.getStage().setResizable(false);
     }
 
     private void loadLogo() {

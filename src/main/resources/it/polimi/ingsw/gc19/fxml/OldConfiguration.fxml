@@ -5,38 +5,42 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane fx:id="borderPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <top>
         <VBox fx:id="contentVBox" alignment="CENTER" BorderPane.alignment="CENTER">
             <ImageView fx:id="logoImageView" fitHeight="80.0" preserveRatio="true" />
-      
-            <Label fx:id="titleLabel" alignment="CENTER" text="Configuration Found" />
          <padding>
             <Insets bottom="25.0" />
          </padding>
         </VBox>
    </top>
    <center>
-   
-            <TableView fx:id="confTable" maxHeight="750.0" maxWidth="1000.0" BorderPane.alignment="CENTER">
-             <columns>
-                 <TableColumn fx:id="nicknameCol" text="Nickname" />
-                 <TableColumn fx:id="timeCol" text="Time Stamp" />
-                 <TableColumn fx:id="conTypeCol" text="Type" />
-             </columns>
+      <VBox alignment="CENTER" spacing="25.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
-            <Insets bottom="25.0" top="25.0" />
+            <Insets bottom="25.0" top="50.0" />
          </BorderPane.margin>
-         </TableView>
+         <children>
+         
+               <Label fx:id="titleLabel" alignment="CENTER" text="Configuration Found" />
+         
+                  <TableView fx:id="confTable" maxHeight="750.0" maxWidth="1000.0" stylesheets="@../css/OldConfigurationScene.css">
+                   <columns>
+                       <TableColumn fx:id="nicknameCol" text="Nickname" />
+                       <TableColumn fx:id="timeCol" text="Time Stamp" />
+                       <TableColumn fx:id="conTypeCol" text="Type" />
+                   </columns>
+               </TableView>
+         </children>
+      </VBox>
    </center>
    <bottom>
    
             <HBox fx:id="buttonsHBox" alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
              <children>
-                 <Button fx:id="reconnectButton" mnemonicParsing="false" text="Reconnect" textAlignment="CENTER" />
-                 <Button fx:id="deleteConf" mnemonicParsing="false" text="Delete Conf" textAlignment="CENTER" />
-                 <Button fx:id="deleteAllConf" mnemonicParsing="false" text="Delete All" textAlignment="CENTER" />
-                 <Button fx:id="newConfButton" mnemonicParsing="false" text="New Conf" textAlignment="CENTER" />
+                 <Button fx:id="reconnectButton" mnemonicParsing="false" styleClass="reconnectButton" stylesheets="@../css/OldConfigurationScene.css" text="Reconnect" textAlignment="CENTER" />
+                 <Button fx:id="deleteConf" mnemonicParsing="false" styleClass="deleteConf" stylesheets="@../css/OldConfigurationScene.css" text="Delete Conf" textAlignment="CENTER" />
+                 <Button fx:id="deleteAllConf" mnemonicParsing="false" styleClass="deleteAllConf" stylesheets="@../css/OldConfigurationScene.css" text="Delete All" textAlignment="CENTER" />
+                 <Button fx:id="newConfButton" mnemonicParsing="false" styleClass="newConfButton" stylesheets="@../css/OldConfigurationScene.css" text="New Conf" textAlignment="CENTER" />
              </children>
          <BorderPane.margin>
             <Insets top="25.0" />
@@ -44,6 +48,6 @@
          </HBox>
    </bottom>
    <padding>
-      <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
+      <Insets bottom="10.0" left="50.0" right="50.0" top="10.0" />
    </padding>
 </BorderPane>

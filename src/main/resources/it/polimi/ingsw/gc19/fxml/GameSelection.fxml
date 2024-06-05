@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.geometry.Insets?>
 
-<StackPane fx:id="stackPane" stylesheets="@../css/GameSelection.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane fx:id="stackPane" maxHeight="1.7976931348623157E308" maxWidth="800.0" minWidth="800.0" prefWidth="800.0" stylesheets="@../css/GameSelection.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <padding>
-      <Insets top="15.0" right="20.0" bottom="15.0" left="20.0"/>
+      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
    </padding>
    <children>
       <VBox fx:id="contentVBox" alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <ImageView fx:id="logoImageView" fitHeight="80.0" preserveRatio="true" />
-            <HBox fx:id="createAndJoin" alignment="CENTER" HBox.hgrow="ALWAYS">
+            <HBox fx:id="createAndJoin" alignment="CENTER" spacing="25.0" HBox.hgrow="ALWAYS">
                <children>
-                  <VBox fx:id="leftVBox" alignment="CENTER" styleClass="vbox-border" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+                  <VBox fx:id="leftVBox" alignment="CENTER" spacing="25.0" styleClass="vbox-border" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                      <padding>
-                        <Insets top="10.0" right="20.0" bottom="10.0" left="20.0"/>
+                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                      </padding>
                      <children>
                         <HBox alignment="CENTER">
-                           <Label fx:id="joinGameLabel" contentDisplay="CENTER" text="Join Game" styleClass="bold-label"/>
+                           <Label fx:id="joinGameLabel" contentDisplay="CENTER" styleClass="bold-label" text="Join Game" />
                         </HBox>
                         <Region VBox.vgrow="ALWAYS" />
-                        <VBox fx:id="availableGamesListVBox" alignment="CENTER">
+                        <VBox fx:id="availableGamesListVBox" alignment="CENTER" spacing="15.0">
                            <children>
                               <Label fx:id="availableGamesText" text="Available Games:" />
-                              <ListView fx:id="availableGamesList" prefHeight="271.0" maxWidth="600"/>
+                              <ListView fx:id="availableGamesList" maxWidth="600" prefHeight="271.0" />
                            </children>
                         </VBox>
                         <Region VBox.vgrow="ALWAYS" />
@@ -36,22 +36,22 @@
                         </HBox>
                      </children>
                   </VBox>
-                  <VBox fx:id="rightVBox" alignment="CENTER" styleClass="vbox-border" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+                  <VBox fx:id="rightVBox" alignment="CENTER" spacing="25.0" styleClass="vbox-border" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                      <padding>
-                        <Insets top="10.0" right="20.0" bottom="10.0" left="20.0"/>
+                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                      </padding>
                      <children>
                         <HBox alignment="CENTER">
-                           <Label fx:id="createGameLabel" text="Create Game" styleClass="bold-label"/>
+                           <Label fx:id="createGameLabel" styleClass="bold-label" text="Create Game" />
                         </HBox>
                         <Region VBox.vgrow="ALWAYS" />
-                        <VBox fx:id="gameNameVBox" alignment="CENTER">
+                        <VBox fx:id="gameNameVBox" alignment="CENTER" spacing="15.0">
                            <padding>
-                              <Insets right="2.0" left="2.0"/>
+                              <Insets left="2.0" right="2.0" />
                            </padding>
                            <children>
                               <Label fx:id="gameNameLabel" text="Enter Game Name:" AnchorPane.topAnchor="20.0" />
-                              <TextField fx:id="gameName" maxWidth="400"/>
+                              <TextField fx:id="gameName" maxWidth="400" />
                            </children>
                         </VBox>
                         <HBox fx:id="numPlayersHBox" alignment="CENTER" spacing="20.0">

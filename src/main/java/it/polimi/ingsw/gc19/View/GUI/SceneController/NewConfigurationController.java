@@ -9,21 +9,15 @@ import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
-import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 
 import javafx.scene.control.Button;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Objects;
@@ -34,7 +28,7 @@ public class NewConfigurationController extends GUIController implements StateLi
     private ClientInterface client;
 
     @FXML
-    private AnchorPane anchorPane;
+    private BorderPane borderPane;
 
     @FXML
     private Button TCPButton, RMIButton;
@@ -78,22 +72,10 @@ public class NewConfigurationController extends GUIController implements StateLi
         super.getStage().sizeToScene();
         super.getStage().setResizable(false);
 
-        /*double fontSizeFactor = 0.04;
-        titleLabel.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() * fontSizeFactor),
-                super.getStage().heightProperty()
-        ));
+        super.setBackground(borderPane, false);
 
-        TCPButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / 55),
-                super.getStage().heightProperty()
-        ));
-        RMIButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / 55),
-                super.getStage().heightProperty()
-        ));*/
-
-        super.setBackground(anchorPane, false);
+        super.getStage().sizeToScene();
+        super.getStage().setResizable(false);
     }
 
     private void loadLogo() {
@@ -131,8 +113,6 @@ public class NewConfigurationController extends GUIController implements StateLi
     @Override
     public void notify(ViewState viewState) {
         super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
-
-        super.getStage().setResizable(true);
 
         super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
     }
