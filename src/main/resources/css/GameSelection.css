@@ -1,0 +1,7 @@
+.vbox-border {
+    -fx-border-color: black;
+    -fx-border-width: 0.5;
+}
+.bold-label {
+    -fx-font-weight: bold;
+}

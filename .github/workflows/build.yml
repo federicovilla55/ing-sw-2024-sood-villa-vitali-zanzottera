@@ -1,0 +1,73 @@
+name: Create JARs
+
+on:
+  push:
+    branches:
+      - main
+      - fvilla
+  pull_request:
+    branches:
+      - main
+      - fvilla
+
+permissions:
+  id-token: write
+  contents: write
+  checks: write
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'
+          java-version: '21'
+
+      - name: Build ClientApp and ServerApp JAR
+        run: mvn clean compile install -D"maven.test.skip"="true"
+
+      - name: Archive the JAR files
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-and-server-jars
+          path: |
+            target/GC19-client.jar
+            target/GC19-server.jar
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.0
+          release_name: Release v1.0.0
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset - Client JAR
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/GC19-client.jar
+          asset_name: GC19-client.jar
+          asset_content_type: application/java-archive
+
+      - name: Upload Release Asset - Server JAR
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/GC19-server.jar
+          asset_name: GC19-server.jar
+          asset_content_type: application/java-archive

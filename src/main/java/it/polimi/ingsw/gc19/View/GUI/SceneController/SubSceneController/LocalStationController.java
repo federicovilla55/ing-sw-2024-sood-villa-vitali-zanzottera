@@ -34,6 +34,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -109,6 +111,24 @@ public class LocalStationController extends GUIController implements StationList
         this.leftVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
         this.rightVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
 
+        Image backgroundImage = null;
+        try {
+            backgroundImage = new Image(new FileInputStream("src/main/resources/images/background_light.png"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
+        BackgroundImage background = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.REPEAT,
+                BackgroundRepeat.REPEAT,
+                BackgroundPosition.DEFAULT,
+                backgroundSize);
+
+        borderPane.setBackground(new Background(background));
+
+        //super.getStage().setHeight(0.4 * super.getStage().getWidth() + 800);
+
         //super.getStage().minHeightProperty().bind(super.getStage().widthProperty().multiply(0.4).add(257));
 
         this.leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
@@ -119,6 +139,12 @@ public class LocalStationController extends GUIController implements StationList
         this.centerPane.prefWidthProperty().bind(this.borderPane.prefWidthProperty().subtract(leftVBox.widthProperty()).subtract(rightVBox.widthProperty()));
         this.centerPane.minHeightProperty().bind(this.centerPane.prefHeightProperty());
         this.centerPane.minWidthProperty().bind(this.centerPane.prefWidthProperty());
+        this.centerPane.prefHeightProperty().addListener((observable, oldValue, newValue) -> {
+            this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
+        });
+        this.centerPane.prefWidthProperty().addListener((observable, oldValue, newValue) -> {
+            this.centerPane.setMaxSize(this.centerPane.prefWidthProperty().get(), this.centerPane.prefHeightProperty().get());
+        });
 
         this.leftVBox.maxHeightProperty().bind(super.getStage().widthProperty().divide(HEIGHT_RATIO).add(this.leftVBox.spacingProperty()).multiply(3));
     }
@@ -509,34 +535,6 @@ public class LocalStationController extends GUIController implements StationList
     }
 
     @Override
-    public void notifyErrorStation(String... varArgs){
-        Direction direction;
-
-        try {
-            direction = Direction.valueOf(varArgs[2].toUpperCase());
-        }
-        catch (IllegalArgumentException illegalArgumentException){
-            return;
-        }
-
-        Tuple<Integer, Integer> coords = super.getLocalModel().getPersonalStation().getCoord(varArgs[1]);
-        int rowIndex = coords.x() + direction.getX() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().x()).min().orElse(0) - 1);
-        int columnIndex = coords.y() + direction.getY() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().y()).min().orElse(0) - 1);
-
-        Platform.runLater(() -> {
-            error = new Rectangle();
-
-            error.widthProperty().bind(super.getStage().widthProperty().divide(WIDTH_RATIO).multiply(scale));
-            error.heightProperty().bind(error.widthProperty().multiply(CARD_PIXEL_HEIGHT).divide(CARD_PIXEL_WIDTH));
-
-            error.arcWidthProperty().bind(error.widthProperty().multiply(2 * CORNER_RADIUS/ CARD_PIXEL_WIDTH));
-            error.arcHeightProperty().bind(error.heightProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
-
-            error.setEffect(new DropShadow(20, 5, 5, Color.RED));
-            error.setFill(Color.TRANSPARENT);
-
-            this.cardGrid.add(error, columnIndex, rowIndex);
-        });
-    }
+    public void notifyErrorStation(String... varArgs){ }
 
 }

@@ -16,9 +16,13 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -34,6 +38,9 @@ public class PlayingAreaController extends GUIController implements StateListene
     private BorderPane table;
     @FXML
     private StackPane stackPane;
+
+    private PaneFireworks paneFireworks;
+
     private Tab currentTab;
     private GUIController chatController, tableController, localStationController;
 
@@ -103,6 +110,9 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         buildTabPane();
         tabPane.getStyleClass().add("floating");
+
+        setBackgrounds();
+        paneFireworks = new PaneFireworks(stackPane, super.getStage(), super.getLocalModel());
     }
 
     private void buildTabPane() {
@@ -210,6 +220,29 @@ public class PlayingAreaController extends GUIController implements StateListene
         this.infoHBox.getChildren().addLast(hBox);
     }
 
+    private void setBackgrounds(){
+        setBackground(stackPane, true);
+        setBackground(infoHBox, false);
+        setBackground(table, false);
+        for (Tab tab : tabPane.getTabs()) {
+            if(tab.getContent() instanceof Pane pane) {
+                setBackground(pane, false);
+            }
+        }
+        /*for (Tab tab : stations.getTabs()) {
+            if(tab.getContent() instanceof Pane pane) {
+                setBackground(pane, false);
+            }
+        }*/
+    }
+
+    public void endGame(){
+        Platform.runLater(() -> {
+            buildInfoHBox();
+            paneFireworks.start();
+        });
+    }
+
     @Override
     public void notify(ViewState viewState) {
         Platform.runLater(() -> {
@@ -218,6 +251,7 @@ public class PlayingAreaController extends GUIController implements StateListene
         });
 
         switch (viewState){
+            case ViewState.END -> endGame();
             case ViewState.DISCONNECT -> super.notifyPossibleDisconnection(stackPane);
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);

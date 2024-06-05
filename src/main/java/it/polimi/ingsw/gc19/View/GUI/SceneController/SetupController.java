@@ -27,6 +27,8 @@ import javafx.scene.shape.Circle;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -120,6 +122,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
             throw new RuntimeException(e);
         }
 
+        setBackgrounds();
     }
 
     private void buildInfoHBox(){
@@ -234,6 +237,15 @@ public class SetupController extends GUIController implements SetupListener, Sta
         }
 
         return buttons;
+    }
+
+    private void setBackgrounds(){
+        setBackground(stackPane, true);
+        setBackground(infoHBox, false);
+        setBackground(table, false);
+        setBackground(availableColorsPane, false);
+        setBackground(initialCardOrientationPane, false);
+        setBackground(privateGoalCardSelectionPane, false);
     }
 
     @NotNull

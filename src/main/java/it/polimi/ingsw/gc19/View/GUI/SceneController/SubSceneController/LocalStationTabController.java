@@ -72,22 +72,15 @@ public class LocalStationTabController extends GUIController implements LocalMod
                         (observable, oldValue, newValue) -> tabContent.setMaxSize(tabContent.getPrefWidth(), tabContent.getPrefHeight())
                 );
 
-                this.stations.getTabs().add(tab);
+                if(this.getLocalModel().getNickname().equals(l.getOwnerPlayer())) {
+                    this.stations.getTabs().addFirst(tab);
+                    stations.getSelectionModel().select(currentTab);
+                    System.out.println(l.getOwnerPlayer());
+                }else{
+                    this.stations.getTabs().add(tab);
+                }
 
-                stations.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
-                    if(newTab != null && !newTab.equals(oldTab)){
-                        currentTab = newTab;
-                    }
-                });
-            }
 
-            //set current tab to previous selected one or default to own station of player
-            if(currentTab == null) {
-                stations.getSelectionModel().select(stations.getTabs().stream().filter(t -> t.getText().equals(this.getLocalModel().getNickname())).findFirst().get());
-                currentTab = stations.getSelectionModel().getSelectedItem();
-            }
-            else {
-                stations.getSelectionModel().select(currentTab);
             }
         }
     }

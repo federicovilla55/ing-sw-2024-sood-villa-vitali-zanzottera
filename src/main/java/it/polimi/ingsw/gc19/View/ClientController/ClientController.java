@@ -440,7 +440,7 @@ public class ClientController {
             try {
                 this.clientNetwork.logoutFromGame();
 
-                this.setNextState(new Wait(this), true);
+                this.setNextState(new NotGame(this), false);
                 this.clientNetwork.getMessageHandler().setLocalModel(null);
                 this.getView().setLocalModel(null);
                 this.localModel = null;
