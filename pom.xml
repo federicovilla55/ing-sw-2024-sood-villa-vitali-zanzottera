@@ -129,4 +129,13 @@
     </plugins>
   </build>
 
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/federicovilla55/ing-sw-2024-sood-villa-vitali-zanzottera</url>
+    </repository>
+  </distributionManagement>
+
+
 </project>
