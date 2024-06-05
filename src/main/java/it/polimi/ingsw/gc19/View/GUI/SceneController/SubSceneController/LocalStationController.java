@@ -24,10 +24,13 @@ import javafx.fxml.FXML;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
@@ -522,6 +525,35 @@ public class LocalStationController extends GUIController implements StationList
     }
 
     @Override
-    public void notifyErrorStation(String... varArgs){ }
+    public void notifyErrorStation(String... varArgs){
+        Direction direction;
+
+        try {
+            direction = Direction.valueOf(varArgs[2].toUpperCase());
+        }
+        catch (IllegalArgumentException illegalArgumentException){
+            return;
+        }
+
+        Tuple<Integer, Integer> coords = super.getLocalModel().getPersonalStation().getCoord(varArgs[1]);
+        int rowIndex = coords.x() + direction.getX() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().x()).min().orElse(0) - 1);
+        int columnIndex = coords.y() + direction.getY() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().y()).min().orElse(0) - 1);
+
+        Platform.runLater(() -> {
+            error = new Rectangle();
+
+            error.widthProperty().bind(super.getStage().widthProperty().divide(WIDTH_RATIO).multiply(scale));
+            error.heightProperty().bind(error.widthProperty().multiply(CARD_PIXEL_HEIGHT).divide(CARD_PIXEL_WIDTH));
+
+            error.arcWidthProperty().bind(error.widthProperty().multiply(2 * CORNER_RADIUS/ CARD_PIXEL_WIDTH));
+            error.arcHeightProperty().bind(error.heightProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
+
+            ImageView transparent = new ImageView(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/transparent/transparent.png"))));
+            transparent.setClip(error);
+            transparent.setEffect(new DropShadow(20, 5, 5, Color.RED));
+
+            this.cardGrid.add(transparent, columnIndex, rowIndex);
+        });
+    }
 
 }
