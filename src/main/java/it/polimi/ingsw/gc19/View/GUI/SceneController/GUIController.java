@@ -191,9 +191,9 @@ public class GUIController implements UI , Listener{
         Image backgroundImage = null;
         String location = "";
         if(isDark) {
-            location = "src/main/resources/images/background_dark.png";
+            location = "/images/background_dark.png";
         }else {
-            location = "src/main/resources/images/background_light.png";
+            location = "/images/background_light.png";
         }
         try {
             backgroundImage = new Image(new FileInputStream(location));
@@ -237,7 +237,7 @@ public class GUIController implements UI , Listener{
 
             try {
                 FXMLLoader loader = new FXMLLoader();
-                loader.setLocation(new File("src/main/resources/fxml/ReconnectionWaitScene.fxml").toURL());
+                loader.setLocation(new File("/fxml/ReconnectionWaitScene.fxml").toURL());
                 ReconnectionWaitController controller = new ReconnectionWaitController(this);
                 loader.setController(controller);
 

@@ -76,7 +76,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/ChatScene.fxml").toURL());
+            loader.setLocation(new File("/fxml/ChatScene.fxml").toURL());
             chatController = new ChatController(this);
             loader.setController(chatController);
 
@@ -93,7 +93,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/TableScene.fxml").toURL());
+            loader.setLocation(new File("/fxml/TableScene.fxml").toURL());
             tableController = new TableController(this);
             loader.setController(tableController);
 
@@ -107,7 +107,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/LocalStationTab.fxml").toURL());
+            loader.setLocation(new File("/fxml/LocalStationTab.fxml").toURL());
             localStationController = new LocalStationTabController(this);
             loader.setController(localStationController);
 
@@ -117,7 +117,6 @@ public class SetupController extends GUIController implements SetupListener, Sta
 
             VBox.setVgrow(tabPane, Priority.SOMETIMES);
 
-            tabPane.heightProperty().addListener((observable, oldValue, newValue) -> System.out.println("stack " + tabPane.getHeight()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

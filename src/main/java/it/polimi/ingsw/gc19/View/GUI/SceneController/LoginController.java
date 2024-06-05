@@ -22,6 +22,7 @@ import javafx.scene.text.Font;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 public class LoginController extends GUIController implements PlayerCreationListener, StateListener {
 
@@ -80,14 +81,9 @@ public class LoginController extends GUIController implements PlayerCreationList
     }
 
     private void loadLogo() {
-        try {
-            Image logoImage = new Image(new FileInputStream("src/main/resources/images/logo.png"));
-            logoImageView.setImage(logoImage);
-            System.out.println("Logo loaded");
-            logoImageView.setPreserveRatio(true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("resources/images/logo.png")));
+        logoImageView.setImage(logoImage);
+        logoImageView.setPreserveRatio(true);
     }
 
 

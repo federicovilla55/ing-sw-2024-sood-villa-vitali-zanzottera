@@ -31,8 +31,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class OldConfigurationController extends GUIController implements StateListener, GameHandlingListener{
+public class OldConfigurationController extends GUIController implements StateListener{
 
     private ArrayList<Configuration> configs;
     @FXML
@@ -58,7 +59,6 @@ public class OldConfigurationController extends GUIController implements StateLi
 
     @FXML
     private HBox buttonsHBox;
-
 
     public OldConfigurationController(ClientController controller, CommandParser parser, Stage stage){
         super(controller, parser, stage);
@@ -116,14 +116,9 @@ public class OldConfigurationController extends GUIController implements StateLi
     }
 
     private void loadLogo() {
-        try {
-            Image logoImage = new Image(new FileInputStream("src/main/resources/images/logo.png"));
-            logoImageView.setImage(logoImage);
-            System.out.println("Logo loaded");
-            logoImageView.setPreserveRatio(true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("src/main/resources/images/logo.png")));
+        logoImageView.setImage(logoImage);
+        logoImageView.setPreserveRatio(true);
     }
 
 
@@ -165,8 +160,6 @@ public class OldConfigurationController extends GUIController implements StateLi
             confTable.getSelectionModel().select(conf);
             onDeleteConf(e);
         }
-
-
     }
 
     @FXML
@@ -194,11 +187,6 @@ public class OldConfigurationController extends GUIController implements StateLi
                 super.changeToNextScene(SceneStatesEnum.PLAYING_AREA_SCENE);
             }
         }
-    }
-
-    @Override
-    public void notify(GameHandlingEvents type, List<String> varArgs) {
-        //@TODO: here...
     }
 
 }

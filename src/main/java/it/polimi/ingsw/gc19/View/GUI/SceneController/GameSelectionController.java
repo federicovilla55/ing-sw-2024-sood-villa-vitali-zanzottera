@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GameSelectionController extends GUIController implements StateListener, GameHandlingListener {
 
@@ -132,14 +133,10 @@ public class GameSelectionController extends GUIController implements StateListe
     }
 
     private void loadLogo() {
-        try {
-            Image logoImage = new Image(new FileInputStream("src/main/resources/images/logo.png"));
-            logoImageView.setImage(logoImage);
-            System.out.println("Logo loaded");
-            logoImageView.setPreserveRatio(true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo.png")));
+        logoImageView.setImage(logoImage);
+        System.out.println("Logo loaded");
+        logoImageView.setPreserveRatio(true);
     }
 
     @Override

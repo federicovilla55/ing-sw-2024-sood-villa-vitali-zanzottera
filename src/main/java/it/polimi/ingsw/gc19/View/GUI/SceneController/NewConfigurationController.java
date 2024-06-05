@@ -26,6 +26,7 @@ import javafx.stage.Stage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Objects;
 
 
 public class NewConfigurationController extends GUIController implements StateListener {
@@ -91,14 +92,9 @@ public class NewConfigurationController extends GUIController implements StateLi
     }
 
     private void loadLogo() {
-        try {
-            Image logoImage = new Image(new FileInputStream("src/main/resources/images/logo.png"));
-            logoImageView.setImage(logoImage);
-            System.out.println("Logo loaded");
-            logoImageView.setPreserveRatio(true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo.png")));
+        logoImageView.setImage(logoImage);
+        logoImageView.setPreserveRatio(true);
     }
 
 

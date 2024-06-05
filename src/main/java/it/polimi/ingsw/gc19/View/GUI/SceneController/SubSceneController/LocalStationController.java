@@ -118,10 +118,6 @@ public class LocalStationController extends GUIController implements StationList
 
         borderPane.setBackground(new Background(background));
 
-        //super.getStage().setHeight(0.4 * super.getStage().getWidth() + 800);
-
-        //super.getStage().minHeightProperty().bind(super.getStage().widthProperty().multiply(0.4).add(257));
-
         this.leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).add(30));
         this.leftVBox.maxWidthProperty().bind(this.leftVBox.prefWidthProperty());
         this.leftVBox.minWidthProperty().bind(this.leftVBox.prefWidthProperty());

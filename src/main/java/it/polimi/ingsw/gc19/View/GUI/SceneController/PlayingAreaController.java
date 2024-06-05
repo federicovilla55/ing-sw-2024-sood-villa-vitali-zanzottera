@@ -68,7 +68,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/ChatScene.fxml").toURL());
+            loader.setLocation(new File("/fxml/ChatScene.fxml").toURL());
             chatController = new ChatController(this);
             loader.setController(chatController);
 
@@ -82,7 +82,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/TableScene.fxml").toURL());
+            loader.setLocation(new File("/fxml/TableScene.fxml").toURL());
             tableController = new TableController(this);
             loader.setController(tableController);
 
@@ -96,7 +96,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/LocalStationTab.fxml").toURL());
+            loader.setLocation(new File("/fxml/LocalStationTab.fxml").toURL());
             localStationController = new LocalStationTabController(this);
             loader.setController(localStationController);
 
@@ -140,7 +140,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("src/main/resources/fxml/GameInformationScene.fxml").toURL());
+            loader.setLocation(new File("/fxml/GameInformationScene.fxml").toURL());
             PlayerSymbolsController controller = new PlayerSymbolsController(this);
             loader.setController(controller);
 
@@ -229,11 +229,6 @@ public class PlayingAreaController extends GUIController implements StateListene
                 setBackground(pane, false);
             }
         }
-        /*for (Tab tab : stations.getTabs()) {
-            if(tab.getContent() instanceof Pane pane) {
-                setBackground(pane, false);
-            }
-        }*/
     }
 
     public void endGame(){
@@ -297,4 +292,5 @@ public class PlayingAreaController extends GUIController implements StateListene
             }, 5000);
         });
     }
+
 }
