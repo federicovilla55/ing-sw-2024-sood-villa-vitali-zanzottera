@@ -1,4 +1,4 @@
-name: Build and Package
+name: Create JARs
 
 on:
   push:
@@ -9,6 +9,12 @@ on:
     branches:
       - main
       - fvilla
+
+permissions:
+  id-token: write
+  contents: write
+  checks: write
+
 
 jobs:
   build:
