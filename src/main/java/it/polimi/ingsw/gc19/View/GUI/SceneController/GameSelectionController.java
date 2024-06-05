@@ -57,6 +57,8 @@ public class GameSelectionController extends GUIController implements StateListe
 
     @FXML
     public void initialize(){
+        super.getStage().setMaximized(false);
+
         numPlayerBox.getItems().addAll(possibleNumPlayer);
         numPlayerBox.setValue(2);
 
@@ -133,9 +135,8 @@ public class GameSelectionController extends GUIController implements StateListe
     }
 
     private void loadLogo() {
-        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo.png")));
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/logo.png")));
         logoImageView.setImage(logoImage);
-        System.out.println("Logo loaded");
         logoImageView.setPreserveRatio(true);
     }
 

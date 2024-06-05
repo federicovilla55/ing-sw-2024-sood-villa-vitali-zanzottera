@@ -18,7 +18,7 @@ public class CardImageLoader {
 
     public static Image getImage(Card card, CardOrientation orientation) {
         if (!loadedImages.containsKey(card.getCardCode().concat(orientation.toString()))) {
-            loadedImages.put(card.getCardCode().concat(orientation.toString()), new Image(Objects.requireNonNull(CardImageLoader.class.getResource("/images/" + card.getCardCode() + "_"
+            loadedImages.put(card.getCardCode().concat(orientation.toString()), new Image(Objects.requireNonNull(CardImageLoader.class.getClassLoader().getResource("it/polimi/ingsw/gc19/images/" + card.getCardCode() + "_"
                     + (orientation.equals(CardOrientation.UP) ? "front" : "back") + ".jpg")).toExternalForm()));
         }
         return loadedImages.get(card.getCardCode().concat(orientation.toString()));
@@ -28,7 +28,7 @@ public class CardImageLoader {
         String name = symbol.toString().concat(cardType.toString());
         if (!loadedImages.containsKey(name)) {
             loadedImages.put(name, new Image(
-                    Objects.requireNonNull(CardImageLoader.class.getResource("/images/back/" + cardType.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg"))
+                    Objects.requireNonNull(CardImageLoader.class.getClassLoader().getResource("it/polimi/ingsw/gc19/images/back/" + cardType.toString().toLowerCase() + "_" + symbol.toString().toLowerCase() + ".jpg"))
                             .toExternalForm()));
         }
         return loadedImages.get(name);
@@ -36,7 +36,7 @@ public class CardImageLoader {
 
     public static ImageView getBackImageView() {
         if (!loadedImageViews.containsKey("goal")) {
-            loadedImageViews.put("goal", new ImageView(new Image(Objects.requireNonNull(CardImageLoader.class.getResource("/images/back/goal.jpg")).toExternalForm())));
+            loadedImageViews.put("goal", new ImageView(new Image(Objects.requireNonNull(CardImageLoader.class.getClassLoader().getResource("it/polimi/ingsw/gc19/images/back/goal.jpg")).toExternalForm())));
         }
         return loadedImageViews.get("goal");
     }

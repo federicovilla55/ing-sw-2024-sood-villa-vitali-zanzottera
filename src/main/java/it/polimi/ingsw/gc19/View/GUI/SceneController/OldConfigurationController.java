@@ -8,8 +8,6 @@ import it.polimi.ingsw.gc19.View.ClientController.Disconnect;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
-import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingEvents;
-import it.polimi.ingsw.gc19.View.Listeners.GameHandlingListeners.GameHandlingListener;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.beans.binding.Bindings;
@@ -18,7 +16,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.StackPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -27,7 +24,6 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +42,7 @@ public class OldConfigurationController extends GUIController implements StateLi
     private TableColumn<Configuration, Configuration.ConnectionType> conTypeCol;
 
     @FXML
-    private Button ReconnectButton, NewConfButton, DeleteConf, DeleteAllConf;
+    private Button reconnectButton, newConfButton, deleteConf, deleteAllConf;
 
     @FXML
     private ImageView logoImageView;
@@ -78,6 +74,7 @@ public class OldConfigurationController extends GUIController implements StateLi
         confTable.setItems(FXCollections.observableArrayList(this.configs));
     }
 
+    @FXML
     public void initialize() {
         contentVBox.spacingProperty().bind(super.getStage().heightProperty().divide(9));
         logoImageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(4));
@@ -87,42 +84,47 @@ public class OldConfigurationController extends GUIController implements StateLi
         timeCol.prefWidthProperty().bind(confTable.widthProperty().divide(3));
         conTypeCol.prefWidthProperty().bind(confTable.widthProperty().divide(3));
 
-
         loadLogo();
 
-        double fontSizeFactor = 0.03;
+        super.getStage().sizeToScene();
+        super.getStage().setResizable(false);
+
+        /*double fontSizeFactor = 0.03;
         titleLabel.fontProperty().bind(Bindings.createObjectBinding(
                 () -> Font.font(super.getStage().getHeight() * fontSizeFactor),
                 super.getStage().heightProperty()
         ));
 
         double dividButtonsSize = 55;
-        NewConfButton.fontProperty().bind(Bindings.createObjectBinding(
+        newConfButton.fontProperty().bind(Bindings.createObjectBinding(
                 () -> Font.font(super.getStage().getHeight() / dividButtonsSize),
                 super.getStage().heightProperty()
         ));
-        ReconnectButton.fontProperty().bind(Bindings.createObjectBinding(
+        reconnectButton.fontProperty().bind(Bindings.createObjectBinding(
                 () -> Font.font(super.getStage().getHeight() / dividButtonsSize),
                 super.getStage().heightProperty()
         ));
-        DeleteConf.fontProperty().bind(Bindings.createObjectBinding(
+        deleteConf.fontProperty().bind(Bindings.createObjectBinding(
                 () -> Font.font(super.getStage().getHeight() / dividButtonsSize),
                 super.getStage().heightProperty()
         ));
-        DeleteAllConf.fontProperty().bind(Bindings.createObjectBinding(
+        deleteAllConf.fontProperty().bind(Bindings.createObjectBinding(
                 () -> Font.font(super.getStage().getHeight() / dividButtonsSize),
                 super.getStage().heightProperty()
-        ));
+        ));*/
+
+        newConfButton.setOnAction(this::onNewConfigurationPressed);
+        reconnectButton.setOnAction(this::onReconnectPress);
+        deleteConf.setOnAction(this::onDeleteConf);
+        deleteAllConf.setOnAction(this::onDeleteAll);
     }
 
     private void loadLogo() {
-        Image logoImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("images/logo.png")));
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/logo.png")));
         logoImageView.setImage(logoImage);
         logoImageView.setPreserveRatio(true);
     }
 
-
-    @FXML
     public void onReconnectPress(ActionEvent e) {
         ClientInterface client;
         Configuration config = confTable.getSelectionModel().getSelectedItem();
@@ -146,14 +148,12 @@ public class OldConfigurationController extends GUIController implements StateLi
         }
     }
 
-    @FXML
     public void onNewConfigurationPressed(ActionEvent e){
         super.getClientController().getListenersManager().removeListener(this);
 
         changeToNextScene(SceneStatesEnum.NEW_CONFIGURATION_SCENE);
     }
 
-    @FXML
     public synchronized void onDeleteAll(ActionEvent e){
         List<Configuration> toRemove = configs.stream().toList();
         for(Configuration conf : toRemove){
@@ -162,7 +162,6 @@ public class OldConfigurationController extends GUIController implements StateLi
         }
     }
 
-    @FXML
     public void onDeleteConf(ActionEvent e){
         Configuration config = confTable.getSelectionModel().getSelectedItem();
         configs.remove(config);
@@ -175,6 +174,7 @@ public class OldConfigurationController extends GUIController implements StateLi
 
     @Override
     public void notify(ViewState viewState) {
+        super.getStage().setResizable(true);
         switch (viewState){
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);

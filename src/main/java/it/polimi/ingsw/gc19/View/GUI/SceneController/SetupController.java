@@ -27,8 +27,6 @@ import javafx.scene.shape.Circle;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -55,6 +53,8 @@ public class SetupController extends GUIController implements SetupListener, Sta
     }
 
     public void initialize(){
+        super.getStage().setMaximized(true);
+
         super.getStage().setMinWidth(1280.0);
         super.getStage().setMinHeight(820.0);
 
@@ -76,7 +76,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("/fxml/ChatScene.fxml").toURL());
+            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/ChatScene.fxml"));
             chatController = new ChatController(this);
             loader.setController(chatController);
 
@@ -93,7 +93,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("/fxml/TableScene.fxml").toURL());
+            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/TableScene.fxml"));
             tableController = new TableController(this);
             loader.setController(tableController);
 
@@ -107,7 +107,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("/fxml/LocalStationTab.fxml").toURL());
+            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/LocalStationTab.fxml"));
             localStationController = new LocalStationTabController(this);
             loader.setController(localStationController);
 
@@ -148,7 +148,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
     private void allPlayersConnectedFactory(boolean canStart){
         String fileName = canStart ? "all_connected" : "one_not_connected";
 
-        ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/game state/" + fileName + ".png")).toExternalForm()));
+        ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/game state/" + fileName + ".png"))));
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(25);
 
@@ -225,8 +225,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
             Circle circlePawn = new Circle(25);
 
             circlePawn.setFill(new ImagePattern(
-                    new Image(Objects.requireNonNull(getClass().getResource("/pawns/" + c.toString().toLowerCase() + "_pawn.png"))
-                                     .toExternalForm())));
+                    new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/pawns/" + c.toString().toLowerCase() + "_pawn.png")))));
 
             circlePawn.radiusProperty().bind(super.getStage().heightProperty().divide(58));
 

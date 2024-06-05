@@ -65,6 +65,8 @@ public class NewConfigurationController extends GUIController implements StateLi
 
     @FXML
     public void initialize(){
+        super.getStage().setMaximized(false);
+
         TCPButton.setOnMouseClicked((event) -> TCPPress());
         RMIButton.setOnMouseClicked((event) -> RMIPress());
         contentVBox.spacingProperty().bind(super.getStage().heightProperty().divide(7));
@@ -73,26 +75,29 @@ public class NewConfigurationController extends GUIController implements StateLi
 
         loadLogo();
 
-        double fontSizeFactor = 0.04;
+        super.getStage().sizeToScene();
+        super.getStage().setResizable(false);
+
+        /*double fontSizeFactor = 0.04;
         titleLabel.fontProperty().bind(Bindings.createObjectBinding(
                 () -> Font.font(super.getStage().getHeight() * fontSizeFactor),
                 super.getStage().heightProperty()
         ));
 
         TCPButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / 40),
+                () -> Font.font(super.getStage().getHeight() / 55),
                 super.getStage().heightProperty()
         ));
         RMIButton.fontProperty().bind(Bindings.createObjectBinding(
-                () -> Font.font(super.getStage().getHeight() / 40),
+                () -> Font.font(super.getStage().getHeight() / 55),
                 super.getStage().heightProperty()
-        ));
+        ));*/
 
         super.setBackground(anchorPane, false);
     }
 
     private void loadLogo() {
-        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("images/logo.png")));
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/logo.png")));
         logoImageView.setImage(logoImage);
         logoImageView.setPreserveRatio(true);
     }
@@ -126,6 +131,8 @@ public class NewConfigurationController extends GUIController implements StateLi
     @Override
     public void notify(ViewState viewState) {
         super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
+
+        super.getStage().setResizable(true);
 
         super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
     }

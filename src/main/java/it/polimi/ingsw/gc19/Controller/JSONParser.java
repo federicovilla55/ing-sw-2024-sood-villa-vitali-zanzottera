@@ -25,7 +25,7 @@ public final class JSONParser{
      * @return a Stream of PlayableCards
      */
     public static Stream<PlayableCard> readPlayableCardFromFile() throws IOException{
-        InputStream playableCardsFile = JSONParser.class.getResourceAsStream("/it/polimi/ingsw/gc19/Cards/JSON Description/playable_cards.json");
+        InputStream playableCardsFile = JSONParser.class.getClassLoader().getResourceAsStream(ImportantConstants.pathToPlayableCardFileJSON);
         return objMapper.readValue(playableCardsFile, new TypeReference<ArrayList<PlayableCard>>(){}).stream();
     }
 
@@ -35,7 +35,7 @@ public final class JSONParser{
      * @return a Stream of GoalCards
      */
     public static Stream<GoalCard> readGoalCardFromFile() throws IOException{
-        InputStream goalCardsFile = JSONParser.class.getResourceAsStream("/it/polimi/ingsw/gc19/Cards/JSON Description/goal_cards.json");
+        InputStream goalCardsFile = JSONParser.class.getClassLoader().getResourceAsStream(ImportantConstants.pathToGoalCardFileJSON);
         return objMapper.readValue(goalCardsFile, new TypeReference<ArrayList<GoalCard>>(){}).stream();
     }
 

@@ -49,7 +49,7 @@ public class LocalStationTabController extends GUIController implements LocalMod
 
                 try{
                     FXMLLoader loader = new FXMLLoader();
-                    loader.setLocation(new File("/fxml/LocalStationScene.fxml").toURL());
+                    loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/LocalStationScene.fxml"));
 
                     controller = new LocalStationController(this, l.getOwnerPlayer());
 

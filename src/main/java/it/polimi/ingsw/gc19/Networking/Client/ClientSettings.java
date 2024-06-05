@@ -21,7 +21,7 @@ public class ClientSettings {
     public static String DEFAULT_RMI_SERVER_NAME = ServerSettings.DEFAULT_RMI_SERVER_NAME;
     public static String MAIN_SERVER_RMI_NAME = ClientSettings.DEFAULT_RMI_SERVER_NAME;
 
-    public static final String CONFIG_FILE_PATH = "src/main/java/it/polimi/ingsw/gc19/Networking/Client/Configuration/Local Config/";
+    public static final String CONFIG_FILE_PATH = "Local Config/";
 
     public static final String CODEX_NATURALIS_LOGO = "\n" +
        " ██████╗ ██████╗ ██████╗ ███████╗██╗  ██╗    ███╗   ██╗ █████╗ ████████╗██╗   ██╗██████╗  █████╗ ██╗     ██╗███████╗\n" +

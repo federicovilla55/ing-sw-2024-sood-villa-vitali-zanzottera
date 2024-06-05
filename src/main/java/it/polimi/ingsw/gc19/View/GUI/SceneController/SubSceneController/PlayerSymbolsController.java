@@ -48,7 +48,7 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
     private void initializeImages(){
         symbolImages = new HashMap<>();
         for (Symbol s : Symbol.values()) {
-            Image symbolImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/symbols/" + s.toString().toLowerCase() + ".png")));
+            Image symbolImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/symbols/" + s.toString().toLowerCase() + ".png")));
             symbolImages.put(s.toString().toLowerCase(), symbolImage);
         }
     }

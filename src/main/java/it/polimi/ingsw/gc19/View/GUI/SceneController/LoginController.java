@@ -50,9 +50,10 @@ public class LoginController extends GUIController implements PlayerCreationList
     }
 
     public void initialize(){
+        super.getStage().setMaximized(false);
+
         loginButton.setOnAction((event) -> {
             String username = loginTextField.getText();
-            System.out.println(username);
             super.getCommandParser().createPlayer(username);
         });
 
@@ -81,7 +82,7 @@ public class LoginController extends GUIController implements PlayerCreationList
     }
 
     private void loadLogo() {
-        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("images/logo.png")));
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/logo.png")));
         logoImageView.setImage(logoImage);
         logoImageView.setPreserveRatio(true);
     }

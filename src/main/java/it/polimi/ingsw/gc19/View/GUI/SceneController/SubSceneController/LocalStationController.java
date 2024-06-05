@@ -76,11 +76,11 @@ public class LocalStationController extends GUIController implements StationList
     public LocalStationController(GUIController controller, String nickOwner) {
         super(controller);
 
-        bluePawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/blue_pawn.png"))));
-        redPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/red_pawn.png"))));
-        greenPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/green_pawn.png"))));
-        yellowPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/yellow_pawn.png"))));
-        blackPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/black_pawn.png"))));
+        bluePawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/pawns/blue_pawn.png"))));
+        redPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/pawns/red_pawn.png"))));
+        greenPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/pawns/green_pawn.png"))));
+        yellowPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/pawns/yellow_pawn.png"))));
+        blackPawnImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/pawns/black_pawn.png"))));
 
         this.nickOwner = nickOwner;
 
@@ -107,7 +107,7 @@ public class LocalStationController extends GUIController implements StationList
         this.leftVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
         this.rightVBox.spacingProperty().bind(this.borderPane.heightProperty().divide(10));
 
-        Image backgroundImage = new Image(Objects.requireNonNull(this.getClass().getResourceAsStream("/images/background_light.png")));
+        Image backgroundImage = new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/background_light.png")));
         BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
         BackgroundImage background = new BackgroundImage(
                 backgroundImage,

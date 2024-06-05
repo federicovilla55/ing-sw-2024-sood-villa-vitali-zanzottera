@@ -1,16 +1,13 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
-import it.polimi.ingsw.gc19.View.ClientController.ClientState;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
-import it.polimi.ingsw.gc19.View.GUI.GUIView;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.Listeners.Listener;
 import it.polimi.ingsw.gc19.View.UI;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -20,19 +17,15 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 public class GUIController implements UI , Listener{
 
@@ -159,41 +152,37 @@ public class GUIController implements UI , Listener{
     }
 
     public void changeToNextScene(SceneStatesEnum nextScenePath) {
+        FXMLLoader loader = new FXMLLoader();
 
-        try{
-            FXMLLoader loader = new FXMLLoader();
+        this.getClientController().getListenersManager().removeListener(this);
 
-            this.getClientController().getListenersManager().removeListener(this);
+        GUIController controller = getController(nextScenePath);
 
-            GUIController controller = getController(nextScenePath);
+        loader.setLocation(getClass().getClassLoader().getResource(nextScenePath.value()));
+        loader.setController(controller);
 
-            loader.setLocation(new File(nextScenePath.value()).toURL());
-            loader.setController(controller);
+        Platform.runLater(() -> {
+            Parent root = null;
+            try {
+                root = loader.load();
 
-            Platform.runLater(() -> {
-                Parent root = null;
-                try {
-                    root = loader.load();
+                Scene scene = new Scene(root);
 
-                    Scene scene = new Scene(root);
+                this.stage.setScene(scene);
 
-                    this.stage.setScene(scene);
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
-        catch (IOException ignored) { }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public void setBackground(Pane pane, Boolean isDark){
         Image backgroundImage = null;
         String location = "";
         if(isDark) {
-            location = "images/background_dark.png";
+            location = "it/polimi/ingsw/gc19/images/background_dark.png";
         }else {
-            location = "images/background_light.png";
+            location = "it/polimi/ingsw/gc19/images/background_light.png";
         }
 
         backgroundImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(location)));
@@ -235,7 +224,7 @@ public class GUIController implements UI , Listener{
 
             try {
                 FXMLLoader loader = new FXMLLoader();
-                loader.setLocation(new File("/fxml/ReconnectionWaitScene.fxml").toURL());
+                loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/ReconnectionWaitScene.fxml"));
                 ReconnectionWaitController controller = new ReconnectionWaitController(this);
                 loader.setController(controller);
 

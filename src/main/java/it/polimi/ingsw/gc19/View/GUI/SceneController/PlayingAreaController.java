@@ -16,13 +16,9 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -53,6 +49,8 @@ public class PlayingAreaController extends GUIController implements StateListene
 
     @FXML
     public void initialize(){
+        super.getStage().setMaximized(true);
+
         buildInfoHBox();
 
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
@@ -68,7 +66,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("/fxml/ChatScene.fxml").toURL());
+            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/ChatScene.fxml"));
             chatController = new ChatController(this);
             loader.setController(chatController);
 
@@ -82,7 +80,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("/fxml/TableScene.fxml").toURL());
+            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/TableScene.fxml"));
             tableController = new TableController(this);
             loader.setController(tableController);
 
@@ -96,7 +94,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("/fxml/LocalStationTab.fxml").toURL());
+            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/LocalStationTab.fxml"));
             localStationController = new LocalStationTabController(this);
             loader.setController(localStationController);
 
@@ -140,7 +138,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(new File("/fxml/GameInformationScene.fxml").toURL());
+            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/GameInformationScene.fxml"));
             PlayerSymbolsController controller = new PlayerSymbolsController(this);
             loader.setController(controller);
 
@@ -206,7 +204,7 @@ public class PlayingAreaController extends GUIController implements StateListene
     private void allPlayersConnectedFactory(boolean canStart){
         String fileName = canStart ? "all_connected" : "one_not_connected";
 
-        ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/images/game state/" + fileName + ".png")).toExternalForm()));
+        ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/game state/" + fileName + ".png"))));
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(25);
 

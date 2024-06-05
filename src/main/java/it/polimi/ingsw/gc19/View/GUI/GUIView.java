@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,15 +32,15 @@ public class GUIView extends Application {
         CommandParser commandParser = new CommandParser(new ClientController());
         ClientController clientController = commandParser.getClientController();
 
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("images/logo.png"))));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/logo.png"))));
 
         try {
             configs = ConfigurationManager.retrieveConfiguration();
 
             FXMLLoader loader = new FXMLLoader();
-            loader.setControllerFactory((c) -> new OldConfigurationController(clientController, commandParser, stage));
 
-            loader.setLocation(new File(SceneStatesEnum.OLD_CONFIGURATION_SCENE.value()).toURL());
+            loader.setController(new OldConfigurationController(clientController, commandParser, stage));
+            loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.OLD_CONFIGURATION_SCENE.value()));
 
             root = loader.load();
 
@@ -49,13 +50,13 @@ public class GUIView extends Application {
         catch (RuntimeException e) {
             FXMLLoader loader = new FXMLLoader();
 
-            loader.setLocation(new File(SceneStatesEnum.NEW_CONFIGURATION_SCENE.value()).toURL());
+            loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.NEW_CONFIGURATION_SCENE.value()));
             loader.setController(new NewConfigurationController(clientController, commandParser, stage));
 
             root = loader.load();
         }
 
-        Image backgroundImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("images/background_light.png")));
+        Image backgroundImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/background_light.png")));
 
         BackgroundSize backgroundSize = new BackgroundSize(360, 360, false, false, false, false);
         BackgroundImage background = new BackgroundImage(
@@ -72,7 +73,6 @@ public class GUIView extends Application {
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
-        stage.setMaximized(true);
     }
     public static void main(String[] args) {
         launch(args);

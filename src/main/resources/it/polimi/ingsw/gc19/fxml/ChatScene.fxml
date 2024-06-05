@@ -7,26 +7,26 @@
 <?import org.controlsfx.control.*?>
 
 <VBox id="chatArea" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" stylesheets="@../css/Chat.css" VBox.vgrow="ALWAYS" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"> <!-- fx:controller="it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController.ChatController"-->
-   <ScrollPane id="scrollText" fx:id="scrollText" styleClass="scrollText" fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+   <ScrollPane id="scrollText" fx:id="scrollText" fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" styleClass="scrollText" VBox.vgrow="ALWAYS">
       <content>
-         <TextFlow id="textFlow" fx:id="textFlow" lineSpacing="2.5" maxHeight="1.7976931348623157E308" styleClass="textFlow" maxWidth="1.7976931348623157E308" stylesheets="@../css/Chat.css" />
+         <TextFlow id="textFlow" fx:id="textFlow" lineSpacing="2.5" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="textFlow" stylesheets="@../css/Chat.css" />
       </content></ScrollPane>
    <HBox stylesheets="@../css/Chat.css">
-      <ScrollPane id="scrollPaneSend" fx:id="scrollPaneSend" fitToHeight="true" fitToWidth="true" styleClass="scrollPaneSend" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="150.0" stylesheets="@../css/Chat.css">
+      <ScrollPane id="scrollPaneSend" fx:id="scrollPaneSend" fitToHeight="true" fitToWidth="true" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="150.0" styleClass="scrollPaneSend" stylesheets="@../css/Chat.css">
          <content>
             <TextArea id="textAreaSend" fx:id="textAreaSend" prefHeight="143.0" prefWidth="329.0" stylesheets="@../css/Chat.css" />
          </content>
       </ScrollPane>
       <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" stylesheets="@../css/Chat.css">
          <children>
-            <Button fx:id="sendButton" maxHeight="1.7976931348623157E308" styleClass="sendButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="43.0" prefWidth="389.0" stylesheets="@../css/Chat.css" text="Send message!" textAlignment="CENTER">
+            <Button fx:id="sendButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="43.0" prefWidth="389.0" styleClass="sendButton" stylesheets="@../css/Chat.css" text="Send message!">
                <padding>
                   <Insets bottom="10.0" top="5.0" />
                </padding>
                <VBox.margin>
                   <Insets />
                </VBox.margin></Button>
-            <CheckComboBox fx:id="receivers" maxHeight="1.7976931348623157E308" styleClass="receivers" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="389.0" stylesheets="@../css/Chat.css">
+            <CheckComboBox fx:id="receivers" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="389.0" styleClass="receivers" stylesheets="@../css/Chat.css">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin></CheckComboBox>

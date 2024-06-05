@@ -75,16 +75,16 @@ public class ScoreboardController extends GUIController implements StationListen
     public ScoreboardController(GUIController controller) {
         super(controller);
 
-        bluePawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/blue_pawn.png")));
-        redPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/red_pawn.png")));
-        greenPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/green_pawn.png")));
-        yellowPawnImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/pawns/yellow_pawn.png")));
+        bluePawnImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/pawns/blue_pawn.png")));
+        redPawnImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/pawns/red_pawn.png")));
+        greenPawnImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/pawns/green_pawn.png")));
+        yellowPawnImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/pawns/yellow_pawn.png")));
 
         controller.getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
     }
 
     public void initialize(){
-        scoreboardImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/score_table.jpg")));
+        scoreboardImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("it/polimi/ingsw/gc19/score_table.jpg")));
         if (scoreboardImage.isError()) {
             System.err.println("Error while loading scoreboard");
             return;
