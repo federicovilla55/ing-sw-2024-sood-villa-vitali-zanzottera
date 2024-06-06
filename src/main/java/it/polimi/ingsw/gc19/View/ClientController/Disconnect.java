@@ -23,7 +23,6 @@ public class Disconnect extends ClientState {
 
     public Disconnect(ClientController clientController) {
         super(clientController);
-        System.out.println("problema");
         startReconnecting();
     }
 

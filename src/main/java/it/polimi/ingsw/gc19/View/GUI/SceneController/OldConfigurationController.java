@@ -76,8 +76,6 @@ public class OldConfigurationController extends GUIController implements StateLi
 
     @FXML
     public void initialize() {
-        super.getStage().sizeToScene();
-
         logoImageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(4));
         buttonsHBox.spacingProperty().bind(super.getStage().widthProperty().divide(8));
 
@@ -91,9 +89,6 @@ public class OldConfigurationController extends GUIController implements StateLi
         reconnectButton.setOnAction(this::onReconnectPress);
         deleteConf.setOnAction(this::onDeleteConf);
         deleteAllConf.setOnAction(this::onDeleteAll);
-
-        super.getStage().sizeToScene();
-        super.getStage().setResizable(false);
     }
 
     private void loadLogo() {

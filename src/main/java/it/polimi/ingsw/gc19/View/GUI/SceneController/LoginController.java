@@ -56,10 +56,6 @@ public class LoginController extends GUIController implements PlayerCreationList
         loadLogo();
 
         super.setBackground(borderPane, false);
-
-        super.getStage().sizeToScene();
-        super.getStage().setMaximized(false);
-        super.getStage().setResizable(false);
     }
 
     private void loadLogo() {

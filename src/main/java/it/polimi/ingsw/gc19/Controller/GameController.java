@@ -97,7 +97,6 @@ public class GameController{
      * @param nickname the name of the client to add
      */
     public synchronized void addClient(String nickname, ClientHandler clientHandler) {
-        System.err.println("entrato");
         try {
             this.gameAssociated.getPlayerByName(nickname);
             //player already present in game
@@ -127,7 +126,6 @@ public class GameController{
                                 this.gameAssociated.getTurnState(),
                                 this.gameAssociated.getActivePlayer().getName()
                         ));
-                        System.out.println("mandato");
                     }
                 }
             }

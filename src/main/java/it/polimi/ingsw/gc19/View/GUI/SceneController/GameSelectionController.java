@@ -57,8 +57,6 @@ public class GameSelectionController extends GUIController implements StateListe
 
     @FXML
     public void initialize(){
-        super.getStage().setMaximized(false);
-
         numPlayerBox.getItems().addAll(possibleNumPlayer);
         numPlayerBox.setValue(2);
 
@@ -103,9 +101,6 @@ public class GameSelectionController extends GUIController implements StateListe
         });
 
         super.setBackground(stackPane, false);
-
-        super.getStage().sizeToScene();
-        super.getStage().setResizable(false);
     }
 
     private void loadLogo() {

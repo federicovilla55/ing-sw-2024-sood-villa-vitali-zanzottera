@@ -120,9 +120,6 @@ public class SetupController extends GUIController implements SetupListener, Sta
         }
 
         setBackgrounds();
-
-        super.getStage().setMaximized(true);
-        super.getStage().setResizable(true);
     }
 
     private void buildInfoHBox(){

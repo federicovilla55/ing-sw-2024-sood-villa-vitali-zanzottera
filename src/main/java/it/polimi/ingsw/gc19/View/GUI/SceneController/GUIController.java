@@ -170,7 +170,21 @@ public class GUIController implements UI , Listener{
 
                 this.stage.setScene(scene);
 
-                scene.getWindow().centerOnScreen();
+                switch (nextScenePath){
+                    case NEW_CONFIGURATION_SCENE,
+                         OLD_CONFIGURATION_SCENE,
+                         LOGIN_SCENE,
+                         GAME_SELECTION_SCENE -> {
+                        this.getStage().setResizable(false);
+                        this.getStage().setMaximized(false);
+                        this.getStage().sizeToScene();
+                        this.getStage().getScene().getWindow().centerOnScreen();
+                    }
+                    case SETUP_SCENE, PLAYING_AREA_SCENE -> {
+                        this.getStage().setResizable(true);
+                        this.getStage().setMaximized(true);
+                    }
+                }
 
             } catch (IOException e) {
                 throw new RuntimeException(e);

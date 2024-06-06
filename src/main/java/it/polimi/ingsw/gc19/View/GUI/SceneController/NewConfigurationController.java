@@ -59,21 +59,13 @@ public class NewConfigurationController extends GUIController implements StateLi
 
     @FXML
     public void initialize(){
-        super.getStage().setMaximized(false);
-
         TCPButton.setOnMouseClicked((event) -> TCPPress());
         RMIButton.setOnMouseClicked((event) -> RMIPress());
         logoImageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(3));
 
         loadLogo();
 
-        super.getStage().sizeToScene();
-        super.getStage().setResizable(false);
-
         super.setBackground(borderPane, false);
-
-        super.getStage().sizeToScene();
-        super.getStage().setResizable(false);
     }
 
     private void loadLogo() {

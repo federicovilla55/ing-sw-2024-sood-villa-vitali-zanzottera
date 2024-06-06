@@ -109,9 +109,6 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         setBackgrounds();
         paneFireworks = new PaneFireworks(stackPane, super.getStage(), super.getLocalModel());
-
-        super.getStage().setMaximized(true);
-        super.getStage().setResizable(true);
     }
 
     private void buildTabPane() {

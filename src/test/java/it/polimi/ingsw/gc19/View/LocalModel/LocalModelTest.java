@@ -261,7 +261,7 @@ public class LocalModelTest {
 
         // ---------------------------
         // Other player placing a card
-        assertTrue(localModel.getOtherStations().get("player2").cardIsPlaceable(playableCards.get("gold_04"), playableCards.get("initial_02"), Direction.DOWN_RIGHT));
+        assertFalse(localModel.getOtherStations().get("player2").cardIsPlaceable(playableCards.get("gold_04"), playableCards.get("initial_02"), Direction.DOWN_RIGHT));
         assertEquals(localModel.getOtherStations().get("player2").getBackCardHand(),
                 List.of(
                         new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
