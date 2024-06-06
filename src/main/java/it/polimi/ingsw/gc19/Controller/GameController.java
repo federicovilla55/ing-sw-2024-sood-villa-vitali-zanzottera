@@ -156,17 +156,32 @@ public class GameController{
             this.messageFactory.sendMessageToAllGamePlayers(new DisconnectedPlayerMessage(nickname));
             if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)){
                 // the client disconnected was the active player: turn goes to next player unless no other client is connected
-                if(!this.connectedClients.isEmpty()) {
-                    this.gameAssociated.setTurnState(TurnState.PLACE);
-                    try {
-                        this.setNextPlayer();
-                    } catch (GameFinishedException e) {
-                        //do not send TurnStateMessage
-                        return;
+                // if he has already placed, a card is picked to end its turn
+                if(this.gameAssociated.getTurnState().equals(TurnState.DRAW)) {
+                    Iterator<Tuple<PlayableCardType,Integer>> iterator = List.of(
+                            new Tuple<>(PlayableCardType.RESOURCE, 0),
+                            new Tuple<>(PlayableCardType.RESOURCE, 1),
+                            new Tuple<>(PlayableCardType.GOLD, 0),
+                            new Tuple<>(PlayableCardType.GOLD, 1)
+                    ).iterator();
+                    while(this.gameAssociated.getTurnState().equals(TurnState.DRAW) && iterator.hasNext()) {
+                        Tuple<PlayableCardType,Integer> current = iterator.next();
+                        this.drawCardFromTable(nickname, current.x(), current.y());
                     }
-                    this.messageFactory.sendMessageToAllGamePlayers(
-                            new TurnStateMessage(this.gameAssociated.getActivePlayer().getName(), this.gameAssociated.getTurnState())
-                    );
+                }
+                else {
+                    if(!this.connectedClients.isEmpty()) {
+                        this.gameAssociated.setTurnState(TurnState.PLACE);
+                        try {
+                            this.setNextPlayer();
+                        } catch (GameFinishedException e) {
+                            //do not send TurnStateMessage
+                            return;
+                        }
+                        this.messageFactory.sendMessageToAllGamePlayers(
+                                new TurnStateMessage(this.gameAssociated.getActivePlayer().getName(), this.gameAssociated.getTurnState())
+                        );
+                    }
                 }
             }
 
