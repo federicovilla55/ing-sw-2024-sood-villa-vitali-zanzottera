@@ -73,6 +73,7 @@ public class GUIView extends Application {
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
+        scene.getWindow().centerOnScreen();
     }
     public static void main(String[] args) {
         launch(args);

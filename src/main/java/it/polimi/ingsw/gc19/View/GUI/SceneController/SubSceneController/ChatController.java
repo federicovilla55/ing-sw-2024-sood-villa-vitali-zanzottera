@@ -60,7 +60,7 @@ public class ChatController extends GUIController implements ChatListener, Local
 
         receivers.getItems().clear();
         if(this.getLocalModel() != null && this.getLocalModel().getStations() != null){
-            receivers.getItems().addAll(this.getLocalModel().getStations().keySet());
+            receivers.getItems().addAll(this.getLocalModel().getOtherStations().keySet());
             receivers.getCheckModel().check(this.getLocalModel().getNickname());
         }
 

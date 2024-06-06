@@ -17,13 +17,13 @@
    <center>
       <VBox alignment="CENTER" spacing="25.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
-            <Insets bottom="25.0" top="50.0" />
+            <Insets bottom="25.0" top="25.0" />
          </BorderPane.margin>
          <children>
          
-               <Label fx:id="titleLabel" alignment="CENTER" text="Configuration Found" />
+               <Label fx:id="titleLabel" alignment="CENTER" style="-fx-font-weight: bold;" text="Configuration Found" textAlignment="CENTER" />
          
-                  <TableView fx:id="confTable" maxHeight="750.0" maxWidth="1000.0" stylesheets="@../css/OldConfigurationScene.css">
+                  <TableView fx:id="confTable" maxHeight="750.0" maxWidth="1000.0" stylesheets="@../css/OldConfigurationScene.css" VBox.vgrow="ALWAYS">
                    <columns>
                        <TableColumn fx:id="nicknameCol" text="Nickname" />
                        <TableColumn fx:id="timeCol" text="Time Stamp" />
@@ -43,7 +43,7 @@
                  <Button fx:id="newConfButton" mnemonicParsing="false" styleClass="newConfButton" stylesheets="@../css/OldConfigurationScene.css" text="New Conf" textAlignment="CENTER" />
              </children>
          <BorderPane.margin>
-            <Insets top="25.0" />
+            <Insets />
          </BorderPane.margin>
          </HBox>
    </bottom>

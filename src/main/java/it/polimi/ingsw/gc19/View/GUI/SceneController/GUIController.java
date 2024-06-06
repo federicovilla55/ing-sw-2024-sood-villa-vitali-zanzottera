@@ -170,6 +170,8 @@ public class GUIController implements UI , Listener{
 
                 this.stage.setScene(scene);
 
+                scene.getWindow().centerOnScreen();
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
