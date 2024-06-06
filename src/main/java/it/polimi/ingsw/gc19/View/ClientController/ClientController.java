@@ -146,16 +146,21 @@ public class ClientController {
             this.view.notifyGenericError("Incorrect players name for users to send message to!");
         }
         else{
+            if(users.contains(this.nickname)) {
+                this.view.notifyGenericError("You cannot send a message to yourself!");
+                return;
+            }
+
             for(String u : users){
                 if(!this.localModel.getStations().containsKey(u)){
                     this.view.notifyGenericError("You are trying to send a message to user " + u + " that does not exists in game!");
                     return;
                 }
             }
-            if(!users.contains(this.nickname)) {
-                localModel.getMessages().add(new Message(message, this.nickname, new ArrayList<>(users)));
-            }
-            clientNetwork.sendChatMessage(new ArrayList<>(users), message);
+
+            ArrayList<String> receivers = new ArrayList<>(users);
+            receivers.add(this.nickname);
+            clientNetwork.sendChatMessage(receivers, message);
         }
     }
 
