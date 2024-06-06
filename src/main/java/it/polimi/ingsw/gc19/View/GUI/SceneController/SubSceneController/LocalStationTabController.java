@@ -17,6 +17,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * A sub-scene controller. Manages inside a {@link TabPane}
+ * all {@link Tab} containing station view.
+ */
 public class LocalStationTabController extends GUIController implements LocalModelListener {
 
     @FXML
@@ -30,13 +34,21 @@ public class LocalStationTabController extends GUIController implements LocalMod
         super.getClientController().getListenersManager().attachListener(ListenerType.LOCAL_MODEL_LISTENER, this);
     }
 
+    /**
+     * Initializes {@link TabPane} and all its children {@link Tab}
+     */
     @FXML
-    public void initialize(){
+    private void initialize(){
         buildTabs();
 
         stations.getStyleClass().add("floating");
     }
 
+    /**
+     * Effectively builds {@link Tab} for the {@link TabPane}.
+     * It loads FXML file for local station and sets listeners
+     * for width and height values.
+     */
     private void buildTabs(){
         this.stations.getTabs().clear();
 
@@ -76,15 +88,19 @@ public class LocalStationTabController extends GUIController implements LocalMod
                     this.stations.getTabs().addFirst(tab);
                     stations.getSelectionModel().select(currentTab);
                     System.out.println(l.getOwnerPlayer());
-                }else{
+                }else {
                     this.stations.getTabs().add(tab);
                 }
-
-
             }
         }
     }
 
+    /**
+     * Used to notify {@link LocalStationTabController} about {@link LocalModelEvents}
+     * @param type a {@link LocalModelEvents} representing the event type
+     * @param localModel the {@link LocalModel} on which the event happened
+     * @param varArgs eventual arguments
+     */
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
         Platform.runLater(() -> {

@@ -27,6 +27,10 @@ import java.io.FileNotFoundException;
 
 import java.util.List;
 
+/**
+ * A sub-scene controller. It manages how GUI shows {@link LocalTable} and
+ * handles mouse clicks by user.
+ */
 public class TableController extends GUIController implements TableListener {
 
     @FXML
@@ -53,14 +57,25 @@ public class TableController extends GUIController implements TableListener {
         getClientController().getListenersManager().attachListener(ListenerType.TABLE_LISTENER, this);
     }
 
+    /**
+     * Initializes {@link GridPane} with which {@link TableController}
+     * shows cards on table (resources, gold and goals) and decks.
+     * It manages, also, listeners for width and height values.
+     */
     @FXML
-    public void initialize(){
+    private void initialize(){
         buildTable();
 
         this.gridPane.hgapProperty().bind(this.gridPane.widthProperty().multiply(2).divide(7));
         this.gridPane.vgapProperty().bind(this.gridPane.heightProperty().divide(15));
     }
 
+    /**
+     * Effectively builds and fill {@link TableController#gridPane} containing all cards
+     * and decks.
+     * Clicking the card (on table or on deck), the user can pick it.
+     * Dimensions of the cards are bound to the stage width and height. Cards on table are unswappable.
+     */
     private void buildTable(){
         gridPane.getChildren().clear();
 
@@ -154,6 +169,12 @@ public class TableController extends GUIController implements TableListener {
         }
     }
 
+    /**
+     * Handles user click on a card visible on table
+     * @param event the {@link MouseEvent} describing the mouse click event
+     * @param card the {@link PlayableCard} to be picked
+     * @param position the position of the card on table
+     */
     private void handleClickDrawableTableCard(MouseEvent event, PlayableCard card, int position){
         if(event.getClickCount() == 1){
             if(this.getClientController().getState() == ViewState.PICK) {
@@ -162,6 +183,11 @@ public class TableController extends GUIController implements TableListener {
         }
     }
 
+    /**
+     * Handles user click on a deck card
+     * @param event the {@link MouseEvent} describing the mouse click event
+     * @param type the {@link PlayableCardType} of the card to be picked
+     */
     private void handleClickDrawableDeck(MouseEvent event, PlayableCardType type){
         if(event.getClickCount() == 1){
             if(this.getClientController().getState() == ViewState.PICK) {
@@ -170,6 +196,12 @@ public class TableController extends GUIController implements TableListener {
         }
     }
 
+    /**
+     * Factory method for drawable cards. Manages listeners for button click.
+     * @param card  the {@link PlayableCard} to be picked
+     * @param x x position on the grid
+     * @param y y position on the grid
+     */
     private void drawableCardFactory(PlayableCard card, int x, int y){
         if(card != null){
             this.drawableTableCards[x][y] = new PlayableCardButton(card, super.getStage(), (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO);
@@ -180,6 +212,10 @@ public class TableController extends GUIController implements TableListener {
         }
     }
 
+    /**
+     * Factory method for {@link ImageView} of card on top of goal cards deck
+     * @return {@link ImageView} of the card on top of deck
+     */
     private ImageView factoryUpperDeckCard(){
         ImageView imageView = CardImageLoader.getBackImageView();
         imageView.setPreserveRatio(true);
@@ -192,6 +228,13 @@ public class TableController extends GUIController implements TableListener {
         return imageView;
     }
 
+    /**
+     * Factory method for {@link ImageView} of cards on top of
+     * playable cards decks (resource and gold)
+     * @param symbol the {@link Symbol} of the card
+     * @param type the {@link PlayableCardType} of the card
+     * @return the {@link ImageView} built.
+     */
     private ImageView factoryUpperDeckCard(Symbol symbol, PlayableCardType type){
         if(symbol != null) {
             ImageView imageView = new ImageView(CardImageLoader.getBackImage(symbol,type));
@@ -210,11 +253,19 @@ public class TableController extends GUIController implements TableListener {
         return null;
     }
 
+    /**
+     * Used to notify {@link TableController} about updates on {@link LocalTable}.
+     * @param localTable the {@link LocalTable} that has changed.
+     */
     @Override
     public void notify(LocalTable localTable) {
         Platform.runLater(this::buildTable);
     }
 
+    /**
+     * Clips the {@param cardImage} by a {@link Rectangle} with rounded corners.
+     * @param cardImage the {@link ImageView} to be clipped.
+     */
     private void clipCardImage(ImageView cardImage){
         double CARD_PIXEL_HEIGHT = 558.0;
         double CARD_PIXEL_WIDTH = 832.0;

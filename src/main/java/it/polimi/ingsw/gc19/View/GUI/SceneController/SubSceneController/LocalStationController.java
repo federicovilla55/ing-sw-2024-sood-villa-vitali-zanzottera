@@ -1,16 +1,18 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.Enums.Direction;
-import it.polimi.ingsw.gc19.View.GUI.GUISettings;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
+import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
+import it.polimi.ingsw.gc19.View.GUI.GUISettings;
 import it.polimi.ingsw.gc19.View.GUI.SceneController.GUIController;
+import it.polimi.ingsw.gc19.View.GUI.Utils.CardImageLoader;
 import it.polimi.ingsw.gc19.View.GUI.Utils.GoalCardButton;
 import it.polimi.ingsw.gc19.View.GUI.Utils.PlayableCardButton;
-import it.polimi.ingsw.gc19.View.GUI.Utils.CardImageLoader;
 import it.polimi.ingsw.gc19.View.GameLocalView.OtherStation;
 import it.polimi.ingsw.gc19.View.GameLocalView.PersonalStation;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.StationListener;
@@ -21,7 +23,10 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.*;
+import javafx.geometry.HPos;
+import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.effect.DropShadow;
@@ -30,17 +35,19 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
+import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.*;
 
 import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
 
+/**
+ * A sub-scene controller. Manges how GUI show
+ * the station of a player: card picking, card placing and errors.
+ */
 public class LocalStationController extends GUIController implements StationListener, SetupListener {
 
     @FXML
@@ -93,6 +100,10 @@ public class LocalStationController extends GUIController implements StationList
         super.getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
     }
 
+    /**
+     * Initializes the sub-scene for local station
+     * of the owner player.
+     */
     @FXML
     private void initialize(){
         this.translate = new Translate();
@@ -139,6 +150,12 @@ public class LocalStationController extends GUIController implements StationList
         this.leftVBox.maxHeightProperty().bind(super.getStage().widthProperty().divide(HEIGHT_RATIO).add(this.leftVBox.spacingProperty()).multiply(3));
     }
 
+    /**
+     * Initializes pawn image for the owner player.
+     * If player hasn't still chosen its color,
+     * then nothing is showed. If player is first player,
+     * it shows, also, black pawn.
+     */
     private void initializePawns(){
         if(!this.nickOwner.equals(this.getLocalModel().getNickname())){
             this.rightVBox.getChildren().clear();
@@ -153,11 +170,19 @@ public class LocalStationController extends GUIController implements StationList
         }
     }
 
+    /**
+     * For the owner player (<code>{@link LocalStationController#nickOwner}</code> equals
+     * {@link ClientController#getNickname()}) displays the chosen {@link GoalCard},
+     * otherwise nothing.
+     * Then displays cards in hand: for owner player, it makes them draggable and swappable;
+     * for others displays only back side.
+     */
     private void initializeCards(){
         if(this.nickOwner.equals(this.getLocalModel().getNickname())){
             if(super.getLocalModel().getPersonalStation().getPrivateGoalCardInStation() != null) {
                 this.rightVBox.getChildren().add(
-                        new GoalCardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation(), super.getStage(), (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO));
+                        new GoalCardButton(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation(), super.getStage(),
+                                           (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO));
             }
 
             this.leftVBox.getChildren().clear();
@@ -181,6 +206,18 @@ public class LocalStationController extends GUIController implements StationList
         }
     }
 
+    /**
+     * Checks whether {@link LocalStationController#centerPane} contains mouse.
+     * <br>
+     * If mouse is inside, and it is dragging a card (<code>draggedCard != null</code>)
+     * then {@link LocalStationController#draggedCard} is resized to the dimension of the cards
+     * inside {@link LocalStationController#centerPane}.
+     * <br>
+     * If mouse is outside {@link LocalStationController#centerPane} and <code>draggedCard != null</code>
+     * then {@link LocalStationController#draggedCard} is resized to the dimensions
+     * of cards in hand.
+     * @param mouse a {@link MouseEvent} containing coords of mouse
+     */
     private void checkStackPaneContainsImage(MouseEvent mouse){
         Point2D mousePosition = new Point2D(mouse.getSceneX(), mouse.getSceneY());
 
@@ -206,7 +243,7 @@ public class LocalStationController extends GUIController implements StationList
 
     private void makeCardDraggable(Node node){
         node.setOnMousePressed(e -> {
-            //if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
+            if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
 
             //always center card with respect to mouse
             node.setTranslateX(node.getTranslateX() + e.getSceneX() - node.localToScene(0,0).getX() - node.getBoundsInLocal().getWidth()/2);
@@ -220,7 +257,7 @@ public class LocalStationController extends GUIController implements StationList
         });
 
         node.setOnMouseDragged(e -> {
-            //if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
+            if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
 
             node.setTranslateX(e.getSceneX() - startX);
             node.setTranslateY(e.getSceneY() - startY);
@@ -231,7 +268,7 @@ public class LocalStationController extends GUIController implements StationList
         });
 
         node.setOnMouseReleased(e -> {
-            //if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
+            if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
 
             // Get the scene coordinates where the card is released
             double sceneX = e.getSceneX();
@@ -284,6 +321,14 @@ public class LocalStationController extends GUIController implements StationList
         });
     }
 
+    /**
+     * Factory method for unswappable cards. They are represented
+     * as {@link ImageView} with both height and width property bounded
+     * to stage current width and height
+     * @param symbol the {@link Symbol} of the card
+     * @param type the {@link PlayableCardType} of the card
+     * @return an {@link ImageView} describing the unswappable card
+     */
     private ImageView factoryUnswappableCard(Symbol symbol, PlayableCardType type){
         ImageView imageView = new ImageView(CardImageLoader.getBackImage(symbol,type));
         imageView.setPreserveRatio(true);
@@ -294,6 +339,12 @@ public class LocalStationController extends GUIController implements StationList
         return imageView;
     }
 
+    /**
+     * Initializes game area (e.g. {@link LocalStationController#centerPane}
+     * containing current game (placed cards) of the owner player.
+     * It builds also buttons for rescaling and centering  images inside
+     * {@link LocalStationController#centerPane}.
+     */
     private void initializeGameArea(){
         if(!this.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence().isEmpty()){
             this.buildCardGrid(super.getLocalModel().getStations().get(this.nickOwner).getPlacedCardSequence());
@@ -337,6 +388,11 @@ public class LocalStationController extends GUIController implements StationList
         }
     }
 
+    /**
+     * Factory method for pawns
+     * @param name the name of the {@link Color} to get the pawn
+     * @return the {@link ImageView} of the corresponding pawn.
+     */
     private ImageView pawnFactory(String name){
         ImageView color = switch (name.toLowerCase()) {
             case "red" -> redPawnImageView;
@@ -430,6 +486,11 @@ public class LocalStationController extends GUIController implements StationList
         makeCenterPaneScrollable();
     }
 
+    /**
+     * Clips the {@param cardImage} by a {@link Rectangle} with
+     * rounded corners.
+     * @param cardImage the {@link ImageView} to be clipped.
+     */
     private void clipCardImage(ImageView cardImage){
         Rectangle rectangle = new Rectangle();
         rectangle.widthProperty().bind(cardImage.fitWidthProperty());
@@ -441,6 +502,11 @@ public class LocalStationController extends GUIController implements StationList
         cardImage.setClip(rectangle);
     }
 
+    /**
+     * Makes {@link LocalStationController#cardGrid} draggable inside
+     * {@link LocalStationController#centerPane}. Users with mouse can move
+     * {@link LocalStationController#cardGrid} around {@link LocalStationController#centerPane}
+     */
     private void makeGridPaneDraggable(){
         centerPane.setStyle("""
                                 -fx-padding: 5;
@@ -469,6 +535,12 @@ public class LocalStationController extends GUIController implements StationList
         });
     }
 
+    /**
+     * Makes {@link LocalStationController#cardGrid} and {@link LocalStationController#centerPane}
+     * scrollable. Users with mouse's scroll can zoom in and
+     * zoom out in {@link LocalStationController#cardGrid}.
+     * At max, {@link LocalStationController#scale} can be <code>2</code>; at min, can be <code>0.25</code>
+     */
     private void makeCenterPaneScrollable(){
         final double MAX_SCALE = 2;
         final double MIN_SCALE = 0.25;
@@ -497,6 +569,11 @@ public class LocalStationController extends GUIController implements StationList
         });
     }
 
+    /**
+     * Used to notify {@link LocalStationController} about {@link SetupEvent}.
+     * Rebuilds the station view.
+     * @param type a {@link SetupEvent} describing the type of the event
+     */
     @Override
     public void notify(SetupEvent type) {
         Platform.runLater(() -> {
@@ -504,12 +581,22 @@ public class LocalStationController extends GUIController implements StationList
                 this.initialize();
             }
         });
-
     }
 
+    /**
+     * Used to notify {@link LocalStationController} about errors concerning {@link SetupEvent}.
+     * Currently not used.
+     * @param type the type of the error
+     * @param error a {@link String} description of the error
+     */
     @Override
     public void notify(SetupEvent type, String error) { }
 
+    /**
+     * Used to notify {@link LocalStationController} about {@link PersonalStation} updates.
+     * Rebuilds the station view.
+     * @param localStationPlayer is the {@link PersonalStation} that has changed
+     */
     @Override
     public void notify(PersonalStation localStationPlayer) {
         Platform.runLater(() -> {
@@ -517,6 +604,11 @@ public class LocalStationController extends GUIController implements StationList
         });
     }
 
+    /**
+     * Used to notify {@link LocalStationController} about {@link OtherStation} updates.
+     * Rebuilds the station view.
+     * @param otherStation is the {@link OtherStation} that has changed
+     */
     @Override
     public void notify(OtherStation otherStation) {
         Platform.runLater(() -> {
@@ -524,43 +616,50 @@ public class LocalStationController extends GUIController implements StationList
         });
     }
 
+    /**
+     * Used to notify {@link LocalStationController} about errors concerning {@link LocalStationPlayer}
+     * Does not rebuild the station view. Displays a drop shadowed rectangle in the position where user has placed
+     * the invalid card.
+     * @param varArgs variable arguments describing the error
+     */
     @Override
     public void notifyErrorStation(String... varArgs){
-        Direction direction;
+        if(varArgs.length == 3) {
+            Direction direction;
 
-        try {
-            direction = Direction.valueOf(varArgs[2].toUpperCase());
+            try {
+                direction = Direction.valueOf(varArgs[2].toUpperCase());
+            } catch (IllegalArgumentException illegalArgumentException) {
+                return;
+            }
+
+            Tuple<Integer, Integer> coords = super.getLocalModel().getPersonalStation().getCoord(varArgs[1]);
+            int rowIndex = coords.x() + direction.getX() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().x()).min().orElse(0) - 1);
+            int columnIndex = coords.y() + direction.getY() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().y()).min().orElse(0) - 1);
+
+            Platform.runLater(() -> {
+                error = new Rectangle();
+
+                error.widthProperty().bind(super.getStage().widthProperty().divide(WIDTH_RATIO).multiply(scale));
+                error.heightProperty().bind(error.widthProperty().multiply(CARD_PIXEL_HEIGHT).divide(CARD_PIXEL_WIDTH));
+
+                error.arcWidthProperty().bind(error.widthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
+                error.arcHeightProperty().bind(error.heightProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
+
+                error.setFill(Color.TRANSPARENT);
+                error.setStroke(Color.RED);
+                error.setStrokeWidth(2);
+
+                DropShadow dropShadow = new DropShadow();
+                dropShadow.setOffsetX(3);
+                dropShadow.setOffsetY(3);
+                dropShadow.setColor(Color.RED);
+
+                error.setEffect(dropShadow);
+
+                this.cardGrid.add(error, columnIndex, rowIndex);
+            });
         }
-        catch (IllegalArgumentException illegalArgumentException){
-            return;
-        }
-
-        Tuple<Integer, Integer> coords = super.getLocalModel().getPersonalStation().getCoord(varArgs[1]);
-        int rowIndex = coords.x() + direction.getX() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().x()).min().orElse(0) - 1);
-        int columnIndex = coords.y() + direction.getY() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().y()).min().orElse(0) - 1);
-
-        Platform.runLater(() -> {
-            error = new Rectangle();
-
-            error.widthProperty().bind(super.getStage().widthProperty().divide(WIDTH_RATIO).multiply(scale));
-            error.heightProperty().bind(error.widthProperty().multiply(CARD_PIXEL_HEIGHT).divide(CARD_PIXEL_WIDTH));
-
-            error.arcWidthProperty().bind(error.widthProperty().multiply(2 * CORNER_RADIUS/ CARD_PIXEL_WIDTH));
-            error.arcHeightProperty().bind(error.heightProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
-
-            error.setFill(Color.TRANSPARENT);
-            error.setStroke(Color.RED);
-            error.setStrokeWidth(2);
-
-            DropShadow dropShadow = new DropShadow();
-            dropShadow.setOffsetX(3);
-            dropShadow.setOffsetY(3);
-            dropShadow.setColor(Color.RED);
-
-            error.setEffect(dropShadow);
-
-            this.cardGrid.add(error, columnIndex, rowIndex);
-        });
     }
 
 }
