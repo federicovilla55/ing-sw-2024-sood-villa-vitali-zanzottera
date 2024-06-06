@@ -548,11 +548,18 @@ public class LocalStationController extends GUIController implements StationList
             error.arcWidthProperty().bind(error.widthProperty().multiply(2 * CORNER_RADIUS/ CARD_PIXEL_WIDTH));
             error.arcHeightProperty().bind(error.heightProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
 
-            ImageView transparent = new ImageView(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/transparent/transparent.png"))));
-            transparent.setClip(error);
-            transparent.setEffect(new DropShadow(20, 5, 5, Color.RED));
+            error.setFill(Color.TRANSPARENT);
+            error.setStroke(Color.RED);
+            error.setStrokeWidth(2);
 
-            this.cardGrid.add(transparent, columnIndex, rowIndex);
+            DropShadow dropShadow = new DropShadow();
+            dropShadow.setOffsetX(3);
+            dropShadow.setOffsetY(3);
+            dropShadow.setColor(Color.RED);
+
+            error.setEffect(dropShadow);
+
+            this.cardGrid.add(error, columnIndex, rowIndex);
         });
     }
 
