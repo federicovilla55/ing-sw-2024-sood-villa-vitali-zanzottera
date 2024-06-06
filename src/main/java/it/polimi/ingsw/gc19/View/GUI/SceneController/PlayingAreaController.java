@@ -198,7 +198,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
             ((Label) infoHBox.getChildren().get(3)).setText("Current game state: " + super.getClientController().getState().toString().toLowerCase().replace('_', ' '));
 
-            infoHBox.getChildren().remove(0, infoHBox.getChildren().size());
+            infoHBox.getChildren().remove(4, infoHBox.getChildren().size());
 
             allPlayersConnectedFactory(super.getLocalModel().checkAllPlayersConnected());
         }

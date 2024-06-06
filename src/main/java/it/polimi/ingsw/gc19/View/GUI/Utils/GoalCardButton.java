@@ -18,6 +18,9 @@ import javafx.util.Duration;
 
 import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
 
+/**
+ * This class represents a generic button with a {@link GoalCard} as its graphic.
+ */
 public class GoalCardButton extends Button{
 
     private final GoalCard card;
@@ -68,6 +71,10 @@ public class GoalCardButton extends Button{
         buildTooltip();
     }
 
+    /**
+     * Build a {@link Tooltip} describing the {@link GoalCard} associated to the button.
+     * Duration of the tooltip in indefinite and it follows mouse movement inside button.
+     */
     private void buildTooltip(){
         Tooltip infos = new Tooltip("Goal card ard description");
 
@@ -92,6 +99,10 @@ public class GoalCardButton extends Button{
         });
     }
 
+    /**
+     * Clips the {@param cardImage} by a {@link Rectangle} with rounded corners.
+     * @param cardImage the {@link ImageView} to be clipped.
+     */
     private void clipCardImage(ImageView cardImage){
         Rectangle rectangle = new Rectangle();
         rectangle.widthProperty().bind(cardImage.fitWidthProperty());
@@ -103,30 +114,18 @@ public class GoalCardButton extends Button{
         cardImage.setClip(rectangle);
     }
 
+    /**
+     * Getter for {@link GoalCard} associated to the button
+     * @return the {@link GoalCard} associated to the button
+     */
     public Card getCard(){
         return this.card;
     }
 
-    public void showSide(CardOrientation orientation){
-        if(orientation == CardOrientation.UP){
-            this.isUp = true;
-            super.setGraphic(this.front);
-        }
-        else{
-            this.isUp = false;
-            super.setGraphic(this.back);
-        }
-    }
-
-    public ImageView getOtherSide(){
-        if(this.isUp){
-            return this.back;
-        }
-        else{
-            return this.front;
-        }
-    }
-
+    /**
+     * Getter for {@link ImageView} of the side currently seen
+     * @return the {@link ImageView} of the side currently seen.
+     */
     public ImageView getSide(){
         if(this.isUp){
             return this.front;
@@ -136,10 +135,10 @@ public class GoalCardButton extends Button{
         }
     }
 
-    public CardOrientation getCardOrientation(){
-        return this.isUp ? CardOrientation.UP : CardOrientation.DOWN;
-    }
-
+    /**
+     * Getter for default {@link MouseEvent} handler: when user double-click on the card, this swaps.
+     * @return the default {@link MouseEvent} handler for the card.
+     */
     public EventHandler<MouseEvent> getDefaultMouseClickedHandler(){
         return (event) -> {
             if(event.getClickCount() == 2) {
@@ -148,6 +147,9 @@ public class GoalCardButton extends Button{
         };
     }
 
+    /**
+     * Swaps side of the card.
+     */
     public void swap(){
         this.isUp = !this.isUp;
         super.setGraphic(getSide());

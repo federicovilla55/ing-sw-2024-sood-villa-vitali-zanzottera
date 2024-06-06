@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.View.GUI.Utils;
 
+import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.View.GUI.GUISettings;
 import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
@@ -67,6 +68,10 @@ public class PlayableCardButton extends Button{
         buildTooltip();
     }
 
+    /**
+     * Build a {@link Tooltip} describing the {@link GoalCard} associated to the button.
+     * Duration of the tooltip in indefinite and it follows mouse movement inside button.
+     */
     private void buildTooltip(){
         Tooltip infos = new Tooltip("Playable card description");
 
@@ -91,6 +96,10 @@ public class PlayableCardButton extends Button{
         });
     }
 
+    /**
+     * Clips the {@param cardImage} by a {@link Rectangle} with rounded corners.
+     * @param cardImage the {@link ImageView} to be clipped.
+     */
     private void clipCardImage(ImageView cardImage){
         Rectangle rectangle = new Rectangle();
         rectangle.widthProperty().bind(cardImage.fitWidthProperty());
@@ -102,30 +111,18 @@ public class PlayableCardButton extends Button{
         cardImage.setClip(rectangle);
     }
 
+    /**
+     * Getter for {@link PlayableCard} associated to the button
+     * @return the {@link PlayableCard} associated to the button
+     */
     public PlayableCard getCard(){
         return this.card;
     }
 
-    public void showSide(CardOrientation orientation){
-        if(orientation == CardOrientation.UP){
-            this.isUp = true;
-            super.setGraphic(this.front);
-        }
-        else{
-            this.isUp = false;
-            super.setGraphic(this.back);
-        }
-    }
-
-    public ImageView getOtherSide(){
-        if(this.isUp){
-            return this.back;
-        }
-        else{
-            return this.front;
-        }
-    }
-
+    /**
+     * Getter for {@link ImageView} of the side currently seen
+     * @return the {@link ImageView} of the side currently seen.
+     */
     public ImageView getSide(){
         if(this.isUp){
             return this.front;
@@ -135,10 +132,18 @@ public class PlayableCardButton extends Button{
         }
     }
 
+    /**
+     * Getter for the current {@link CardOrientation} of the card
+     * @return the current {@link CardOrientation} of the card
+     */
     public CardOrientation getCardOrientation(){
         return this.isUp ? CardOrientation.UP : CardOrientation.DOWN;
     }
 
+    /**
+     * Getter for default {@link MouseEvent} handler: when user double-click on the card, this swaps.
+     * @return the default {@link MouseEvent} handler for the card.
+     */
     public EventHandler<MouseEvent> getDefaultMouseClickedHandler(){
         return (event) -> {
             if(event.getClickCount() == 2) {
@@ -147,6 +152,9 @@ public class PlayableCardButton extends Button{
         };
     }
 
+    /**
+     * Swaps side of the card.
+     */
     public void swap(){
         this.isUp = !this.isUp;
         this.card.setCardState(this.getCardOrientation());
