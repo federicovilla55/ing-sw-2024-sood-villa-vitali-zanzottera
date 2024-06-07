@@ -1,5 +1,6 @@
-package it.polimi.ingsw.gc19.Networking.Client;
+package it.polimi.ingsw.gc19.Networking.Client.ClientFactory;
 
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 
 import java.io.IOException;

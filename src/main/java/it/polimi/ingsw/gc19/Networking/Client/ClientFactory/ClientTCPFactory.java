@@ -1,6 +1,6 @@
-package it.polimi.ingsw.gc19.Networking.Client;
+package it.polimi.ingsw.gc19.Networking.Client.ClientFactory;
 
-import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageHandler;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;

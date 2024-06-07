@@ -2,9 +2,9 @@ package it.polimi.ingsw.gc19.Networking.Client.Configuration;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.polimi.ingsw.gc19.Networking.Client.ClientFactory;
-import it.polimi.ingsw.gc19.Networking.Client.ClientRMIFactory;
-import it.polimi.ingsw.gc19.Networking.Client.ClientTCPFactory;
+import it.polimi.ingsw.gc19.Networking.Client.ClientFactory.ClientFactory;
+import it.polimi.ingsw.gc19.Networking.Client.ClientFactory.ClientRMIFactory;
+import it.polimi.ingsw.gc19.Networking.Client.ClientFactory.ClientTCPFactory;
 
 import java.util.Date;
 

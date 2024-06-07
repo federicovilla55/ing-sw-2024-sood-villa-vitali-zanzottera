@@ -187,7 +187,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
      * @throws IllegalStateException when an error happened managing configuration
      */
     @Override
-    public void reconnect() throws IllegalStateException{
+    public void reconnect() throws RuntimeException{
         Configuration clientConfig;
         String nick;
 

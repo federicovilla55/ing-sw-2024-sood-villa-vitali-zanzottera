@@ -1,8 +1,8 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController;
 
 import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
-import it.polimi.ingsw.gc19.Networking.Client.ClientRMIFactory;
-import it.polimi.ingsw.gc19.Networking.Client.ClientTCPFactory;
+import it.polimi.ingsw.gc19.Networking.Client.ClientFactory.ClientRMIFactory;
+import it.polimi.ingsw.gc19.Networking.Client.ClientFactory.ClientTCPFactory;
 import it.polimi.ingsw.gc19.View.ClientController.ClientController;
 import it.polimi.ingsw.gc19.View.ClientController.ViewState;
 import it.polimi.ingsw.gc19.View.Command.CommandParser;
@@ -11,6 +11,7 @@ import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.fxml.FXML;
 
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.scene.control.Label;
@@ -80,7 +81,16 @@ public class NewConfigurationController extends GUIController implements StateLi
 
         try {
             this.client = connectionRMI.createClient(super.getClientController());
-        } catch (RemoteException | RuntimeException ex) {
+        }
+        catch (RemoteException | RuntimeException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("RMI network problems");
+            alert.setContentText(ex.getMessage());
+
+            alert.initOwner(super.getStage().getScene().getWindow());
+
+            alert.showAndWait();
+
             System.exit(1);
             return;
         }
@@ -93,13 +103,22 @@ public class NewConfigurationController extends GUIController implements StateLi
 
         try {
             this.client = connectionTCP.createClient(super.getClientController());
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("TCP network problems");
+            alert.setContentText(ex.getMessage());
+            alert.initOwner(super.getStage().getScene().getWindow());
+
+            alert.showAndWait();
+
             System.exit(1);
             return;
         }
 
         super.getClientController().setClientInterface(client);
     }
+
     @Override
     public void notify(ViewState viewState) {
         super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);

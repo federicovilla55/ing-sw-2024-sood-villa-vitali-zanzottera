@@ -102,13 +102,22 @@ public class OldConfigurationController extends GUIController implements StateLi
         Configuration config = confTable.getSelectionModel().getSelectedItem();
         Configuration.ConnectionType connectionType;
         if(config != null) {
-            System.out.println(config.getNick());
             connectionType = config.getConnectionType();
 
             try {
                 client = connectionType.getClientFactory().createClient(super.getClientController());
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
+            }
+            catch (IOException | RuntimeException ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle(connectionType.toString().toUpperCase() + " network problems");
+                alert.setContentText(ex.getMessage());
+
+                alert.initOwner(super.getStage().getScene().getWindow());
+
+                alert.showAndWait();
+
+                System.exit(1);
+                return;
             }
 
             client.configure(config.getNick(), config.getToken());
