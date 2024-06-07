@@ -9,6 +9,7 @@ import it.polimi.ingsw.gc19.View.Listeners.Listener;
 import it.polimi.ingsw.gc19.View.UI;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -18,6 +19,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.jetbrains.annotations.Nullable;
@@ -166,23 +168,30 @@ public class GUIController implements UI , Listener{
             try {
                 root = loader.load();
 
-                Scene scene = new Scene(root);
-
-                this.stage.setScene(scene);
+                this.stage.getScene().setRoot(root);
 
                 switch (nextScenePath){
                     case NEW_CONFIGURATION_SCENE,
                          OLD_CONFIGURATION_SCENE,
                          LOGIN_SCENE,
                          GAME_SELECTION_SCENE -> {
+
                         this.getStage().setResizable(false);
                         this.getStage().setMaximized(false);
                         this.getStage().sizeToScene();
                         this.getStage().getScene().getWindow().centerOnScreen();
                     }
                     case SETUP_SCENE, PLAYING_AREA_SCENE -> {
+
+                        Screen screen = Screen.getPrimary();
+                        Rectangle2D bounds = screen.getVisualBounds();
+                        this.getStage().getScene().getRoot().prefWidth(bounds.getWidth());
+                        this.getStage().getScene().getRoot().prefHeight(bounds.getHeight());
+                        this.getStage().setWidth(bounds.getWidth());
+                        this.getStage().setHeight(bounds.getHeight());
+
                         this.getStage().setResizable(true);
-                        this.getStage().setMaximized(true);
+                        this.getStage().setMaximized(false);
                     }
                 }
 
