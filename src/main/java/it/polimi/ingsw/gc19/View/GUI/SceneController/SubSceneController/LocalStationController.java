@@ -624,16 +624,16 @@ public class LocalStationController extends GUIController implements StationList
      */
     @Override
     public void notifyErrorStation(String... varArgs){
-        if(varArgs.length == 3) {
+        if(varArgs.length == 4 && varArgs[0].equals(nickOwner)) {
             Direction direction;
 
             try {
-                direction = Direction.valueOf(varArgs[2].toUpperCase());
+                direction = Direction.valueOf(varArgs[3].toUpperCase());
             } catch (IllegalArgumentException illegalArgumentException) {
                 return;
             }
 
-            Tuple<Integer, Integer> coords = super.getLocalModel().getPersonalStation().getCoord(varArgs[1]);
+            Tuple<Integer, Integer> coords = super.getLocalModel().getPersonalStation().getCoord(varArgs[2]);
             int rowIndex = coords.x() + direction.getX() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().x()).min().orElse(0) - 1);
             int columnIndex = coords.y() + direction.getY() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().y()).min().orElse(0) - 1);
 

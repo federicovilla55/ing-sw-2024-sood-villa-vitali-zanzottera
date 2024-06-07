@@ -1571,7 +1571,7 @@ public class TUIView implements UI, GeneralListener {
      * phase of the game.
      */
     private void printHelper(ViewState viewState){
-        System.out.println("Those are the available actions in the " + viewState.toString().toLowerCase(Locale.ROOT) + " state: ");
+        System.out.println("Those are the available actions in the '" + viewState.toString().toLowerCase(Locale.ROOT).replace('_', ' ') + "' state: ");
         System.out.println();
 
         switch (viewState){

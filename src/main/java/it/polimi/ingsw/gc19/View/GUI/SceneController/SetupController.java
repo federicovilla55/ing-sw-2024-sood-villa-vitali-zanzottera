@@ -269,6 +269,10 @@ public class SetupController extends GUIController implements SetupListener, Sta
         ((Region) chat.getChildren().getFirst()).setPrefHeight(((ScrollPane) chat.getChildren().getFirst()).getHeight() + 0.25 * ((Region) chat.getParent()).getHeight());
     }
 
+    /**
+     * Used to notify {@link SetupController} with {@link SetupEvent}.
+     * @param type a {@link SetupEvent} describing the type of the event
+     */
     @Override
     public void notify(SetupEvent type) {
         Platform.runLater(() ->{
@@ -280,6 +284,12 @@ public class SetupController extends GUIController implements SetupListener, Sta
         });
     }
 
+    /**
+     * Used to notify {@link SetupController} with {@link SetupEvent}.
+     * An {@link Alert} is shown and {@link #availableColorsPane} is rebuilt.
+     * @param type the type of the error
+     * @param errorDescription a {@link String} description of the error
+     */
     @Override
     public void notify(SetupEvent type, String errorDescription){
         Platform.runLater(() -> {
@@ -291,6 +301,12 @@ public class SetupController extends GUIController implements SetupListener, Sta
         });
     }
 
+    /**
+     * Used to notify {@link SetupController} about updates on {@link ViewState}.
+     * When {@link #changeToNextScene(SceneStatesEnum)} need to be called
+     * {@link SetupController} removes all listeners of its sub-scenes.
+     * @param viewState the new {@link ViewState}
+     */
     @Override
     public void notify(ViewState viewState) {
         switch (viewState){
@@ -311,6 +327,14 @@ public class SetupController extends GUIController implements SetupListener, Sta
         super.getClientController().getListenersManager().removeListener(localStationController);
     }
 
+    /**
+     * Used to notify {@link SetupController} about {@link LocalModelEvents}.
+     * {@link #infoHBox} is rebuilt and a new {@link Alert} is shows. The popup
+     * last, only, for 5 seconds.
+     * @param type a {@link LocalModelEvents} representing the event type
+     * @param localModel the {@link LocalModel} on which the event happened
+     * @param varArgs eventual arguments
+     */
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
         Platform.runLater(() -> {

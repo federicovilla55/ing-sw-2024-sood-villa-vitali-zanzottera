@@ -235,13 +235,13 @@ public class ClientController {
             cardToPlace.setCardState(cardOrientation);
         }
         else{
-            this.listenersManager.notifyErrorStationListener(cardToInsert, anchor, direction.toString().toLowerCase());
+            this.listenersManager.notifyErrorStationListener(this.nickname, cardToInsert, anchor, direction.toString().toLowerCase());
             return false;
         }
 
         //apply card orientation to see correctly if a card is placeable
         if(!localModel.isCardPlaceablePersonalStation(cardToPlace, anchorCard, direction)){
-            this.listenersManager.notifyErrorStationListener(cardToInsert, anchor, direction.toString().toLowerCase());
+            this.listenersManager.notifyErrorStationListener(this.nickname, cardToInsert, anchor, direction.toString().toLowerCase());
             return false;
         }
 
