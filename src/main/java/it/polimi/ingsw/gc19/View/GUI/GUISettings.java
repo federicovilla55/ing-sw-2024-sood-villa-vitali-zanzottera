@@ -1,5 +1,8 @@
 package it.polimi.ingsw.gc19.View.GUI;
 
+/**
+ * Settings for GUI.
+ */
 public class GUISettings{
 
     public static final double CARD_PIXEL_WIDTH = 832.0;

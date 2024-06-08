@@ -13,6 +13,10 @@ import javafx.scene.shape.Circle;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A scene controller used to wait for reconnection
+ * and signaling to user that network problems have arisen.
+ */
 public class ReconnectionWaitController extends GUIController implements StateListener {
 
     @FXML
@@ -33,8 +37,11 @@ public class ReconnectionWaitController extends GUIController implements StateLi
         this.circles = new ArrayList<>();
     }
 
+    /**
+     * Initializes reconnection wait scene and defines spinning wheel.
+     */
     @FXML
-    public void initialize(){
+    private void initialize(){
         double rho = 50;
 
         for(int theta = 0; theta < 12; theta++){
@@ -55,6 +62,9 @@ public class ReconnectionWaitController extends GUIController implements StateLi
         initThread();
     }
 
+    /**
+     * Build thread responsible for making wheel spinning.
+     */
     private void initThread(){
         thread = new Thread(() -> {
             Circle currrentCircle = circles.getFirst();
@@ -83,6 +93,11 @@ public class ReconnectionWaitController extends GUIController implements StateLi
         thread.start();
     }
 
+    /**
+     * Used to notify {@link ReconnectionWaitController} about events
+     * happened on {@link ViewState}.
+     * @param viewState the new {@link ViewState}
+     */
     @Override
     public void notify(ViewState viewState) {
         this.thread.interrupt();

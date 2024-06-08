@@ -93,10 +93,6 @@ public class GameSelectionController extends GUIController implements StateListe
         availableGamesList.setCellFactory(list -> {
             ListCell<String> cell = new ListCell<>();
             cell.textProperty().bind(cell.itemProperty());
-            cell.fontProperty().bind(Bindings.createObjectBinding(
-                    () -> Font.font(super.getStage().getHeight() / 50),
-                    super.getStage().heightProperty()
-            ));
             return cell;
         });
 

@@ -22,6 +22,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * A scene controller used to manage playing area scene.
+ */
 public class PlayingAreaController extends GUIController implements StateListener, LocalModelListener {
 
     @FXML
@@ -47,8 +50,13 @@ public class PlayingAreaController extends GUIController implements StateListene
         getClientController().getListenersManager().attachListener(ListenerType.LOCAL_MODEL_LISTENER, this);
     }
 
+    /**
+     * Initializes playing area scene. First, it builds
+     * {@link #infoHBox}, then sets listeners for width and height of scene.
+     * Finally, loads all sub-scenes controllers and places them on stage.
+     */
     @FXML
-    public void initialize(){
+    private void initialize(){
         buildInfoHBox();
 
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));
@@ -64,7 +72,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/ChatScene.fxml"));
+            loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.CHAT_SUB_SCENE.value()));
             chatController = new ChatController(this);
             loader.setController(chatController);
 
@@ -78,7 +86,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/TableScene.fxml"));
+            loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.TABLE_SUB_SCENE.value()));
             tableController = new TableController(this);
             loader.setController(tableController);
 
@@ -92,7 +100,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/LocalStationTab.fxml"));
+            loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.LOCAL_STATION_TAB_SUB_SCENE.value()));
             localStationController = new LocalStationTabController(this);
             loader.setController(localStationController);
 
@@ -136,7 +144,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/GameInformationScene.fxml"));
+            loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.GAME_INFOS_SUB_SCENE.value()));
             PlayerSymbolsController controller = new PlayerSymbolsController(this);
             loader.setController(controller);
 
@@ -166,6 +174,10 @@ public class PlayingAreaController extends GUIController implements StateListene
         }
     }
 
+    /**
+     * Builds {@link #infoHBox}: it contains all infos about user,
+     * game and other players state.
+     */
     private void buildInfoHBox(){
         if(this.infoHBox.getChildren().isEmpty()) {
 
@@ -201,8 +213,14 @@ public class PlayingAreaController extends GUIController implements StateListene
         }
     }
 
-    private void allPlayersConnectedFactory(boolean canStart){
-        String fileName = canStart ? "all_connected" : "one_not_connected";
+    /**
+     * Displays an image (tick or X) in {@link #infoHBox}
+     * whether all players are connected to the game
+     * @param allPlayersConnected <code>true</code> if and only
+     *                           all players are connected to the game
+     */
+    private void allPlayersConnectedFactory(boolean allPlayersConnected){
+        String fileName = allPlayersConnected ? "all_connected" : "one_not_connected";
 
         ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/game state/" + fileName + ".png"))));
         imageView.setPreserveRatio(true);
@@ -218,6 +236,9 @@ public class PlayingAreaController extends GUIController implements StateListene
         this.infoHBox.getChildren().addLast(hBox);
     }
 
+    /**
+     * Sets background to scene and all of its sub-scenes.
+     */
     private void setBackgrounds(){
         setBackground(stackPane, true);
         setBackground(infoHBox, false);
@@ -229,6 +250,10 @@ public class PlayingAreaController extends GUIController implements StateListene
         }
     }
 
+    /**
+     * Rebuild {@link #infoHBox} and displays {@link #paneFireworks}
+     * when game ends.
+     */
     public void endGame(){
         Platform.runLater(() -> {
             buildInfoHBox();
@@ -236,6 +261,11 @@ public class PlayingAreaController extends GUIController implements StateListene
         });
     }
 
+    /**
+     * Used to notify {@link PlayingAreaController} about events
+     * concerning {@link ViewState}.
+     * @param viewState the new {@link ViewState}
+     */
     @Override
     public void notify(ViewState viewState) {
         Platform.runLater(() -> {
@@ -256,6 +286,13 @@ public class PlayingAreaController extends GUIController implements StateListene
         super.getClientController().getListenersManager().removeListener(tableController);
     }
 
+    /**
+     * Used to notify {@link PlayingAreaController} about events
+     * concerning {@link LocalModel}.
+     * @param type a {@link LocalModelEvents} representing the event type
+     * @param localModel the {@link LocalModel} on which the event happened
+     * @param varArgs eventual arguments
+     */
     @Override
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
         Platform.runLater(() -> {

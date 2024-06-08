@@ -24,13 +24,20 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.jetbrains.annotations.Nullable;
+import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
-public class GUIController implements UI , Listener{
+/**
+ * A generic controller for GUI. All scene and sub-scene
+ * controllers must extend this class.
+ * It implements {@link UI} and {@link Listener} to interact
+ * respectively with {@link LocalModel} and {@link ListenersManager}
+ */
+public class GUIController implements UI, Listener{
 
     private LocalModel localModel;
     private CommandParser commandParser;
@@ -96,7 +103,11 @@ public class GUIController implements UI , Listener{
         }
     }
 
-
+    /**
+     * Used to notify a generic error. An {@link Alert}
+     * containing error description is shown.
+     * @param errorDescription the {@link String} description of the error
+     */
     @Override
     public void notifyGenericError(String errorDescription) {
         Platform.runLater(() -> {
@@ -108,6 +119,11 @@ public class GUIController implements UI , Listener{
         });
     }
 
+    /**
+     * Used to notify a generic message. An {@link Alert}
+     * containing message description is shown.
+     * @param message the {@link String} description of the message
+     */
     @Override
     public void notify(String message) {
         Platform.runLater(() -> {
@@ -119,30 +135,50 @@ public class GUIController implements UI , Listener{
         });
     }
 
+    /**
+     * Setter for current {@link Stage}.
+     * @param stage the {@link Stage} to be set.
+     */
     public void setStage(Stage stage){
         this.stage = stage;
     }
 
+    /**
+     * Setter for current {@link LocalModel}
+     * @param localModel the {@link LocalModel} to be set.
+     */
     public void setLocalModel(LocalModel localModel){
         this.localModel = localModel;
     }
 
-    public void setCommandParser(CommandParser commandParser) {
-        this.commandParser = commandParser;
-    }
-
+    /**
+     * Setter for current {@link ClientController}
+     * @param clientController the {@link ClientController} to be set.
+     */
     public void setClientController(ClientController clientController) {
         this.clientController = clientController;
     }
 
+    /**
+     * Getter for current {@link ClientController}
+     * @return the current {@link ClientController}
+     */
     public ClientController getClientController() {
         return clientController;
     }
 
+    /**
+     * Getter for current {@link CommandParser}
+     * @return the current {@link CommandParser}
+     */
     public CommandParser getCommandParser() {
         return commandParser;
     }
 
+    /**
+     * Getter for current {@link LocalModel}
+     * @return the current {@link LocalModel}
+     */
     public LocalModel getLocalModel() {
         if(this.localModel == null){
             this.localModel = this.clientController.getLocalModel();
@@ -150,10 +186,19 @@ public class GUIController implements UI , Listener{
         return localModel;
     }
 
+    /**
+     * Getter for current {@link Stage}
+     * @return the current {@link Stage}
+     */
     public Stage getStage() {
         return stage;
     }
 
+    /**
+     * Sets the {@param nextScenePath} to the current {@link #stage}.
+     * Handles maximization and visual bounds.
+     * @param nextScenePath the {@link SceneStatesEnum} to be set to {@link Stage}
+     */
     public void changeToNextScene(SceneStatesEnum nextScenePath) {
         FXMLLoader loader = new FXMLLoader();
 
@@ -224,6 +269,12 @@ public class GUIController implements UI , Listener{
         pane.setBackground(new Background(background));
     }
 
+    /**
+     * Factory method for {@link GUIController} based on
+     * {@param nextScenePath}
+     * @param nextScenePath the {@link SceneStatesEnum} of the scene to load
+     * @return the built {@link GUIController}
+     */
     @Nullable
     private GUIController getController(SceneStatesEnum nextScenePath) {
         GUIController controller;
@@ -240,6 +291,11 @@ public class GUIController implements UI , Listener{
         return controller;
     }
 
+    /**
+     * Instantiates a {@link ReconnectionWaitController}, set opacity
+     * to all children of {@param stackPane} and loads a new reconnection scene.
+     * @param stackPane the {@link StackPane} on top of which put the scene.
+     */
     protected void notifyPossibleDisconnection(StackPane stackPane){
         Platform.runLater(() -> {
             for (Node n : stackPane.getChildrenUnmodifiable()) {
