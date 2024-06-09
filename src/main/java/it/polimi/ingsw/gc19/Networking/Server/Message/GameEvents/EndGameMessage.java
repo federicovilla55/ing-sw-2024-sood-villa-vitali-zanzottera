@@ -12,7 +12,14 @@ import java.util.Map;
  */
 public class EndGameMessage extends NotifyEventOnGame{
 
+    /**
+     * List of winners nicknames
+     */
     private final List<String> winnerNicks;
+
+    /**
+     * Updated points after private and public goal evaluation
+     */
     private final Map<String, Integer> updatedPoints;
 
     public EndGameMessage(List<String> winnerNicks, Map<String, Integer> updatedPoints) {

@@ -11,7 +11,14 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class RefusedActionMessage extends AnswerToActionMessage {
 
+    /**
+     * The type of the error
+     */
     private final ErrorType errorType;
+
+    /**
+     * A brief string description of the error
+     */
     private final String description;
 
     public RefusedActionMessage(ErrorType errorType, String description){

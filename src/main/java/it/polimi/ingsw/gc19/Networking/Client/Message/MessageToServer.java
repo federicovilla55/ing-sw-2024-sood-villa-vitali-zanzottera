@@ -10,6 +10,9 @@ import java.rmi.Remote;
  */
 public abstract class MessageToServer implements Serializable{
 
+    /**
+     * Nickname of the sender player
+     */
     private final String nickname;
 
     protected MessageToServer(String nickname){

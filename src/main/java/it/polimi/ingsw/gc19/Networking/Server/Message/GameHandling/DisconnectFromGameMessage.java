@@ -7,14 +7,19 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  * disconnected from the game
  */
 public class DisconnectFromGameMessage extends GameHandlingMessage {
+
+    /**
+     * Name of the game from which player has been disconnected
+     */
     private final String gameName;
 
-    public DisconnectFromGameMessage(String gameName){
+    public DisconnectFromGameMessage(String gameName) {
         this.gameName = gameName;
     }
 
     /**
      * Getter for game name from which player has been disconnected
+     *
      * @return the game name from which player has been disconnected
      */
     public String getGameName() {
@@ -27,7 +32,7 @@ public class DisconnectFromGameMessage extends GameHandlingMessage {
      */
     @Override
     public void accept(MessageToClientVisitor visitor) {
-        if(visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);
+        if (visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);
     }
 
 }

@@ -9,6 +9,9 @@ import java.util.Comparator;
 public enum MessagePriorityLevel{
     LOW(0), HIGH(1);
 
+    /**
+     * The priority level of the message
+     */
     private final int priorityLevel;
 
     MessagePriorityLevel(int messagePriority){

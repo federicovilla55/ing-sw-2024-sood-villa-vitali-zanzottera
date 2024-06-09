@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling;
 
+import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
 /**
@@ -8,7 +9,14 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class CreatedPlayerMessage extends GameHandlingMessage{
 
+    /**
+     * Nickname of the created player
+     */
     private final String nick;
+
+    /**
+     * Private token assigned by server to the client
+     */
     private final String token;
 
     public CreatedPlayerMessage(String nick, String token) {
@@ -45,6 +53,12 @@ public class CreatedPlayerMessage extends GameHandlingMessage{
         if(visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);
     }
 
+    /**
+     * Overriding of {@link Object#equals(Object)} method. Two {@link CreatedPlayerMessage}
+     * are considered to be equals if and only if theirs {@link #nick} are the same
+     * @param o the {@link Object} to compare
+     * @return <code>true</code> if and only if the two objects are equals.
+     */
     @Override
     public boolean equals(Object o){
         if(o == null) return false;

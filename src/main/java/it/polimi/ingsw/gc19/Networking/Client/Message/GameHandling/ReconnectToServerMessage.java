@@ -8,7 +8,15 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
  * to server.
  */
 public class ReconnectToServerMessage extends GameHandlingMessage {
+
+    /**
+     * Nickname of the user who wants to reconnect
+     */
     private final String nickname;
+
+    /**
+     * Secret token of th user who wants to reconnect
+     */
     private final String token;
 
     public ReconnectToServerMessage(String nickname, String token){
@@ -34,6 +42,12 @@ public class ReconnectToServerMessage extends GameHandlingMessage {
         return this.token;
     }
 
+    /**
+     * Overriding of {@link Object#equals(Object)}. Two {@link ReconnectToServerMessage}
+     * are considered to be equals if and only if the {@link #nickname} are equals.
+     * @param o the {@link Object} to compare
+     * @return <code>true</code> if and only if the two messages are equals
+     */
     @Override
     public boolean equals(Object o){
         if(o == null) return false;

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.ServerSocket;
 
 import it.polimi.ingsw.gc19.Controller.MainController;
+import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.VirtualClient;
 import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.ClientHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Client.Message.Heartbeat.HeartBeatMessageVisitor;
@@ -14,6 +15,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatM
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkError;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Server;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.ClientHandlerRMI;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToServer;
 import it.polimi.ingsw.gc19.Utils.Triplet;
@@ -35,15 +37,49 @@ import java.util.concurrent.TimeUnit;
  */
 public class MainServerTCP extends Server implements ObserverMessageToServer<MessageToServer>{
 
+    /**
+     * Infos about connected clients: it's a HashMap with
+     * {@link Socket} as key and ({@link ClientHandlerSocket}, {@link MessageToServerDispatcher}, <code>nickname</code>)
+     * as values.
+     */
     private final HashMap<Socket, Triplet<ClientHandlerSocket, MessageToServerDispatcher, String>> connectedClients;
 
+    /**
+     * This HashMap contains all {@link Socket} that
+     * have been removed from {@link #lastHeartBeatOfClients} (because of
+     * heartbeat) but can still reconnect.
+     * The value is the timestamp in which {@link Socket} has been removed from
+     * {@link #lastHeartBeatOfClients}
+     */
     private final HashMap<Socket, Long> pendingSocketToKill;
+
+    /**
+     * This {@link ConcurrentHashMap} contains, for each {@link Socket},
+     * the timestamp of its last heartbeat.
+     */
     private final ConcurrentHashMap<Socket, Long> lastHeartBeatOfClients;
 
+    /**
+     * It's the visitor used to visit all {@link GameHandlingMessage}
+     */
     private final MessageToMainServerVisitor gameHandlingMessageHandler;
+
+    /**
+     * It's the visitor used to visit all {@link ClientHeartBeatMessage}
+     */
     private final HeartBeatMessageToServerVisitor heartBeatHandler;
 
+    /**
+     * Scheduled Executor Service used to test periodically heartbeats and
+     * kick out from {@link #lastHeartBeatOfClients} the possibly
+     * disconnected c{@link Socket}
+     */
     private final ScheduledExecutorService heartBeatTesterExecutor;
+
+    /**
+     * Scheduled Executor Service used to disconnect inactive {@link Socket}
+     * contained in {@link #pendingSocketToKill}
+     */
     private final ScheduledExecutorService inactiveClientKillerExecutor;
 
     public MainServerTCP(){
@@ -302,7 +338,15 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
     }
 
     private class MessageToMainServerVisitor implements GameHandlingMessageVisitor, MessageToServerVisitor{
+
+        /**
+         * Socket from which the message has been received
+         */
         private Socket clientSocket;
+
+        /**
+         * Nickname of the player who sent the message
+         */
         private String nickname;
 
         /**
@@ -543,6 +587,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
     private class HeartBeatMessageToServerVisitor implements MessageToServerVisitor, HeartBeatMessageVisitor{
 
+        /**
+         * Socket from which the message has arrived
+         */
         private Socket clientSocket;
 
         /**

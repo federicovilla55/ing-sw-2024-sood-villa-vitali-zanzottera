@@ -8,6 +8,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class StartPlayingGameMessage extends NotifyEventOnGame {
 
+    /**
+     * Nickname of the first player
+     */
     private final String nickFirstPlayer;
 
     public StartPlayingGameMessage(String nickFirstPlayer){

@@ -45,7 +45,7 @@ public class ConfigurationManager {
 
     /**
      * This method retrieves a configuration from disk, loading it from file
-     * with name equals to {@param nick}.
+     * with name equals to <code>nick</code>.
      * @param nick the nickname of the player owning the configuration file
      * @return the {@link Configuration} read from file
      * @throws IllegalStateException if the configuration does not exist on the path
@@ -113,7 +113,7 @@ public class ConfigurationManager {
     }
 
     /**
-     * This method deletes the configuration file with name equals to {@param nick}.
+     * This method deletes the configuration file with name equals to <code>nick</code>>.
      * @param nick the nickname of the player for which it is necessary to delete its configuration file
      */
     public static void deleteConfiguration(String nick){

@@ -1,11 +1,14 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Configuration;
 
 import it.polimi.ingsw.gc19.Enums.Color;
+import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Station.Station;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
+import it.polimi.ingsw.gc19.Enums.GameState;
 
 import java.util.List;
 import java.util.Map;
@@ -16,15 +19,56 @@ import java.util.Map;
  */
 public class OwnStationConfigurationMessage extends ConfigurationMessage {
 
+    /**
+     * Nickname of the owner player
+     */
     private final String nick;
+
+    /**
+     * {@link Color} chosen by the player, otherwise <code>null</code>
+     */
     private final Color color;
+
+    /**
+     * List of infos about cards in hand
+     */
     private final List<PlayableCard> cardsInHand;
+
+    /**
+     * Visible symbols in player's {@link Station}
+     */
     private final Map<Symbol, Integer> visibleSymbols;
+
+    /**
+     * Chosen goal card. If player hasn't still chosen
+     * his private goal card, this attribute is null
+     */
     private final GoalCard privateGoalCard;
+
+    /**
+     * Number of points of the player
+     */
     private final int numPoints;
+
+    /**
+     * Initial card if already chosen, otherwise <code>null</code>
+     */
     private final PlayableCard initialCard;
+
+    /**
+     * First goal card that user can choose during {@link GameState#SETUP}
+     */
     private final GoalCard goalCard1;
+
+    /**
+     * Second goal card that user can choose during {@link GameState#SETUP}
+     */
     private final GoalCard goalCard2;
+
+    /**
+     * Sequence of cards placed by the player. For each card, there
+     * is its position on the grid.
+     */
     private final List<Tuple<PlayableCard,Tuple<Integer,Integer>>> placedCardSequence;
 
     public OwnStationConfigurationMessage(String nick, Color color, List<PlayableCard> cardsInHand, Map<Symbol, Integer> visibleSymbols, GoalCard privateGoalCard, int numPoints,

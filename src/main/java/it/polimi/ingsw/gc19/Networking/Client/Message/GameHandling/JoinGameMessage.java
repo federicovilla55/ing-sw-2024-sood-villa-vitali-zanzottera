@@ -8,6 +8,9 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
  */
 public class JoinGameMessage extends GameHandlingMessage{
 
+    /**
+     * Name of the game to join
+     */
     private final String gameName;
 
     public JoinGameMessage(String gameName, String nickname){

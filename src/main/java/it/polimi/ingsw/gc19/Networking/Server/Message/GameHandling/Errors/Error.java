@@ -1,5 +1,10 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors;
 
+/**
+ * This enum represents all possible errors concerning
+ * game and player management (such as duplicate nickname
+ * or invalid game name).
+ */
 public enum Error{
     PLAYER_NAME_ALREADY_IN_USE,
     GAME_NAME_ALREADY_IN_USE,

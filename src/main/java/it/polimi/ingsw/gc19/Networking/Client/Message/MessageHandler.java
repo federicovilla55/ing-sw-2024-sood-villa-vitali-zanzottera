@@ -29,9 +29,19 @@ import java.util.ArrayDeque;
  */
 public class MessageHandler extends Thread implements AllMessageVisitor{
 
+    /**
+     * Incoming messages from {@link ClientInterface} to be handled
+     */
     private final ArrayDeque<MessageToClient> messagesToHandle;
 
+    /**
+     * Connected {@link LocalModel}
+     */
     private LocalModel localModel;
+
+    /**
+     * Connected {@link ClientController}
+     */
     private final ClientController clientController;
 
     public MessageHandler(ClientController clientController){
@@ -68,6 +78,10 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         this.notifyAll();
     }
 
+    /**
+     * Used to wait until {@link #localModel} has been created and set
+     * by {@link ClientController}
+     */
     private synchronized void waitForLocalModel(){
         while(this.localModel == null){
             try{

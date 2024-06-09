@@ -8,6 +8,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class DisconnectedPlayerMessage extends NotifyEventOnGame {
 
+    /**
+     * Nickname of the player who have been disconnected
+     */
     private final String removedNick;
 
     public DisconnectedPlayerMessage(String removedNick){

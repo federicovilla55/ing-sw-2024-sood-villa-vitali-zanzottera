@@ -51,6 +51,9 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
      */
     private final Object virtualGameServerLock;
 
+    /**
+     * Manager for heartbeat. {@link HeartBeatManager}
+     */
     private final HeartBeatManager heartBeatManager;
 
     /**
@@ -58,7 +61,14 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
      */
     private String nickname;
 
+    /**
+     * Connected {@link MessageHandler}
+     */
     private final MessageHandler messageHandler;
+
+    /**
+     * Connected {@link ClientController}
+     */
     private final ClientController clientController;
 
     /**

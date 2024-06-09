@@ -12,7 +12,14 @@ import java.util.ArrayList;
  */
 public class PlayerChatMessage extends MessageToServer{
 
+    /**
+     * List of message' receivers
+     */
     private final ArrayList<String> receivers;
+
+    /**
+     * Content of the message
+     */
     private final String message;
 
     public PlayerChatMessage(ArrayList<String> receivers, String sender, String message){

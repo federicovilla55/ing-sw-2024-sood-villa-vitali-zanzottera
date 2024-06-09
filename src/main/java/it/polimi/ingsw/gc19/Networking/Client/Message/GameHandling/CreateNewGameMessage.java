@@ -8,8 +8,20 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
  */
 public class CreateNewGameMessage extends GameHandlingMessage {
 
+    /**
+     * Game name chosen by player
+     */
     private final String gameName;
+
+    /**
+     * Number of required players
+     */
     private final int numPlayer;
+
+    /**
+     * Random seed on top of which build the game. à
+     * This attribute is not seen by users
+     */
     private final Long randomSeed;
 
     public CreateNewGameMessage(String nickname, String gameName, int numPlayer, Long randomSeed){

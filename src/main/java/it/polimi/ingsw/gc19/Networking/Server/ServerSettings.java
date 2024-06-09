@@ -1,5 +1,8 @@
 package it.polimi.ingsw.gc19.Networking.Server;
 
+/**
+ * Server settings.
+ */
 public class ServerSettings {
 
     public static long MAX_DELTA_TIME_BETWEEN_HEARTBEATS = 10;

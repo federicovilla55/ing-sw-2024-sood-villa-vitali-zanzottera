@@ -19,9 +19,26 @@ import java.util.Set;
  * It is built by {@link TCPConnectionAcceptor} when a new connection is accepted.
  */
 public class MessageToServerDispatcher extends Thread implements ObservableMessageToServer<MessageToServer>{
+
+    /**
+     * {@link Socket} with which client communicate with TCP server
+     */
     private final Socket socket;
+
+    /**
+     * Object lock on {@link #socket}
+     */
     private final Object socketLock;
+
+    /**
+     * {@link ObjectInputStream} derived from {@link #socket}
+     */
     private final ObjectInputStream objectInputStream;
+
+    /**
+     * All TCP server' components that are interested in messages
+     * received from client. Typically: {@link MainServerTCP} and {@link ClientHandlerSocket}
+     */
     private final Set<ObserverMessageToServer<MessageToServer>> attachedObserver;
 
     public MessageToServerDispatcher(Socket socket){

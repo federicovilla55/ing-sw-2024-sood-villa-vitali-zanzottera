@@ -19,13 +19,47 @@ import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.concurrent.*;
 
+/**
+ * It's the main server for RMI. It extends {@link Server} and implements {@link VirtualMainServer}
+ * in order to RMI clients to connect.
+ * It handles first connection, game creation or join, explicit disconnection, reconnection
+ * and heartbeats.
+ */
 public class MainServerRMI extends Server implements VirtualMainServer{
 
+    /**
+     * Infos about connected clients: it's a HashMap with
+     * {@link VirtualClient} as key and ({@link ClientHandlerRMI}, <code>nickname</code>)
+     * as values.
+     */
     private final HashMap<VirtualClient, Tuple<ClientHandlerRMI, String>> connectedClients;
+
+    /**
+     * This {@link ConcurrentHashMap} contains, for each {@link VirtualClient},
+     * the timestamp of its last heartbeat.
+     */
     private final ConcurrentHashMap<VirtualClient, Long> lastHeartBeatOfClients;
+
+    /**
+     * This HashMap contains all {@link VirtualClient} that
+     * have been removed from {@link #lastHeartBeatOfClients} (because of
+     * heartbeat) but can still reconnect.
+     * The value is the timestamp in which {@link VirtualClient} has been removed from
+     * {@link #lastHeartBeatOfClients}
+     */
     private final HashMap<VirtualClient, Long> pendingVirtualClientToKill;
 
+    /**
+     * Scheduled Executor Service used to test periodically heartbeats and
+     * kick out from {@link #lastHeartBeatOfClients} the possibly
+     * disconnected c{@link VirtualClient}
+     */
     private final ScheduledExecutorService heartBeatTesterExecutor;
+
+    /**
+     * Scheduled Executor Service used to disconnect inactive {@link VirtualClient}
+     * contained in {@link #pendingVirtualClientToKill}
+     */
     private final ScheduledExecutorService inactiveClientKillerExecutor;
 
     public MainServerRMI(){

@@ -34,7 +34,15 @@ public class ClientTCP implements ClientInterface {
      * Socket used to interact with server
      */
     private Socket socket;
+
+    /**
+     * Input Stream of {@link #socket}
+     */
     private ObjectInputStream inputStream;
+
+    /**
+     * Output Stream of {@link #socket}
+     */
     private ObjectOutputStream outputStream;
 
     /**
@@ -46,9 +54,20 @@ public class ClientTCP implements ClientInterface {
      * Nickname of the user
      */
     private String nickname;
+
+    /**
+     * Connected {@link MessageHandler}
+     */
     private final MessageHandler messageHandler;
+
+    /**
+     * Connected {@link ClientController}
+     */
     private final ClientController clientController;
 
+    /**
+     * Manager for heartbeat. {@link HeartBeatManager}
+     */
     private final HeartBeatManager heartBeatManager;
 
     /**

@@ -9,7 +9,14 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
  */
 public class PickCardFromTableMessage extends ActionMessage{
 
+    /**
+     * The {@link PlayableCardType} of the deck from which usr would like to pick
+     */
     private final PlayableCardType type;
+
+    /**
+     * Position of the card on table
+     */
     private final int position;
 
     public PickCardFromTableMessage(String nickname, PlayableCardType type, int position) {

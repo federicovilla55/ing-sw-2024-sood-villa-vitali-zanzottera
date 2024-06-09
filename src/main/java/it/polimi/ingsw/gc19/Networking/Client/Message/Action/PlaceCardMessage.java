@@ -11,9 +11,24 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
  */
 public class PlaceCardMessage extends ActionMessage{
 
+    /**
+     * Card code of the card to place
+     */
     private final String cardToPlaceCode;
+
+    /**
+     * Card code of the anchor card
+     */
     private final String anchorCode;
+
+    /**
+     * {@link Direction} in which card need to be placed
+     */
     private final Direction direction;
+
+    /**
+     * {@link CardOrientation} in which card need to be placed
+     */
     private final CardOrientation cardOrientation;
 
     public PlaceCardMessage(String playerNickname, String cardToPlaceCode, String anchorCode, Direction direction, CardOrientation cardOrientation){

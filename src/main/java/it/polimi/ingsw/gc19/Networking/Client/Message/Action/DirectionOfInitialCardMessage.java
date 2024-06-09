@@ -9,6 +9,10 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
  * to place the initial card in the specified direction
  */
 public class DirectionOfInitialCardMessage extends ActionMessage{
+
+    /**
+     * {@link CardOrientation} of the initial card
+     */
     private final CardOrientation cardOrientation;
 
     public DirectionOfInitialCardMessage(String nickname, CardOrientation orientation) {
