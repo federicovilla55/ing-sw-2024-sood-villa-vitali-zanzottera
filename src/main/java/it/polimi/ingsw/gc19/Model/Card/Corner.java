@@ -22,17 +22,22 @@ import java.util.Optional;
  * This interface represents the corner of a PlayableCard
  */
 public interface Corner extends Serializable{
+
     /**
      * This method returns a boolean indicating whether Corner has a symbol
      */
     boolean hasSymbol();
 
     /**
-     * This method returns an optional containing the symbol in the corner if exists,
-     * return an empty optional
+     * This method returns an <code>Optional&lt;Symbol&gt;</code> containing the symbol in the corner if exists,
+     * return an empty <code>Optional&lt;Symbol&gt;</code>
      * @return symbol in the corner
      */
     Optional<Symbol> getSymbol();
 
+    /**
+     * Getter for UTF-8 emoji of the {@link Symbol} contained in {@link Corner}
+     * @return the UTF-8 code of the emoji describing the {@link Symbol} contained in {@link Corner}
+     */
     String stringEmoji();
 }

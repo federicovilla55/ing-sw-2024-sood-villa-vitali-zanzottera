@@ -26,15 +26,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class MainController {
 
-    /**
-     * This enum represents the state of the players:
-     * active (connected with regular heartbeats) or inactive (probably
-     * not connected with no heartbeats for more than {@link ServerSettings#MAX_DELTA_TIME_BETWEEN_HEARTBEATS}).
-     */
-    enum State{
-        ACTIVE, INACTIVE;
-    }
-
     private static MainController mainController = null;
 
     /**
@@ -104,7 +95,7 @@ public class MainController {
                     gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectFromGameMessage(gameName));
 
                     for (String p : playersToRemove) {
-                        MainController.State playerState = playerInfo.get(p).x();
+                        State playerState = playerInfo.get(p).x();
                         playerInfo.put(p, new Tuple<>(playerState, null));
                         gameController.removeClient(p);
                     }

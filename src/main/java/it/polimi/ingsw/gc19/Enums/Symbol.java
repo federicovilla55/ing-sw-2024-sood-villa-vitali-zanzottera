@@ -19,7 +19,14 @@ public enum Symbol implements Corner {
     FEATHER("", "\uD83E\uDEB6"),
     SCROLL("", "\uD83D\uDCDC");
 
+    /**
+     * UTF-8 code for the color
+     */
     private final String stringColor;
+
+    /**
+     * UTF-8 code for emoji of {@link Symbol}
+     */
     private final String stringEmoji;
 
     Symbol(String stringColor, String stringEmoji) {
@@ -27,25 +34,47 @@ public enum Symbol implements Corner {
         this.stringEmoji = stringEmoji;
     }
 
+    /**
+     * This method returns a boolean indicating whether {@link Corner} has a symbol
+     * @return always <code>false</code> because the corner is not available
+     */
     @Override
     public boolean hasSymbol() {
         return true;
     }
 
+    /**
+     * This method returns an optional containing the symbol in the corner if exists,
+     * return an empty optional
+     * @return an <code>Optional&lt;Symbol&gt;</code> empty or containing a {@link Symbol}
+     */
     @Override
     public Optional<Symbol> getSymbol() {
         return Optional.of(this);
     }
 
+    /**
+     * Getter for {@link #stringEmoji}
+     * @return the relative {@link #stringEmoji}
+     */
     @Override
     public String stringEmoji() {
         return stringEmoji;
     }
 
+    /**
+     * Getter for {@link #stringColor}
+     * @return the relative {@link #stringColor}
+     */
     public String stringColor() {
         return stringColor;
     }
 
+    /**
+     * Getter for ink spacing property. Different
+     * properties for different OS
+     * @return the number of spacing for ink symbol for each OS
+     */
     private static int inkSpacing() {
         String osName = System.getProperty("os.name");
 

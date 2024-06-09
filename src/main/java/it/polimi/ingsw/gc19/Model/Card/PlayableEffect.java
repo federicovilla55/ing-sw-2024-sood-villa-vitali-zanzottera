@@ -33,5 +33,10 @@ interface PlayableEffect extends Serializable{
      */
     int countPoints(Station station);
 
+    /**
+     * Getter for TUI-view visual description of the effect of the card
+     * @param tuiView the {@link TUIView} that will display infos about effect
+     * @return TUI-view visual description of the effect of the card
+     */
     String[][] getEffectView(TUIView tuiView);
 }
