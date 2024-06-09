@@ -10,6 +10,10 @@ import java.util.List;
  * that he can join
  */
 public class AvailableGamesMessage extends GameHandlingMessage{
+
+    /**
+     * List of all available games in server
+     */
     private final List<String> availableGames;
 
     public AvailableGamesMessage(List<String> availableGames){

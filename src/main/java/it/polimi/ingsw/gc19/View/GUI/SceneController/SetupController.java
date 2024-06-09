@@ -250,10 +250,10 @@ public class SetupController extends GUIController implements SetupListener, Sta
     }
 
     /**
-     * Factory method for pawns. Given a <code>List<Color></code>,
+     * Factory method for pawns. Given a <code>List&lt;Color&gt;</code>,
      * return the corresponding {@link ArrayList} of pawns buttons.
-     * @param availableColors the <code>List<Color></code> of available colors
-     * @return the <code>ArrayList<Button></code> built.
+     * @param availableColors the <code>List&lt;Color&gt;</code> of available colors
+     * @return the <code>ArrayList&lt;Button&gt;</code> built.
      */
     private ArrayList<Button> colorButtonFactory(List<Color> availableColors){
         ArrayList<Button> buttons = new ArrayList<>();

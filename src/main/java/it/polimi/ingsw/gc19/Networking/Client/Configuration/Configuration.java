@@ -20,6 +20,9 @@ import java.util.Date;
  */
 public class Configuration {
 
+    /**
+     * Enum of connection type (RMI or TCP only)
+     */
     public enum ConnectionType{
         RMI(new ClientRMIFactory()),
         TCP(new ClientTCPFactory());
@@ -30,14 +33,33 @@ public class Configuration {
             this.clientFactory = clientFactory;
         }
 
+        /**
+         * Getter for {@link ClientFactory} of the enum value
+         * @return the relative {@link ClientFactory} for the enum value
+         */
         public ClientFactory getClientFactory() {
             return clientFactory;
         }
     }
 
+    /**
+     * Nickname chosen by the user when he registered to server
+     */
     private final String nick;
+
+    /**
+     * Token assigned by server to user when he registered
+     */
     private final String token;
+
+    /**
+     * Timestamp of client registration
+     */
     private final String timestamp;
+
+    /**
+     * Connection type chosen by user when he registered to server
+     */
     private final  ConnectionType connectionType;
 
     @JsonCreator

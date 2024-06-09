@@ -17,6 +17,13 @@ import java.util.Scanner;
  */
 public class ClientApp {
 
+    /**
+     * Starts {@link ClientApp}. First, it asks user all infos about
+     * network: server RMI / TCP port and IP. After validation is complete,
+     * it asks user what type of user interface he wants to use. Starts the
+     * preferred one.
+     * @param args variable arguments to pass (typically not used)
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 

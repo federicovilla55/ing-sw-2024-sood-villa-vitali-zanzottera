@@ -9,10 +9,32 @@ import it.polimi.ingsw.gc19.Utils.Tuple;
 
 import java.util.*;
 
+/**
+ * Manages card schema of the {@link Station}.
+ */
 class CardSchema{
+
+    /**
+     * Card schema: a grid where each slot can be <code>null</code>
+     * (no card placed there) or have a {@link PlayableCard}
+     */
     private final PlayableCard[][] cardSchema;
+
+    /**
+     * Each non-zero slot corresponds to a slot in {@link #cardSchema} where
+     * a {@link PlayableCard} has been placed. Each box contains the sequential number
+     * of cards already placed in {@link #cardSchema} plus <code>1</code>
+     */
     private final int[][] cardOverlap;
+
+    /**
+     * Current number of placed cards
+     */
     private int currentCount;
+
+    /**
+     * Hashmap used to get coords in the grid of a {@link PlayableCard}
+     */
     private final HashMap<PlayableCard, Tuple<Integer, Integer>> cardPosition;
 
     /**
@@ -36,6 +58,8 @@ class CardSchema{
     /**
      * This method checks if there is a card over the anchor in Direction dir
      * Throws InvalidCardException is the anchor doesn't exist in schema.
+     * @param anchor the {@link PlayableCard} used as anchor
+     * @param dir the {@link Direction} in which card has to be placed
      * @throws InvalidCardException if station doesn't have the card to place.
      * @return true if and only if there is card ver the anchor in Direction dir
      */
@@ -63,7 +87,7 @@ class CardSchema{
      * @param anchor the anchor from which the method starts searching
      * @param dir the direction of the search
      * @throws InvalidCardException if station doesn't have the card to place.
-     * @return Optional<PlayableCard> describing the card
+     * @return <code>Optional&lt;PlayableCard&gt;</code> describing the card
      */
     Optional<PlayableCard> getCardWithAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{
         if(!this.cardPosition.containsKey(anchor)){
@@ -75,6 +99,7 @@ class CardSchema{
 
     /**
      * This method place initial card in CardSchema
+     * @param initialCard the initial card to place
      */
      void placeInitialCard(PlayableCard initialCard){
          this.cardSchema[ImportantConstants.gridDimension / 2][ImportantConstants.gridDimension / 2] = initialCard;
@@ -86,6 +111,8 @@ class CardSchema{
     /**
      * This method checks if a card (even if it isn't visible in the station) can be placed in CardSchema
      * @throws InvalidAnchorException if the anchor isn't in card schema.
+     * @param anchor the {@link PlayableCard} used as anchor
+     * @param direction the {@link Direction} n which card has to be placed
      * @return true if and only if card is in station and is placeable in CardSchema.
      */
     boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException{
@@ -112,6 +139,9 @@ class CardSchema{
     /**
      * This method place a card in CardSchema if it's placeable in CardSchema
      * If the card has been placed it updates station's points and visible symbols. Then updates cards in hand.
+     * @param toPlace the {@link PlayableCard} to place
+     * @param anchor the {@link PlayableCard} used as anchor
+     * @param direction the {@link Direction} in which card has to be placed
      */
     void placeCard(PlayableCard anchor, PlayableCard toPlace, Direction direction){
         Tuple<Integer, Integer> coords = this.cardPosition.get(anchor);
@@ -124,7 +154,7 @@ class CardSchema{
     /**
      * This method returns an optional of card containing the last placed card;
      * optional is empty if no cards has been placed.
-     * @return Optional<PlayableCard> describing the last placed card
+     * @return <code>Optional&lt;PlayableCard&gt;</code> describing the last placed card
      */
     Optional<PlayableCard> getLastPlaced(){
         Tuple<Integer, Integer> coords = null;
@@ -249,6 +279,10 @@ class CardSchema{
 
     }
 
+    /**
+     * Getter for placed card sequence
+     * @return a <code>List&lt;Tuple&lt;PlayableCard, Tuple&lt;Integer, Integer&gt;&gt;&gt;</code>
+     */
     public List<Tuple<PlayableCard, Tuple<Integer, Integer>>> getPlacedCardSequence() {
         int numOfPlacedCards = Arrays.stream(this.cardOverlap).flatMapToInt(Arrays::stream).max().orElse(0);
         List<Tuple<PlayableCard, Tuple<Integer, Integer>>> res = new ArrayList<>(

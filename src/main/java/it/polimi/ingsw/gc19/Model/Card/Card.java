@@ -46,6 +46,7 @@ public abstract class Card implements Serializable {
 
     /**
      * This abstract method returns a detailed description of the card
+     * @return a {@link String} description of the card
      */
     public abstract String getCardDescription();
 

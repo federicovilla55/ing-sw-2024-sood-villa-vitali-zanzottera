@@ -31,10 +31,18 @@ public enum CommandType {
         this.numArgs = numArgs;
     }
 
+    /**
+     * Getter for command name
+     * @return the command name
+     */
     public String getCommandName(){
         return this.commandName;
     }
 
+    /**
+     * Getter for umber of arguments of the command
+     * @return the number of arguments of the command
+     */
     public int getNumArgs() {
         return this.numArgs;
     }

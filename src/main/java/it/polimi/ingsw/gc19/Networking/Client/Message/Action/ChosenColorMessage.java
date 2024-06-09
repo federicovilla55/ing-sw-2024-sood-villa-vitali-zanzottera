@@ -10,6 +10,9 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
  */
 public class ChosenColorMessage extends ActionMessage{
 
+    /**
+     * The chosen {@link Color}
+     */
     private final Color chosenColor;
 
     public ChosenColorMessage(String nickname, Color chosenColor) {

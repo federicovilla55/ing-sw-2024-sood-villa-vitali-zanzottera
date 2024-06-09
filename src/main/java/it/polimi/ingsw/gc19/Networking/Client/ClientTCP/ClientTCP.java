@@ -30,20 +30,42 @@ import java.util.*;
  */
 public class ClientTCP implements ClientInterface {
 
+    /**
+     * Socket used to interact with server
+     */
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
+
+    /**
+     * Object lock on {@link #outputStream}
+     */
     private final Object outputStreamLock;
 
+    /**
+     * Nickname of the user
+     */
     private String nickname;
     private final MessageHandler messageHandler;
     private final ClientController clientController;
 
     private final HeartBeatManager heartBeatManager;
 
+    /**
+     * Thread responsible for sending messages to server.
+     * Used to minimize latency
+     */
     private final Thread senderThread;
+
+    /**
+     * Thread responsible for receiving and reading
+     * messages from server
+     */
     private final Thread receiverThread;
 
+    /**
+     * {@link Deque} of messages to be sent to server
+     */
     private final Deque<MessageToServer> messagesToSend;
 
     public ClientTCP(MessageHandler messageHandler) throws IOException{

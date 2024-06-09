@@ -28,7 +28,6 @@ public class PlayableCard extends Card implements Serializable{
      * symbol: ANIMAL, VEGETABLE, INSECT, MUSHROOM, INK,
      * FEATHER, SCROLL
      */
-
     private Corner[][] frontGridConfiguration;
 
     /** Symbols and quantity that a player needs to have to
@@ -272,14 +271,14 @@ public class PlayableCard extends Card implements Serializable{
         /**
          * This method returns permanent resources on the visible side
          * of the card depending on its state
-         * @return ArrayList<Symbol> of resources in the center
+         * @return ArrayList&lt;Symbol&gt; of resources in the center
          * of the card (it is always empty when the card is on front)
          */
         List<Symbol> getPermanentResources();
         /**
          * This method computes symbols on the visible side of the card
          * depending on its state
-         * @return HashMap\<Symbol, Integer\> of symbols and their
+         * @return HashMap&lt;Symbol, Integer&gt; of symbols and their
          * quantities on the visible side of the card
          */
         HashMap<Symbol, Integer> getHashMapSymbols();

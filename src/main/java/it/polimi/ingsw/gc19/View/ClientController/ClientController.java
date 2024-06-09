@@ -16,6 +16,8 @@ import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
 import it.polimi.ingsw.gc19.View.Listeners.SetupListeners.SetupEvent;
 import it.polimi.ingsw.gc19.View.UI;
+import it.polimi.ingsw.gc19.Networking.Client.Message.GameHandling.RequestGameExitMessage;
+import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,10 @@ import java.util.concurrent.*;
  * It contains a method to parse a string and various states that can elaborate the action.
  */
 public class ClientController {
+
+    /**
+     * Nickname of the player
+     */
     private String nickname;
 
     /**
@@ -43,12 +49,24 @@ public class ClientController {
      */
     private ClientState prevState;
 
+    /**
+     * {@link LocalModel} connected to the controller
+     */
     private LocalModel localModel;
 
+    /**
+     * {@link ClientInterface} connected to the controller
+     */
     private ClientInterface clientNetwork;
 
+    /**
+     * {@link ListenersManager} connected to the controller
+     */
     private final ListenersManager listenersManager;
 
+    /**
+     * {@link UI} connected to the controller
+     */
     private UI view;
 
     public ClientController() {
@@ -58,22 +76,42 @@ public class ClientController {
         this.listenersManager = new ListenersManager();
     }
 
+    /**
+     * Getter for connected {@link ListenersManager}
+     * @return the current connected {@link ListenersManager}
+     */
     public ListenersManager getListenersManager(){
         return this.listenersManager;
     }
 
+    /**
+     * Getter for {@link #view}
+     * @return the current connected {@link UI}
+     */
     public UI getView() {
         return view;
     }
 
+    /**
+     * Setter for {@link #view}
+     * @param view the {@link UI} to be set
+     */
     public void setView(UI view){
         this.view = view;
     }
 
+    /**
+     * Getter for connected {@link ClientInterface}
+     * @return the connected {@link ClientInterface}
+     */
     public ClientInterface getClientInterface() {
         return clientNetwork;
     }
 
+    /**
+     * Setter for {@link #clientNetwork}
+     * @param clientInterface the {@link ClientInterface} to be set
+     */
     public void setClientInterface(ClientInterface clientInterface){
         this.clientNetwork = clientInterface;
         viewState = new NotPlayer(this);
@@ -81,18 +119,34 @@ public class ClientController {
         this.listenersManager.notifyStateListener(viewState.getState());
     }
 
+    /**
+     * Getter for connected {@link LocalModel}
+     * @return the connected {@link LocalModel}
+     */
     public LocalModel getLocalModel() {
         return localModel;
     }
 
+    /**
+     * Getter for nickname
+     * @return the nickname stored
+     */
     public String getNickname() {
         return nickname;
     }
 
+    /**
+     * Setter for {@link #nickname}
+     * @param nickname the nickname to be set
+     */
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
 
+    /**
+     * Getter for current {@link ViewState}
+     * @return the current {@link ViewState}
+     */
     public synchronized ViewState getState(){
         return viewState.getState();
     }
@@ -107,10 +161,19 @@ public class ClientController {
         this.setNextState(new Disconnect(this), true);
     }
 
+    /**
+     * Setter for {@link #localModel}
+     * @param localModel the {@link LocalModel} to be set
+     */
     public synchronized void setLocalModel(LocalModel localModel){
         this.localModel = localModel;
     }
 
+    /**
+     * Checks if client is disconnected (e.g. its {@link #viewState}
+     * is {@link ViewState#DISCONNECT}).
+     * @return <code>true</code> if client is disconnected
+     */
     public synchronized boolean isDisconnected(){
         if(this.viewState != null) {
             return this.viewState.getState().equals(ViewState.DISCONNECT);
@@ -118,16 +181,30 @@ public class ClientController {
         return false;
     }
 
+    /**
+     * Setter for {@link #viewState}.
+     * @param clientState the next {@link ViewState} to be set
+     * @param notify <code>true</code> if and only if {@link #view} need to be
+     *               notified about changes
+     */
     public synchronized void setNextState(ClientState clientState, boolean notify){
         this.prevState = viewState;
         this.viewState = clientState;
         this.listenersManager.notifyStateListener(clientState.getState());
     }
 
+    /**
+     * Getter for current state
+     * @return the current {@link #viewState}
+     */
     public synchronized ClientState getCurrentState(){
         return this.viewState;
     }
 
+    /**
+     * Getter for {@link #prevState}
+     * @return the {@link #prevState}
+     */
     public synchronized ClientState getPrevState(){
         return this.prevState;
     }
@@ -135,6 +212,8 @@ public class ClientController {
     /**
      * To send a message in the chat.
      * send_message(message_content, receiver1 {, receiver2, ...})
+     * @param message the message to send
+     * @param users the list of players to which send the message
      */
     public synchronized void sendChatMessage(String message, List<String> users) {
         if(viewState.getState() == ViewState.NOT_GAME || viewState.getState() == ViewState.NOT_PLAYER || viewState.getState() == ViewState.DISCONNECT) {
@@ -167,6 +246,7 @@ public class ClientController {
     /**
      * To set the nickname of the client and request a connection.
      * create_player(nickname)
+     * @param nick the nickname of the player to create
      */
     public synchronized void createPlayer(String nick){
         if(viewState.getState() != ViewState.NOT_PLAYER){
@@ -184,6 +264,7 @@ public class ClientController {
     /**
      * To pick a card from a deck.
      * pick_card_deck(cardType)
+     * @param cardType the {@link PlayableCardType} of the picked card
      */
     public synchronized void pickCardFromDeck(PlayableCardType cardType){
         if(viewState.getState() != ViewState.PICK){
@@ -199,6 +280,8 @@ public class ClientController {
     /**
      * To pick a card from the table.
      * pick_card_table(cardType, tablePosition)
+     * @param cardType the {@link PlayableCardType} of the picked card
+     * @param position position on table of the card
      */
     public synchronized void pickCardFromTable(PlayableCardType cardType, int position) {
         if(viewState.getState() != ViewState.PICK){
@@ -221,6 +304,10 @@ public class ClientController {
      * To place a card given its anchor, the direction and the orientation.
      * place_card(cardToInsert, anchorCard, directionToInsert, cardOrientation)
      * @return <code>true</code> if and only if card can be placed (locally).
+     * @param cardOrientation the {@link CardOrientation} of the placed card
+     * @param cardToInsert the code of the card to insert
+     * @param direction the {@link Direction} in which card has to be placed
+     * @param anchor the code of the {@link PlayableCard} used as anchor
      */
     public synchronized boolean placeCard(String cardToInsert, String anchor, Direction direction, CardOrientation cardOrientation) {
         if(viewState.getState() != ViewState.PLACE){
@@ -325,6 +412,7 @@ public class ClientController {
     /**
      * To choose a color at the beginning of the game.
      * choose_color(colorType)
+     * @param color the {@link Color} would like to have
      */
     public synchronized void chooseColor(Color color) {
         if(viewState.getState() != ViewState.SETUP){
@@ -344,6 +432,7 @@ public class ClientController {
      * There should two cards to select from so the user should give a number
      * representing the selected card.
      * choose_goal(goalCardIndex)
+     * @param cardIdx the index (0 or 1) of the chosen {@link GoalCard}
      */
     public synchronized void chooseGoal(int cardIdx) {
         if(viewState.getState() != ViewState.SETUP){
@@ -361,6 +450,7 @@ public class ClientController {
     /**
      * To place the initial card at the beginning of the game vien its orientation.
      * place_initial_card(orientation)
+     * @param cardOrientation the {@link CardOrientation} in which initial card has to be placed
      */
     public synchronized void placeInitialCard(CardOrientation cardOrientation) {
         if(viewState.getState() != ViewState.SETUP) {
@@ -404,6 +494,7 @@ public class ClientController {
      * To notify the server that the player want to join
      * a particular game.
      * join_game(gameName)
+     * @param gameName the name of the game to join
      */
     public synchronized void joinGame(String gameName) {
         if(viewState.getState() != ViewState.NOT_GAME){
@@ -419,6 +510,8 @@ public class ClientController {
     /**
      * To create a game specifying the game name and the number of players.
      * create_game(gameName, numPlayers)
+     * @param gameName the name of the game to build
+     * @param numPlayers the number of players for the game
      */
     //Maybe returning something?
     public synchronized void createGame(String gameName, int numPlayers) {
@@ -438,6 +531,12 @@ public class ClientController {
         }
     }
 
+    /**
+     * Used to log out from game. It sets {@link #viewState} to
+     * {@link ViewState#NOT_GAME} and tries to send, throughout {@link #clientNetwork},
+     * a {@link RequestGameExitMessage}. Sets {@link #localModel} to <code>null</code>
+     * also for connected UIs.
+     */
     public synchronized void logoutFromGame(){
         int numOfTry = 0;
 
@@ -466,6 +565,9 @@ public class ClientController {
         }
     }
 
+    /**
+     * Used to disconnect from server.
+     */
     public synchronized void disconnect(){
         ConfigurationManager.deleteConfiguration(this.nickname);
 
@@ -486,7 +588,7 @@ public class ClientController {
 
                     try{
                         TimeUnit.SECONDS.sleep(5);
-                        System.exit(-1);
+                        System.exit(1);
                     }
                     catch (InterruptedException interruptedException){
                         Thread.currentThread().interrupt();
@@ -510,9 +612,12 @@ public class ClientController {
             }
         }
 
-        //add sys exit
+        System.exit(1);
     }
 
+    /**
+     * This method handles available colors requests from user.
+     */
     public void availableColors() {
         if(viewState.getState() != ViewState.SETUP){
             this.view.notifyGenericError("You can not choose a color at this moment!");

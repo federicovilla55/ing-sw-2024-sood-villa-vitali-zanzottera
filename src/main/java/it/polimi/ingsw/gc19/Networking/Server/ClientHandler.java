@@ -19,8 +19,19 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  */
 public abstract class ClientHandler extends Thread implements ObserverMessageToClient<MessageToClient> {
 
+    /**
+     * Connected {@link GameController}
+     */
     protected GameController gameController;
+
+    /**
+     * Username of the client with which {@link ClientHandler} is interacting
+     */
     protected String username;
+
+    /**
+     * Messages to be sent to client
+     */
     protected final ArrayDeque<MessageToClient> messageQueue;
 
     public ClientHandler(String username, GameController gameController){
@@ -124,6 +135,7 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
      * This method picks a message from the queue and send calls the appropriate
      * method for sending it through the network (RMI or TCP for this project)
      * with {@link ClientHandlerRMI#sendMessageToClient(MessageToClient)}
+     * @throws InterruptedException if an {@link InterruptedException} is received
      */
     protected void sendMessage() throws InterruptedException {
         MessageToClient messageToSend;

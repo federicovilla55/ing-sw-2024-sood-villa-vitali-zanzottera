@@ -35,18 +35,33 @@ import java.util.Objects;
  */
 public class ChatController extends GUIController implements ChatListener, LocalModelListener, StationListener {
 
+    /**
+     * {@link ScrollPane} used for chat
+     */
     @FXML
     private ScrollPane scrollText, scrollPaneSend;
 
+    /**
+     * {@link TextArea} used to write message
+     */
     @FXML
     private TextArea textAreaSend;
 
+    /**
+     * {@link TextFlow} used to display chat messages
+     */
     @FXML
     private TextFlow textFlow;
 
+    /**
+     * Players to which send message
+     */
     @FXML
     private CheckComboBox<String> receivers;
 
+    /**
+     * To send the message in {@link #textAreaSend} to {@link #receivers}
+     */
     @FXML
     public Button sendButton;
 
@@ -95,7 +110,7 @@ public class ChatController extends GUIController implements ChatListener, Local
      * Builds chat TextFlow pane and fill it with all chat messages.
      * If sender has already chosen his color then message is colored
      * with that color, other is black.
-     * @param msg the <code>ArrayList<Message></code> containing all
+     * @param msg the <code>ArrayList&lt;Message&gt;</code> containing all
      *            the messages to be displayed.
      */
     private void showChat(ArrayList<Message> msg){
