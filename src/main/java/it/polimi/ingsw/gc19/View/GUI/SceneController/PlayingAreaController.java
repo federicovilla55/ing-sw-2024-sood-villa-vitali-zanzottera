@@ -116,7 +116,7 @@ public class PlayingAreaController extends GUIController implements StateListene
         tabPane.getStyleClass().add("floating");
 
         setBackgrounds();
-        paneFireworks = new PaneFireworks(stackPane, super.getStage(), super.getLocalModel());
+        paneFireworks = new PaneFireworks(stackPane, super.getLocalModel());
     }
 
     private void buildTabPane() {
