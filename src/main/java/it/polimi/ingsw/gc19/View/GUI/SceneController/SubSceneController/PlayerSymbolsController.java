@@ -29,8 +29,14 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
     @FXML
     private VBox symbolsBorderVBOX;
 
+    /**
+     * A hashmap that connects the name of each symbol to the corresponding image.
+     */
     private HashMap<String, Image> symbolImages;
 
+    /**
+     * A hashmap that connects the name of each symbol to the corresponding element in the GridPanel.
+     */
     private HashMap<String, GridPane> tableElements;
 
     public PlayerSymbolsController(GUIController controller) {
@@ -45,6 +51,9 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
         initializeVisibleSymbolsTable();
     }
 
+    /**
+     * The method to initializes the image of the symbols and save them in the hashmap.
+     */
     private void initializeImages(){
         symbolImages = new HashMap<>();
         for (Symbol s : Symbol.values()) {
@@ -53,6 +62,9 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
         }
     }
 
+    /**
+     * To initialize the table with the player symbols and their relative value.
+     */
     public void initializeVisibleSymbolsTable() {
         symbolsBorderVBOX.getChildren().clear();
         tableElements = new HashMap<>();
@@ -88,6 +100,10 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
         }
     }
 
+    /**
+     * To update the number of each symbol of a player given its nickname
+     * @param nick the nickname of the player we want to update its symbol numbers.
+     */
     public void updatePlayerState(String nick){
         GridPane grid = tableElements.get(nick);
 
@@ -104,26 +120,40 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
         }
     }
 
-
-
-
+    /**
+     * To update the number of symbols of a player at the beginning of its turn.
+     * @param nick the nickname of the player currently playing
+     * @param turnState the {@link TurnState} of that player
+     */
     @Override
     public void notify(String nick, TurnState turnState) {
         Platform.runLater(() -> updatePlayerState(nick));
     }
 
+    /**
+     * To update the number of symbols of a player given the {@link PersonalStation}.
+     * @param localStationPlayer is the {@link PersonalStation} that has changed
+     */
     @Override
     public void notify(PersonalStation localStationPlayer) {
         Platform.runLater(() -> updatePlayerState(localStationPlayer.getOwnerPlayer()));
     }
 
+    /**
+     * To update the number of symbols of a player given the {@link OtherStation}.
+     * @param otherStation is the {@link OtherStation} that has changed
+     */
     @Override
     public void notify(OtherStation otherStation) {
         Platform.runLater(() -> updatePlayerState(otherStation.getOwnerPlayer()));
     }
 
+    /**
+     * This method is not implemented as those kind of errors be handled in another part of the GUI view.
+     * @param varArgs strings describing the error
+     */
     @Override
     public void notifyErrorStation(String... varArgs) {
-
+        
     }
 }

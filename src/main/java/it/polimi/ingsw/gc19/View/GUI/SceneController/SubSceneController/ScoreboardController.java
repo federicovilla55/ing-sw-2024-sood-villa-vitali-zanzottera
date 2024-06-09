@@ -18,7 +18,17 @@ import javafx.util.Duration;
 
 import java.util.*;
 
+
+/**
+ * The class represent a controller for the Scoreboard element in the GUI.
+ * The class controls the display and updating of pawns on the scoreboard based on the player scores.
+ */
 public class ScoreboardController extends GUIController implements StationListener {
+    /**
+     * The array contains the positions in pixels from the top left corner of each point in the scoreboard.
+     * Those positions are absolute (so they are calculated considering the full size of the scoreboard image) and
+     * therefore they will be modified in each resize.
+     */
     private static final double[][] scoreboardPositions = {
             {313, 2199}, // 0
             {591, 2199}, // 1
@@ -52,24 +62,59 @@ public class ScoreboardController extends GUIController implements StationListen
             {591, 472}   // 29
     };
 
+    /**
+     * The Image contains the image of the blue pawn.
+     */
     private final Image bluePawnImage;
+    /**
+     * The Image contains the image of the red pawn.
+     */
     private final Image redPawnImage;
+    /**
+     * The Image contains the image of the green pawn.
+     */
     private final Image greenPawnImage;
+    /**
+     * The Image contains the image of the yellow pawn.
+     */
     private final Image yellowPawnImage;
 
+    /**
+     * A hashmap that connects each color, represented as a lowercase string, to its imageview.
+     * This is used when updating the position of the pawns on the scoreboard.
+     */
     private final HashMap<String, ImageView> pawnScoreboard = new HashMap<>();
+    /**
+     * A hashmap that connects each point in the scoreboard (numbers between 0 and 29) to an array that contains
+     * the ImageView of the pawn in that positions.
+     */
     private final HashMap<Integer, ArrayList<ImageView>> pawnPositions = new HashMap<>();
 
+    /**
+     * The scoreboard image
+     */
     private Image scoreboardImage;
 
+    /**
+     * An ImageView with the scoreboard image
+     */
     private ImageView scoreboardView;
 
     public Pane scoreboardPane;
 
+    /**
+     * A double that represents the dimensions of the image representing the pawns.
+     */
     private double pawnSize;
 
+    /**
+     * The proportions of the scoreboard.
+     */
     private double proportions;
 
+    /**
+     * The dimensions of the scoreboard compared to its original dimensions.
+     */
     private double ratio;
 
     public ScoreboardController(GUIController controller) {
@@ -83,6 +128,11 @@ public class ScoreboardController extends GUIController implements StationListen
         controller.getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
     }
 
+    /**
+     * To initialize the ScoreboardControlled by creating the images, controlling the local model if there are
+     * stations and pawn and placing them accordingly.
+     * Listeners to update all pawns positions and size are added.
+     */
     public void initialize(){
         scoreboardImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/score_table.jpg")));
         if (scoreboardImage.isError()) {
@@ -110,6 +160,9 @@ public class ScoreboardController extends GUIController implements StationListen
     }
 
 
+    /**
+     * Method used to update all pawns including their size and position of the board.
+     */
     public void updateAllPawns(){
         ratio = scoreboardView.getFitHeight() / scoreboardImage.getHeight();
         pawnSize = scoreboardImage.getHeight() * ratio * proportions / 8;
@@ -119,7 +172,10 @@ public class ScoreboardController extends GUIController implements StationListen
         }
     }
 
-
+    /**
+     * Method used to place the pawn of a related station given the station from which take the color and the score.
+     * @param station the station from which to take the points and the color of the pawn.
+     */
     public void placePawn(LocalStationPlayer station) {
         if (station.getChosenColor() == null) return;
 
@@ -178,6 +234,12 @@ public class ScoreboardController extends GUIController implements StationListen
         addMouseHoverListener(pawnImageView);
     }
 
+    /**
+     * If there is more than one pawn in a position on the scoreboard those should be moved so that more than
+     * one pawn can be seen in that position.
+     * An offset is used so that the pawns are always moved in the same way.
+     * @param numPoints the point position in the scoreboard that needs an update.
+     */
     private void updatePositions(int numPoints){
         double xOffset = 0;
         double yOffset = 0;
@@ -220,6 +282,11 @@ public class ScoreboardController extends GUIController implements StationListen
 
     }
 
+    /**
+     * This method is used to notify the {@link ScoreboardController} about {@link PersonalStation} events.
+     * The method updates the position of the pawn of that station using the passed value.
+     * @param localStationPlayer is the {@link PersonalStation} that has changed
+     */
     @Override
     public void notify(PersonalStation localStationPlayer) {
         Platform.runLater(() -> {
@@ -227,6 +294,11 @@ public class ScoreboardController extends GUIController implements StationListen
         });
     }
 
+    /**
+     * This method is used to notify the {@link ScoreboardController} about {@link OtherStation} events.
+     * The method updates the position of the pawn of that station using the passed value.
+     * @param otherStation is the {@link OtherStation} that has changed
+     */
     @Override
     public void notify(OtherStation otherStation) {
         Platform.runLater(() -> {
@@ -234,11 +306,21 @@ public class ScoreboardController extends GUIController implements StationListen
         });
     }
 
+    /**
+     * This method is not implemented as those kind of errors be handled in another part of the GUI view.
+     * @param varArgs strings describing the error
+     */
     @Override
     public void notifyErrorStation(String... varArgs) {
         // Errors should be handled in another part of the GUI view...
     }
 
+    /**
+     * The method implements a listener to the location of the mouse so that if a mouse is over a pawn, that pawn
+     * is brought behind the scoreboard. This is useful if a user wants to see the points of a player but the pawn
+     * is hiding the points number in the scoreboard.
+     * @param pawnImageView the ImageView that we want to be hidden when a mouse is above that.
+     */
     private void addMouseHoverListener(ImageView pawnImageView) {
         pawnImageView.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
             pawnImageView.toBack();
