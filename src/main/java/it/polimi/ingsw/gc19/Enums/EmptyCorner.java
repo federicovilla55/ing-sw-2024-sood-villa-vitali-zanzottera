@@ -14,20 +14,33 @@ public enum EmptyCorner implements Corner{
     EMPTY;
 
     @JsonCreator
-    private EmptyCorner(){
+    EmptyCorner(){
 
     }
 
+    /**
+     * This method returns a boolean indicating whether {@link Corner} has a symbol
+     * @return always <code>false</code> because the corner is empty
+     */
     @Override
     public boolean hasSymbol() {
         return false;
     }
 
+    /**
+     * This method returns an optional containing the symbol in the corner if exists,
+     * return an empty optional
+     * @return always an <code>Optional&lt;Symbol&gt;</code> empty
+     */
     @Override
     public Optional<Symbol> getSymbol(){
         return Optional.empty();
     }
 
+    /**
+     * Getter for UTF-8 code of an empty corner
+     * @return the UTF-8 code of an empty corner
+     */
     @Override
     public String stringEmoji() {
         return "\uD83D\uDFE8";
