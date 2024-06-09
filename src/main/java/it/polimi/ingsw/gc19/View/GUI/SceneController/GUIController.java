@@ -68,6 +68,7 @@ public class GUIController implements UI, Listener{
 
         if(!this.isCloseEventHandlerAdded && this.clientController.getState() != ViewState.NOT_PLAYER){
             stage.getScene().getWindow().addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
+            this.isCloseEventHandlerAdded = true;
         }
     }
 
@@ -89,13 +90,13 @@ public class GUIController implements UI, Listener{
             Optional<ButtonType> response = closeDialog.showAndWait();
             if (response.isPresent()) {
                 if (response.get().getText().equals("Return to Lobby")) {
-                    this.clientController.logoutFromGame();
-                    this.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
-                    event.consume(); // Prevent the window from closing
+                    this.getClientController().logoutFromGame();
+                    event.consume();
                 } else if (response.get().getText().equals("Disconnect")) {
-                    this.clientController.disconnect();
+                    this.getClientController().disconnect();
                 }
 
+                this.isCloseEventHandlerAdded = false;
                 stage.getScene().getWindow().removeEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
             } else {
                 event.consume();

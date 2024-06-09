@@ -14,18 +14,28 @@ import javafx.scene.paint.Paint;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+/**
+ * The class was created following the public class found on GitHub for creating fireworks in JavaFX.
+ * <a href="https://github.com/karanja-simon/javafx-demos/blob/master/javafx-demos/src/main/java/com/ezest/javafx/demogallery/javafx2_2/FireworksSample.java">...</a>
+ * The class was modified as the original code applies the fireworks to an ImageView background.
+ * With our changes the class uses a Pane (the base element to apply the fireworks) and uses the LocalModel class (to retrieve information such as the Winners nickname)
+ * Additional changes were made to limit the number of fireworks to fire. The original class creates Fireworks without a time limit and the method "stop()" just
+ * lock the fireworks in the screen. We wanted to fire event the fireworks that appeared last and do not want them to be blocked, so we used a variable to determine
+ * how many fireworks to fire. When the count reaches zero it means that we can safely stop the fireworks firing process without encountering the problem of having
+ * elements blocked on screen.
+ * The modified methods are the constructor, start and stop.
+ */
 
 public class PaneFireworks {
     private final AnimationTimer timer;
     private final Canvas canvas;
     private final List<Particle> particles = new ArrayList<>();
     private final Paint[] colors;
-    private final Stage upperStage;
     private final Pane background;
     private final Background backgroundImageDark;
     private Background backgroundImageLight;
@@ -34,7 +44,7 @@ public class PaneFireworks {
     private int countDownTillNextFirework = 40;
     private int numLeft = 800;
 
-    public PaneFireworks(Pane back, Stage stage, LocalModel localModel) {
+    public PaneFireworks(Pane back, LocalModel localModel) {
         colors = new Paint[181];
         colors[0] = new RadialGradient(0, 0, 0.5, 0.5, 0.5, true, CycleMethod.NO_CYCLE,
                 new Stop(0, Color.WHITE),
@@ -57,7 +67,6 @@ public class PaneFireworks {
 
         winners = new StringBuilder();
         background = back;
-        upperStage = stage;
         this.localModel = localModel;
         backgroundImageDark = background.getBackground();
 
@@ -99,6 +108,11 @@ public class PaneFireworks {
 
     }
 
+    /**
+     * This method starts the Firework particles firing process. The method was changed to include additional logic to prepare the scene for the fireworks:
+     * as the game setup uses a light background we wanted to change that and set a different opacity value.
+     * The winners of the game with a centered label were added too.
+     */
     public void start() {
         for(Node n : background.getChildrenUnmodifiable()){
             n.setOpacity(0.15);
@@ -127,6 +141,10 @@ public class PaneFireworks {
         timer.start();
     }
 
+    /**
+     * This method stops the Firework particles firing process. The method was changed to include additional logic to end the modified scene after the firing process
+     * is completed: the old background and opacity are set.
+     */
     public void stop() {
         timer.stop();
         background.getChildren().remove(canvas);
