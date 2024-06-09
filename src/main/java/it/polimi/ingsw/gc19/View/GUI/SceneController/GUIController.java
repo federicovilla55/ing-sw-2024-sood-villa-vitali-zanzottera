@@ -22,6 +22,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.jetbrains.annotations.Nullable;
 import it.polimi.ingsw.gc19.View.Listeners.ListenersManager;
@@ -72,6 +73,12 @@ public class GUIController implements UI, Listener{
         }
     }
 
+    /**
+     * This class is uses to create a dialog when a player is in a game, and he presses the closing "X" in the window menù.
+     * The dialog asks the player if he wants to quit the game and return to the lobby but keeping the nickname to join
+     * another game or if he wants to quit the game and disconnect from the server too.
+     * @param event a WindowEvent that represent the closing event, so when the "X" window button is pressed.
+     */
     public void closeWindowEvent(WindowEvent event) {
         if (this.clientController.getState() != ViewState.NOT_GAME &&
                 this.clientController.getState() != ViewState.NOT_PLAYER &&
@@ -87,6 +94,13 @@ public class GUIController implements UI, Listener{
 
             closeDialog.getDialogPane().setContentText("Do you want to close Codex Naturalis?");
 
+            Window window = closeDialog.getDialogPane().getScene().getWindow();
+            window.setOnCloseRequest(e -> {
+                window.hide();
+                e.consume();
+                event.consume();
+            });
+
             Optional<ButtonType> response = closeDialog.showAndWait();
             if (response.isPresent()) {
                 if (response.get().getText().equals("Return to Lobby")) {
@@ -94,12 +108,12 @@ public class GUIController implements UI, Listener{
                     event.consume();
                 } else if (response.get().getText().equals("Disconnect")) {
                     this.getClientController().disconnect();
+                } else {
+                    event.consume();
                 }
 
                 this.isCloseEventHandlerAdded = false;
                 stage.getScene().getWindow().removeEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
-            } else {
-                event.consume();
             }
         }
     }
