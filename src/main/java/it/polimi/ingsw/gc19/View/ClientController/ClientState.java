@@ -241,6 +241,14 @@ public abstract class ClientState {
         }
     }
 
+    /**
+     * Handles a {@link TurnStateMessage} and first player. For example, if
+     * {@param activePlayer} is the user, then it sets current state in
+     * {@link ClientController} to {@link ViewState#PICK} ot {@link ViewState#PLACE}
+     * @param activePlayer the nickname of the player in turn
+     * @param nickname the nickname of the user
+     * @param turnState the {@link TurnState}
+     */
     private void handleTurnStateAndFirstPlayer(String activePlayer, String nickname, TurnState turnState) {
         if (activePlayer.equals(nickname)) {
             if (turnState.equals(TurnState.PLACE))

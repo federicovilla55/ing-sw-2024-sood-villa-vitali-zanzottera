@@ -106,5 +106,9 @@ public interface GameManagementInterface {
      */
     void logoutFromGame();
 
+    /**
+     * Getter for connected {@link MessageHandler}
+     * @return the connected {@link MessageHandler}
+     */
     MessageHandler getMessageHandler();
 }

@@ -21,6 +21,9 @@ import java.util.ArrayList;
  */
 public class ClientHandlerRMI extends ClientHandler implements VirtualGameServer {
 
+    /**
+     * {@link VirtualClient} with which {@link ClientHandlerRMI} is interacting
+     */
     private final VirtualClient virtualClientAssociated;
 
     public ClientHandlerRMI(VirtualClient virtualClientAssociated, String username) {

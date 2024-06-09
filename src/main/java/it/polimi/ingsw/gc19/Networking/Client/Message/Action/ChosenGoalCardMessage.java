@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Client.Message.Action;
 
 import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
+import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 
 /**
  * This message is used by client to notify server
@@ -8,6 +9,9 @@ import it.polimi.ingsw.gc19.Networking.Client.Message.MessageToServerVisitor;
  */
 public class ChosenGoalCardMessage extends ActionMessage{
 
+    /**
+     * The index (0 or 1) of the chosen {@link GoalCard}
+     */
     private final int cardIdx;
 
     public ChosenGoalCardMessage(String nickname, int cardIdx){

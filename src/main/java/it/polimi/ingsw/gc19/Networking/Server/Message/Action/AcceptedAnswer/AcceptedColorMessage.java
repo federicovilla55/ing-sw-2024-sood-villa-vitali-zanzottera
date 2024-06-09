@@ -10,7 +10,14 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class AcceptedColorMessage extends AcceptedActionMessage{
 
+    /**
+     * Player for which color has been accepted
+     */
     private final String player;
+
+    /**
+     * Chosen {@link Color}
+     */
     private final Color chosenColor;
 
     public AcceptedColorMessage(String player, Color chosenColor){

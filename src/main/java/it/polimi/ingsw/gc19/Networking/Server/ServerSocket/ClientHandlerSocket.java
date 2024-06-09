@@ -10,6 +10,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.CreatedPlayer
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.Error;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
+import it.polimi.ingsw.gc19.Networking.Server.ServerRMI.VirtualGameServer;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToServer;
 import it.polimi.ingsw.gc19.Controller.GameController;
 
@@ -17,11 +18,32 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 
+/**
+ * This class is used server-side to represents a client that
+ * is connected to server using TCP. It acts as a {@link VirtualGameServer}
+ * for that client: each player has his onw {@link VirtualGameServer} when he connects
+ * to a game.
+ */
 public class ClientHandlerSocket extends ClientHandler implements ObserverMessageToServer<MessageToServer> {
 
+    /**
+     * {@link Socket} with which communication to client can happen
+     */
     private final Socket socket;
+
+    /**
+     * Object lock on {@link #socket}
+     */
     private final Object socketLock;
+
+    /**
+     * {@link ObjectOutputStream} built from {@link #socket}
+     */
     private final ObjectOutputStream outputStream;
+
+    /**
+     * Visitor for game' messages
+     */
     private final ClientToServerGameMessageVisitor messageVisitor;
 
     public ClientHandlerSocket(String nick, Socket socket) throws IOException{
@@ -47,6 +69,11 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         this(null, socket);
     }
 
+    /**
+     * Insert into this {@link ClientHandlerSocket} the configuration
+     * of {@param clientHandler}
+     * @param clientHandler the {@link ClientHandlerSocket} from which import the configuration
+     */
     public void pullClientHandlerSocketConfigIntoThis(ClientHandlerSocket clientHandler){
         this.username = clientHandler.username;
         this.gameController = clientHandler.getGameController();
@@ -127,6 +154,9 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         super.interruptClientHandler();
     }
 
+    /**
+     * Visitor for game' messages
+     */
     private class ClientToServerGameMessageVisitor implements MessageToServerVisitor, ActionMessageVisitor, PlayerChatMessageVisitor{
 
         /**

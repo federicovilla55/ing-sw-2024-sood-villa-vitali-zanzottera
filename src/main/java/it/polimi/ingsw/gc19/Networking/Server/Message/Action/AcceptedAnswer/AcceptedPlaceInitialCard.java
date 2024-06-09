@@ -14,6 +14,9 @@ import java.util.Map;
  */
 public class AcceptedPlaceInitialCard extends AcceptedPlaceCardMessage{
 
+    /**
+     * Initial card whose place has been accepted
+     */
     private final PlayableCard initialCard;
 
     public AcceptedPlaceInitialCard(String nick, PlayableCard initialCard, Map<Symbol, Integer> visibleSymbol){

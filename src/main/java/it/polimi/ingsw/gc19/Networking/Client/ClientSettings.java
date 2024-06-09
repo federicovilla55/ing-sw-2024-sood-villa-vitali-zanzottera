@@ -3,6 +3,9 @@ package it.polimi.ingsw.gc19.Networking.Client;
 import it.polimi.ingsw.gc19.Networking.Server.ServerApp;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
 
+/**
+ * Setting for client
+ */
 public class ClientSettings {
 
     public static final long MAX_TIME_BETWEEN_SERVER_HEARTBEAT_BEFORE_SIGNALING_NETWORK_PROBLEMS = 10;

@@ -10,10 +10,24 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
  */
 public abstract class AcceptedPickCardMessage extends AcceptedActionMessage{
 
+    /**
+     * Nick of player for which pick card action has been accepted
+     */
     private final String nick;
+
+    /**
+     * The cad that has been picked
+     */
     private final PlayableCard pickedCard;
 
+    /**
+     * The type of the deck from which card has been picked
+     */
     private final PlayableCardType deckType;
+
+    /**
+     * Next symbol on top of deck
+     */
     private final Symbol symbol;
 
     protected AcceptedPickCardMessage(String nick, PlayableCard pickedCard, PlayableCardType deckType, Symbol symbol) {

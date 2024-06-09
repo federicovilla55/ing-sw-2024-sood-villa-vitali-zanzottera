@@ -11,6 +11,9 @@ import java.util.List;
  */
 public class AvailableColorsMessage extends NotifyEventOnGame{
 
+    /**
+     * Available colors
+     */
     private final List<Color> availableColors;
 
     public AvailableColorsMessage(List<Color> availableColors) {

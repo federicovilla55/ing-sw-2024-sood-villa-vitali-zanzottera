@@ -6,9 +6,21 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AnswerToActionMessageVisitor;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 
+/**
+ * This message is used by server to notify connected
+ * clients that a pick card from deck action has been accepted.
+ * Contains also the new card to put in slot.
+ */
 public class AcceptedPickCardFromTable extends AcceptedPickCardMessage{
 
+    /**
+     * Position on table of the picked card
+     */
     private final int position;
+
+    /**
+     * New card to put in slot
+     */
     private final PlayableCard cardToPutInSlot;
 
     public AcceptedPickCardFromTable(String nick, PlayableCard pickedCard, Symbol symbol, int position, PlayableCardType deckType, PlayableCard cardToPutInSlot) {
