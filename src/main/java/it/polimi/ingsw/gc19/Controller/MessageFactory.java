@@ -60,7 +60,7 @@ public class MessageFactory implements ObservableMessageToClient<MessageToClient
     }
 
     /**
-     * This method is used to send a message to all game players except {@param nickExcept}
+     * This method is used to send a message to all game players except <code>nickExcept</code>>
      * @param message message to send
      * @param nickExcept player that hasn't to receive the message
      */

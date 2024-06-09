@@ -111,7 +111,7 @@ public class PlayableCard extends Card implements Serializable{
     }
 
     /**
-     * Checks if, depending on {@link #cardState}, {@param freeResources} contains
+     * Checks if, depending on {@link #cardState}, <code>freeResources</code> contains
      * sufficient resources to place the card
      * @param freeResources the <code>Map&lt;Symbol, Integer&gt;</code> to check
      * @return <code>true</code> if and only there are enough resources to place

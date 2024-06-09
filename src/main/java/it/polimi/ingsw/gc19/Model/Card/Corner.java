@@ -8,6 +8,10 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 
 import java.io.Serializable;
 import java.util.Optional;
+
+/**
+ * This interface represents the corner of a PlayableCard
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.WRAPPER_ARRAY
@@ -17,14 +21,11 @@ import java.util.Optional;
         @JsonSubTypes.Type(value = NotAvailableCorner.class, name = "not_available"),
         @JsonSubTypes.Type(value = EmptyCorner.class, name = "empty")
 })
-
-/**
- * This interface represents the corner of a PlayableCard
- */
 public interface Corner extends Serializable{
 
     /**
      * This method returns a boolean indicating whether Corner has a symbol
+     * @return <code>true</code> if {@link Corner} contains a symbol
      */
     boolean hasSymbol();
 

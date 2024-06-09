@@ -24,6 +24,7 @@ interface PlayableEffect extends Serializable{
 
     /**
      * This method returns a detailed description of card's effect
+     * @return a {@link String} description of the effect
      */
     String getEffectDescription();
 

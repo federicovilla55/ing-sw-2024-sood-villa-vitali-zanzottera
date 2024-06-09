@@ -27,6 +27,9 @@ public class Configuration {
         RMI(new ClientRMIFactory()),
         TCP(new ClientTCPFactory());
 
+        /**
+         * Client factory associated to connection type
+         */
         private final ClientFactory clientFactory;
 
         ConnectionType(ClientFactory clientFactory) {
