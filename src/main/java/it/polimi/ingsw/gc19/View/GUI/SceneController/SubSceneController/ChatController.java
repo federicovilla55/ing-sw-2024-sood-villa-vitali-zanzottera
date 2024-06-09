@@ -35,33 +35,18 @@ import java.util.Objects;
  */
 public class ChatController extends GUIController implements ChatListener, LocalModelListener, StationListener {
 
-    /**
-     * {@link ScrollPane} used for chat
-     */
     @FXML
     private ScrollPane scrollText, scrollPaneSend;
 
-    /**
-     * {@link TextArea} used to write message
-     */
     @FXML
     private TextArea textAreaSend;
 
-    /**
-     * {@link TextFlow} used to display chat messages
-     */
     @FXML
     private TextFlow textFlow;
 
-    /**
-     * Players to which send message
-     */
     @FXML
     private CheckComboBox<String> receivers;
 
-    /**
-     * To send the message in {@link #textAreaSend} to {@link #receivers}
-     */
     @FXML
     public Button sendButton;
 

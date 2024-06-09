@@ -26,6 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ListenersManager {
 
+    /**
+     * Attached listeners: for every type of listeners in {@link ListenerType}
+     * there is a <code>List&lt;Listener&gt;</code> of listeners that must implement
+     * the correct interface for that type
+     */
     private final HashMap<ListenerType, ArrayList<Listener>> attachedListeners;
 
     public ListenersManager(){

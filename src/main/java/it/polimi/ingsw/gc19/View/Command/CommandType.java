@@ -22,8 +22,14 @@ public enum CommandType {
     DISCONNECT("disconnect", 0),
     AVAILABLE_COLORS("available_colors", 0);
 
+    /**
+     * The name of the command
+     */
     private final String commandName;
 
+    /**
+     * umber of args of the command
+     */
     private final int numArgs;
 
     CommandType(String commandName, int numArgs){

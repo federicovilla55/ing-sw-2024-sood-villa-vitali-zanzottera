@@ -12,6 +12,10 @@ import java.util.concurrent.TimeUnit;
  */
 class NotGame extends ClientState {
 
+    /**
+     * Scheduled Executor Service responsible for asking
+     * server about available games every {@link ClientSettings#TIME_BETWEEN_CONSECUTIVE_AVAILABLE_GAMES_REQUESTS}
+     */
     private ScheduledExecutorService gameSearcher;
 
     public NotGame(ClientController clientController) {
