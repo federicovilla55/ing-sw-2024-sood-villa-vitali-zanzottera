@@ -37,8 +37,14 @@ import java.util.stream.Collectors;
  */
 public class GameController{
 
+    /**
+     * A {@link Timer} used to stop game when only one player remains connected
+     */
     private Timer stopGameTimer;
 
+    /**
+     * Connected {@link MessageFactory}
+     */
     private final MessageFactory messageFactory;
 
     /**
