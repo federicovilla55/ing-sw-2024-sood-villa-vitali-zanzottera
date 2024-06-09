@@ -9,13 +9,13 @@ import it.polimi.ingsw.gc19.View.TUI.TUIView;
  */
 @JsonTypeName("goal")
 public class GoalCard extends Card {
+
     /**
      * This attribute represents the effect that a goal
      * card has, that is activated when the game finishes
      * To see various effects, see classes that
-     * implements GoalEffect
+     * implements {@link GoalEffect}
      */
-
     private final GoalEffect goalEffect;
 
     /**
@@ -32,16 +32,28 @@ public class GoalCard extends Card {
         this.goalEffect = goalEffect;
     }
 
+    /**
+     * Getter for string description of the {@link GoalCard}
+     * @return a {@link String} description of the {@link GoalCard}
+     */
     @Override
     public String getCardDescription(){return "Goal card " + this.getCardCode() + ":\n" + this.goalEffect.getEffectDescription(); }
 
-
-
+    /**
+     * Count points obtained by player from this card
+     * @param station the station where to count points
+     * @return the number of points gained by player by this card
+     */
     @Override
     public int countPoints(Station station){
         return this.goalEffect.countPoints(station);
     }
 
+    /**
+     * Getter for TUI-view visual description of the effect of the card
+     * @param tuiView the {@link TUIView} that will display infos about card
+     * @return TUI-view visual description of the effect of the card
+     */
     public String[][] getEffectView(TUIView tuiView) {
         return this.goalEffect.getEffectView(tuiView);
     }
