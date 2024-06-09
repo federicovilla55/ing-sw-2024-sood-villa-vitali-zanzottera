@@ -9,7 +9,14 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class GameResumedMessage extends NotifyEventOnGame{
 
+    /**
+     * Current {@link TurnState}
+     */
     private final TurnState turnState;
+
+    /**
+     * Nickname of the player that has to play
+     */
     private final String activePlayer;
 
     public GameResumedMessage(TurnState turnState, String activePlayer) {
@@ -17,10 +24,18 @@ public class GameResumedMessage extends NotifyEventOnGame{
         this.activePlayer = activePlayer;
     }
 
+    /**
+     * Getter for {@link #turnState}
+     * @return {@link #turnState}
+     */
     public TurnState getTurnState() {
         return turnState;
     }
 
+    /**
+     * Getter for {@link #activePlayer}
+     * @return {@link #activePlayer}
+     */
     public String getActivePlayer() {
         return activePlayer;
     }

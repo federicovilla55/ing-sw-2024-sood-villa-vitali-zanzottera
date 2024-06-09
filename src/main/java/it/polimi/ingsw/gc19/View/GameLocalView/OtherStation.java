@@ -28,7 +28,7 @@ public class OtherStation extends LocalStationPlayer{
      * to another player's hand, it can just show the back of the cards, so the
      * Tuple of {@link Symbol} and {@link PlayableCardType}
      */
-    List<Tuple<Symbol,PlayableCardType>> backCardHand;
+    private List<Tuple<Symbol,PlayableCardType>> backCardHand;
 
     public OtherStation(String nicknameOwner, Color chosenColor, Map<Symbol, Integer> visibleSymbols,
                         int numPoints, List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {

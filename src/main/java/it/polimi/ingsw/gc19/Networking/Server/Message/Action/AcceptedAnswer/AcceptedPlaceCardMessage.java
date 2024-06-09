@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer;
 
 import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.Station.Station;
 
 import java.util.Map;
 
@@ -10,7 +11,14 @@ import java.util.Map;
  */
 public abstract class AcceptedPlaceCardMessage extends AcceptedActionMessage{
 
+    /**
+     * Nickname of player for which pace card action has been accepted
+     */
     private final String nick;
+
+    /**
+     * New visible symbols in player {@link Station}
+     */
     private final Map<Symbol, Integer> visibleSymbols;
 
     protected AcceptedPlaceCardMessage(String nick, Map<Symbol, Integer> visibleSymbols){

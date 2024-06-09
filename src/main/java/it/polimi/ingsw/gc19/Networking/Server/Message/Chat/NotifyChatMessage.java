@@ -9,7 +9,14 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class NotifyChatMessage extends MessageToClient{
 
+    /**
+     * Sender player
+     */
     private final String sender;
+
+    /**
+     * Content of the message
+     */
     private final String message;
 
     public NotifyChatMessage(String sender, String message){

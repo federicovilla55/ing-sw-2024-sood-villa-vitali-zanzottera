@@ -10,6 +10,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Configuration.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.*;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameHandling.Errors.GameHandlingErrorMessage;
+import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
@@ -28,9 +29,19 @@ import java.util.ArrayDeque;
  */
 public class MessageHandler extends Thread implements AllMessageVisitor{
 
+    /**
+     * Incoming messages from {@link ClientInterface} to be handled
+     */
     private final ArrayDeque<MessageToClient> messagesToHandle;
 
+    /**
+     * Connected {@link LocalModel}
+     */
     private LocalModel localModel;
+
+    /**
+     * Connected {@link ClientController}
+     */
     private final ClientController clientController;
 
     public MessageHandler(ClientController clientController){
@@ -67,6 +78,10 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
         this.notifyAll();
     }
 
+    /**
+     * Used to wait until {@link #localModel} has been created and set
+     * by {@link ClientController}
+     */
     private synchronized void waitForLocalModel(){
         while(this.localModel == null){
             try{
@@ -111,6 +126,8 @@ public class MessageHandler extends Thread implements AllMessageVisitor{
 
                 message = this.messagesToHandle.remove();
                 this.messagesToHandle.notifyAll();
+
+                if (!(message instanceof ServerHeartBeatMessage)) System.out.println(message);
             }
             message.accept(this);
         }

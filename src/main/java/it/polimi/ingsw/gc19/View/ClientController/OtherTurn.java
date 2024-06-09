@@ -4,7 +4,10 @@ import it.polimi.ingsw.gc19.Enums.TurnState;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.EndGameMessage;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 
-
+/**
+ * This state represent the moment a client is playing his game
+ * and another player is the active player.
+ */
 class OtherTurn extends ClientState {
 
     public OtherTurn(ClientController clientController) {

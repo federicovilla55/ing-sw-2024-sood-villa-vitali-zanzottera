@@ -28,12 +28,12 @@ public class LocalTable {
     /**
      * The first public goal card on the table.
      */
-    private GoalCard publicGoal1;
+    private final GoalCard publicGoal1;
 
     /**
      * The second public goal card on the table.
      */
-    private GoalCard publicGoal2;
+    private final GoalCard publicGoal2;
 
     /**
      * The attribute contains the {@link Symbol} of the next card that will be picked from the resource deck.

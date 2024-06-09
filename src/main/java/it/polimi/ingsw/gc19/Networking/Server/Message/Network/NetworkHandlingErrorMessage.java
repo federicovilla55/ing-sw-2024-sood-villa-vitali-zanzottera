@@ -10,7 +10,14 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class NetworkHandlingErrorMessage extends MessageToClient {
 
+    /**
+     * The type of the network error
+     */
     private final NetworkError networkError;
+
+    /**
+     * A brief string description of the error
+     */
     private final String description;
 
     public NetworkHandlingErrorMessage(NetworkError networkError, String description){

@@ -10,7 +10,14 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class TurnStateMessage extends MessageToClient{
 
+    /**
+     * Nickname of the player that have to play
+     */
     private final String nick;
+
+    /**
+     * {@link TurnState} for the active player
+     */
     private final TurnState turnState;
 
     public TurnStateMessage(String nick, TurnState turnState){

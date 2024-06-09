@@ -38,7 +38,7 @@ public abstract class Card implements Serializable {
 
     /**
      * This method returns the code that uniquely identifies the card in a game
-     * @return this.cardCode
+     * @return {@link #cardCode}
      */
     public String getCardCode() {
         return cardCode;
@@ -46,6 +46,7 @@ public abstract class Card implements Serializable {
 
     /**
      * This abstract method returns a detailed description of the card
+     * @return a {@link String} description of the card
      */
     public abstract String getCardDescription();
 
@@ -56,6 +57,13 @@ public abstract class Card implements Serializable {
      */
     public abstract int countPoints(Station station);
 
+    /**
+     * Overriding of {@link Object#equals(Object)} for {@link Card}.
+     * Two card objects are equals if and only if their card code are equal
+     * @param obj the {@link Object} to compare
+     * @return <code>true</code> if and ony if <code>obj</code>> is a {@link Card}
+     * and the card codes are equals
+     */
     @Override
     public boolean equals(Object obj){
         if(obj == null) return false;
@@ -65,6 +73,10 @@ public abstract class Card implements Serializable {
         return false;
     }
 
+    /**
+     * Builds a string description of the card
+     * @return a string description of the card
+     */
     @Override
     public String toString() {
         return this.getCardCode() +

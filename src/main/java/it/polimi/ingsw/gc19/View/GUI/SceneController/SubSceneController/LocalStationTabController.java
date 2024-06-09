@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
 import it.polimi.ingsw.gc19.View.GUI.SceneController.GUIController;
+import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalModel;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 import it.polimi.ingsw.gc19.View.Listeners.GameEventsListeners.LocalModelEvents;
@@ -61,7 +62,7 @@ public class LocalStationTabController extends GUIController implements LocalMod
 
                 try{
                     FXMLLoader loader = new FXMLLoader();
-                    loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/LocalStationScene.fxml"));
+                    loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.LOCAL_STATION_SUB_SCENE.value()));
 
                     controller = new LocalStationController(this, l.getOwnerPlayer());
 

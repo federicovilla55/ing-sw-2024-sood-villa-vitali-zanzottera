@@ -1,5 +1,12 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction;
 
+import it.polimi.ingsw.gc19.Enums.GameState;
+
+/**
+ * This enum represents all possible errors that can occur
+ * during {@link GameState#PLAYING}, {@link GameState#END}
+ * and {@link GameState#SETUP}
+ */
 public enum ErrorType{
     INVALID_ANCHOR_ERROR,
     INVALID_CARD_ERROR,

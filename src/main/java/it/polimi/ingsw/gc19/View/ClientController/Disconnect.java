@@ -19,6 +19,10 @@ import java.util.concurrent.TimeUnit;
  * established, the client changes its state.
  */
 public class Disconnect extends ClientState {
+
+    /**
+     * Thread responsible for reconnection
+     */
     Thread reconnectScheduler;
 
     public Disconnect(ClientController clientController) {

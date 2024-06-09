@@ -6,6 +6,10 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  * This message is used to notify player that he has correctly joined a game
  */
 public class JoinedGameMessage extends GameHandlingMessage {
+
+    /**
+     * Name of the game that player has joined
+     */
     private final String gameName;
 
     public JoinedGameMessage(String gameName){

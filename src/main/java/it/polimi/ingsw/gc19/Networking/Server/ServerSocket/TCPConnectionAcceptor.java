@@ -11,7 +11,14 @@ import java.net.SocketException;
  */
 public class TCPConnectionAcceptor extends Thread {
 
+    /**
+     * The {@link ServerSocket} owned
+     */
     private ServerSocket serverSocket;
+
+    /**
+     * Connected {@link MainServerTCP}
+     */
     private final MainServerTCP mainServerTCP;
 
     public TCPConnectionAcceptor(MainServerTCP mainServerTCP, int port) {

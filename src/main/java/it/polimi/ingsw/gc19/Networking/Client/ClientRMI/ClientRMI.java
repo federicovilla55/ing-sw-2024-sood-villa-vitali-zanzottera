@@ -31,17 +31,50 @@ import java.util.concurrent.Executors;
  */
 public class ClientRMI extends UnicastRemoteObject implements VirtualClient, ClientInterface {
 
+    /**
+     * Registry of client
+     */
     private final Registry registry;
+
+    /**
+     * {@link VirtualMainServer} with which client is interacting
+     */
     private VirtualMainServer virtualMainServer;
+
+    /**
+     * {@link VirtualGameServer} with which client is interacting
+     */
     private VirtualGameServer virtualGameServer;
+
+    /**
+     * Object lock on {@link #virtualGameServer}
+     */
     private final Object virtualGameServerLock;
 
+    /**
+     * Manager for heartbeat. {@link HeartBeatManager}
+     */
     private final HeartBeatManager heartBeatManager;
 
+    /**
+     * Nickname of the owner of this network interface
+     */
     private String nickname;
 
+    /**
+     * Connected {@link MessageHandler}
+     */
     private final MessageHandler messageHandler;
+
+    /**
+     * Connected {@link ClientController}
+     */
     private final ClientController clientController;
+
+    /**
+     * {@link ExecutorService} used to invoke remote methods on server,
+     * minimizing latency
+     */
     private final ExecutorService virtualServerMethodsInvoker;
 
     public ClientRMI(MessageHandler messageHandler) throws RuntimeException, RemoteException{

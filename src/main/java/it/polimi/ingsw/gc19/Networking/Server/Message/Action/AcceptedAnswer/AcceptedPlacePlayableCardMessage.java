@@ -14,9 +14,24 @@ import java.util.Map;
  */
 public class AcceptedPlacePlayableCardMessage extends AcceptedPlaceCardMessage{
 
+    /**
+     * Code of the card used as anchor
+     */
     private final String anchorCode;
+
+    /**
+     * Code of the placed card
+     */
     private final PlayableCard cardToPlace;
+
+    /**
+     * Direction in which card has been placed
+     */
     private final Direction direction;
+
+    /**
+     * Updated number of points
+     */
     private final int numPoints;
 
     public AcceptedPlacePlayableCardMessage(String nick, String anchorCode, PlayableCard cardToPlace, Direction direction, Map<Symbol, Integer> visibleSymbols, int numPoints){

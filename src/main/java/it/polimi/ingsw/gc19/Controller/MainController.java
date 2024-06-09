@@ -18,15 +18,25 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * It the main controller of the server. It is responsible for managing games
+ * (creation, deletion after finish, adding / removing players) and players'
+ * state ({@link State}.
+ * It is built using Singleton pattern.
+ */
 public class MainController {
-
-    enum State{
-        ACTIVE, INACTIVE;
-    }
 
     private static MainController mainController = null;
 
+    /**
+     * Contains infos about players: their state and if they are
+     * connected to some games.
+     */
     private final HashMap<String, Tuple<State, String>> playerInfo = new HashMap<>();
+
+    /**
+     * Contains infos about games: game name is the key and related {@link GameController} is the value
+     */
     private final HashMap<String, GameController> gamesInfo = new HashMap<>();
 
     /**
@@ -85,7 +95,7 @@ public class MainController {
                     gameController.getGameAssociated().getMessageFactory().sendMessageToAllGamePlayers(new DisconnectFromGameMessage(gameName));
 
                     for (String p : playersToRemove) {
-                        MainController.State playerState = playerInfo.get(p).x();
+                        State playerState = playerInfo.get(p).x();
                         playerInfo.put(p, new Tuple<>(playerState, null));
                         gameController.removeClient(p);
                     }

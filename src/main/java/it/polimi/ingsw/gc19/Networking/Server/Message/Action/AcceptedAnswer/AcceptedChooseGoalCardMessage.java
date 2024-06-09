@@ -10,6 +10,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class AcceptedChooseGoalCardMessage extends AcceptedActionMessage{
 
+    /**
+     * {@link GoalCard} accepted
+     */
     private final GoalCard goalCard;
 
     public AcceptedChooseGoalCardMessage(GoalCard goalCard){

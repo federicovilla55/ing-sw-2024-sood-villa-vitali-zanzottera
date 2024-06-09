@@ -8,6 +8,11 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  * its nickname has been deleted in server)
  */
 public class DisconnectFromServerMessage extends GameHandlingMessage{
+
+    /**
+     * Implementation of the visitor pattern
+     * @param visitor {@link MessageToClientVisitor} visitor of the message
+     */
     @Override
     public void accept(MessageToClientVisitor visitor) {
         if(visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);

@@ -95,7 +95,7 @@ public class ChatController extends GUIController implements ChatListener, Local
      * Builds chat TextFlow pane and fill it with all chat messages.
      * If sender has already chosen his color then message is colored
      * with that color, other is black.
-     * @param msg the <code>ArrayList<Message></code> containing all
+     * @param msg the <code>ArrayList&lt;Message&gt;</code> containing all
      *            the messages to be displayed.
      */
     private void showChat(ArrayList<Message> msg){

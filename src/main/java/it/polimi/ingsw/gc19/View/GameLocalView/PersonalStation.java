@@ -21,6 +21,7 @@ import java.util.Map;
  * - the initial card.
  */
 public class PersonalStation extends LocalStationPlayer {
+
     /**
      * The array of the PlayableCards that the client has in its hand.
      */

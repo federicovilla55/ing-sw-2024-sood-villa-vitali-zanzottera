@@ -6,8 +6,6 @@ import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -25,7 +23,7 @@ public final class JSONParser{
      * @return a Stream of PlayableCards
      */
     public static Stream<PlayableCard> readPlayableCardFromFile() throws IOException{
-        InputStream playableCardsFile = JSONParser.class.getClassLoader().getResourceAsStream(ImportantConstants.pathToPlayableCardFileJSON);
+        InputStream playableCardsFile = JSONParser.class.getClassLoader().getResourceAsStream(ImportantConstants.PATH_TO_PLAYABLE_CARD_FILE_JSON);
         return objMapper.readValue(playableCardsFile, new TypeReference<ArrayList<PlayableCard>>(){}).stream();
     }
 
@@ -35,7 +33,7 @@ public final class JSONParser{
      * @return a Stream of GoalCards
      */
     public static Stream<GoalCard> readGoalCardFromFile() throws IOException{
-        InputStream goalCardsFile = JSONParser.class.getClassLoader().getResourceAsStream(ImportantConstants.pathToGoalCardFileJSON);
+        InputStream goalCardsFile = JSONParser.class.getClassLoader().getResourceAsStream(ImportantConstants.PATH_TO_GOAL_CARD_FILE_JSON);
         return objMapper.readValue(goalCardsFile, new TypeReference<ArrayList<GoalCard>>(){}).stream();
     }
 

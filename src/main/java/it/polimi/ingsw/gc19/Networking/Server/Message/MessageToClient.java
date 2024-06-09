@@ -1,5 +1,7 @@
 package it.polimi.ingsw.gc19.Networking.Server.Message;
 
+import it.polimi.ingsw.gc19.Networking.Server.Message.Network.NetworkHandlingErrorMessage;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,7 +16,15 @@ import java.util.List;
  */
 public abstract class MessageToClient implements Serializable{
 
+    /**
+     * The header of the message. Message will be sent to all (and no other) players
+     * in the header
+     */
     private List<String> header;
+
+    /**
+     * The priority level of the message
+     */
     private MessagePriorityLevel messagePriorityLevel = MessagePriorityLevel.LOW;
 
     /**
@@ -74,6 +84,11 @@ public abstract class MessageToClient implements Serializable{
      */
     public abstract void accept(MessageToClientVisitor visitor);
 
+    /**
+     * This method compares an {@link Object} with a {@link MessageToClient}
+     * @param o the {@link Object} to compare
+     * @return true if and only if the two objects are equals
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -98,6 +113,10 @@ public abstract class MessageToClient implements Serializable{
         return true;
     }
 
+    /**
+     * Overriding of {@link Object#hashCode()}
+     * @return the hash code of the message
+     */
     @Override
     public int hashCode() {
         int result = 17; // Start with a non-zero prime number as the initial hash value
@@ -116,6 +135,10 @@ public abstract class MessageToClient implements Serializable{
         return result;
     }
 
+    /**
+     * Overriding of {@link Object#toString()}.
+     * @return a string version of the message
+     */
     @Override
     public String toString() {
         String s = "";

@@ -7,6 +7,10 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  * player has reconnected to game
  */
 public class PlayerReconnectedToGameMessage extends NotifyEventOnGame {
+
+    /**
+     * Nickname of the player who has reconnected to the game
+     */
     private final String playerName;
 
     public PlayerReconnectedToGameMessage(String playerName){

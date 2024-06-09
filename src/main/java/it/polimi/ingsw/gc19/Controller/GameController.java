@@ -267,7 +267,7 @@ public class GameController{
     /**
      * This method place the initial card for the given player, choosing if the card has to be placed upward or downward
      * @param nickname the player name
-     * @param cardOrientation the orientation of the card of type CardOrientation (UP, DOWN)
+     * @param cardOrientation the orientation of the card of type {@link CardOrientation}
      */
     public synchronized void placeInitialCard(String nickname, CardOrientation cardOrientation) {
         if(!this.connectedClients.containsKey(nickname)) return;
@@ -297,7 +297,7 @@ public class GameController{
      * @param cardCode   the code of the card to place
      * @param anchorCode the code of the anchor card
      * @param direction  the direction where to put the card, of type Direction
-     * @param cardOrientation UP or DOWN card orientation
+     * @param cardOrientation the {@link CardOrientation} chosen by player
      */
     public synchronized void placeCard(String nickname, String cardCode, String anchorCode, Direction direction, CardOrientation cardOrientation) {
         if(!this.gameAssociated.getGameState().equals(GameState.PLAYING)) {
@@ -360,9 +360,11 @@ public class GameController{
     }
 
     /**
-     * This method draws a card from deck for the given player, choosing between the ResourceDeck and the GoldDeck
+     * This method draws a card from deck for the given player, choosing between {@link PlayableCardType} decks
+     * (only <code>PlayableCardType.GOLD</code> and <code>PlayableCardType.RESOURCE</code>).
      * @param nickname the player name
-     * @param type type CardType, only RESOURCE and GOLD are admissible types
+     * @param type the {@link PlayableCardType} chosen, only <code>PlayableCardType.GOLD</code>
+     *             and <code>PlayableCardType.RESOURCE</code> are admissible types
      */
     public synchronized void drawCardFromDeck(String nickname, PlayableCardType type) {
         if (checkDrawConditions(nickname)) return;
@@ -396,9 +398,11 @@ public class GameController{
     }
 
     /**
-     * This method draws a card from a table position for the given player, choosing between the ResourceDeck and the GoldDeck
+     * This method draws a card from a table position for the given player, choosing between {@link PlayableCardType} decks
+     * (only <code>PlayableCardType.GOLD</code> and <code>PlayableCardType.RESOURCE</code>).
      * @param nickname the player name
-     * @param type type CardType, only RESOURCE and GOLD are admissible types
+     * @param type the {@link PlayableCardType} chosen, only <code>PlayableCardType.GOLD</code>
+     *             and <code>PlayableCardType.RESOURCE</code> are admissible types
      * @param position an integer between 0 and 1, representing the position of the chosen card
      */
     public synchronized void drawCardFromTable(String nickname, PlayableCardType type, int position) {
@@ -445,7 +449,7 @@ public class GameController{
 
     /**
      * This method checks if the player with a given nickname can draw a card. This is possible if it is the player's turn and
-     * the player is in the DRAW turn state. Moreover, the game should be in the status of PLAYING.
+     * the player is in {@link TurnState#DRAW} turn state. Moreover, the game should be in the status of {@link GameState#PLAYING}.
      * @param nickname the nickname of the player to check if he can draw
      * @return If all these conditions are met, this method returns false. If a condition is not met, this method returns true
      */
@@ -511,9 +515,6 @@ public class GameController{
 
         List<Player> winnerPlayers = new ArrayList<>();
 
-//        //remove not connected players from possible winners
-//        sortedPlayers.removeIf(p -> !this.connectedClients.containsKey(p.getName()));
-
         Player p;
         do {
             p = sortedPlayers.removeFirst();
@@ -533,7 +534,6 @@ public class GameController{
     /**
      * This method is called when there is a timeout and at most only a client is connected
      */
-
     private synchronized void stopGame() {
         if(this.gameAssociated.getGameState().equals(GameState.PAUSE)) {
             if (this.connectedClients.size() == 1) {
@@ -553,16 +553,19 @@ public class GameController{
         }
     }
 
+    /**
+     * This method is used to send a chat message to some players of the game.
+     * @param receivers an <code>ArrayList&lt;String&gt;</code> containing all names of players to which
+     *                  message must be sent.
+     * @param senderNick the nickname of the player who sent the message
+     * @param message the message to be sent
+     */
     public synchronized void sendChatMessage(ArrayList<String> receivers, String senderNick, String message){
         if(!this.gameAssociated.hasPlayer(senderNick) ||
                 !new HashSet<>(this.gameAssociated.getPlayers().stream().map(Player::getName).collect(Collectors.toList())).containsAll(receivers)){
             return;
         }
         this.gameAssociated.getChat().pushMessage(new Message(message, senderNick, receivers));
-    }
-
-    public synchronized int getNumConnectedClients(){
-        return this.numConnectedClients;
     }
 
 }

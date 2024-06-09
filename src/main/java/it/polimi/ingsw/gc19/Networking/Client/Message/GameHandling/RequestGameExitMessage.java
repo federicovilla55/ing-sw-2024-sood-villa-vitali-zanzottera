@@ -12,6 +12,10 @@ public class RequestGameExitMessage extends GameHandlingMessage{
         super(nickname);
     }
 
+    /**
+     * This method is used by {@link MessageToServerVisitor} to visit the message
+     * @param visitor the {@link MessageToServerVisitor} for the message
+     */
     @Override
     public void accept(MessageToServerVisitor visitor) {
         if(visitor instanceof GameHandlingMessageVisitor) ((GameHandlingMessageVisitor) visitor).visit(this);

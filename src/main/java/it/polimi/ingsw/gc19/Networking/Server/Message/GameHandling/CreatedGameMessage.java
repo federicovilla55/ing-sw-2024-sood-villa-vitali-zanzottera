@@ -11,6 +11,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class CreatedGameMessage extends GameHandlingMessage {
 
+    /**
+     * Name of the created game
+     */
     private final String gameName;
 
     public CreatedGameMessage(String gameName){

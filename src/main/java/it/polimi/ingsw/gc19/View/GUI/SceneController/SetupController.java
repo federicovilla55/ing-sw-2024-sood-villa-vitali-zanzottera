@@ -52,7 +52,15 @@ public class SetupController extends GUIController implements SetupListener, Sta
         getClientController().getListenersManager().attachListener(ListenerType.LOCAL_MODEL_LISTENER, this);
     }
 
-    public void initialize(){
+    /**
+     * Initializes setup scene. First, it sets min width and height.
+     * Then, builds {@link HBox} used by players to choose their colors,
+     * goal card, initial card and info box.
+     * After that, sets width and height properties and
+     * load all sub-scenes with theirs controllers.
+     */
+    @FXML
+    private void initialize(){
         super.getStage().setMinWidth(1280.0);
         super.getStage().setMinHeight(820.0);
 
@@ -74,7 +82,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/ChatScene.fxml"));
+            loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.CHAT_SUB_SCENE.value()));
             chatController = new ChatController(this);
             loader.setController(chatController);
 
@@ -91,7 +99,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/TableScene.fxml"));
+            loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.TABLE_SUB_SCENE.value()));
             tableController = new TableController(this);
             loader.setController(tableController);
 
@@ -105,7 +113,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
 
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getClassLoader().getResource("it/polimi/ingsw/gc19/fxml/LocalStationTab.fxml"));
+            loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.LOCAL_STATION_TAB_SUB_SCENE.value()));
             localStationController = new LocalStationTabController(this);
             loader.setController(localStationController);
 
@@ -122,6 +130,10 @@ public class SetupController extends GUIController implements SetupListener, Sta
         setBackgrounds();
     }
 
+    /**
+     * Builds {@link #infoHBox}: it contains all infos about user,
+     * game and other players state.
+     */
     private void buildInfoHBox(){
         this.infoHBox.getChildren().clear();
 
@@ -143,8 +155,14 @@ public class SetupController extends GUIController implements SetupListener, Sta
                                                                                  .divide(20));
     }
 
-    private void allPlayersConnectedFactory(boolean canStart){
-        String fileName = canStart ? "all_connected" : "one_not_connected";
+    /**
+     * Displays an image (tick or X) in {@link #infoHBox}
+     * whether all players are connected to the game
+     * @param allPlayerConnected <code>true</code> if and only
+     *                           all players are connected to the game
+     */
+    private void allPlayersConnectedFactory(boolean allPlayerConnected){
+        String fileName = allPlayerConnected ? "all_connected" : "one_not_connected";
 
         ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/game state/" + fileName + ".png"))));
         imageView.setPreserveRatio(true);
@@ -160,6 +178,11 @@ public class SetupController extends GUIController implements SetupListener, Sta
         this.infoHBox.getChildren().addLast(hBox);
     }
 
+    /**
+     * Builds {@link #initialCardHBox}. When player chooses
+     * the orientation of his initial card, {@link #initialCardHBox} vanishes
+     * and {@link #chat} is resized to fill empty space.
+     */
     private void buildInitialCardHBox(){
         if(this.getLocalModel().getPersonalStation().getPlacedCardSequence().isEmpty()) {
 
@@ -181,6 +204,11 @@ public class SetupController extends GUIController implements SetupListener, Sta
         }
     }
 
+    /**
+     * Builds {@link #privateGoalCardSelectionPane}. When player chooses
+     * his private goal card, {@link #privateGoalCardSelectionPane} vanishes
+     * and {@link #chat} is resized to fill empty space.
+     */
     private void buildPrivateGoalCardSelectionHBox(){
         if(this.getLocalModel().getPersonalStation().getPrivateGoalCardInStation() == null){
             List<GoalCardButton> cardButtons = new ArrayList<>(List.of(
@@ -202,6 +230,11 @@ public class SetupController extends GUIController implements SetupListener, Sta
         }
     }
 
+    /**
+     * Builds {@link #availableColorsPane}. When player chooses
+     * his color, {@link #availableColorsPane} vanishes
+     * and {@link #chat} is resized to fill empty space.
+     */
     private void buildAvailableColorsPane(){
         if(getLocalModel().getAvailableColors() != null && getLocalModel().getPersonalStation() != null && getLocalModel().getPersonalStation().getChosenColor() == null){
             this.hbox.getChildren().clear();
@@ -216,6 +249,12 @@ public class SetupController extends GUIController implements SetupListener, Sta
         }
     }
 
+    /**
+     * Factory method for pawns. Given a <code>List&lt;Color&gt;</code>,
+     * return the corresponding {@link ArrayList} of pawns buttons.
+     * @param availableColors the <code>List&lt;Color&gt;</code> of available colors
+     * @return the <code>ArrayList&lt;Button&gt;</code> built.
+     */
     private ArrayList<Button> colorButtonFactory(List<Color> availableColors){
         ArrayList<Button> buttons = new ArrayList<>();
 
@@ -235,6 +274,9 @@ public class SetupController extends GUIController implements SetupListener, Sta
         return buttons;
     }
 
+    /**
+     * Sets background to sub-scenes.
+     */
     private void setBackgrounds(){
         setBackground(stackPane, true);
         setBackground(infoHBox, false);
@@ -244,6 +286,13 @@ public class SetupController extends GUIController implements SetupListener, Sta
         setBackground(privateGoalCardSelectionPane, false);
     }
 
+    /**
+     * Builds a {@link Button} with which user can choose his
+     * {@link Color}. Buttons are clipped to circular.
+     * @param c the {@link Color} for which button has to be built
+     * @param circlePawn the {@link Circle} with which color image is clipped
+     * @return the built {@link Button}
+     */
     @NotNull
     private Button buildColorButton(Color c, Circle circlePawn) {
         Button button = new Button();
@@ -265,6 +314,9 @@ public class SetupController extends GUIController implements SetupListener, Sta
         return button;
     }
 
+    /**
+     * Resizes {@link #chat} to fill empty space on {@link #rightVBox}.
+     */
     private void resizeChat(){
         ((Region) chat.getChildren().getFirst()).setPrefHeight(((ScrollPane) chat.getChildren().getFirst()).getHeight() + 0.25 * ((Region) chat.getParent()).getHeight());
     }

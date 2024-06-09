@@ -9,6 +9,9 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class NewPlayerConnectedToGameMessage extends NotifyEventOnGame {
 
+    /**
+     * Nickname of the new player that has connected to the game
+     */
     private final String playerName;
 
     public NewPlayerConnectedToGameMessage(String playerName){

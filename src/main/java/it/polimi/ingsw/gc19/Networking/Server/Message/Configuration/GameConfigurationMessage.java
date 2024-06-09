@@ -10,6 +10,36 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
  */
 public class GameConfigurationMessage extends ConfigurationMessage {
 
+    /**
+     * The current game state
+     */
+    private final GameState gameState;
+
+    /**
+     * The current turn state
+     */
+    private final TurnState turnState;
+
+    /**
+     * Nickname of the first player, if already established, otherwise <code>null</code>
+     */
+    private final String firstPlayer;
+
+    /**
+     * The nickname of the active player, if already established, otherwise <code>null</code>
+     */
+    private final String activePlayer;
+
+    /**
+     * This attribute is <code>true</code> if and only if game is in its final round
+     */
+    private final boolean finalRound;
+
+    /**
+     * Number of players connected to the game
+     */
+    private final int numPlayers;
+
     public GameConfigurationMessage(GameState gameState, TurnState turnState, String firstPlayer, String activePlayer, boolean finalRound, int numPlayers) {
         this.gameState = gameState;
         this.turnState = turnState;
@@ -18,13 +48,6 @@ public class GameConfigurationMessage extends ConfigurationMessage {
         this.finalRound = finalRound;
         this.numPlayers = numPlayers;
     }
-
-    private final GameState gameState;
-    private final TurnState turnState;
-    private final String firstPlayer;
-    private final String activePlayer;
-    private final boolean finalRound;
-    private final int numPlayers;
 
     /**
      * Getter for game state

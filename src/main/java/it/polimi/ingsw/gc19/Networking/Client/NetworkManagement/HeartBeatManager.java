@@ -3,6 +3,7 @@ package it.polimi.ingsw.gc19.Networking.Client.NetworkManagement;
 import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 import it.polimi.ingsw.gc19.Networking.Server.Message.HeartBeat.ServerHeartBeatMessage;
 import it.polimi.ingsw.gc19.Networking.Server.ServerSettings;
+import it.polimi.ingsw.gc19.Networking.Client.ClientInterface;
 
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -16,10 +17,29 @@ import java.util.concurrent.TimeUnit;
  */
 public class HeartBeatManager{
 
+    /**
+     * Connected {@link ClientInterface} for which {@link HeartBeatManager} manages heartbeats
+     */
     private final NetworkManagementInterface networkManagementInterface;
+
+    /**
+     * Scheduled Executor Service responsible for sending heartbeats
+     */
     private ScheduledExecutorService heartBeatSenderScheduler;
+
+    /**
+     * Scheduled Executor Service responsible for receiving and checking heartbeats frequency
+     */
     private ScheduledExecutorService heartBeatChecker;
+
+    /**
+     * Timestamp of last {@link ServerHeartBeatMessage} received
+     */
     private Long lastHeartBeatFromServer;
+
+    /**
+     * Object lock on {@link #lastHeartBeatFromServer}
+     */
     private final Object lastHeartBeatLock;
 
     public HeartBeatManager(NetworkManagementInterface networkManagementInterface){

@@ -6,6 +6,7 @@ import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
+import it.polimi.ingsw.gc19.Model.Station.Station;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +17,36 @@ import java.util.Map;
  * a certain game and needs to be updated about game and player state
  */
 public class OtherStationConfigurationMessage extends ConfigurationMessage {
+
+    /**
+     * Nickname of the owner player
+     */
     private final String nick;
+
+    /**
+     * {@link Color} chosen by the player, otherwise <code>null</code>
+     */
     private final Color color;
-    private final List<Tuple<Symbol,PlayableCardType>> cardsInHand;
+
+    /**
+     * List of infos about cards in hand (only {@link PlayableCardType} and {@link Symbol})
+     */
+    private final List<Tuple<Symbol, PlayableCardType>> cardsInHand;
+
+    /**
+     * Visible symbols in player's {@link Station}
+     */
     private final Map<Symbol, Integer> visibleSymbols;
+
+    /**
+     * Number of points of the player
+     */
     private final int numPoints;
+
+    /**
+     * Sequence of cards placed by the player. For each card, there
+     * is its position on the grid.
+     */
     private final List<Tuple<PlayableCard, Tuple<Integer,Integer>>> placedCardSequence;
 
     public OtherStationConfigurationMessage(String nick, Color color, List<Tuple<Symbol,PlayableCardType>> cardsInHand, Map<Symbol, Integer> visibleSymbols,

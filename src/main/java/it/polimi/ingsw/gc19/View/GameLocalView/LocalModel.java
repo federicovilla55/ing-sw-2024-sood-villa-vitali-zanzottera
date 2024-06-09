@@ -47,7 +47,15 @@ public class LocalModel {
      * that player currently active or inactive.
      */
     private final ConcurrentHashMap<String, State> playerState;
+
+    /**
+     * Nickname of the owner player
+     */
     private String nickname;
+
+    /**
+     * Name of the game in which player is inscribed
+     */
     private String gameName;
 
     /**

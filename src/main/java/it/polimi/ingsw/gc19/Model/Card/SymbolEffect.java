@@ -10,10 +10,22 @@ import it.polimi.ingsw.gc19.View.TUI.TUIView;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents an effect of type "symbol". It is used,
+ * for example, for all cards that give points depending on groups
+ * of visible symbols
+ */
 @JsonTypeName("symbol")
 public class SymbolEffect implements GoalEffect, PlayableEffect{
 
+    /**
+     * Required symbols for the effect
+     */
     private final HashMap<Symbol, Integer> requiredSymbol;
+
+    /**
+     * Value of the card
+     */
     private final int cardValue;
 
     /**
@@ -28,21 +40,40 @@ public class SymbolEffect implements GoalEffect, PlayableEffect{
         this.cardValue = cardValue;
     }
 
+    /**
+     * Getter for required {@link Symbol}.
+     * @return the <code>Map&lt;Symbol, Integer&gt;</code> containing the
+     * number of {@link Symbol} necessary to count points.
+     */
     public Map<Symbol, Integer> getRequiredSymbol() {
         return Map.copyOf(requiredSymbol);
     }
 
+    /**
+     * Getter for string description of the effect
+     * @return the string description of the effect
+     */
     @Override
     public String getEffectDescription(){
         return "This card gives " + this.cardValue + " points for every group of indicated symbols.\n" +
                "The symbols are the visible symbols in the player area.";
     }
 
+    /**
+     * Getter for TUI-view visual description of the effect of the card
+     * @param tuiView the {@link TUIView} that will display infos about effect
+     * @return TUI-view visual description of the effect of the card
+     */
     @Override
     public String[][] getEffectView(TUIView tuiView) {
         return tuiView.goalEffectView(this);
     }
 
+    /**
+     * Count points obtained by player from this effect
+     * @param station the station where to count points
+     * @return the number of points gained by player by this effect
+     */
     @Override
     public int countPoints(Station station){
         return this.cardValue * this.requiredSymbol

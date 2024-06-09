@@ -12,7 +12,11 @@ import it.polimi.ingsw.gc19.Utils.Tuple;
  */
 public class OtherAcceptedPickCardFromDeckMessage extends AcceptedPickCardMessage {
 
-    private final Tuple<Symbol,PlayableCardType> backPickedCard;
+    /**
+     * Infos about back of picked card. Others players may
+     * only know the type and the symbol of the picked card
+     */
+    private final Tuple<Symbol, PlayableCardType> backPickedCard;
 
     public OtherAcceptedPickCardFromDeckMessage(String nick, Tuple<Symbol,PlayableCardType> backPickedCard, PlayableCardType deckType, Symbol symbolOnDeck) {
         super(nick, null, deckType, symbolOnDeck);
@@ -28,6 +32,10 @@ public class OtherAcceptedPickCardFromDeckMessage extends AcceptedPickCardMessag
         if(visitor instanceof AnswerToActionMessageVisitor) ((AnswerToActionMessageVisitor) visitor).visit(this);
     }
 
+    /**
+     * Getter for {@link #backPickedCard}
+     * @return {@link #backPickedCard}
+     */
     public Tuple<Symbol, PlayableCardType> getBackPickedCard() {
         return backPickedCard;
     }

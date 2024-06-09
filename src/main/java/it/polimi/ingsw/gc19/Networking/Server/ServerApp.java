@@ -168,7 +168,7 @@ public class ServerApp {
 
     /**
      * This method is used to start the {@link MainServerTCP}.
-     * It starts {@link TCPConnectionAcceptor} on the specified port ({@param TCPPort})
+     * It starts {@link TCPConnectionAcceptor} on the specified port (<code>TCPPort</code>>)
      * and builds a new {@link MainServerTCP}
      */
     public static void startTCP(){
