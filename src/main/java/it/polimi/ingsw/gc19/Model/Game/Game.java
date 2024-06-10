@@ -34,9 +34,18 @@ import java.util.stream.Stream;
  */
 public class Game extends Publisher{
 
+    /**
+     *  This attribute represents the name of this game
+     */
     private final String gameName;
 
+    /**
+     *  This attribute represents the {@link TurnState}
+     */
     private TurnState turnState;
+    /**
+     *  This attribute represents the {@link GameState}
+     */
     private GameState gameState;
     /**
      * This Attribute contains a list of the players associated with the game.
@@ -105,18 +114,40 @@ public class Game extends Publisher{
      */
     private final GoalCard[] publicGoalCardsOnTable;
 
+    /**
+     * This attribute represents the condition of final round.
+     */
     private boolean finalRound;
 
+    /**
+     * This attribute represents if the game has already reached a final condition.
+     */
     private boolean finalCondition;
 
+    /**
+     * This attribute represents the rng used to shuffle cards and select first player.
+     */
     private final Random rng;
 
+    /**
+     * This attribute represents the chat.
+     */
     private final Chat chat;
 
+    /**
+     * Gets players.
+     *
+     * @return the players
+     */
     public ArrayList<Player> getPlayers() {
         return this.players;
     }
 
+    /**
+     * Gets available colors.
+     *
+     * @return the available colors
+     */
     public List<Color> getAvailableColors() {
         ArrayList<Color> availableColors = new ArrayList<>(List.of(Color.values()));
         for(Player p : this.players){
@@ -126,6 +157,11 @@ public class Game extends Publisher{
     }
 
 
+    /**
+     * Compute final scoreboard list.
+     *
+     * @return the list containing players by descending order of points
+     */
     public List<Player> computeFinalScoreboard() {
 
         Comparator<Player> byGoalPoints = Comparator.comparing((Player p) -> p.getStation().getPointsFromGoals()).reversed();
@@ -144,6 +180,7 @@ public class Game extends Publisher{
      * Initializes decks, cards on table, players and other variables.
      *
      * @param numPlayers The number of players in the game.
+     * @param gameName   the game name
      * @throws IOException if there's an I/O error while reading card files.
      */
     public Game(int numPlayers, String gameName) throws IOException {
@@ -153,7 +190,9 @@ public class Game extends Publisher{
 
     /**
      * This constructor is called directly for testing, removing randomness by fixing the seed of the rng
+     *
      * @param numPlayers The number of players in the game.
+     * @param gameName   the game name
      * @param randomSeed the random seed used to shuffle card and to select first player
      * @throws IOException if there's an I/O error while reading card files.
      */
@@ -199,11 +238,22 @@ public class Game extends Publisher{
         this.chat.setMessageFactory(messageFactory);
     }
 
+    /**
+     * Check if this game has the player of specified nickname.
+     *
+     * @param nick the nick
+     * @return the boolean
+     */
     public boolean hasPlayer(String nick){
         return this.getPlayers().stream()
                    .anyMatch(p -> p.getName().equals(nick));
     }
 
+    /**
+     * Get chat.
+     *
+     * @return the chat
+     */
     public Chat getChat(){
         return this.chat;
     }
@@ -236,8 +286,7 @@ public class Game extends Publisher{
      * on its unique code. The description consist of a String.
      *
      * @param code The code of the card to retrieve.
-     * @return The description of the card, if the card is found,
-     * otherwise an error message.
+     * @return The description of the card, if the card is found, otherwise an error message.
      */
     public String getInfoCard(String code){
         return Stream.concat(this.stringGoalCardHashMap.values().stream(), this.stringPlayableCardHashMap.values().stream())
@@ -276,6 +325,8 @@ public class Game extends Publisher{
     }
 
     /**
+     * Get first player.
+     *
      * @return The first player.
      */
     public Player getFirstPlayer(){
@@ -293,6 +344,8 @@ public class Game extends Publisher{
     }
 
     /**
+     * Get active player that is currently playing.
+     *
      * @return The current active player.
      */
     public Player getActivePlayer(){
@@ -300,8 +353,9 @@ public class Game extends Publisher{
     }
 
     /**
-     * @return The next player in sequence.
-     * The turns are made based on the player indices in the ArrayList players.
+     * Get next player.
+     *
+     * @return The next player in sequence. The turns are made based on the player indices in the ArrayList players.
      */
     public Player getNextPlayer(){
         return this.players.get((this.players.indexOf(this.activePlayer) + 1) % this.numPlayers);
@@ -310,7 +364,7 @@ public class Game extends Publisher{
     /**
      * Creates a new player with the given name.
      *
-     * @param name   The name of the new player.
+     * @param name The name of the new player.
      * @throws NameAlreadyInUseException if the name is already in use.
      */
     public void createNewPlayer(String name) throws NameAlreadyInUseException {
@@ -352,6 +406,11 @@ public class Game extends Publisher{
         sendCurrentStateToPlayer(player.getName());
     }
 
+    /**
+     * Send current game state to player.
+     *
+     * @param nickname the nickname of the player
+     */
     public void sendCurrentStateToPlayer(String nickname) {
         //Send to player its own station
         sendCurrentOwnStationState(nickname);
@@ -377,10 +436,20 @@ public class Game extends Publisher{
         ));
     }
 
+    /**
+     * Send current available colors to player.
+     *
+     * @param nickname the nickname of the player
+     */
     public void sendCurrentAvailableColors(String nickname) {
         this.getMessageFactory().sendMessageToPlayer(nickname, new AvailableColorsMessage(this.getAvailableColors()));
     }
 
+    /**
+     * Send current own station state to player.
+     *
+     * @param nickname the nickname of
+     */
     public void sendCurrentOwnStationState(String nickname) {
         this.getMessageFactory().sendMessageToPlayer(nickname, new OwnStationConfigurationMessage(nickname, getPlayerByName(nickname).getColor(),
                 getPlayerByName(nickname).getStation().getCardsInHand(),
@@ -393,6 +462,11 @@ public class Game extends Publisher{
                 getPlayerByName(nickname).getStation().getPlacedCardSequence()));
     }
 
+    /**
+     * Send current others station states to a player.
+     *
+     * @param receiver the nickname of the player to which the stations are sent
+     */
     public void sendCurrentOthersStationState(String receiver) {
 
         for(String nickname : players.stream().map(Player::getName).toList()) {
@@ -409,6 +483,11 @@ public class Game extends Publisher{
         }
     }
 
+    /**
+     * Send current table state to player.
+     *
+     * @param nickname the nickname of the player
+     */
     public void sendCurrentTableState(String nickname) {
         this.getMessageFactory().sendMessageToPlayer(nickname,
                                                      new TableConfigurationMessage(this.resourceCardsOnTable[0], this.resourceCardsOnTable[1],
@@ -442,7 +521,14 @@ public class Game extends Publisher{
         throw new PlayerNotFoundException("A player with the given name was not found.");
     }
 
-    public Deck<PlayableCard> getDeckFromType(PlayableCardType type){
+    /**
+     * Get deck of specified type.
+     *
+     * @param type the type of the deck, only RESOURCE or GOLD allowed
+     * @return the deck
+     * @throws IllegalArgumentException if the type is not RESOURCE or GOLD
+     */
+    public Deck<PlayableCard> getDeckFromType(PlayableCardType type) throws IllegalArgumentException {
         Deck<PlayableCard> deck;
         deck = switch (type) {
             case RESOURCE -> this.resourceDeck;
@@ -454,9 +540,11 @@ public class Game extends Publisher{
 
     /**
      * This method returns a card from the deck of specified type. If the deck is empty, throws an exception
+     *
      * @param type The type of card to pick from the respective deck
      * @return The card from a specified deck
-     * @throws EmptyDeckException when the deck is empty, return this exception
+     * @throws EmptyDeckException       when the deck is empty, return this exception
+     * @throws IllegalArgumentException if the type is not RESOURCE or GOLD
      */
     public PlayableCard pickCardFromDeck(PlayableCardType type) throws EmptyDeckException, IllegalArgumentException {
         Deck<PlayableCard> deck;
@@ -472,10 +560,12 @@ public class Game extends Publisher{
      * This method returns a card of the given type at the given position. The card is removed from the position, and if no card
      * is present the exception NoCardException is thrown. Then a card from the same deck type is drawn (if the deck
      * is not empty) and placed at the given position.
-     * @param type The type of card to pick, either RESOURCE or GOLD
+     *
+     * @param type     The type of card to pick, either RESOURCE or GOLD
      * @param position The position 0 -> left 1 -> right
      * @return The card in the specified position if present
-     * @throws CardNotFoundException when there is no card, this exception is thrown
+     * @throws CardNotFoundException    when there is no card, this exception is thrown
+     * @throws IllegalArgumentException if the type is not RESOURCE or GOLD
      */
     public PlayableCard pickCardFromTable(PlayableCardType type, int position) throws CardNotFoundException, IllegalArgumentException {
         Deck<PlayableCard> deck;
@@ -508,6 +598,9 @@ public class Game extends Publisher{
         return result;
     }
 
+    /**
+     * Update goal points. Public goals and private goal are used.
+     */
     public void updateGoalPoints(){
         for(Player p : players){
             int pointsFromGoals = 0;
@@ -520,14 +613,16 @@ public class Game extends Publisher{
     }
 
     /**
-     * @return the number of players to play this game, as specified
-     * by the player when the game was created.
+     * Get number of players.
+     *
+     * @return the number of players to play this game, as specified by the player when the game was created.
      */
     public int getNumPlayers(){
         return numPlayers;
     }
 
     /**
+     * Gets number of joined player.
      *
      * @return the number of players who have joined the game yet.
      */
@@ -536,6 +631,11 @@ public class Game extends Publisher{
         return players.size();
     }
 
+    /**
+     * All players choose initial goal color boolean.
+     *
+     * @return the boolean
+     */
     public boolean allPlayersChooseInitialGoalColor() {
         boolean flag = true;
         if(getNumJoinedPlayer()<getNumPlayers()) return false;
@@ -552,6 +652,11 @@ public class Game extends Publisher{
         return flag;
     }
 
+    /**
+     * Check if there are cards to draw.
+     *
+     * @return the boolean
+     */
     public boolean drawableCardsArePresent() {
         return !this.goldDeck.isEmpty() ||
                 !this.resourceDeck.isEmpty() ||
@@ -561,34 +666,74 @@ public class Game extends Publisher{
                 this.resourceCardsOnTable[1] != null;
     }
 
+    /**
+     * Sets active player.
+     *
+     * @param activePlayer the active player
+     */
     public void setActivePlayer(Player activePlayer) {
         this.activePlayer = activePlayer;
     }
 
+    /**
+     * Gets current turn state.
+     *
+     * @return the turn state
+     */
     public TurnState getTurnState() {
         return turnState;
     }
 
+    /**
+     * Sets current turn state.
+     *
+     * @param turnState the turn state
+     */
     public void setTurnState(TurnState turnState) {
         this.turnState = turnState;
     }
 
+    /**
+     * Gets current game state.
+     *
+     * @return the game state
+     */
     public GameState getGameState() {
         return gameState;
     }
 
+    /**
+     * Sets current game state.
+     *
+     * @param gameState the game state
+     */
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
     }
 
+    /**
+     * Gets final condition.
+     *
+     * @return the final condition
+     */
     public boolean getFinalCondition() {
         return finalCondition;
     }
 
+    /**
+     * Sets final condition.
+     *
+     * @param finalCondition the final condition
+     */
     public void setFinalCondition(boolean finalCondition) {
         this.finalCondition = finalCondition;
     }
 
+    /**
+     * Sets final round.
+     *
+     * @param finalRound the final round
+     */
     public void setFinalRound(boolean finalRound) {
         this.finalRound = finalRound;
         this.getMessageFactory().sendMessageToAllGamePlayers(
@@ -603,22 +748,48 @@ public class Game extends Publisher{
         );
     }
 
+    /**
+     * Gets the finalRound boolean.
+     *
+     * @return the boolean
+     */
     public boolean isFinalRound() {
         return finalRound;
     }
 
+    /**
+     * Get public goal cards on table.
+     *
+     * @return the goal cards
+     */
     public GoalCard[] getPublicGoalCardsOnTable() {
         return Arrays.copyOf(this.publicGoalCardsOnTable,this.publicGoalCardsOnTable.length);
     }
 
+    /**
+     * Get resource cards on table.
+     *
+     * @return the playable cards
+     */
     public PlayableCard[] getResourceCardsOnTable() {
         return Arrays.copyOf(this.resourceCardsOnTable,this.resourceCardsOnTable.length);
     }
 
+    /**
+     * Get gold cards on table.
+     *
+     * @return the playable cards
+     */
     public PlayableCard[] getGoldCardsOnTable() {
         return Arrays.copyOf(this.goldCardsOnTable,this.goldCardsOnTable.length);
     }
 
+    /**
+     * Get playable cards on table.
+     *
+     * @param type the type
+     * @return the playable cards
+     */
     public PlayableCard[] getPlayableCardsOnTable(PlayableCardType type) {
         return
                 switch (type) {
@@ -632,6 +803,11 @@ public class Game extends Publisher{
                 };
     }
 
+    /**
+     * Gets game name.
+     *
+     * @return the game name
+     */
     public String getGameName() {
         return gameName;
     }
