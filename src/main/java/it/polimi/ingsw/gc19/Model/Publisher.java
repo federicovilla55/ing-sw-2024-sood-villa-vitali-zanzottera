@@ -9,6 +9,10 @@ import it.polimi.ingsw.gc19.Controller.MessageFactory;
  * {@link MessageFactory}.
  */
 public abstract class Publisher{
+
+    /**
+     * Connected {@link MessageFactory}
+     */
     private MessageFactory messageFactory;
 
     /**

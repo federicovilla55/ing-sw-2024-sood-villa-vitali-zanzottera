@@ -18,20 +18,62 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.RefusedAction.Refus
 
 import java.util.*;
 
+/**
+ * This class represents the player' area. It manages cards in hand, visible symbols,
+ * private goal card selection and, throughout {@link CardSchema}, let player place
+ * cards and updates points.
+ */
 public class Station extends Publisher{
 
+    /**
+     * Nickname of the player who owns this {@link Station}
+     */
     private final Player ownerPlayer;
 
+    /**
+     * Cards that user has in his hands
+     */
     private final ArrayList<PlayableCard> cardsInHand;
+
+    /**
+     * Visible symbols in player's {@link Station}
+     */
     private final Map<Symbol, Integer> visibleSymbolsInStation;
+
+    /**
+     * Index (0 or 1) of the private goal card player has chosen.
+     * If no card is chosen, this attribute is <code>null</code>
+     */
     private Integer privateGoalCardIdx;
+
+    /**
+     * Number of points of the player
+     */
     private int numPoints;
+
+    /**
+     * Points get by player after public and private goals are evaluated
+     */
     private int pointsFromGoals;
 
+    /**
+     * True if and only if initial card has been correctly placed
+     */
     private boolean initialCardIsPlaced;
+
+    /**
+     * Connected {@link CardSchema} for this {@link Station}
+     */
     private final CardSchema cardSchema;
 
+    /**
+     * Initial card assigned to the player by server
+     */
     private final PlayableCard initialCard;
+
+    /**
+     * Private goal cards from which player can choose
+     */
     private final GoalCard[] privateGoalCardsInStation;
 
     /**
@@ -97,11 +139,14 @@ public class Station extends Publisher{
         this.getMessageFactory().sendMessageToPlayer(this.ownerPlayer.getName(), new AcceptedChooseGoalCardMessage(this.getPrivateGoalCard()));
     }
 
+    /**
+     * Setter for {@link #privateGoalCardIdx}
+     * @param goalCard the {@link GoalCard} chosen by player
+     */
     public void setPrivateGoalCard(GoalCard goalCard) {
         int cardIdx = goalCard.equals(privateGoalCardsInStation[0]) ? 0 : 1;
         setPrivateGoalCard(cardIdx);
     }
-
 
     /**
      * This method updates station's points after card utilization
@@ -183,6 +228,11 @@ public class Station extends Publisher{
         return false;
     }
 
+    /**
+     * Updates visible symbols in {@link Station} after <code>toPlace</code>
+     * card has been placed
+     * @param toPlace the {@link PlayableCard} that has been placed
+     */
     private void setVisibleSymbols(PlayableCard toPlace) {
         toPlace.getHashMapSymbols().forEach((k, v) -> this.visibleSymbolsInStation.merge(k, v, Integer::sum));
         for(Direction d : Direction.values()){
@@ -250,7 +300,7 @@ public class Station extends Publisher{
 
     /**
      * This method returns the schema where each card is described by its name
-     * Optional is empty if in (x, y) there is no card
+     * Optional is empty if in {@code (x, y)} there is no card
      * @return a String matrix with all the visible cards codes.
      */
     public Optional<String>[][] getCardCodeSchema(){
@@ -259,7 +309,7 @@ public class Station extends Publisher{
 
     /**
      * This method returns the orientation of each card in the schema
-     * Optional is empty if in (x, y) there is no card
+     * Optional is empty if in {@code (x, y)} there is no card
      * @return a String matrix with all the visible cards codes.
      */
     public Optional<CardOrientation>[][] getCardOrientationSchema(){
@@ -267,10 +317,10 @@ public class Station extends Publisher{
     }
 
     /**
-     * This method returns a matrix with 0 if in (x, y) there's no card otherwise a sequential
+     * This method returns a matrix with <code>0</code> if in {@code (x, y)} there's no card otherwise a sequential
      * number representing the order of card placing.
-     * If getCardOverlap()[x][y] > getCardOverlap()[i][j] then card in position [x][y] has been placed
-     * after card in position [i][j]
+     * If {@code getCardOverlap()[x][y] > getCardOverlap()[i][j]} then card in position {@code [x][y]} has been placed
+     * after card in position {@code [i][j]}
      * @return an integer matrix representing current overlapping situation
      */
     public int[][] getCardOverlap(){
@@ -287,31 +337,62 @@ public class Station extends Publisher{
         return this.cardSchema.countPattern(moves, requiredSymbol);
     }
 
+    /**
+     * Getter for {@link GoalCard} given its {@code cardIdx}
+     * @param cardIdx the index of the {@link GoalCard}
+     * @return the corresponding {@link GoalCard}
+     */
     public GoalCard getPrivateGoalCardInStation(int cardIdx) {
         return privateGoalCardsInStation[cardIdx];
     }
 
+    /**
+     * Getter for {@link #initialCardIsPlaced}
+     * @return <code>true</code> if and only if initial card has been placed
+     */
     public boolean getInitialCardIsPlaced() {
         return initialCardIsPlaced;
     }
 
+    /**
+     * Getter for initial card of this {@link Station}
+     * @return the initial card assigned to this {@link Station}
+     */
     public PlayableCard getInitialCard() {
         return initialCard;
     }
 
+    /**
+     * Getter for points from {@link GoalCard} evaluation
+     * @return {@link #numPoints} after private and public goals evaluation
+     */
     public int getPointsFromGoals() {
         return pointsFromGoals;
     }
 
+    /**
+     * Setter for {@link #pointsFromGoals}
+     * @param pointsFromGoals the points after goals evaluation to be set
+     */
     public void setPointsFromGoals(int pointsFromGoals) {
         this.pointsFromGoals = pointsFromGoals;
     }
 
+    /**
+     * Getter for placing sequence: each {@link PlayableCard} in the
+     * returned list is associated with its coords in {@link CardSchema}
+     * @return the placing card sequence of this {@link Station}
+     */
     public List<Tuple<PlayableCard, Tuple<Integer, Integer>>> getPlacedCardSequence() {
         return this.cardSchema.getPlacedCardSequence();
     }
 
+    /**
+     * Getter for {@link #ownerPlayer}
+     * @return {@link #ownerPlayer}
+     */
     public Player getOwnerPlayer(){
         return this.ownerPlayer;
     }
+
 }

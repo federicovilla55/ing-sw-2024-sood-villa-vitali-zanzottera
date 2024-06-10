@@ -8,6 +8,7 @@ import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 
+
 public class Player extends Publisher{
     private final String name;
     private Color playerColor;
