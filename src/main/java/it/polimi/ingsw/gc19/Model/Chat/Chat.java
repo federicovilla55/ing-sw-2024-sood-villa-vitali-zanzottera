@@ -2,7 +2,7 @@ package it.polimi.ingsw.gc19.Model.Chat;
 
 import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Chat.NotifyChatMessage;
-import it.polimi.ingsw.gc19.Controller.MessageFactory;
+import it.polimi.ingsw.gc19.Model.MessageFactory;
 
 import java.util.ArrayList;
 

@@ -8,6 +8,7 @@ import it.polimi.ingsw.gc19.Model.Deck.EmptyDeckException;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Model.Game.PlayerNotFoundException;
+import it.polimi.ingsw.gc19.Model.MessageFactory;
 import it.polimi.ingsw.gc19.Model.Station.InvalidAnchorException;
 import it.polimi.ingsw.gc19.Model.Station.InvalidCardException;
 import it.polimi.ingsw.gc19.Networking.Server.ClientHandler;
@@ -37,8 +38,14 @@ import java.util.stream.Collectors;
  */
 public class GameController{
 
+    /**
+     * A {@link Timer} used to stop game when only one player remains connected
+     */
     private Timer stopGameTimer;
 
+    /**
+     * Connected {@link MessageFactory}
+     */
     private final MessageFactory messageFactory;
 
     /**
@@ -55,11 +62,6 @@ public class GameController{
      * This attribute is the model of the game
      */
     private final Game gameAssociated;
-
-    /**
-     * The value contains the number of clients currently connected.
-     */
-    private int numConnectedClients;
 
     /**
      * This constructor creates a GameController to manage a game
@@ -81,7 +83,6 @@ public class GameController{
         gameAssociated.setMessageFactory(this.messageFactory);
         this.connectedClients = new HashMap<>();
         this.timeout = timeout;
-        this.numConnectedClients = 0;
     }
 
     public Game getGameAssociated() {
@@ -136,7 +137,6 @@ public class GameController{
                 clientHandler.setGameController(this);
                 messageFactory.attachObserver(nickname, clientHandler);
                 this.gameAssociated.createNewPlayer(nickname);
-                this.numConnectedClients++;
             }
         }
     }
@@ -149,7 +149,6 @@ public class GameController{
         ClientHandler clientHandlerToRemove = this.connectedClients.remove(nickname);
         if(clientHandlerToRemove != null) {
             clientHandlerToRemove.setGameController(null);
-            this.numConnectedClients--;
             this.messageFactory.removeObserver(nickname);
             this.messageFactory.sendMessageToAllGamePlayers(new DisconnectedPlayerMessage(nickname));
             if (this.gameAssociated.getActivePlayer() != null && this.gameAssociated.getActivePlayer().getName().equals(nickname)){

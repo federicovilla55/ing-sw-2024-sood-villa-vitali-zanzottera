@@ -1,12 +1,9 @@
 package it.polimi.ingsw.gc19.Model.Chat;
 
-import it.polimi.ingsw.gc19.Controller.MessageFactory;
+import it.polimi.ingsw.gc19.Model.MessageFactory;
 import org.junit.jupiter.api.BeforeEach;
-import it.polimi.ingsw.gc19.Model.Chat.Chat;
-import it.polimi.ingsw.gc19.Model.Chat.Message;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

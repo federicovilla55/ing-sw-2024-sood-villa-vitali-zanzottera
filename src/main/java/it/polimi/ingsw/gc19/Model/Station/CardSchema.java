@@ -56,12 +56,11 @@ class CardSchema{
     }
 
     /**
-     * This method checks if there is a card over the anchor in Direction dir
-     * Throws InvalidCardException is the anchor doesn't exist in schema.
+     * This method checks if there is a card over the anchor in {@link Direction} {@code dir}
      * @param anchor the {@link PlayableCard} used as anchor
      * @param dir the {@link Direction} in which card has to be placed
      * @throws InvalidCardException if station doesn't have the card to place.
-     * @return true if and only if there is card ver the anchor in Direction dir
+     * @return {@code true} if and only if there is card ver the anchor in the specified direction
      */
     boolean cardOverAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{
         if(!this.cardPosition.containsKey(anchor)){
@@ -72,10 +71,10 @@ class CardSchema{
     }
 
     /**
-     * This method checks if (x, y) are available coords inside the matrix
+     * This method checks if {@code (x, y)} are available coords inside the matrix
      * @param x the x-coordinate
      * @param y the y-coordinate
-     * @return true if and only if (x, y) are valid coordinates
+     * @return true if and only if {@code (x, y)} are valid coordinates
      */
     private boolean checkCoords(int x, int y){
         return (0 <= x) && (x < ImportantConstants.gridDimension) && (0 <= y) && (y < ImportantConstants.gridDimension);
@@ -109,11 +108,11 @@ class CardSchema{
     }
 
     /**
-     * This method checks if a card (even if it isn't visible in the station) can be placed in CardSchema
+     * This method checks if a card (even if it isn't visible in the station) can be placed
      * @throws InvalidAnchorException if the anchor isn't in card schema.
      * @param anchor the {@link PlayableCard} used as anchor
      * @param direction the {@link Direction} n which card has to be placed
-     * @return true if and only if card is in station and is placeable in CardSchema.
+     * @return {@code true} if and only if card is in station and is placeable.
      */
     boolean isPlaceable(PlayableCard anchor, Direction direction) throws InvalidAnchorException{
         PlayableCard neighborCard;
@@ -137,7 +136,7 @@ class CardSchema{
     }
 
     /**
-     * This method place a card in CardSchema if it's placeable in CardSchema
+     * This method place a card in CardSchema if it's placeable.
      * If the card has been placed it updates station's points and visible symbols. Then updates cards in hand.
      * @param toPlace the {@link PlayableCard} to place
      * @param anchor the {@link PlayableCard} used as anchor
@@ -174,7 +173,7 @@ class CardSchema{
     /**
      * This method checks if card has been placed
      * @param card the card to search for
-     * @return true if and only if the card has been placed.
+     * @return {@code true} if and only if the card has been placed.
      */
     boolean cardIsInSchema(PlayableCard card){
         return this.cardPosition.containsKey(card);
@@ -182,8 +181,8 @@ class CardSchema{
 
     /**
      * This method returns the schema where each card is described by its name
-     * Optional is empty if in (x, y) there is no card
-     * @return a String matrix with all the visible cards codes.
+     * Optional is empty if in {@code (x, y)} there is no card
+     * @return a {@link String} matrix with all the visible cards codes.
      */
     Optional<String>[][] getCardSchema(){
         Optional<String>[][] matrixToReturn = new Optional[ImportantConstants.gridDimension][ImportantConstants.gridDimension];
@@ -197,7 +196,7 @@ class CardSchema{
 
     /**
      * This method returns orientation of each card in the schema.
-     * Optional is empty if in (x, y) there is no card
+     * Optional is empty if in {@code (x, y)} there is no card
      * @return a String matrix with all the visible cards codes.
      */
     Optional<CardOrientation>[][] getCardOrientation() {
@@ -211,10 +210,10 @@ class CardSchema{
     }
 
     /**
-     * This method returns a matrix with 0 if in (x, y) there's no card otherwise a sequential
+     * This method returns a matrix with 0 if in {@code (x, y)} there's no card otherwise a sequential
      * number representing the order of card placing.
-     * If getCardOverlap()[x][y] > getCardOverlap()[i][j] then card in position [x][y] has been placed
-     * after card in position [i][j]
+     * If {@code getCardOverlap()[x][y] > getCardOverlap()[i][j]} then card in position {@code [x][y]} has been placed
+     * after card in position {@code [i][j]}
      * @return an integer matrix representing current overlapping situation
      */
     int[][] getCardOverlap() {
@@ -298,4 +297,5 @@ class CardSchema{
         }
         return res;
     }
+
 }
