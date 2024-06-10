@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.Controller;
 
+import it.polimi.ingsw.gc19.Model.MessageFactory;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClientVisitor;
 import it.polimi.ingsw.gc19.ObserverPattern.ObserverMessageToClient;

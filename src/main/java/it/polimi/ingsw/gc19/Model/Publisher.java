@@ -1,7 +1,5 @@
 package it.polimi.ingsw.gc19.Model;
 
-import it.polimi.ingsw.gc19.Controller.MessageFactory;
-
 /**
  * This is an abstract class used for implementing Publisher - Subscriber
  * design pattern.

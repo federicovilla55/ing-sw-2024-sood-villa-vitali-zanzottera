@@ -1,4 +1,4 @@
-package it.polimi.ingsw.gc19.Controller;
+package it.polimi.ingsw.gc19.Model;
 
 import it.polimi.ingsw.gc19.Networking.Server.Message.MessageToClient;
 import it.polimi.ingsw.gc19.ObserverPattern.ObservableMessageToClient;
