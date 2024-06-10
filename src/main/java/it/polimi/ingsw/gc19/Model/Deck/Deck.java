@@ -2,12 +2,24 @@ package it.polimi.ingsw.gc19.Model.Deck;
 
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.Card;
+import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
+import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 
 import java.util.*;
 import java.util.stream.Stream;
 
+/**
+ * This class represents a generic deck that contains
+ * cards of type <code>cardType</code>. It lets other classes picking
+ * cards and shuffling.
+ * @param <cardType> the type of cards ({@link PlayableCard} or {@link GoalCard})
+ *                  that the deck will contain
+ */
 public class Deck<cardType extends Card>{
 
+    /**
+     * Cards currently inside deck
+     */
     private final ArrayList<cardType> cardsInDeck;
 
     /**
@@ -44,6 +56,13 @@ public class Deck<cardType extends Card>{
         return this.cardsInDeck.isEmpty();
     }
 
+    /**
+     * Getter for seed of next card on top of deck. If the
+     * returned {@code Optional<cardType>} is empty, then there are no more cards
+     * inside the deck
+     * @return the next seed on top of deck if at least one card is present,
+     * otherwise and empty {@link Optional}
+     */
     public Optional<cardType> getNextCard(){
         if(!this.cardsInDeck.isEmpty()){
             return Optional.of(this.cardsInDeck.getFirst());

@@ -8,6 +8,7 @@ import it.polimi.ingsw.gc19.Model.Publisher;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.AcceptedColorMessage;
 
+
 /**
  * The Player class represents a player in the game.
  * Each player has a name, color, and a station.
@@ -54,8 +55,7 @@ public class Player extends Publisher {
     }
 
     /**
-     * Returns the player's station.
-     *
+     * This method returns player's station
      * @return the station of the player
      */
     public Station getStation() {
@@ -63,8 +63,7 @@ public class Player extends Publisher {
     }
 
     /**
-     * Returns the player's name.
-     *
+     * This method returns player's name
      * @return the name of the player
      */
     public String getName() {
@@ -82,9 +81,8 @@ public class Player extends Publisher {
     }
 
     /**
-     * Returns the color chosen by the player.
-     *
-     * @return the color chosen by the player
+     * This method returns the color chosen by the player
+     * @return the Color chosen by the player
      */
     public Color getColor() {
         return this.playerColor;
