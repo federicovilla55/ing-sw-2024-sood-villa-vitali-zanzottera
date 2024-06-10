@@ -168,7 +168,7 @@ public class Game extends Publisher{
 
         List<Player> sortedPlayers;
         sortedPlayers = players.stream()
-                .sorted(byGoalPoints.thenComparing(byStationPoints))
+                .sorted(byStationPoints.thenComparing(byGoalPoints))
                 .collect(Collectors.toList());
 
         return sortedPlayers;
