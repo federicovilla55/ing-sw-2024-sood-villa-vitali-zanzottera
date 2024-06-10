@@ -40,6 +40,8 @@ public class PlayingAreaController extends GUIController implements StateListene
 
     private PaneFireworks paneFireworks;
 
+    private TabPane stations;
+
     private Tab currentTab;
     private GUIController chatController, tableController, localStationController;
 
@@ -104,7 +106,7 @@ public class PlayingAreaController extends GUIController implements StateListene
             localStationController = new LocalStationTabController(this);
             loader.setController(localStationController);
 
-            TabPane stations = loader.load();
+            stations = loader.load();
 
             leftVBox.getChildren().add(stations);
             VBox.setVgrow(stations, Priority.SOMETIMES);
@@ -150,6 +152,12 @@ public class PlayingAreaController extends GUIController implements StateListene
 
             visibleSymbolsHBox.getChildren().add(loader.load());
 
+            stations.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
+                if (newTab != null && !newTab.equals(oldTab)) {
+                    controller.setActiveVisibileTab(newTab.getText());
+                }
+            });
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -172,6 +180,7 @@ public class PlayingAreaController extends GUIController implements StateListene
         if (!rightVBox.getChildren().contains(tabPane)) {
             rightVBox.getChildren().add(tabPane);
         }
+
     }
 
     /**

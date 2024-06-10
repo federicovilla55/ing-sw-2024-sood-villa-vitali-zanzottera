@@ -37,6 +37,8 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
      */
     private HashMap<String, Image> symbolImages;
 
+    private HashMap<String, Tab> playerTabs;
+
     /**
      * A hashmap that connects the name of each symbol to the corresponding element in the GridPanel.
      */
@@ -67,11 +69,22 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
         }
     }
 
+    public void setActiveVisibileTab(String nickname){
+        Tab selectedTab = playerTabs.get(nickname);
+        tabPane.getSelectionModel().select(selectedTab);
+    }
+
+    public TabPane getSymbolsTabPane(){
+        return this.tabPane;
+    }
+
+
     /**
      * To initialize the table with the player symbols and their relative value.
      */
     public void initializeVisibleSymbolsTable() {
         tableElements = new HashMap<>();
+        playerTabs = new HashMap<>();
         this.tabPane.getTabs().clear();
 
         for(String nickname : getLocalModel().getStations().keySet()) {
@@ -115,6 +128,7 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
             tableElements.put(nickname, symbolsGrid);
             symbolsContainer.setContent(symbolsBorderVBOX);
             tabPane.getTabs().add(symbolsContainer);
+            playerTabs.put(nickname, symbolsContainer);
         }
     }
 
