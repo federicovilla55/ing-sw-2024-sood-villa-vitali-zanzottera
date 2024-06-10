@@ -1,7 +1,7 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
 import it.polimi.ingsw.gc19.Controller.JSONParser;
-import it.polimi.ingsw.gc19.Controller.MessageFactory;
+import it.polimi.ingsw.gc19.Model.MessageFactory;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.CardNotFoundException;
@@ -23,7 +23,6 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Turn.TurnStateMessage;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 
 import java.io.IOException;
-import java.lang.reflect.MalformedParametersException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

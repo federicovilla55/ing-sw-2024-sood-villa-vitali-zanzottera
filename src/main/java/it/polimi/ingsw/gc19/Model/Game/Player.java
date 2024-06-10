@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Game;
 
-import it.polimi.ingsw.gc19.Controller.MessageFactory;
+import it.polimi.ingsw.gc19.Model.MessageFactory;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;

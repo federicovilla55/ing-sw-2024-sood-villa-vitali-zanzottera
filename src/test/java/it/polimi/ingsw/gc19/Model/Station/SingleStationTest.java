@@ -1,6 +1,6 @@
 package it.polimi.ingsw.gc19.Model.Station;
 
-import it.polimi.ingsw.gc19.Controller.MessageFactory;
+import it.polimi.ingsw.gc19.Model.MessageFactory;
 import it.polimi.ingsw.gc19.Model.Game.Game;
 import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Utils.Tuple;
