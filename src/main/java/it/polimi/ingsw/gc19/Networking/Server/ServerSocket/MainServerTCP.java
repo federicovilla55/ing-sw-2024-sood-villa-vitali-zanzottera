@@ -31,8 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This class is the TCP main server. It extends {@link Server} and implements {@link ObserverMessageToServer<MessageToServer>}.
- * It can be instanced only once (singleton pattern). It receives {@link MessageToServer}
- * from {@link MessageToServerDispatcher} concerning game handling (e.g. create new game, register to game...)
+ * It receives {@link MessageToServer} from {@link MessageToServerDispatcher} concerning game handling (e.g. create new game, register to game...)
  * and heart beat message.
  */
 public class MainServerTCP extends Server implements ObserverMessageToServer<MessageToServer>{
