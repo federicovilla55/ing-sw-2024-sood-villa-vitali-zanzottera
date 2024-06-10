@@ -59,8 +59,8 @@ public class Wait extends ClientState {
      */
     @Override
     public void nextState(EndGameMessage message) {
-        clientController.setNextState(new End(clientController), true);
         super.nextState(message);
+        clientController.setNextState(new End(clientController), true);
     }
 
     /**
