@@ -3,14 +3,22 @@
 <?import javafx.scene.layout.*?>
 
 <?import java.net.URL?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.geometry.Insets?>
 <BorderPane fx:id="symbolsBorderPane" prefWidth="552.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
     <stylesheets>
         <URL value="@../css/SymbolTable.css" />
     </stylesheets>
 
     <center>
-        <VBox fx:id="symbolsBorderVBOX" alignment="CENTER" spacing="10" VBox.vgrow="ALWAYS" styleClass="bordered-vbox">
+        <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tabClosingPolicy="UNAVAILABLE" StackPane.alignment="CENTER"
+                 VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+            <tabs>
+            </tabs>
+            <padding>
+                <Insets right="10" left="10"/>
+            </padding>
+        </TabPane>
 
-        </VBox>
     </center>
 </BorderPane>

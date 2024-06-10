@@ -12,9 +12,13 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -27,8 +31,7 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
     public BorderPane symbolsBorderPane;
 
     @FXML
-    private VBox symbolsBorderVBOX;
-
+    private TabPane tabPane;
     /**
      * A hashmap that connects the name of each symbol to the corresponding image.
      */
@@ -49,6 +52,8 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
     public void initialize() {
         initializeImages();
         initializeVisibleSymbolsTable();
+
+        tabPane.getStyleClass().add("floating");
     }
 
     /**
@@ -66,16 +71,26 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
      * To initialize the table with the player symbols and their relative value.
      */
     public void initializeVisibleSymbolsTable() {
-        symbolsBorderVBOX.getChildren().clear();
         tableElements = new HashMap<>();
+        this.tabPane.getTabs().clear();
 
         for(String nickname : getLocalModel().getStations().keySet()) {
-            Label nicknameLabel = new Label(nickname);
+            Tab symbolsContainer = new Tab(nickname);
 
-            HBox labelBox = new HBox();
-            labelBox.getChildren().addAll(nicknameLabel);
+            VBox symbolsBorderVBOX = new VBox();
+            symbolsBorderVBOX.setAlignment(Pos.CENTER);
+            symbolsBorderVBOX.setSpacing(10);
+            VBox.setVgrow(symbolsBorderVBOX, Priority.ALWAYS);
+
+            StackPane gridPaneWrapper = new StackPane();
+            gridPaneWrapper.setAlignment(Pos.CENTER);
+            StackPane.setAlignment(gridPaneWrapper, Pos.CENTER);
+            VBox.setVgrow(gridPaneWrapper, Priority.ALWAYS);
+
+            VBox.setMargin(gridPaneWrapper, new Insets(7, 0, 7, 0));
 
             GridPane symbolsGrid = new GridPane();
+            symbolsGrid.setAlignment(Pos.CENTER);
             symbolsGrid.hgapProperty().bind(super.getStage().widthProperty().multiply(0.25 / 7).divide(7));
             symbolsGrid.vgapProperty().bind(super.getStage().widthProperty().multiply(0.25 / 500));
 
@@ -95,10 +110,14 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
                 GridPane.setValignment(countLabel, VPos.CENTER);
             }
 
-            symbolsBorderVBOX.getChildren().addAll(labelBox, symbolsGrid);
+            gridPaneWrapper.getChildren().add(symbolsGrid);
+            symbolsBorderVBOX.getChildren().add(gridPaneWrapper);
             tableElements.put(nickname, symbolsGrid);
+            symbolsContainer.setContent(symbolsBorderVBOX);
+            tabPane.getTabs().add(symbolsContainer);
         }
     }
+
 
     /**
      * To update the number of each symbol of a player given its nickname
