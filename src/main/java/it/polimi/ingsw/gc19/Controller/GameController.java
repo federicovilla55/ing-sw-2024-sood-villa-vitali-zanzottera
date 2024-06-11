@@ -68,7 +68,7 @@ public class GameController{
      * @param gameAssociated the game managed by the controller
      */
     public GameController(Game gameAssociated) {
-        this(gameAssociated,60);
+        this(gameAssociated,180);
     }
 
     /**
@@ -536,11 +536,13 @@ public class GameController{
     private synchronized void stopGame() {
         if(this.gameAssociated.getGameState().equals(GameState.PAUSE)) {
             if (this.connectedClients.size() == 1) {
+                this.gameAssociated.setGameState(GameState.END);
                 //Notify winner
                 this.messageFactory.sendMessageToAllGamePlayers(
                         // the Map is empty because there is no score to update
                         new EndGameMessage(new ArrayList<>(this.connectedClients.keySet()), new HashMap<>())
                 );
+                return;
             }
             this.gameAssociated.setGameState(GameState.END);
 
