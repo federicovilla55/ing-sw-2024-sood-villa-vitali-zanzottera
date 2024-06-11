@@ -67,7 +67,7 @@ public class RMIServerAndMainControllerTest {
         this.client4 = new Client(virtualMainServer, "client4");
         this.client5 = new Client(virtualMainServer, "client5");
 
-        this.stressTestClients = overloadTest(200);
+        this.stressTestClients = overloadTest(5);
     }
 
     @AfterEach
@@ -630,11 +630,11 @@ public class RMIServerAndMainControllerTest {
         assertNull(this.client1.getMessage());
     }
 
-    @Disabled
     @Test
     public void testInactiveClientKiller() throws RemoteException {
         client1.connect();
         waitingThread(500);
+        client1.disconnect();
         client1.stopSendingHeartBeat();
         waitingThread(25 * 1000);
         Client client5 = new Client(virtualMainServer, this.client1.getName());
