@@ -6,6 +6,14 @@
 Digital version of the board game *Codex Naturalis*.
 </div>
 
+# Screenshots
+<p float="left" align="center">
+  <img src="assets/lobby.png" width="20%" />
+  <img src="assets/setup.png" width="25%" /> 
+  <img src="assets/playing.png" width="25%" />
+  <img src="assets/reconnect.png" width="25%" />
+</p>
+
 ## Project
 
 Final Project of Software Engineering at Polytechnic University of Milan. A.Y. 2023/2024. Prof. Cugola Gianpaolo Saverio.
@@ -36,12 +44,24 @@ Those are the functionalities we have implemented:
 
 </div>
 
+# How to compile
+
+Build dependencies:
+- JDK 21 (recommended OpenJDK)
+- maven (takes care of required dependencies defined in pom.xml)
+
+run in the root of the project the command
+```
+mvn clean package
+```
+the compiled jars are in folder `target`, and can be run as described below.
+
 # Software Requirements
 
 - **OS**: Windows, MacOS, Linux
 - **Java Runtime Environment** version 21
 
-# How to run from JAR
+# How to run from JARs
 
 ## Server
 - Download latest server jar from [releases](https://github.com/federicovilla55/ing-sw-2024-sood-villa-vitali-zanzottera/releases/latest/)
@@ -74,4 +94,5 @@ To enable emojis in Windows, follow these instructions:
 - Run `ClientApp`
 - Set server IP and ports for Socket and RMI connections
 
-
+# Disclaimer
+Codex Naturalis è un gioco da tavolo sviluppato ed edito da Cranio Creations Srl. I contenuti grafici di questo progetto riconducibili al prodotto editoriale da tavolo sono utilizzati previa approvazione di Cranio Creations Srl a solo scopo didattico. È vietata la distribuzione, la copia o la riproduzione dei contenuti e immagini in qualsiasi forma al di fuori del progetto, così come la redistribuzione e la pubblicazione dei contenuti e immagini a fini diversi da quello sopracitato. È inoltre vietato l'utilizzo commerciale di suddetti contenuti.
