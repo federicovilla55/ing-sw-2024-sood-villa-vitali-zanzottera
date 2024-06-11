@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.gc19.Model.Station.Station;
 import it.polimi.ingsw.gc19.View.TUI.TUIView;
+import it.polimi.ingsw.gc19.Enums.CardOrientation;
 
 import java.io.Serializable;
 
@@ -29,7 +30,8 @@ interface PlayableEffect extends Serializable{
     String getEffectDescription();
 
     /**
-     * This method returns the points gained by the player placing this card CardOrientation.UP
+     * This method returns the points gained by the player placing this card {@link CardOrientation#UP}
+     * @param station the {@link Station} on which count points
      * @return points gained by this card effect
      */
     int countPoints(Station station);
