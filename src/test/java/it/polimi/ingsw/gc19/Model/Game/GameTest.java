@@ -31,6 +31,10 @@ class GameTest {
         // Test Station - 1 game initialization
         assertNotNull(game);
         assertEquals(4, game.getNumPlayers());
+
+        //try to select non-valid deck
+        assertThrows(IllegalArgumentException.class, () -> {game.getDeckFromType(PlayableCardType.INITIAL);});
+
         int deckSize = 0;
         try {
             while (true) {

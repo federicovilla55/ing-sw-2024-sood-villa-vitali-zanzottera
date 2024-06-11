@@ -784,12 +784,13 @@ public class Game extends Publisher{
     }
 
     /**
-     * Get playable cards on table.
+     * Get playable cards on table, type must be RESOURCE or GOLD.
      *
      * @param type the type
      * @return the playable cards
+     * @throws IllegalArgumentException if type is not RESOURCE or GOLD
      */
-    public PlayableCard[] getPlayableCardsOnTable(PlayableCardType type) {
+    public PlayableCard[] getPlayableCardsOnTable(PlayableCardType type) throws IllegalArgumentException {
         return
                 switch (type) {
                     case RESOURCE -> {
@@ -798,7 +799,7 @@ public class Game extends Publisher{
                     case GOLD -> {
                         yield this.goldCardsOnTable;
                     }
-                    default -> throw new IllegalArgumentException();
+                    default -> throw new IllegalArgumentException("type must be RESOURCE or GOLD");
                 };
     }
 

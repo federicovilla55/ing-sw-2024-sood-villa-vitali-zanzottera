@@ -1,6 +1,7 @@
 package it.polimi.ingsw.gc19.View.LocalModel;
 
 import it.polimi.ingsw.gc19.Controller.JSONParser;
+import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
@@ -141,13 +142,13 @@ public class LocalModelTest {
                 Map.of( Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
                 null, 0, playableCards.get("initial_01"),
                 goalCards.get("goal_03"), goalCards.get("goal_04"),
-                List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25, 25)))
+                List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2)))
         ));
         Thread.sleep(500);
         assertStationEquals(localModel.getPersonalStation(),
                 new PersonalStation("player1", null,
                         Map.of( Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
-                        0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25, 25))),
+                        0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2))),
                         null, goalCards.get("goal_03"), goalCards.get("goal_04"),
                         List.of(playableCards.get("resource_03"), playableCards.get("resource_04")), playableCards.get("initial_01")));
 
@@ -166,14 +167,14 @@ public class LocalModelTest {
                         new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE)
                 ),
                 Map.of( Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
-                0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(25, 25)))
+                0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2)))
         ));
         Thread.sleep(500);
         assertStationEquals(localModel.getOtherStations().get("player2"),
                 new OtherStation(
                         "player2", Color.BLUE,
                         Map.of(Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
-                        0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(25, 25))),
+                        0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2))),
                         List.of(new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
                                 new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE))));
 
@@ -194,8 +195,8 @@ public class LocalModelTest {
         assertStationEquals(localModel.getPersonalStation(),
                 new PersonalStation("player1", Color.RED,
                         Map.of( Symbol.ANIMAL, 1, Symbol.MUSHROOM, 2, Symbol.VEGETABLE, 0, Symbol.INSECT, 1),
-                        0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25, 25)),
-                        new Tuple<>(playableCards.get("resource_03"), new Tuple<>(26, 26))),
+                        0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2)),
+                        new Tuple<>(playableCards.get("resource_03"), new Tuple<>(ImportantConstants.gridDimension / 2 + 1, ImportantConstants.gridDimension / 2 + 1))),
                         null, goalCards.get("goal_03"), goalCards.get("goal_04"),
                         List.of(playableCards.get("resource_04"), playableCards.get("resource_10")), playableCards.get("initial_01")));
 
@@ -240,9 +241,9 @@ public class LocalModelTest {
         assertStationEquals(localModel.getPersonalStation(),
                 new PersonalStation("player1", Color.RED,
                         Map.of(Symbol.ANIMAL, 0, Symbol.MUSHROOM, 3, Symbol.VEGETABLE, 0, Symbol.INSECT, 1),
-                        0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25, 25)),
-                        new Tuple<>(playableCards.get("resource_03"), new Tuple<>(26, 26)),
-                        new Tuple<>(playableCards.get("resource_01"), new Tuple<>(24, 26))),
+                        0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2)),
+                        new Tuple<>(playableCards.get("resource_03"), new Tuple<>(ImportantConstants.gridDimension / 2 + 1, ImportantConstants.gridDimension / 2 + 1)),
+                        new Tuple<>(playableCards.get("resource_01"), new Tuple<>(ImportantConstants.gridDimension / 2 - 1, ImportantConstants.gridDimension / 2 + 1))),
                         null, goalCards.get("goal_03"), goalCards.get("goal_04"),
                         List.of(playableCards.get("resource_04"), playableCards.get("resource_10")), playableCards.get("initial_01")));
 
@@ -253,9 +254,9 @@ public class LocalModelTest {
         assertStationEquals(localModel.getPersonalStation(),
                 new PersonalStation("player1", Color.RED,
                         Map.of(Symbol.ANIMAL, 0, Symbol.MUSHROOM, 3, Symbol.VEGETABLE, 0, Symbol.INSECT, 1),
-                        0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25, 25)),
-                        new Tuple<>(playableCards.get("resource_03"), new Tuple<>(26, 26)),
-                        new Tuple<>(playableCards.get("resource_01"), new Tuple<>(24, 26))),
+                        0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2)),
+                        new Tuple<>(playableCards.get("resource_03"), new Tuple<>(ImportantConstants.gridDimension / 2 + 1, ImportantConstants.gridDimension / 2 + 1)),
+                        new Tuple<>(playableCards.get("resource_01"), new Tuple<>(ImportantConstants.gridDimension / 2 - 1, ImportantConstants.gridDimension / 2 + 1))),
                         goalCards.get("goal_03"), goalCards.get("goal_03"), goalCards.get("goal_04"),
                         List.of(playableCards.get("resource_04"), playableCards.get("resource_10")), playableCards.get("initial_01")));
 
@@ -275,8 +276,8 @@ public class LocalModelTest {
                 new OtherStation(
                         "player2", Color.BLUE,
                         Map.of(Symbol.ANIMAL, 2, Symbol.MUSHROOM, 4, Symbol.VEGETABLE, 1, Symbol.INSECT, 0),
-                        0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(25, 25)),
-                                            new Tuple<>(playableCards.get("gold_04"), new Tuple<>(26, 26))),
+                        0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2)),
+                                            new Tuple<>(playableCards.get("gold_04"), new Tuple<>(ImportantConstants.gridDimension / 2 + 1, ImportantConstants.gridDimension / 2 + 1))),
                         List.of(
                                 new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
                                 new Tuple<>(Symbol.VEGETABLE, PlayableCardType.RESOURCE),
@@ -348,7 +349,7 @@ public class LocalModelTest {
         assertStationEquals(localModel.getPersonalStation(),
                 new PersonalStation("player1", null,
                         Map.of(Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
-                        0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25, 25))),
+                        0, List.of(new Tuple<>(playableCards.get("initial_01"), new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2))),
                         null, goalCards.get("goal_03"), goalCards.get("goal_04"),
                         List.of(playableCards.get("resource_03"), playableCards.get("resource_04")), playableCards.get("initial_01")));
 
@@ -359,7 +360,7 @@ public class LocalModelTest {
         assertStationEquals(localModel.getOtherStations().get("player2"),
                 new OtherStation("player2", null,
                         Map.of(Symbol.ANIMAL, 1, Symbol.MUSHROOM, 1, Symbol.VEGETABLE, 1, Symbol.INSECT, 1),
-                        0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(25, 25)))));
+                        0, List.of(new Tuple<>(playableCards.get("initial_02"), new Tuple<>(ImportantConstants.gridDimension / 2, ImportantConstants.gridDimension / 2)))));
     }
 
     public void assertTableEquals(LocalTable table1, LocalTable table2){

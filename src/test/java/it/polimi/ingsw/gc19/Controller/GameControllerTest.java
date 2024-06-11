@@ -805,6 +805,10 @@ class GameControllerTest {
         gameController.drawCardFromTable("Player 3", PlayableCardType.GOLD, 0);
         assertNull(gameController.getGameAssociated().getGoldCardsOnTable()[0]);
 
+        //goal cards remain on table
+        assertNotNull(gameController.getGameAssociated().getPublicGoalCardsOnTable()[0]);
+        assertNotNull(gameController.getGameAssociated().getPublicGoalCardsOnTable()[1]);
+
         // last turn where there is a card to draw
         assertFalse(gameController.getGameAssociated().getFinalCondition());
 
