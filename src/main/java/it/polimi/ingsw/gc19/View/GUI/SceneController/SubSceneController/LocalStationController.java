@@ -474,9 +474,6 @@ public class LocalStationController extends GUIController implements StationList
             cardGrid.getColumnConstraints().add(col);
         }
 
-        cardGrid.setGridLinesVisible(false);
-        cardGrid.setGridLinesVisible(true);
-
         for (int i = 0; i < renderedCards.size(); i++) {
             cardGrid.add(renderedCards.get(i), placedCardSequence.get(i).y().y() - firstCol + 1, placedCardSequence.get(i).y().x() - firstRow + 1);
         }
