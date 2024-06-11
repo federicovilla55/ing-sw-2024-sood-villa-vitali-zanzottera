@@ -593,7 +593,7 @@ public class RMIServerAndMainControllerTest {
         this.client1.connect();
 
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message = this.client1.getMessage();
+        MessageToClient message = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message).getToken();
 
         VirtualGameServer gameServer1 = this.client1.newGame("game15", 2);
