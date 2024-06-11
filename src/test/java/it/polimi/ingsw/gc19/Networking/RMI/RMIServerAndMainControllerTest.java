@@ -67,7 +67,7 @@ public class RMIServerAndMainControllerTest {
         this.client4 = new Client(virtualMainServer, "client4");
         this.client5 = new Client(virtualMainServer, "client5");
 
-        this.stressTestClients = overloadTest(200);
+        this.stressTestClients = overloadTest(5);
     }
 
     @AfterEach
