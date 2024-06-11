@@ -460,7 +460,22 @@ public class MessagesTest {
         assertMessageEquals(List.of(player1, player2, player3, player4),
                 new TurnStateMessage("player1", TurnState.PLACE));
 
+        this.player1.chooseColor(Color.RED);
+        assertMessageEquals(player1,
+                new RefusedActionMessage(ErrorType.INVALID_GAME_STATE, "You cannot choose your color while game is in state " + GameState.PLAYING.toString().toLowerCase()));
 
+        this.player1.choosePrivateGoalCard(42);
+        assertMessageEquals(player1,
+                new RefusedActionMessage(ErrorType.INVALID_GOAL_CARD_ERROR, "Goal card chosen is not valid!"));
+
+        this.player1.choosePrivateGoalCard(0);
+        assertMessageEquals(player1,
+                new RefusedActionMessage(ErrorType.INVALID_GAME_STATE, "You cannot choose you goal card when game state is " + GameState.PLAYING.toString().toLowerCase()));
+
+
+        this.player1.placeInitialCard(CardOrientation.UP);
+        assertMessageEquals(player1,
+                new RefusedActionMessage(ErrorType.INVALID_GAME_STATE, "You cannot place initial card when game state is " + GameState.PLAYING.toString().toLowerCase()));
     }
 
     @Test
