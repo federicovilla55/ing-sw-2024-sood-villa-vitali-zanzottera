@@ -32,11 +32,15 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
 
     @FXML
     private TabPane tabPane;
+
     /**
      * A hashmap that connects the name of each symbol to the corresponding image.
      */
     private HashMap<String, Image> symbolImages;
 
+    /**
+     * A hashmap that connects the name of each player to the corresponding {@link Tab}.
+     */
     private HashMap<String, Tab> playerTabs;
 
     /**
@@ -51,7 +55,13 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
         getClientController().getListenersManager().attachListener(ListenerType.TURN_LISTENER, this);
     }
 
-    public void initialize() {
+    /**
+     * Initializes player' visible symbols sub-scene.
+     * It builds images with {@link #initializeImages()} and
+     * visible symbols table with {@link #initializeVisibleSymbolsTable()}
+     */
+    @FXML
+    private void initialize() {
         initializeImages();
         initializeVisibleSymbolsTable();
 
@@ -69,15 +79,15 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
         }
     }
 
-    public void setActiveVisibileTab(String nickname){
+    /**
+     * Setter for current {@link Tab} seen by the user
+     * @param nickname the nickname of the player whose
+     *                 {@link Tab} is currently seen by the user
+     */
+    public void setActiveVisibleTab(String nickname){
         Tab selectedTab = playerTabs.get(nickname);
         tabPane.getSelectionModel().select(selectedTab);
     }
-
-    public TabPane getSymbolsTabPane(){
-        return this.tabPane;
-    }
-
 
     /**
      * To initialize the table with the player symbols and their relative value.
@@ -186,7 +196,6 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
      * @param varArgs strings describing the error
      */
     @Override
-    public void notifyErrorStation(String... varArgs) {
-        
-    }
+    public void notifyErrorStation(String... varArgs) { }
+
 }

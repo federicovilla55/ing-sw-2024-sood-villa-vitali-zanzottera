@@ -18,7 +18,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -142,7 +141,7 @@ public class PlayingAreaController extends GUIController implements StateListene
         ScoreboardController scoreboardController = new ScoreboardController(this);
         scoreboardController.initialize();
 
-        scoreboardHBox.getChildren().add(scoreboardController.scoreboardPane);
+        scoreboardHBox.getChildren().add(scoreboardController.getScoreboardPane());
 
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -154,7 +153,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
             stations.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
                 if (newTab != null && !newTab.equals(oldTab)) {
-                    controller.setActiveVisibileTab(newTab.getText());
+                    controller.setActiveVisibleTab(newTab.getText());
                 }
             });
 

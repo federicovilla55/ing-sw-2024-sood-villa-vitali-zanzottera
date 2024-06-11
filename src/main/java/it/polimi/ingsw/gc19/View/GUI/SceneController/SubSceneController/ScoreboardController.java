@@ -10,6 +10,7 @@ import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -24,6 +25,7 @@ import java.util.*;
  * The class controls the display and updating of pawns on the scoreboard based on the player scores.
  */
 public class ScoreboardController extends GUIController implements StationListener {
+
     /**
      * The array contains the positions in pixels from the top left corner of each point in the scoreboard.
      * Those positions are absolute (so they are calculated considering the full size of the scoreboard image) and
@@ -100,7 +102,10 @@ public class ScoreboardController extends GUIController implements StationListen
      */
     private ImageView scoreboardView;
 
-    public Pane scoreboardPane;
+    /**
+     * The pane that represents the scoreboard
+     */
+    private Pane scoreboardPane;
 
     /**
      * A double that represents the dimensions of the image representing the pawns.
@@ -133,6 +138,7 @@ public class ScoreboardController extends GUIController implements StationListen
      * stations and pawn and placing them accordingly.
      * Listeners to update all pawns positions and size are added.
      */
+    @FXML
     public void initialize(){
         scoreboardImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/score_table.jpg")));
         if (scoreboardImage.isError()) {
@@ -159,6 +165,13 @@ public class ScoreboardController extends GUIController implements StationListen
         updateAllPawns();
     }
 
+    /**
+     * Getter for {@link #scoreboardPane}
+     * @return the {@link #scoreboardPane}
+     */
+    public Pane getScoreboardPane(){
+        return this.scoreboardPane;
+    }
 
     /**
      * Method used to update all pawns including their size and position of the board.
@@ -311,9 +324,7 @@ public class ScoreboardController extends GUIController implements StationListen
      * @param varArgs strings describing the error
      */
     @Override
-    public void notifyErrorStation(String... varArgs) {
-        // Errors should be handled in another part of the GUI view...
-    }
+    public void notifyErrorStation(String... varArgs) { }
 
     /**
      * The method implements a listener to the location of the mouse so that if a mouse is over a pawn, that pawn
@@ -334,4 +345,5 @@ public class ScoreboardController extends GUIController implements StationListen
             beat.play();
         });
     }
+
 }

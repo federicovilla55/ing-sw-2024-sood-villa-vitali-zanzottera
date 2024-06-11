@@ -40,11 +40,29 @@ import java.util.Optional;
  */
 public class GUIController implements UI, Listener{
 
+    /**
+     * Connected {@link LocalModel}
+     */
     private LocalModel localModel;
-    private CommandParser commandParser;
+
+    /**
+     * Connected {@link CommandParser}
+     */
+    private final CommandParser commandParser;
+
+    /**
+     * Connect {@link ClientController}
+     */
     private ClientController clientController;
+
+    /**
+     * The {@link Stage} on which all scenes will be shown
+     */
     private Stage stage;
 
+    /**
+     * Used to manage close window event handler
+     */
     private boolean isCloseEventHandlerAdded = false;
 
     protected GUIController(ClientController controller, CommandParser parser, Stage stage){
@@ -335,4 +353,5 @@ public class GUIController implements UI, Listener{
             }
         });
     }
+
 }

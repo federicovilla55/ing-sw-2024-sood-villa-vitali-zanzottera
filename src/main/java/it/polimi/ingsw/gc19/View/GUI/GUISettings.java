@@ -12,5 +12,6 @@ public class GUISettings{
     public static final double CORNER_RADIUS = 27.0;
     public static final double WIDTH_RATIO = 12.8;
     public static final double HEIGHT_RATIO = 7.2;
+    public static final double ASPECT_RATIO = CARD_PIXEL_WIDTH / CARD_PIXEL_HEIGHT;
 
 }

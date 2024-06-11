@@ -46,6 +46,9 @@ public class GameSelectionController extends GUIController implements StateListe
     @FXML
     private Label createGameLabel, joinGameLabel, gameNameLabel, numberOfPlayers, availableGamesText;
 
+    /**
+     * Admissible number of players for a game
+     */
     private final Integer[] possibleNumPlayer = {2,3,4};
 
     protected GameSelectionController(GUIController controller) {
@@ -56,7 +59,7 @@ public class GameSelectionController extends GUIController implements StateListe
     }
 
     @FXML
-    public void initialize(){
+    private void initialize(){
         numPlayerBox.getItems().addAll(possibleNumPlayer);
         numPlayerBox.setValue(2);
 
@@ -99,12 +102,19 @@ public class GameSelectionController extends GUIController implements StateListe
         super.setBackground(stackPane, false);
     }
 
+    /**
+     * Loads the logo of Codex Naturalis and places it inside scene
+     */
     private void loadLogo() {
         Image logoImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/logo.png")));
         logoImageView.setImage(logoImage);
         logoImageView.setPreserveRatio(true);
     }
 
+    /**
+     * Used to notify {@link GameSelectionController} about updates on {@link ViewState}.
+     * @param viewState the new {@link ViewState}
+     */
     @Override
     public void notify(ViewState viewState) {
         if(viewState == ViewState.DISCONNECT){
@@ -113,6 +123,12 @@ public class GameSelectionController extends GUIController implements StateListe
         }
     }
 
+    /**
+     * Used to notify {@link GameSelectionController} about events concerning
+     * game handling (such as available games or game creation).
+     * @param type the {@link GameHandlingEvents} type of the event
+     * @param varArgs variable {@link String} arguments
+     */
     @Override
     public void notify(GameHandlingEvents type, List<String> varArgs) {
         switch (type){

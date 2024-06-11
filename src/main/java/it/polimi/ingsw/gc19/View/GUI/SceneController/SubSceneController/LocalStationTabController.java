@@ -27,6 +27,9 @@ public class LocalStationTabController extends GUIController implements LocalMod
     @FXML
     private TabPane stations;
 
+    /**
+     * Current {@link Tab} seen by the user
+     */
     private static Tab currentTab;
 
     public LocalStationTabController(GUIController controller) {

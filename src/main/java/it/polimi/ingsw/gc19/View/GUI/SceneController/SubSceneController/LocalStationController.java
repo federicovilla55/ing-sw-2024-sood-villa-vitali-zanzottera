@@ -1,5 +1,6 @@
 package it.polimi.ingsw.gc19.View.GUI.SceneController.SubSceneController;
 
+import it.polimi.ingsw.gc19.Enums.CardOrientation;
 import it.polimi.ingsw.gc19.Enums.Direction;
 import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
@@ -61,26 +62,77 @@ public class LocalStationController extends GUIController implements StationList
     @FXML
     private Button center, rescale;
 
+    /**
+     * Nickname of the player who owns the {@link LocalStationPlayer}
+     */
     private final String nickOwner;
 
+    /**
+     * To translate {@link #renderedCards} inside {@link #centerPane}
+     */
     private Translate translate;
+
+    /**
+     * To scale up or down {@link #renderedCards} inside {@link #centerPane}
+     */
     private Scale centerPaneScale;
 
+    /**
+     * Colors pawns
+     */
     private final ImageView bluePawnImageView, redPawnImageView, greenPawnImageView, yellowPawnImageView, blackPawnImageView;
 
+    /**
+     * Errors rectangle. It is displayed when {@link #nickOwner}
+     * is the in turn player, and it tries to place a card that could
+     * not be placed because {@link ClientController#placeCard(String, String, Direction, CardOrientation)}
+     * returns <code>false</code>
+     */
     private Rectangle error;
 
+    /**
+     * Starting coords of mouse inside scene.
+     * Used to implement drag and drop of cards in hand
+     */
     private double startX, startY;
+
+    /**
+     * Starting coords of mouse inside {@link #centerPane}. Used
+     * to implements {@link #cardGrid}'s mouse dragging
+     */
     private double anchorX, anchorY;
+
+    /**
+     * Final coords of mouse inside {@link #centerPane}. Used
+     * to implements {@link #cardGrid}'s mouse dragging
+     */
     private double translateAnchorX, translateAnchorY;
 
+    /**
+     * Number of rows and columns of {@link #cardGrid}
+     */
     private int absGridRow, absGridCol;
 
+    /**
+     * Current scale of {@link #renderedCards} inside
+     * {@link #centerPane}
+     */
     private double scale = 1.0;
+
+    /**
+     * Scale factor of {@link #renderedCards} inside
+     * {@link #centerPane}
+     */
     private final double delta = 1.1;
 
+    /**
+     * List of cards {@link ImageView} contained in {@link #cardGrid}
+     */
     private final ArrayList<ImageView> renderedCards;
 
+    /**
+     * Card that is currently dragged by mouse
+     */
     private PlayableCardButton draggedCard = null;
 
     public LocalStationController(GUIController controller, String nickOwner) {

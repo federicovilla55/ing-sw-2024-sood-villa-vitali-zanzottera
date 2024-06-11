@@ -42,6 +42,10 @@ public class SetupController extends GUIController implements SetupListener, Sta
     private StackPane stackPane;
     @FXML
     private TabPane tabPane;
+
+    /**
+     * All sub-scene controllers that {@link SetupController} requires
+     */
     private GUIController chatController, tableController, localStationController;
 
     public SetupController(GUIController controller) {

@@ -39,12 +39,19 @@ public class TableController extends GUIController implements TableListener {
     @FXML
     private BorderPane tableBorderPane;
 
-    private static final double ASPECT_RATIO = 832.0 / 558.0;
-
+    /**
+     * Drawable cards on table rendered by {@link TableController}
+     */
     private final PlayableCardButton[][] drawableTableCards;
 
+    /**
+     * Public goal cards on table rendered by {@link TableController}
+     */
     private final GoalCardButton[] publicGoals;
 
+    /**
+     * Cards on top of decks rendered by {@link TableController}
+     */
     private final ImageView[] decks;
 
     public TableController(GUIController controller){
@@ -82,8 +89,8 @@ public class TableController extends GUIController implements TableListener {
         for(int i = 0; i <= 2; i++) {
             for(int j = 0; j <= 2; j++) {
                 Pane pane = new Pane();
-                pane.prefWidthProperty().bind(Bindings.min(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO), super.getStage().heightProperty().divide(GUISettings.HEIGHT_RATIO).multiply(ASPECT_RATIO)));
-                pane.prefHeightProperty().bind(Bindings.min(super.getStage().heightProperty().divide(GUISettings.HEIGHT_RATIO), super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).divide(ASPECT_RATIO)));
+                pane.prefWidthProperty().bind(Bindings.min(super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO), super.getStage().heightProperty().divide(GUISettings.HEIGHT_RATIO).multiply(GUISettings.ASPECT_RATIO)));
+                pane.prefHeightProperty().bind(Bindings.min(super.getStage().heightProperty().divide(GUISettings.HEIGHT_RATIO), super.getStage().widthProperty().divide(GUISettings.WIDTH_RATIO).divide(GUISettings.ASPECT_RATIO)));
                 pane.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
                 pane.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
                 gridPane.add(pane, i, j);
