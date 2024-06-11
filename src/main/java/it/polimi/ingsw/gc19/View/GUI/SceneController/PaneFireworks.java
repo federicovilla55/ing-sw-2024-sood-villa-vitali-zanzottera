@@ -30,7 +30,6 @@ import java.util.List;
  * elements blocked on screen.
  * The modified methods are the constructor, start and stop.
  */
-
 public class PaneFireworks {
     private final AnimationTimer timer;
     private final Canvas canvas;
@@ -225,6 +224,7 @@ public class PaneFireworks {
                             true, false, false));
         }
     }
+
 }
 
 class Particle {
@@ -294,4 +294,5 @@ class Particle {
                     new double[]{posY, posY + yVel, posY}, 3);
         }
     }
+
 }

@@ -25,8 +25,16 @@ public class ReconnectionWaitController extends GUIController implements StateLi
     @FXML
     private StackPane stackPane;
 
+    /**
+     * The circles used to build spinning wheel
+     */
     private final ArrayList<Circle> circles;
 
+    /**
+     * This thread is responsible for setting new fill to
+     * specific circle of {@link #circles} in order to give the
+     * effect of a spinning wheel
+     */
     private Thread thread;
 
     public ReconnectionWaitController(GUIController controller) {

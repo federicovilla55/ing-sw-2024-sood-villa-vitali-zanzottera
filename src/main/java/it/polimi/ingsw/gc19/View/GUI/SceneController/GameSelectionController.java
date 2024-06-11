@@ -25,6 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A scene controller. It manages available games and
+ * lets users create or join a certain game.
+ */
 public class GameSelectionController extends GUIController implements StateListener, GameHandlingListener {
 
     @FXML
@@ -58,6 +62,10 @@ public class GameSelectionController extends GUIController implements StateListe
         super.getClientController().getListenersManager().attachListener(ListenerType.GAME_HANDLING_EVENTS_LISTENER, this);
     }
 
+    /**
+     * Initializes the scene. It builds all the necessary GUI items
+     * and manages their width or height using listeners and proprieties
+     */
     @FXML
     private void initialize(){
         numPlayerBox.getItems().addAll(possibleNumPlayer);
@@ -103,7 +111,7 @@ public class GameSelectionController extends GUIController implements StateListe
     }
 
     /**
-     * Loads the logo of Codex Naturalis and places it inside scene
+     * Loads the logo of Codex Naturalis' and places it inside scene
      */
     private void loadLogo() {
         Image logoImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/logo.png")));

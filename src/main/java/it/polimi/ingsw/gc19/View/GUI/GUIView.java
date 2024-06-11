@@ -22,10 +22,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * This class is the main class for GUI.
+ */
 public class GUIView extends Application {
 
+    /**
+     * Starts tha Java FX application. It's the entry point for GUI.
+     * @param stage the primary stage for this application, onto which
+     * the application scene can be set.
+     * Applications may create other stages, if needed, but they will not be
+     * primary stages.
+     */
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         List<Configuration> configs;
         Parent root;
 
@@ -37,15 +47,20 @@ public class GUIView extends Application {
         try {
             configs = ConfigurationManager.retrieveConfiguration();
 
-            FXMLLoader loader = new FXMLLoader();
+            try {
+                FXMLLoader loader = new FXMLLoader();
 
-            loader.setController(new OldConfigurationController(clientController, commandParser, stage));
-            loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.OLD_CONFIGURATION_SCENE.value()));
+                loader.setController(new OldConfigurationController(clientController, commandParser, stage));
+                loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.OLD_CONFIGURATION_SCENE.value()));
 
-            root = loader.load();
+                root = loader.load();
 
-            ((OldConfigurationController) loader.getController()).setConfig(new ArrayList<>(configs));
-            ((OldConfigurationController) loader.getController()).setUpConfigTable();
+                ((OldConfigurationController) loader.getController()).setConfig(new ArrayList<>(configs));
+                ((OldConfigurationController) loader.getController()).setUpConfigTable();
+            }
+            catch (IOException ioException){
+                throw new RuntimeException(ioException);
+            }
         }
         catch (RuntimeException e) {
             FXMLLoader loader = new FXMLLoader();
@@ -53,7 +68,12 @@ public class GUIView extends Application {
             loader.setLocation(getClass().getClassLoader().getResource(SceneStatesEnum.NEW_CONFIGURATION_SCENE.value()));
             loader.setController(new NewConfigurationController(clientController, commandParser, stage));
 
-            root = loader.load();
+            try {
+                root = loader.load();
+            }
+            catch (IOException ex){
+                throw new RuntimeException(ex);
+            }
         }
 
         Image backgroundImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/background_light.png")));
@@ -78,7 +98,13 @@ public class GUIView extends Application {
         stage.setResizable(false);
         scene.getWindow().centerOnScreen();
     }
+
+    /**
+     * This method launches GUI
+     * @param args the variable arguments to pass to {@code launch} method
+     */
     public static void main(String[] args) {
         launch(args);
     }
+
 }

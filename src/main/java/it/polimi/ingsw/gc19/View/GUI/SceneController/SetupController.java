@@ -30,6 +30,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * A scene controller. It handles setup phase for the game.
+ * It lets user choose his color, private goal card and
+ * the orientation of the initial card. Also, chat is available during
+ * this phase and user can see the other players' personal station
+ */
 public class SetupController extends GUIController implements SetupListener, StateListener, LocalModelListener {
 
     @FXML

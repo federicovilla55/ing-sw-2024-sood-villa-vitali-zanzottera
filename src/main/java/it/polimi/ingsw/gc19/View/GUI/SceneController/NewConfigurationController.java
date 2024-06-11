@@ -10,6 +10,9 @@ import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
 import javafx.fxml.FXML;
+import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
+import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
+import it.polimi.ingsw.gc19.Networking.Client.ClientFactory.*;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -23,26 +26,28 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Objects;
 
-
+/**
+ * A scene controller for the new configuration. It lets user
+ * choose their preferred connection type and consequently builds
+ * the "network interface"
+ */
 public class NewConfigurationController extends GUIController implements StateListener {
 
+    /**
+     * The {@link ClientInterface} that will be built
+     */
     private ClientInterface client;
 
     @FXML
     private BorderPane borderPane;
-
     @FXML
     private Button TCPButton, RMIButton;
-
     @FXML
     private ImageView logoImageView;
-
     @FXML
     private VBox contentVBox;
-
     @FXML
     private Label titleLabel;
-
     @FXML
     private HBox buttonsHBox;
 
@@ -58,6 +63,9 @@ public class NewConfigurationController extends GUIController implements StateLi
         super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
     }
 
+    /**
+     * Initializes the scene with its buttons, logo and background
+     */
     @FXML
     public void initialize(){
         TCPButton.setOnMouseClicked((event) -> TCPPress());
@@ -69,13 +77,20 @@ public class NewConfigurationController extends GUIController implements StateLi
         super.setBackground(borderPane, false);
     }
 
+    /**
+     * Loads logo in the scene
+     */
     private void loadLogo() {
         Image logoImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/logo.png")));
         logoImageView.setImage(logoImage);
         logoImageView.setPreserveRatio(true);
     }
 
-
+    /**
+     * When user press "RMI" button, this methods will build
+     * a new {@link ClientRMI} using {@link ClientFactory}. If an error
+     * occurs during the process an {@link Alert} is shown and application shuts down
+     */
     public void RMIPress()  {
         ClientRMIFactory connectionRMI = new ClientRMIFactory();
 
@@ -98,6 +113,11 @@ public class NewConfigurationController extends GUIController implements StateLi
         super.getClientController().setClientInterface(client);
     }
 
+    /**
+     * When user press "TCP" button, this methods will build
+     * a new {@link ClientTCP} using {@link ClientFactory}. If an error
+     * occurs during the process an {@link Alert} is shown and application shuts down
+     */
     public void TCPPress(){
         ClientTCPFactory connectionTCP = new ClientTCPFactory();
 
@@ -119,6 +139,11 @@ public class NewConfigurationController extends GUIController implements StateLi
         super.getClientController().setClientInterface(client);
     }
 
+    /**
+     * Used to notify {@link NewConfigurationController} about events
+     * concerning {@link ViewState}.
+     * @param viewState the new {@link ViewState}
+     */
     @Override
     public void notify(ViewState viewState) {
         super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);

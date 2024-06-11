@@ -37,11 +37,24 @@ public class PlayingAreaController extends GUIController implements StateListene
     @FXML
     private StackPane stackPane;
 
+    /**
+     * A pane used for displaying fireworks at the end of the game
+     */
     private PaneFireworks paneFireworks;
 
+    /**
+     * The {@link TabPane} inn which all players' personal stations are displayed
+     */
     private TabPane stations;
 
+    /**
+     * Current tab seen byy the user
+     */
     private Tab currentTab;
+
+    /**
+     * All the sub-scene controllers used by {@link PlayingAreaController}.
+     */
     private GUIController chatController, tableController, localStationController;
 
     public PlayingAreaController(GUIController controller) {
@@ -120,6 +133,10 @@ public class PlayingAreaController extends GUIController implements StateListene
         paneFireworks = new PaneFireworks(stackPane, super.getLocalModel());
     }
 
+    /**
+     * Builds right {@link TabPane} containing chat and
+     * game stats. It manages height and width listeners and properties for that.
+     */
     private void buildTabPane() {
         this.tabPane.getTabs().clear();
 

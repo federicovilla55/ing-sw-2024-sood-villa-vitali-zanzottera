@@ -22,6 +22,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
 
 
 import java.io.IOException;
@@ -29,9 +30,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A scene controller used to display all {@link Configuration} read from {@link ClientSettings#CONFIG_FILE_PATH} folder
+ * and letting user reconnect with a specific one.
+ */
 public class OldConfigurationController extends GUIController implements StateListener{
 
+    /**
+     * All the {@link Configuration} read from {@link ClientSettings#CONFIG_FILE_PATH} folder.
+     * They will be displayed by controller to let user reconnect
+     */
     private ArrayList<Configuration> configs;
+
     @FXML
     private TableView<Configuration> confTable;
     @FXML
@@ -40,19 +50,14 @@ public class OldConfigurationController extends GUIController implements StateLi
     private TableColumn<Configuration, String> timeCol;
     @FXML
     private TableColumn<Configuration, Configuration.ConnectionType> conTypeCol;
-
     @FXML
     private Button reconnectButton, newConfButton, deleteConf, deleteAllConf;
-
     @FXML
     private ImageView logoImageView;
-
     @FXML
     private VBox contentVBox;
-
     @FXML
     private Label titleLabel;
-
     @FXML
     private HBox buttonsHBox;
 
@@ -63,10 +68,17 @@ public class OldConfigurationController extends GUIController implements StateLi
         super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
     }
 
+    /**
+     * Setter for {@link #configs}
+     * @param configs the {@code ArrayList<Configuration>} to be set in {@link #configs}
+     */
     public void setConfig(ArrayList<Configuration> configs) {
         this.configs = configs;
     }
 
+    /**
+     * Sets up the {@link TableView} used to display {@link #configs}
+     */
     public void setUpConfigTable() {
         nicknameCol.setCellValueFactory(new PropertyValueFactory<Configuration, String>("nick"));
         timeCol.setCellValueFactory(new PropertyValueFactory<Configuration, String>("timestamp"));
@@ -74,8 +86,11 @@ public class OldConfigurationController extends GUIController implements StateLi
         confTable.setItems(FXCollections.observableArrayList(this.configs));
     }
 
+    /**
+     * Initializes the scene.
+     */
     @FXML
-    public void initialize() {
+    private void initialize() {
         logoImageView.fitHeightProperty().bind(super.getStage().heightProperty().divide(4));
         buttonsHBox.spacingProperty().bind(super.getStage().widthProperty().divide(8));
 
@@ -91,13 +106,23 @@ public class OldConfigurationController extends GUIController implements StateLi
         deleteAllConf.setOnAction(this::onDeleteAll);
     }
 
+    /**
+     * Loads Codex Naturalis' logo in the scene
+     */
     private void loadLogo() {
         Image logoImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/logo.png")));
         logoImageView.setImage(logoImage);
         logoImageView.setPreserveRatio(true);
     }
 
-    public void onReconnectPress(ActionEvent e) {
+    /**
+     * This method is executed when user press the reconnection button.
+     * It signals {@link ClientController} to try to reconnect the user
+     * using the specified configuration.
+     * An {@link Alert} is shown if an error occurs during this process
+     * @param e the {@link ActionEvent} of the mouse pressed
+     */
+    private void onReconnectPress(ActionEvent e) {
         ClientInterface client;
         Configuration config = confTable.getSelectionModel().getSelectedItem();
         Configuration.ConnectionType connectionType;
@@ -129,13 +154,23 @@ public class OldConfigurationController extends GUIController implements StateLi
         }
     }
 
-    public void onNewConfigurationPressed(ActionEvent e){
+    /**
+     * This method is executed when user press the new configuration button.
+     * It, simply, changes scene to {@link SceneStatesEnum#NEW_CONFIGURATION_SCENE}
+     * @param e the {@link ActionEvent}  of the mouse clicked
+     */
+    private void onNewConfigurationPressed(ActionEvent e){
         super.getClientController().getListenersManager().removeListener(this);
 
         changeToNextScene(SceneStatesEnum.NEW_CONFIGURATION_SCENE);
     }
 
-    public synchronized void onDeleteAll(ActionEvent e){
+    /**
+     * This method is executed when user press the "delete all" button.
+     * It deletes all configuration in {@link #configs} and in {@link ClientSettings#CONFIG_FILE_PATH}
+     * @param e the {@link ActionEvent} of the mouse pressed
+     */
+    private synchronized void onDeleteAll(ActionEvent e){
         List<Configuration> toRemove = configs.stream().toList();
         for(Configuration conf : toRemove){
             confTable.getSelectionModel().select(conf);
@@ -143,7 +178,12 @@ public class OldConfigurationController extends GUIController implements StateLi
         }
     }
 
-    public void onDeleteConf(ActionEvent e){
+    /**
+     * This method is executed when user press the "delete" button.
+     * It deletes a specific configuration in {@link #configs} and in {@link ClientSettings#CONFIG_FILE_PATH}
+     * @param e the {@link ActionEvent} of the mouse pressed
+     */
+    private void onDeleteConf(ActionEvent e){
         Configuration config = confTable.getSelectionModel().getSelectedItem();
         configs.remove(config);
         confTable.setItems(FXCollections.observableArrayList(this.configs));
@@ -153,6 +193,11 @@ public class OldConfigurationController extends GUIController implements StateLi
         }
     }
 
+    /**
+     * Used to notify {@link OldConfigurationController} about events
+     * concerning {@link ViewState}.
+     * @param viewState the new {@link ViewState}
+     */
     @Override
     public void notify(ViewState viewState) {
         switch (viewState){

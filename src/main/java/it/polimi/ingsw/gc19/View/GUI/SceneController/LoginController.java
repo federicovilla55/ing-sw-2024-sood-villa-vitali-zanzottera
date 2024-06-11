@@ -20,6 +20,11 @@ import javafx.scene.layout.VBox;
 
 import java.util.Objects;
 
+/**
+ * A scene controller. It manages user's login, e.g.
+ * it lets user chose his nickname and displays
+ * an {@link Alert} in case of errors.
+ */
 public class LoginController extends GUIController implements PlayerCreationListener, StateListener {
 
     @FXML
@@ -37,7 +42,6 @@ public class LoginController extends GUIController implements PlayerCreationList
     @FXML
     private Label titleLabel;
 
-
     protected LoginController(GUIController controller) {
         super(controller);
 
@@ -45,6 +49,9 @@ public class LoginController extends GUIController implements PlayerCreationList
         super.getClientController().getListenersManager().attachListener(ListenerType.STATE_LISTENER, this);
     }
 
+    /**
+     * Initializes the scene.
+     */
     public void initialize(){
         loginButton.setOnAction((event) -> {
             String username = loginTextField.getText();
@@ -58,13 +65,20 @@ public class LoginController extends GUIController implements PlayerCreationList
         super.setBackground(borderPane, false);
     }
 
+    /**
+     * Loads Codex Naturalis' logo and places it in the scene
+     */
     private void loadLogo() {
         Image logoImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/logo.png")));
         logoImageView.setImage(logoImage);
         logoImageView.setPreserveRatio(true);
     }
 
-
+    /**
+     * Used to notify to {@link LoginController} that the player
+     * has been correctly created
+     * @param name is the name of the player
+     */
     @Override
     public void notifyPlayerCreation(String name) {
         super.getClientController().getListenersManager().removeListener(this);
@@ -72,6 +86,11 @@ public class LoginController extends GUIController implements PlayerCreationList
         super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
     }
 
+    /**
+     * Used to notify to {@link LoginController} that an error has occurred
+     * while trying to register user's nickname.
+     * @param error a {@link String} description of the error
+     */
     @Override
     public void notifyPlayerCreationError(String error) {
         Platform.runLater(() -> {
@@ -83,6 +102,11 @@ public class LoginController extends GUIController implements PlayerCreationList
         });
     }
 
+    /**
+     * Used to notify {@link LoginController} about events
+     * concerning {@link ViewState}.
+     * @param viewState the new {@link ViewState}
+     */
     @Override
     public void notify(ViewState viewState) {
         switch (viewState){
