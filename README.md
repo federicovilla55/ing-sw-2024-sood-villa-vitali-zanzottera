@@ -17,8 +17,8 @@ Final Project of Software Engineering at Polytechnic University of Milan. A.Y. 2
 - Matteo Vitali (10800443): matteo7.vitali@mail.polimi.it
 - Marco Zanzottera (10765812): marco4.zanzottera@mail.polimi.it
 
-# Implemnted functionalities
-Those are the functionalities we have implmented:
+# Implemented functionalities
+Those are the functionalities we have implemented:
 
 <div align="center">
   
