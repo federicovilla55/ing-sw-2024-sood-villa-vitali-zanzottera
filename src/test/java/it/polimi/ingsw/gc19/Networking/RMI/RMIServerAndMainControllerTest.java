@@ -587,7 +587,6 @@ public class RMIServerAndMainControllerTest {
         assertMessageEquals(client2, new AvailableGamesMessage(List.of("game25", "game26")).setHeader(this.client2.getName()));
     }
 
-    @Disabled
     @Test
     public void testReconnection() throws RemoteException {
         this.client1.connect();
@@ -631,7 +630,6 @@ public class RMIServerAndMainControllerTest {
         assertNull(this.client1.getMessage());
     }
 
-    @Disabled
     @Test
     public void testInactiveClientKiller() throws RemoteException {
         client1.connect();
