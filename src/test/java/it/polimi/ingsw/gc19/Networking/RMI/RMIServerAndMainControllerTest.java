@@ -592,7 +592,7 @@ public class RMIServerAndMainControllerTest {
         this.client1.connect();
 
         client1.waitForMessage(CreatedPlayerMessage.class);
-        MessageToClient message = this.client1.getMessage();
+        MessageToClient message = this.client1.getMessage(CreatedPlayerMessage.class);
         String token1 = ((CreatedPlayerMessage) message).getToken();
 
         VirtualGameServer gameServer1 = this.client1.newGame("game15", 2);
@@ -634,7 +634,6 @@ public class RMIServerAndMainControllerTest {
     public void testInactiveClientKiller() throws RemoteException {
         client1.connect();
         waitingThread(500);
-        client1.disconnect();
         client1.stopSendingHeartBeat();
         waitingThread(25 * 1000);
         Client client5 = new Client(virtualMainServer, this.client1.getName());
@@ -790,7 +789,7 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable 
         virtualMainServer.registerClient(this);
         this.name = name;
         this.incomingMessages = new ArrayDeque<>();
-        this.sendHeartBeat = false;
+        this.sendHeartBeat = true;
         this.token = null;
         heartBeatThread = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::heartBeat, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
     }
