@@ -145,14 +145,16 @@ public class MainServerRMI extends Server implements VirtualMainServer{
         synchronized (this.pendingVirtualClientToKill){
             for(VirtualClient client : this.pendingVirtualClientToKill.keySet()){
                 if(new Date().getTime() - this.pendingVirtualClientToKill.get(client) > 1000 * ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL){
-                    if(this.connectedClients.containsKey(client)){
-                        connectedClients.get(client).x().interrupt();
-                        this.mainController.disconnect(this.connectedClients.remove(client).x());
+
+                    synchronized (this.connectedClients) {
+                        if (this.connectedClients.containsKey(client)) {
+                            connectedClients.get(client).x().interrupt();
+                            this.mainController.disconnect(this.connectedClients.remove(client).x());
+                        }
                     }
+
                     this.lastHeartBeatOfClients.remove(client);
-                    synchronized (this.pendingVirtualClientToKill) {
-                        this.pendingVirtualClientToKill.remove(client);
-                    }
+                    this.pendingVirtualClientToKill.remove(client);
                 }
             }
         }
