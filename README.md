@@ -24,15 +24,15 @@ Those are the functionalities we have implemented:
   
 | Functionality                | State |
 |:-----------------------------|:-----:|
-| Basic rules                  |  :v:  |
-| Complete rules               |  :v:  |
-| TUI                          |  :v:  |
-| GUI                          |  :v:  |
-| RMI+Socket                   |  :v:  |
-| Multiple games               |  :v:  |
+| Basic rules                  |  :white_check_mark:  |
+| Complete rules               |  :white_check_mark:  |
+| TUI                          |  :white_check_mark:  |
+| GUI                          |  :white_check_mark:  |
+| RMI+Socket                   |  :white_check_mark:  |
+| Multiple games               |  :white_check_mark:  |
 | Persistence                  |  :x:  |
-| Resilience to Disconnections |  :v:  |
-| Chat                         |  :v:  |
+| Resilience to Disconnections |  :white_check_mark:  |
+| Chat                         |  :white_check_mark:  |
 
 </div>
 
