@@ -278,7 +278,6 @@ public class MainController {
      * @param player {@link ClientHandler} of the game builder player
      * @return true if the game has been correctly created
      */
-
     public boolean createGame(String gameName, int numPlayer, ClientHandler player){
         return this.createGame(gameName, numPlayer, player, new Random().nextLong());
     }
@@ -437,7 +436,7 @@ public class MainController {
     }
 
     /**
-     * This method checks if player with nick{@param nick} is active.
+     * This method checks if player with nick {@code nick} is active.
      * @param nick is the nickname of the player to search for
      * @return <code>true</code> if and only if {@param nick} is in <code>playerInfo</code>
      * and state of player is <code>State.ACTIVE</code>
@@ -450,7 +449,7 @@ public class MainController {
     }
 
     /**
-     * This static method resets an instance of {@link MainController}
+     * This method resets an instance of {@link MainController}
      */
     public void resetMainController() {
         synchronized (this.playerInfo) {

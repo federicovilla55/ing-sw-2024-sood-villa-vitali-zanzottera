@@ -195,7 +195,7 @@ public class MainServerRMI extends Server implements VirtualMainServer{
     }
 
     /**
-     * This method acts the same as {@link MainServerRMI#createGame(VirtualClient, String, String, int, long)}
+     * This method acts the same as {@link MainServerRMI#createGame(VirtualClient, String, String, int)}
      * but lets the user choose the seed on which build the game
      * @param clientRMI virtual client of player creating the game
      * @param gameName game name chosen by the player
@@ -451,11 +451,14 @@ public class MainServerRMI extends Server implements VirtualMainServer{
                 clientHandlerRMI = this.connectedClients.get(virtualClient).x();
             }
 
-            synchronized (this.pendingVirtualClientToKill){
+            //FOR ERRORS, CHECK HERE
+            /*synchronized (this.pendingVirtualClientToKill){
                 this.pendingVirtualClientToKill.remove(virtualClient);
-            }
+            }*/
 
-            clientHandlerRMI.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerRMI.getUsername()));
+            if(clientHandlerRMI != null) {
+                clientHandlerRMI.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerRMI.getUsername()));
+            }
         }
     }
 

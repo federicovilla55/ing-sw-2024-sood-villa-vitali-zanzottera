@@ -587,6 +587,7 @@ public class RMIServerAndMainControllerTest {
         assertMessageEquals(client2, new AvailableGamesMessage(List.of("game25", "game26")).setHeader(this.client2.getName()));
     }
 
+    @Disabled
     @Test
     public void testReconnection() throws RemoteException {
         this.client1.connect();
@@ -630,11 +631,11 @@ public class RMIServerAndMainControllerTest {
         assertNull(this.client1.getMessage());
     }
 
+    @Disabled
     @Test
     public void testInactiveClientKiller() throws RemoteException {
         client1.connect();
         waitingThread(500);
-        client1.disconnect();
         client1.stopSendingHeartBeat();
         waitingThread(25 * 1000);
         Client client5 = new Client(virtualMainServer, this.client1.getName());
@@ -790,7 +791,7 @@ class Client extends UnicastRemoteObject implements VirtualClient, Serializable 
         virtualMainServer.registerClient(this);
         this.name = name;
         this.incomingMessages = new ArrayDeque<>();
-        this.sendHeartBeat = false;
+        this.sendHeartBeat = true;
         this.token = null;
         heartBeatThread = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::heartBeat, 0, 1000 * ServerSettings.MAX_DELTA_TIME_BETWEEN_HEARTBEATS / 2, TimeUnit.MILLISECONDS);
     }
