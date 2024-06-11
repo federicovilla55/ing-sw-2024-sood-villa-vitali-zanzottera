@@ -2,6 +2,7 @@ package it.polimi.ingsw.gc19.Controller.Messages;
 
 import it.polimi.ingsw.gc19.Controller.MainController;
 import it.polimi.ingsw.gc19.Controller.JSONParser;
+import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.*;
 import it.polimi.ingsw.gc19.Model.Card.Card;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
@@ -708,7 +709,7 @@ public class MessagesTest {
                         goalCards.get("goal_16"),
                         goalCards.get("goal_01"),
                         List.of(
-                                new Tuple<>(playableCards.get("initial_01"), new Tuple<>(25, 25))
+                                new Tuple<>(playableCards.get("initial_01"), new Tuple<>(ImportantConstants.gridDimension/2, ImportantConstants.gridDimension/2))
                         )
                 ));
 
@@ -742,7 +743,7 @@ public class MessagesTest {
                         ),
                         0,
                         List.of(
-                                new Tuple<>(playableCards.get("initial_05").setCardState(CardOrientation.DOWN), new Tuple<>(25, 25))
+                                new Tuple<>(playableCards.get("initial_05").setCardState(CardOrientation.DOWN), new Tuple<>(ImportantConstants.gridDimension/2, ImportantConstants.gridDimension/2))
                         )
                 ));
         assertMessageEquals(player2,
@@ -765,7 +766,7 @@ public class MessagesTest {
                         ),
                         0,
                         List.of(
-                                new Tuple<>(playableCards.get("initial_06").setCardState(CardOrientation.UP), new Tuple<>(25, 25))
+                                new Tuple<>(playableCards.get("initial_06").setCardState(CardOrientation.UP), new Tuple<>(ImportantConstants.gridDimension/2, ImportantConstants.gridDimension/2))
                         )
                 ));
 
@@ -789,7 +790,7 @@ public class MessagesTest {
                         ),
                         0,
                         List.of(
-                                new Tuple<>(playableCards.get("initial_03").setCardState(CardOrientation.DOWN), new Tuple<>(25, 25))
+                                new Tuple<>(playableCards.get("initial_03").setCardState(CardOrientation.DOWN), new Tuple<>(ImportantConstants.gridDimension/2, ImportantConstants.gridDimension/2))
                         )
                 ));
 
