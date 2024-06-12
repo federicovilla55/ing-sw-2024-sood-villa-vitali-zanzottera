@@ -382,7 +382,7 @@ public class ClientController {
             this.view.notifyGenericError(message.getDescription());
         }
         else if (message.getError() == NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER){
-                this.view.notify("Reconnection performed...\n");
+                this.view.notifyGenericError(message.getDescription());
                 setNextState(prevState, true);
             }
     }
