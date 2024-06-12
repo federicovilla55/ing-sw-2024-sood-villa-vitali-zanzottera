@@ -146,14 +146,6 @@ public abstract class ClientState {
     }
 
     /**
-     * To inform the state of the client that a player is reconnected to the game.
-     * @param message a {@link PlayerReconnectedToGameMessage} from the server.
-     */
-    public void nextState(PlayerReconnectedToGameMessage message) {
-        this.clientController.getView().notify("Player '" + message.getPlayerName() + "' ha reconnected to the game...");
-    }
-
-    /**
      * To inform the state of the client that a player has been disconnected from the game.
      * @param message a {@link DisconnectFromGameMessage} from the server.
      */
@@ -270,7 +262,7 @@ public abstract class ClientState {
     }
 
     /**
-     * To update the view and the viewstate after a message with the configuration of the client's station
+     * To update the view and the {@link ViewState} of {@link ClientController} after a message with the configuration of the client's station
      * has arrived after the server sent it.
      * @param message an {@link OwnStationConfigurationMessage}
      */

@@ -1269,7 +1269,7 @@ public class TUIView implements UI, GeneralListener {
 
     /**
      * To update the personal station.
-     * @param localStationPlayer the new and updated gametable.
+     * @param localStationPlayer the new and updated game's table.
      */
     @Override
     public void notify(PersonalStation localStationPlayer){

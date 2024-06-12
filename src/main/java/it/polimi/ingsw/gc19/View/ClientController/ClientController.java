@@ -377,14 +377,15 @@ public class ClientController {
             ConfigurationManager.deleteConfiguration(this.nickname);
             setNextState(new NotPlayer(this), true);
             this.view.notifyGenericError(message.getDescription());
-        }else if (message.getError() == NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER){
+        }
+        else if (message.getError() == NetworkError.CLIENT_NOT_REGISTERED_TO_SERVER){
             setNextState(new NotPlayer(this), true);
             this.view.notifyGenericError(message.getDescription());
         }
         else if (message.getError() == NetworkError.CLIENT_ALREADY_CONNECTED_TO_SERVER){
-                this.view.notifyGenericError(message.getDescription());
-                setNextState(prevState, true);
-            }
+            this.view.notifyGenericError(message.getDescription());
+            setNextState(prevState, true);
+        }
     }
 
     /**
