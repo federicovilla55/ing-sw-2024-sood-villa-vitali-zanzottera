@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.gc19.Enums.EmptyCorner;
 import it.polimi.ingsw.gc19.Enums.NotAvailableCorner;
 import it.polimi.ingsw.gc19.Enums.Symbol;
+import it.polimi.ingsw.gc19.Model.MessageFactory;
 
 import java.io.Serializable;
 import java.util.Optional;
@@ -24,14 +25,14 @@ import java.util.Optional;
 public interface Corner extends Serializable{
 
     /**
-     * This method returns a boolean indicating whether Corner has a symbol
-     * @return <code>true</code> if {@link Corner} contains a symbol
+     * This method returns a boolean indicating whether Corner has a {@link Symbol}
+     * @return <code>true</code> if {@link Corner} contains a {@link Symbol}
      */
     boolean hasSymbol();
 
     /**
-     * This method returns an <code>Optional&lt;Symbol&gt;</code> containing the symbol in the corner if exists,
-     * return an empty <code>Optional&lt;Symbol&gt;</code>
+     * This method returns an <code>Optional&lt;Symbol&gt;</code> containing the {@link Symbol} in the corner if exists,
+     * otherwise return an empty <code>Optional&lt;Symbol&gt;</code>
      * @return symbol in the corner
      */
     Optional<Symbol> getSymbol();

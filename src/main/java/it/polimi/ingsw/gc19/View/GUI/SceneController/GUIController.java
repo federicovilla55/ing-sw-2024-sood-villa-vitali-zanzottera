@@ -134,6 +134,11 @@ public class GUIController implements UI, Listener{
                 stage.getScene().getWindow().removeEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
             }
         }
+        else{
+            if(this.clientController.getState() == ViewState.NOT_GAME){
+                this.getClientController().disconnect();
+            }
+        }
     }
 
     /**

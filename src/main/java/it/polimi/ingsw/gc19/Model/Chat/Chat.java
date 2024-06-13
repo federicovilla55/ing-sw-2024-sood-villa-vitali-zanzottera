@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class Chat extends Publisher{
 
     /**
-     * Messages written ain chat and saved on server
+     * Messages written in chat and saved on server
      */
     private final ArrayList<Message> messagesInChat;
 
@@ -64,7 +64,7 @@ public class Chat extends Publisher{
 
     /**
      * Getter for number of messages written in chat (e.g. contained in {@link #messagesInChat})
-     * @return the umber of messages written in chat
+     * @return the number of messages written in chat
      */
     public int getNumOfMessages(){
         return this.messagesInChat.size();

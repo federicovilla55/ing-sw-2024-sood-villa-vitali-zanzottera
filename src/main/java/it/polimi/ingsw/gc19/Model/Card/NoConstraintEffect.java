@@ -29,7 +29,7 @@ public class NoConstraintEffect implements PlayableEffect{
 
     /**
      * Count points obtained by player from this effect
-     * @param station the station where to count points
+     * @param station the {@link Station} where to count points
      * @return the number of points gained by player by this effect
      */
     @Override

@@ -11,7 +11,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.Acce
 
 /**
  * The Player class represents a player in the game.
- * Each player has a name, color, and a station.
+ * Each player has a name, {@link Color}, and a {@link Station}.
  */
 public class Player extends Publisher {
     /**
@@ -56,7 +56,7 @@ public class Player extends Publisher {
 
     /**
      * This method returns player's station
-     * @return the station of the player
+     * @return the {@link Station} of the player
      */
     public Station getStation() {
         return this.playerStation;

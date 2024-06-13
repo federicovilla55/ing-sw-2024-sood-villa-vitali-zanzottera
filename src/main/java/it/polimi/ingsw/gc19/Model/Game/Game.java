@@ -46,8 +46,9 @@ public class Game extends Publisher{
      *  This attribute represents the {@link GameState}
      */
     private GameState gameState;
+
     /**
-     * This Attribute contains a list of the players associated with the game.
+     * This attribute contains a list of the players associated with the game.
      */
     private final ArrayList<Player> players;
 
@@ -69,12 +70,12 @@ public class Game extends Publisher{
     private Player firstPlayer;
 
     /**
-     * This attribute associate every playable card code to the corresponding PlayableCard object.
+     * This attribute associate every code pf the corresponding {@link PlayableCard} object.
      */
     private final HashMap<String, PlayableCard> stringPlayableCardHashMap;
 
     /**
-     * This attribute associate every goal card code to the corresponding GoalCard object.
+     * This attribute associate every code of the corresponding {@link GoalCard} object.
      */
     private final HashMap<String, GoalCard> stringGoalCardHashMap;
 

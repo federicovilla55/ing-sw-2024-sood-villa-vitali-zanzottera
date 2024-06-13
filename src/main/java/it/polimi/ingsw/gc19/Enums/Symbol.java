@@ -35,7 +35,7 @@ public enum Symbol implements Corner {
     }
 
     /**
-     * This method returns a boolean indicating whether {@link Corner} has a symbol
+     * This method returns a boolean indicating whether {@link Corner} has a {@link Symbol}
      * @return always <code>false</code> because the corner is not available
      */
     @Override
@@ -44,7 +44,7 @@ public enum Symbol implements Corner {
     }
 
     /**
-     * This method returns an optional containing the symbol in the corner if exists,
+     * This method returns an optional containing the {@link Symbol} in the corner if exists,
      * return an empty optional
      * @return an <code>Optional&lt;Symbol&gt;</code> empty or containing a {@link Symbol}
      */

@@ -17,7 +17,8 @@ import java.util.stream.Stream;
 public class PlayableCard extends Card implements Serializable{
 
     /**
-     * This attribute represents card type: Initial, Resource or Gold
+     * This attribute represents card type: {@link PlayableCardType#INITIAL}, {@link PlayableCardType#RESOURCE},
+     * {@link PlayableCardType#GOLD}
      */
     private PlayableCardType cardType;
 
@@ -44,7 +45,7 @@ public class PlayableCard extends Card implements Serializable{
     /**
      * This attribute represents permanent resources
      * positioned at the center of the back of the card.
-     * This resource can not be covered.
+     * This resources can not be covered.
      */
     private ArrayList<Symbol> permanentResources;
 
@@ -55,9 +56,9 @@ public class PlayableCard extends Card implements Serializable{
     private CardState cardState;
 
     /**
-     * This attribute represents the effect that a playable
-     * card has, that is activated when the card is
-     * positioned in a station in the UP state.
+     * This attribute represents the effect that a {@link PlayableCard}
+     * has, that is activated when the card is
+     * positioned in a station in the {@link CardOrientation#UP}.
      * To see various effects, see classes that
      * implements {@link PlayableEffect}
      */
@@ -95,7 +96,7 @@ public class PlayableCard extends Card implements Serializable{
 
     /**
      * This method returns the type of the card
-     * @return {@link #cardType}
+     * @return the {@link #cardType}
      */
     public PlayableCardType getCardType(){
         return this.cardType;
@@ -212,7 +213,7 @@ public class PlayableCard extends Card implements Serializable{
 
     /**
      * This method returns the Symbol describing card's seed
-     * @return a valid Symbol if <code>cardType != PlayableCardType.INITIAL</code>,
+     * @return a valid {@link Symbol} if <code>cardType != PlayableCardType.INITIAL</code>,
      * else <code>null</code>
      */
     public Symbol getSeed(){
@@ -267,7 +268,7 @@ public class PlayableCard extends Card implements Serializable{
          * This method returns the points gained by the card effect
          * after its placement in a station. If the card is on the back,
          * this method returns 0.
-         * @param station the station where the card is placed
+         * @param station the {@link Station} where the card is placed
          * @return the points the card gives based on its effect
          * when placed
          */
@@ -374,7 +375,7 @@ public class PlayableCard extends Card implements Serializable{
     }
 
     /**
-     * This class implements the up state of the card
+     * This class implements the down state of the card
      */
     private class CardDown implements CardState, Serializable{
 

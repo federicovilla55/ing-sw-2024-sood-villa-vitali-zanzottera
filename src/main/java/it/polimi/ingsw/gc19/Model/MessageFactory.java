@@ -60,7 +60,7 @@ public class MessageFactory implements ObservableMessageToClient<MessageToClient
     }
 
     /**
-     * This method is used to send a message to all game players except <code>nickExcept</code>>
+     * This method is used to send a message to all game players except <code>nickExcept</code>
      * @param message message to send
      * @param nickExcept player that hasn't to receive the message
      */
@@ -100,7 +100,7 @@ public class MessageFactory implements ObservableMessageToClient<MessageToClient
     }
 
     /**
-     * This method is used to remove a named observer from the message factory
+     * This method is used to remove a named observer from the {@link MessageFactory}
      * @param nickName name of the player owning the observer to remove
      */
     @Override
@@ -116,7 +116,7 @@ public class MessageFactory implements ObservableMessageToClient<MessageToClient
     }
 
     /**
-     * This method is used to remove an anonymous observer from the message factory
+     * This method is used to remove an anonymous observer from the {@link MessageFactory}
      * @param obs anonymous observer to remove
      */
     @Override
@@ -136,6 +136,10 @@ public class MessageFactory implements ObservableMessageToClient<MessageToClient
         }
     }
 
+    /**
+     * Notifies all observers (both named and anonymous) attached
+     * @param message the {@link MessageToClient} to be dispatched
+     */
     private void notifyObservers(MessageToClient message){
         notifyAnonymousObservers(message);
         notifyNamedObservers(message);

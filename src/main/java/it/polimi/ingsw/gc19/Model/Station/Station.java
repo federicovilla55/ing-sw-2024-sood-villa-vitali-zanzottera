@@ -31,7 +31,7 @@ public class Station extends Publisher{
     private final Player ownerPlayer;
 
     /**
-     * Cards that user has in his hands
+     * Cards that user has in his hand
      */
     private final ArrayList<PlayableCard> cardsInHand;
 
@@ -108,7 +108,7 @@ public class Station extends Publisher{
     }
 
     /**
-     * This method updates PlayableCard inside this station
+     * This method updates {@link PlayableCard} inside this station
      */
     public void updateCardsInHand(PlayableCard toInsert){
         this.cardsInHand.add(toInsert);
@@ -123,7 +123,7 @@ public class Station extends Publisher{
     }
 
     /**
-     * This method returns station's private GoalCard
+     * This method returns station's private {@link GoalCard}
      * @return station's private GoalCard
      */
     public GoalCard getPrivateGoalCard(){
@@ -132,7 +132,7 @@ public class Station extends Publisher{
     }
 
     /**
-     * This method sets private GoalCard of the station
+     * This method sets private {@link GoalCard} of the station
      */
     public void setPrivateGoalCard(int cardIdx) {
         this.privateGoalCardIdx = cardIdx;
@@ -160,7 +160,7 @@ public class Station extends Publisher{
     }
 
     /**
-     * This method place initial card in card schema
+     * This method place initial card in{@link CardSchema}
      */
     public void placeInitialCard(PlayableCard initialCard, CardOrientation cardOrientation){
         if(initialCard.getCardType() == PlayableCardType.INITIAL && !this.initialCardIsPlaced){
@@ -176,15 +176,15 @@ public class Station extends Publisher{
     }
 
     /**
-     * This method place initial card in card schema
+     * This method places initial card in card schema
      */
     public void placeInitialCard(CardOrientation cardOrientation){
         this.placeInitialCard(this.initialCard, cardOrientation);
     }
 
     /**
-     * This method checks if a card can be placed in CardSchema
-     * @return true if and only if card is in station and is placeable in CardSchema.
+     * This method checks if a card can be placed in {@link CardSchema}
+     * @return true if and only if card is in station and is placeable in {@link CardSchema}.
      * @throws InvalidCardException if station doesn't have the card to place.
      * @throws InvalidAnchorException if the anchor isn't in card schema.
      */
@@ -205,7 +205,7 @@ public class Station extends Publisher{
     }
 
     /**
-     * This method place a card in CardSchema if it's placeable in CardSchema
+     * This method place a card in {@link CardSchema} if it's placeable in {@link CardSchema}
      * If the card has been placed it updates station's points and visible symbols. Then updates cards in hand.
      * @throws InvalidCardException if station doesn't have the card to place.
      * @throws InvalidAnchorException if the anchor isn't in card schema.

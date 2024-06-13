@@ -26,6 +26,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class MainController {
 
+    /**
+     * Current instance of {@link MainController}
+     */
     private static MainController mainController = null;
 
     /**
@@ -124,7 +127,7 @@ public class MainController {
      * When a lobby player is signaled to be inactive his state is set to <code>State.INACTIVE</code> and
      * it's not deleted from <code>playersInfo</code>.
      * When a game player is signaled to be inactive his state becomes <code>State.INACTIVE</code> and
-     * this method calls {@link GameController#removeClient(String)} to remove player's observer.
+     * this method calls {@link GameController#removeClient(String)} to remove player's observers.
      * @param nickname nickname of the player became inactive
      */
     public void setPlayerInactive(String nickname){
@@ -226,8 +229,8 @@ public class MainController {
      * This method creates a new game. First, it calls {@link MainController#checkPlayer(ClientHandler)} to test if player
      * can create a new game (not registered to other games).
      * Then, it checks if {@param gameName} is already in use: if yes, then send to player {@link GameHandlingErrorMessage}
-     * with <code>ErrorType.CANNOT_BUILD_GAME</code>.
-     * If all is ok, it builds a new game along with its game controller, sends a {@link CreatedGameMessage} to player
+     * with {@link Error#GAME_NAME_ALREADY_IN_USE}.
+     * If all is ok, it builds a new game along with its {@link GameController}, sends a {@link CreatedGameMessage} to player
      * and registers him to the game.
      * @param gameName game name chosen by the client
      * @param numPlayer number of player chosen by the client
@@ -309,7 +312,7 @@ public class MainController {
 
     /**
      * This method registers a player to an available game: the first
-     * of the {@code ArrayList<String>} returned by {@link MainController#findAvailableGames()}
+     * of the {@code ArrayList<String>} returned by {@link MainController#findAvailableGames()}.
      * It send to player {@link GameHandlingErrorMessage} with error type <code>NO_GAMES_FREE_TO_JOIN</code> if no game is available.
      * @param player is the {@link ClientHandler} of the player to be registered
      * @return name of joined game if it exists, otherwise null.
@@ -371,7 +374,7 @@ public class MainController {
 
     /**
      * This method finds all available games. Nothing can be guaranteed about the other
-     * of available games name in the array list returned. For example, if game <code>A</code> has been
+     * of available games' names in the array list returned. For example, if game <code>A</code> has been
      * available for more than <code>B</code>, first element of the array list can be <code>B</code>.
      * @return an {@code ArrayList<Strings>} containing all available games names.
      */
@@ -391,7 +394,7 @@ public class MainController {
      * It is used when a player wants to reconnect to a game.
      * First, it checks if player is registered in <code>playerInfo</code> and then if it is part
      * of some game. If the answer is no, then it sends {@link AvailableGamesMessage}, otherwise signals
-     * to game controller associated to the game that a player has reconnected and updates <code>playerInfo</code>
+     * to {@link GameController} associated to the game that a player has reconnected and updates <code>playerInfo</code>
      * putting <code>(State.ACTIVE, gameName)</code>
      * @param clientHandler player's to be reconnected {@link ClientHandler}
      * @return true if player can be reconnected

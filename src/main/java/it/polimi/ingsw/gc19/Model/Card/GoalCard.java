@@ -11,15 +11,15 @@ import it.polimi.ingsw.gc19.View.TUI.TUIView;
 public class GoalCard extends Card {
 
     /**
-     * This attribute represents the effect that a goal
-     * card has, that is activated when the game finishes
+     * This attribute represents the effect that a {@link GoalCard}
+     * has, that is activated when the game finishes.
      * To see various effects, see classes that
      * implements {@link GoalEffect}
      */
     private final GoalEffect goalEffect;
 
     /**
-     * This constructor creates a goal card
+     * This constructor creates a {@link GoalCard}
      * @param cardCode the code that uniquely identifies a card in a game
      * @param goalEffect is the effect of the goal card
      */
@@ -41,7 +41,7 @@ public class GoalCard extends Card {
 
     /**
      * Count points obtained by player from this card
-     * @param station the station where to count points
+     * @param station the {@link Station} where to count points
      * @return the number of points gained by player by this card
      */
     @Override

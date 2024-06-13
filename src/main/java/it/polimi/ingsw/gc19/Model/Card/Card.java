@@ -59,9 +59,9 @@ public abstract class Card implements Serializable {
 
     /**
      * Overriding of {@link Object#equals(Object)} for {@link Card}.
-     * Two card objects are equals if and only if their card code are equal
+     * Two card objects are equals if and only if their card codes are equal
      * @param obj the {@link Object} to compare
-     * @return <code>true</code> if and ony if <code>obj</code>> is a {@link Card}
+     * @return <code>true</code> if and ony if <code>obj</code> is a {@link Card}
      * and the card codes are equals
      */
     @Override
