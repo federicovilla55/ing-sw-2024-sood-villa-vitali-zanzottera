@@ -205,7 +205,7 @@ public abstract class ClientState {
     }
 
     /**
-     * To update the client state after the server sent the configuration of the game..
+     * To update the client state after the server sent the configuration of the game.
      * Notify the view too.
      * @param message a {@link GameConfigurationMessage}
      */
