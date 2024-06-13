@@ -8,10 +8,13 @@ Digital version of the board game *Codex Naturalis*.
 
 # Screenshots
 <p float="left" align="center">
-  <img src="assets/lobby.png" width="20%" />
-  <img src="assets/setup.png" width="25%" /> 
-  <img src="assets/playing.png" width="25%" />
-  <img src="assets/reconnect.png" width="25%" />
+  <img src="assets/lobby.png" width="45%" />
+  <img src="assets/setup.png" width="45%" /> 
+</p>
+
+<p float="left" align="center">
+  <img src="assets/playing.png" width="45%" />
+  <img src="assets/reconnect.png" width="45%" />
 </p>
 
 ## Project
