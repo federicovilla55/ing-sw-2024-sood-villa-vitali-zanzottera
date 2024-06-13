@@ -259,8 +259,7 @@ public class Station extends Publisher{
     }
 
     /**
-     * This method checks if there is a card over the anchor in Direction dir
-     * Throws InvalidCardException is the anchor doesn't exist in schema.
+     * This method checks if there is a card over the anchor in direction <code>dir</code>
      * @throws InvalidCardException if station doesn't have the card to place.
      * @return true if and only if there is card ver the anchor in Direction dir
      */
