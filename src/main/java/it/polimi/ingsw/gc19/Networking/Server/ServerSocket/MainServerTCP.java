@@ -143,7 +143,7 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
     }
 
     /**
-     * This method is called by TCPConnectionAcceptor to notify that a client has only connected but has sent nothing
+     * This method is called by {@link TCPConnectionAcceptor} to notify that a client has only connected but has sent nothing
      * @param socket {@link Socket} is the client's socket
      */
     public void registerSocket(Socket socket, MessageToServerDispatcher messageToServerDispatcher){

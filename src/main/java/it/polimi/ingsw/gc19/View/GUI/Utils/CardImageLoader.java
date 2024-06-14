@@ -67,4 +67,5 @@ public class CardImageLoader {
         }
         return new ImageView(loadedImages.get("goal"));
     }
+
 }

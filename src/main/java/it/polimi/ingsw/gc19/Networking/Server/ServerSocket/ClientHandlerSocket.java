@@ -112,6 +112,11 @@ public class ClientHandlerSocket extends ClientHandler implements ObserverMessag
         this.outputStream.reset();
     }
 
+    /**
+     *
+     * @param senderSocket {@link Socket} from which message has arrived
+     * @param message {@link MessageToServer} arrived
+     */
     @Override
     public void update(Socket senderSocket, MessageToServer message) {
         synchronized (this.messageVisitor) {

@@ -18,6 +18,9 @@ public enum SceneStatesEnum {
     LOCAL_STATION_SUB_SCENE("it/polimi/ingsw/gc19/fxml/LocalStationScene.fxml"),
     LOCAL_STATION_TAB_SUB_SCENE("it/polimi/ingsw/gc19/fxml/LocalStationTab.fxml");
 
+    /**
+     * The path to the FXML describing the scene
+     */
     private final String value;
 
     SceneStatesEnum(final String value) {

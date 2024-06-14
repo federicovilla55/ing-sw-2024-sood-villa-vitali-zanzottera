@@ -3,11 +3,9 @@ package it.polimi.ingsw.gc19.View.GameLocalView;
 import it.polimi.ingsw.gc19.Costants.ImportantConstants;
 import it.polimi.ingsw.gc19.Enums.Color;
 import it.polimi.ingsw.gc19.Enums.Direction;
-import it.polimi.ingsw.gc19.Enums.PlayableCardType;
 import it.polimi.ingsw.gc19.Enums.Symbol;
 import it.polimi.ingsw.gc19.Model.Card.GoalCard;
 import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
-import it.polimi.ingsw.gc19.Model.Game.Player;
 import it.polimi.ingsw.gc19.Utils.Tuple;
 
 import java.util.ArrayList;
@@ -23,6 +21,7 @@ import java.util.Map;
  * - {@link PersonalStation}, that represents the personal station.
  */
 public abstract class LocalStationPlayer {
+
     /**
      * The player that owns the Station.
      */
@@ -67,9 +66,9 @@ public abstract class LocalStationPlayer {
     }
 
     /**
-     * The methods initialized the cardSchema and creates it from the content of the placedCardSequence.
-     * First each element of the cardSchema is null, then the position that are occupied according to the
-     * placeCardSequence are filled.
+     * The methods initialized the {@link #cardSchema} and creates it from the content of the {@link #placedCardSequence}.
+     * First each element of the {@link #cardSchema} is {@code null}, then the position that are occupied according to the
+     * {@link #placedCardSequence} are filled.
      */
     public void reconstructSchema() {
         // Reset card schema
@@ -107,7 +106,7 @@ public abstract class LocalStationPlayer {
 
     /**
      * To set the private goal card from one of the two private goal cards.
-     * @param goalCard the chosen GoalCard from the array of private goal cards.
+     * @param goalCard the chosen {@link GoalCard} from the array of private goal cards.
      */
     public abstract void setPrivateGoalCard(GoalCard goalCard);
 
@@ -145,7 +144,7 @@ public abstract class LocalStationPlayer {
 
     /**
      * To set the number of points of the station.
-     * @param numPoints, the number of points of the station.
+     * @param numPoints the number of points of the station.
      */
     public void setNumPoints(int numPoints) {
         this.numPoints = numPoints;
@@ -153,24 +152,23 @@ public abstract class LocalStationPlayer {
 
     /**
      * To set the visible symbols of the station.
-     * @param visibleSymbols, a map containing for each Symbol the number of times it is visible.
+     * @param visibleSymbols a map containing for each {@link Symbol} the number of times it is visible.
      */
     public void setVisibleSymbols(Map<Symbol, Integer> visibleSymbols){
          this.visibleSymbols = new HashMap<>(visibleSymbols);
     }
 
     /**
-     * Method used to place a card in the Station given:
-     * @param anchorCardCode, the anchor card code of the card we want to place the card from.
-     * @param cardToPlace, the card we want to place.
-     * @param direction, the direction in which we want to place the card, given the anchor card.
+     * Method used to place a card in the station given:
+     * @param anchorCardCode the anchor card code of the card we want to place the card from.
+     * @param cardToPlace the card we want to place.
+     * @param direction the direction in which we want to place the card, given the anchor card.
      */
-
     public abstract void placeCard(PlayableCard cardToPlace, String anchorCardCode, Direction direction);
 
     /**
-     * To place the intial card in the station.
-     * @param initialCard, the initial card the user wants to place in the station.
+     * To place the initial card in the station.
+     * @param initialCard the initial card the user wants to place in the station.
      */
     public void placeInitialCard(PlayableCard initialCard){
         this.placedCardSequence.add(new Tuple<>(initialCard, new Tuple<>((ImportantConstants.gridDimension / 2), (ImportantConstants.gridDimension / 2))));
@@ -178,12 +176,12 @@ public abstract class LocalStationPlayer {
     }
 
     /**
-     * The coordinates of the card whose cardCode is given.
-     * @param cardCode, the card code of the card.
+     * The coordinates of the card whose {@code cardCode} is given.
+     * @param cardCode the card code of the card.
      * @return the coordinates of the card if it was previously placed,
-     *          (-1, -1) otherwise.
+     *          {@code (-1, -1)} otherwise.
      */
-    public Tuple<Integer, Integer> getCoord(String cardCode){
+    public Tuple<Integer, Integer> getCoords(String cardCode){
         for(Tuple<PlayableCard, Tuple<Integer,Integer>> t : placedCardSequence){
             if(t.x().getCardCode().equals(cardCode)){
                 return t.y();
@@ -193,10 +191,10 @@ public abstract class LocalStationPlayer {
     }
 
     /**
-     * Returns the card at given position, else null
+     * Returns the card at given position, else {@code null}
      * @param x first dimension of the matrix
      * @param y second dimension of the matrix
-     * @return the card at given position, if the card is not present returns null
+     * @return the card at given position, if the card is not present returns {@code null}
      */
     public PlayableCard getPlacedCardAtPosition(int x, int y) {
         return this.cardSchema[x][y];
@@ -212,10 +210,11 @@ public abstract class LocalStationPlayer {
 
     /**
      * To ask if a card is placeable given:
-     * @param cardToPlace, the card we want to place.
-     * @param anchor, the anchor card from which we want to place the card.
-     * @param direction, the direction in which we want to place the card.
+     * @param cardToPlace the card we want to place.
+     * @param anchor the anchor card from which we want to place the card.
+     * @param direction the direction in which we want to place the card.
      * @return a boolean that is true only if the card can be placed in that position.
      */
     public abstract boolean cardIsPlaceable(PlayableCard cardToPlace, PlayableCard anchor, Direction direction);
+
 }

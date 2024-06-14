@@ -53,7 +53,7 @@ public class PlayingAreaController extends GUIController implements StateListene
     private Tab currentTab;
 
     /**
-     * All the sub-scene controllers used by {@link PlayingAreaController}.
+     * One of the sub-scene controllers used by {@link PlayingAreaController}.
      */
     private GUIController chatController, tableController, localStationController;
 

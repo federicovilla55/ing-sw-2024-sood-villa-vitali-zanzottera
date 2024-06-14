@@ -19,11 +19,30 @@ import javafx.util.Duration;
 
 import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
 
+/**
+ * This class represents a generic button with a {@link PlayableCard} as its graphic.
+ */
 public class PlayableCardButton extends Button{
 
+    /**
+     * Attached {@link PlayableCard}
+     */
     private final PlayableCard card;
+
+    /**
+     * Front side of the corresponding {@link #card}
+     */
     private final ImageView front;
+
+    /**
+     * Back side of the corresponding {@link #card}
+     */
     private final ImageView back;
+
+    /**
+     * <code>true</code> if card has been rendered in its up state (e.g. front side is
+     * currently shown)
+     */
     private boolean isUp;
 
     public PlayableCardButton(PlayableCard card){
@@ -69,7 +88,7 @@ public class PlayableCardButton extends Button{
     }
 
     /**
-     * Build a {@link Tooltip} describing the {@link GoalCard} associated to the button.
+     * Build a {@link Tooltip} describing the {@link PlayableCard} associated to the button.
      * Duration of the tooltip in indefinite and it follows mouse movement inside button.
      */
     private void buildTooltip(){

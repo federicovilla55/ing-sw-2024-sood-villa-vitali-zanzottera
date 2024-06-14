@@ -23,9 +23,25 @@ import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
  */
 public class GoalCardButton extends Button{
 
+    /**
+     * Attached {@link GoalCard}
+     */
     private final GoalCard card;
+
+    /**
+     * Front side of the corresponding {@link #card}
+     */
     private final ImageView front;
+
+    /**
+     * Back side of the corresponding {@link #card}
+     */
     private final ImageView back;
+
+    /**
+     * <code>true</code> if card has been rendered in its up state (e.g. front side is
+     * currently shown)
+     */
     private boolean isUp;
 
     public GoalCardButton(GoalCard card){
@@ -73,7 +89,7 @@ public class GoalCardButton extends Button{
 
     /**
      * Build a {@link Tooltip} describing the {@link GoalCard} associated to the button.
-     * Duration of the tooltip in indefinite and it follows mouse movement inside button.
+     * Duration of the tooltip is indefinite, and it follows mouse movement inside button.
      */
     private void buildTooltip(){
         Tooltip infos = new Tooltip("Goal card ard description");

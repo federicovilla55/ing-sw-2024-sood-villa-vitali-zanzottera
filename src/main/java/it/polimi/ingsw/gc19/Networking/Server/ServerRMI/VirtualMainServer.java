@@ -13,6 +13,7 @@ public interface VirtualMainServer extends Remote {
 
     /**
      * This method is used to register a new RMI client, to start sending to it heartbeats
+     *
      * @param client the client to register
      * @throws RemoteException if something goes wrong executing this method
      */
@@ -20,17 +21,19 @@ public interface VirtualMainServer extends Remote {
 
     /**
      * This method is used when a new client wants to connect to server.
+     *
      * @param clientRMI is the {@link VirtualClient} of the RMI client who wants to connect
-     * @param nickName is the name of the client
+     * @param nickName  is the name of the client
      * @throws RemoteException if something goes wrong executing this method
      */
     void newConnection(VirtualClient clientRMI, String nickName) throws RemoteException;
 
     /**
      * This method is used by client to create a new game
+     *
      * @param clientRMI is the {@link VirtualClient} of the RMI client who wants to create a new game
-     * @param gameName is the name of the game to build
-     * @param nickname is the nickname of the player
+     * @param gameName  is the name of the game to build
+     * @param nickname  is the nickname of the player
      * @param numPlayer is the number of the player in game
      * @return {@link VirtualGameServer} representing the game server (note that for clients connected to
      * same game, different {@link VirtualGameServer} will be returned). Returns <code>null</code> if action cannot be performed.
@@ -40,10 +43,11 @@ public interface VirtualMainServer extends Remote {
 
     /**
      * This method is used by client to create a new game
-     * @param clientRMI is the {@link VirtualClient} of the RMI client who wants to create a new game
-     * @param gameName is the name of the game to build
-     * @param nickname is the nickname of the player
-     * @param numPlayer is the number of the player in game
+     *
+     * @param clientRMI  is the {@link VirtualClient} of the RMI client who wants to create a new game
+     * @param gameName   is the name of the game to build
+     * @param nickname   is the nickname of the player
+     * @param numPlayer  is the number of the player in game
      * @param randomSeed is the random seed on which build the game
      * @return {@link VirtualGameServer} representing the game server (note that for clients connected to
      * same game, different {@link VirtualGameServer} will be returned). Returns <code>null</code> if action cannot be performed.
@@ -53,9 +57,10 @@ public interface VirtualMainServer extends Remote {
 
     /**
      * This method is used by client to join game with the specified name
+     *
      * @param clientRMI is the {@link VirtualClient} of the RMI client who wants to join game
-     * @param gameName is the name of the game to enter
-     * @param nickname is the nickname of the requesting player
+     * @param gameName  is the name of the game to enter
+     * @param nickname  is the nickname of the requesting player
      * @return {@link VirtualGameServer} representing the game server (note that for clients connected to
      * same game, different {@link VirtualGameServer} will be returned). Returns <code>null</code> if action cannot be performed.
      * @throws RemoteException if something goes wrong while executing this method.
@@ -64,8 +69,9 @@ public interface VirtualMainServer extends Remote {
 
     /**
      * This method is used by client to join first available game
+     *
      * @param clientRMI is the {@link VirtualClient} of the RMI client who wants to join a game
-     * @param nickname is the nickname of the requesting player
+     * @param nickname  is the nickname of the requesting player
      * @return {@link VirtualGameServer} representing the game server (note that for clients connected to
      * same game, different {@link VirtualGameServer} will be returned). Returns <code>null</code> if action cannot be performed
      * or there are no available games.
@@ -76,9 +82,10 @@ public interface VirtualMainServer extends Remote {
     /**
      * This method is used by client to reconnect to server (after network disconnection,not
      * explicit disconnection).
+     *
      * @param clientRMI is the {@link VirtualClient} of the RMI client who wants to reconnect
-     * @param nickname is the nickname of the requesting client
-     * @param token is the private token of the client
+     * @param nickname  is the nickname of the requesting client
+     * @param token     is the private token of the client
      * @return {@link VirtualGameServer} representing the game server (note that for clients connected to
      * same game, different {@link VirtualGameServer} will be returned). Returns <code>null</code> if
      * reconnection cannot be performed (for example client is not registered in server) or client
@@ -90,8 +97,9 @@ public interface VirtualMainServer extends Remote {
     /**
      * This method is used by clients who need to explicitly disconnect themselves from server,
      * so both game and lobby.
+     *
      * @param clientRMI is {@link VirtualClient} of the requesting client
-     * @param nickname is the nickname of the requesting client
+     * @param nickname  is the nickname of the requesting client
      * @throws RemoteException if something goes wrong while performing the requested action
      */
     void disconnect(VirtualClient clientRMI, String nickname) throws RemoteException;
@@ -99,6 +107,7 @@ public interface VirtualMainServer extends Remote {
     /**
      * This method is used by client to notify {@link it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI}
      * that they are still alive.
+     *
      * @param clientRMI is the {@link VirtualClient} of the sender client
      * @throws RemoteException if something goes wrong while performing the requested action.
      */
@@ -107,8 +116,9 @@ public interface VirtualMainServer extends Remote {
     /**
      * This method is used by client to ask {@link it.polimi.ingsw.gc19.Networking.Server.ServerRMI.MainServerRMI}
      * about games it can join.
+     *
      * @param clientRMI is the {@link VirtualClient} of the sender client
-     * @param nickname is the nickname of the player
+     * @param nickname  is the nickname of the player
      * @throws RemoteException if something goes wrong while performing the requested action.
      */
     void requestAvailableGames(VirtualClient clientRMI, String nickname) throws RemoteException;
@@ -116,12 +126,11 @@ public interface VirtualMainServer extends Remote {
     /**
      * This method is used by clients who need to explicitly disconnect themselves from game
      * it is actually in, but not from the lobby.
+     *
      * @param clientRMI is {@link VirtualClient} of the requesting client
-     * @param nickname is the nickname of the requesting client
+     * @param nickname  is the nickname of the requesting client
      * @throws RemoteException if something goes wrong while performing the requested action
      */
     void disconnectFromGame(VirtualClient clientRMI, String nickname) throws RemoteException;
 
 }
-
-

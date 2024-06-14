@@ -506,6 +506,9 @@ public class GameController{
         this.gameAssociated.updateGoalPoints();
     }
 
+    /**
+     * Ends the game
+     */
     private synchronized void endGame() {
         this.calculateFinalResult();
         List<Player> sortedPlayers = this.gameAssociated.computeFinalScoreboard();

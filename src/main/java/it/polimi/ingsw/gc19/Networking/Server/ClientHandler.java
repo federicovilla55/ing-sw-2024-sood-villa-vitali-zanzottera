@@ -51,7 +51,7 @@ public abstract class ClientHandler extends Thread implements ObserverMessageToC
 
     /**
      * This method overrides {@link Thread#run()}. It is used to send message
-     * to client accordingly to his dynamic type. If an {@link InterruptedException}
+     * to client accordingly to its dynamic type. If an {@link InterruptedException}
      * occurs when <code>messageQueue</code> is not empty, thread will keep
      * sending the remaining messages, interrupts itself and returns.
      */

@@ -153,7 +153,7 @@ public class ClientController {
 
     /**
      * The method should be called when the client detects a disconnection.
-     * The client state is changed in Disconnect and a new thread tries to
+     * The client state is changed in {@link Disconnect} and a new thread tries to
      * reconnect the client sending requests at a fixed rate.
      */
     public synchronized void signalPossibleNetworkProblem(){
@@ -343,9 +343,9 @@ public class ClientController {
     }
 
     /**
-     * To handle a RefusedActionMessage handle and modify the client
+     * To handle a {@link RefusedActionMessage} handle and modify the client
      * state consequently.
-     * @param message RefusedActionMessage to analyze
+     * @param message {@link RefusedActionMessage} to analyze
      */
     public synchronized void handleError(RefusedActionMessage message){
         this.view.notifyGenericError(message.getDescription());
@@ -368,9 +368,9 @@ public class ClientController {
     }
 
     /**
-     * To handle a NetworkHandlingErrorMessage handle and modify the client
+     * To handle a {@link NetworkHandlingErrorMessage} handle and modify the client
      * state consequently.
-     * @param message NetworkHandlingErrorMessage to analyze
+     * @param message {@link NetworkHandlingErrorMessage} to analyze
      */
     public synchronized void handleError(NetworkHandlingErrorMessage message){
         if(message.getError() == NetworkError.COULD_NOT_RECONNECT){
@@ -389,9 +389,9 @@ public class ClientController {
     }
 
     /**
-     * To handle a GameHandlingError handle and modify the client
+     * To handle a {@link GameHandlingErrorMessage} handle and modify the client
      * state consequently.
-     * @param message GameHandlingError to analyze
+     * @param message {@link GameHandlingErrorMessage} to analyze
      */
     public synchronized void handleError(GameHandlingErrorMessage message){
         switch (message.getErrorType()){
@@ -429,7 +429,7 @@ public class ClientController {
     }
 
     /**
-     * To choose a goal card at the beginning of the game.
+     * To choose a {@link GoalCard} at the beginning of the game.
      * There should two cards to select from so the user should give a number
      * representing the selected card.
      * choose_goal(goalCardIndex)
@@ -449,7 +449,7 @@ public class ClientController {
     }
 
     /**
-     * To place the initial card at the beginning of the game vien its orientation.
+     * To place the initial card at the beginning of the game given its orientation.
      * place_initial_card(orientation)
      * @param cardOrientation the {@link CardOrientation} in which initial card has to be placed
      */
@@ -477,7 +477,7 @@ public class ClientController {
     }
 
     /**
-     * To notify the server that the player want to join the first available fame.
+     * To notify the server that the player want to join the first available game.
      * join_first_game()
      */
     public synchronized void joinFirstAvailableGame() {

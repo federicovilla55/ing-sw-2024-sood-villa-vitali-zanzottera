@@ -354,7 +354,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     }
 
     /**
-     * This method is used to notify {@link ClientHandlerRMI} that a card need to be placed.
+     * This method is used to notify {@link ClientHandlerRMI} that a card needs to be placed.
      * If client is disconnected, then the request is not performed.
      * @param cardToInsert the card that needs to be placed.
      * @param anchorCard the card from which to place the card.
@@ -383,11 +383,11 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
     /**
      * This method is used to notify send a chat message.
      * If client is disconnected, then the request is not performed.
-     * @param UsersToSend a list containing the nickname of the users to whom player want to send the message.
+     * @param usersToSend a list containing the nickname of the users to whom player want to send the message.
      * @param messageToSend the message player wants to send.
      */
     @Override
-    public void sendChatMessage(ArrayList<String> UsersToSend, String messageToSend){
+    public void sendChatMessage(ArrayList<String> usersToSend, String messageToSend){
         this.virtualServerMethodsInvoker.submit(() -> {
             if(this.clientController.isDisconnected()){
                 return;
@@ -395,7 +395,7 @@ public class ClientRMI extends UnicastRemoteObject implements VirtualClient, Cli
             synchronized (this.virtualGameServerLock) {
                 try {
                     if (this.virtualGameServer != null) {
-                        this.virtualGameServer.sendChatMessage(UsersToSend, messageToSend);
+                        this.virtualGameServer.sendChatMessage(usersToSend, messageToSend);
                     }
                 } catch (RemoteException e) {
                     signalPossibleNetworkProblem();

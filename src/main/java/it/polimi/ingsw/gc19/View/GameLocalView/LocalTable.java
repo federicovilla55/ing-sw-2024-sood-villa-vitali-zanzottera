@@ -9,22 +9,27 @@ import it.polimi.ingsw.gc19.Model.Card.PlayableCard;
  * It is created by the {@link LocalModel} class.
  */
 public class LocalTable {
+
     /**
      * The first resource card on the table.
      */
     private PlayableCard resource1;
+
     /**
      * The second resource card on the table.
      */
     private PlayableCard resource2;
+
     /**
      * The first gold card on the table.
      */
     private PlayableCard gold1;
+
     /**
      * The second gold card on the table.
      */
     private PlayableCard gold2;
+
     /**
      * The first public goal card on the table.
      */
@@ -91,7 +96,7 @@ public class LocalTable {
 
     /**
      * To return
-     * @return the first public Goal card on the table
+     * @return the first public goal card on the table
      */
     public GoalCard getPublicGoal1() {
         return publicGoal1;
@@ -99,15 +104,15 @@ public class LocalTable {
 
     /**
      * To return
-     * @return the second Public Goal card on the table
+     * @return the second public goal card on the table
      */
     public GoalCard getPublicGoal2() {
         return publicGoal2;
     }
 
     /**
-     * To set the first Gold card that will be shown in the table.
-     * @param gold1, the first Gold card that will be available to
+     * To set the first gold card that will be shown in the table.
+     * @param gold1 the first Gold card that will be available to
      *               pick in the table.
      */
     public void setGold1(PlayableCard gold1) {
@@ -115,8 +120,8 @@ public class LocalTable {
     }
 
     /**
-     * To set the second Gold card that will be shown in the table.
-     * @param gold2, the second Gold card that will be available to
+     * To set the second gold card that will be shown in the table.
+     * @param gold2 the second gold card that will be available to
      *               pick in the table.
      */
     public void setGold2(PlayableCard gold2) {
@@ -124,8 +129,8 @@ public class LocalTable {
     }
 
     /**
-     * To set the first Resource card that will be shown in the table.
-     * @param resource1, the first Resource card that will be available to
+     * To set the first resource card that will be shown in the table.
+     * @param resource1 the first resource card that will be available to
      *               pick in the table.
      */
     public void setResource1(PlayableCard resource1) {
@@ -133,8 +138,8 @@ public class LocalTable {
     }
 
     /**
-     * To set the second Resource card that will be shown in the table.
-     * @param resource2, the second Resource card that will be available to
+     * To set the second resource card that will be shown in the table.
+     * @param resource2 the second resource card that will be available to
      *               pick in the table.
      */
     public void setResource2(PlayableCard resource2) {
@@ -143,7 +148,7 @@ public class LocalTable {
 
     /**
      * To return
-     * @return the {@link Symbol} of the next card that will be picked from the Resource deck
+     * @return the {@link Symbol} of the next card that will be picked from the resource deck
      */
     public Symbol getNextSeedOfResourceDeck() {
         return nextSeedOfResourceDeck;
@@ -151,15 +156,15 @@ public class LocalTable {
 
     /**
      * To return
-     * @return the {@link Symbol} of the next card that will be picked from the Gold deck
+     * @return the {@link Symbol} of the next card that will be picked from the gold deck
      */
     public Symbol getNextSeedOfGoldDeck() {
         return nextSeedOfGoldDeck;
     }
 
     /**
-     * To set the {@link Symbol} of the next card that will be picked from the Gold deck.
-     * @param nextSeedOfGoldDeck, the {@link Symbol} that will be picked next from the Gold deck.
+     * To set the {@link Symbol} of the next card that will be picked from the gold deck.
+     * @param nextSeedOfGoldDeck the {@link Symbol} that will be picked next from the gold deck.
      */
     public void setNextSeedOfGoldDeck(Symbol nextSeedOfGoldDeck) {
         this.nextSeedOfGoldDeck = nextSeedOfGoldDeck;
@@ -167,10 +172,11 @@ public class LocalTable {
 
 
     /**
-     * To set the {@link Symbol} of the next card that will be picked from the Resource deck.
-     * @param nextSeedOfResourceDeck, the {@link Symbol} that will be picked next from the Resource deck.
+     * To set the {@link Symbol} of the next card that will be picked from the resource deck.
+     * @param nextSeedOfResourceDeck the {@link Symbol} that will be picked next from the resource deck.
      */
     public void setNextSeedOfResourceDeck(Symbol nextSeedOfResourceDeck) {
         this.nextSeedOfResourceDeck = nextSeedOfResourceDeck;
     }
+
 }

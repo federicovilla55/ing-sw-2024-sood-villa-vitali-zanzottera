@@ -95,7 +95,7 @@ public class GUIController implements UI, Listener{
      * This class is uses to create a dialog when a player is in a game, and he presses the closing "X" in the window menù.
      * The dialog asks the player if he wants to quit the game and return to the lobby but keeping the nickname to join
      * another game or if he wants to quit the game and disconnect from the server too.
-     * @param event a WindowEvent that represent the closing event, so when the "X" window button is pressed.
+     * @param event a {@link WindowEvent} that represent the closing event, so when the "X" window button is pressed.
      */
     public void closeWindowEvent(WindowEvent event) {
         if (this.clientController.getState() != ViewState.NOT_GAME &&
@@ -285,6 +285,11 @@ public class GUIController implements UI, Listener{
         });
     }
 
+    /**
+     * Sets appropriate background to the scene
+     * @param pane the base {@link Pane} on which scene is laid
+     * @param isDark <code>true</code> if background texture must be the darker one
+     */
     public void setBackground(Pane pane, Boolean isDark){
         Image backgroundImage = null;
         String location = "";

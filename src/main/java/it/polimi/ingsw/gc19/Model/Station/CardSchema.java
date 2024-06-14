@@ -60,7 +60,7 @@ class CardSchema{
      * @param anchor the {@link PlayableCard} used as anchor
      * @param dir the {@link Direction} in which card has to be placed
      * @throws InvalidCardException if station doesn't have the card to place.
-     * @return {@code true} if and only if there is card ver the anchor in the specified direction
+     * @return {@code true} if and only if there is card over the anchor in the specified direction
      */
     boolean cardOverAnchor(PlayableCard anchor, Direction dir) throws InvalidCardException{
         if(!this.cardPosition.containsKey(anchor)){
@@ -74,7 +74,7 @@ class CardSchema{
      * This method checks if {@code (x, y)} are available coords inside the matrix
      * @param x the x-coordinate
      * @param y the y-coordinate
-     * @return true if and only if {@code (x, y)} are valid coordinates
+     * @return {@code true} if and only if {@code (x, y)} are valid coordinates
      */
     private boolean checkCoords(int x, int y){
         return (0 <= x) && (x < ImportantConstants.gridDimension) && (0 <= y) && (y < ImportantConstants.gridDimension);

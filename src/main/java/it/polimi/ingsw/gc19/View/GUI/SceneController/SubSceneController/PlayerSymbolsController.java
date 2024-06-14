@@ -34,7 +34,7 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
     private TabPane tabPane;
 
     /**
-     * A hashmap that connects the name of each symbol to the corresponding image.
+     * A hashmap that connects the name of each {@link Symbol} to the corresponding image.
      */
     private HashMap<String, Image> symbolImages;
 
@@ -69,7 +69,7 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
     }
 
     /**
-     * The method to initializes the image of the symbols and save them in the hashmap.
+     * The method initializes the images of the symbols and save them in the hashmap.
      */
     private void initializeImages(){
         symbolImages = new HashMap<>();
@@ -141,7 +141,6 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
             playerTabs.put(nickname, symbolsContainer);
         }
     }
-
 
     /**
      * To update the number of each symbol of a player given its nickname

@@ -293,6 +293,11 @@ public class LocalStationController extends GUIController implements StationList
         }
     }
 
+    /**
+     * Makes the specified {@link PlayableCardButton} draggable form {@link #leftVBox}
+     * to {@link #centerPane}
+     * @param node the {@link Node} that must be made draggable
+     */
     private void makeCardDraggable(Node node){
         node.setOnMousePressed(e -> {
             if(super.getClientController().getState() == ViewState.SETUP || super.getClientController().getState() == ViewState.END) return;
@@ -375,7 +380,7 @@ public class LocalStationController extends GUIController implements StationList
 
     /**
      * Factory method for unswappable cards. They are represented
-     * as {@link ImageView} with both height and width property bounded
+     * as {@link ImageView} with both height and width properties bounded
      * to stage current width and height
      * @param symbol the {@link Symbol} of the card
      * @param type the {@link PlayableCardType} of the card
@@ -392,7 +397,7 @@ public class LocalStationController extends GUIController implements StationList
     }
 
     /**
-     * Initializes game area (e.g. {@link LocalStationController#centerPane}
+     * Initializes game area (e.g. {@link LocalStationController#centerPane})
      * containing current game (placed cards) of the owner player.
      * It builds also buttons for rescaling and centering  images inside
      * {@link LocalStationController#centerPane}.
@@ -459,6 +464,10 @@ public class LocalStationController extends GUIController implements StationList
         return color;
     }
 
+    /**
+     * Builds {@link #cardGrid} and fills it with {@link ImageView} of all {@link #renderedCards}
+     * @param placedCardSequence the order sequence of {@link PlayableCard} to be displayed
+     */
     public void buildCardGrid(List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
         //find first and last row with a card placed
         int firstRow = placedCardSequence.stream().mapToInt(x -> x.y().x()).min().orElse(0);
@@ -682,7 +691,7 @@ public class LocalStationController extends GUIController implements StationList
                 return;
             }
 
-            Tuple<Integer, Integer> coords = super.getLocalModel().getPersonalStation().getCoord(varArgs[2]);
+            Tuple<Integer, Integer> coords = super.getLocalModel().getPersonalStation().getCoords(varArgs[2]);
             int rowIndex = coords.x() + direction.getX() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().x()).min().orElse(0) - 1);
             int columnIndex = coords.y() + direction.getY() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().y()).min().orElse(0) - 1);
 

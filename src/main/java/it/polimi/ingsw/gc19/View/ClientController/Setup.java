@@ -3,7 +3,7 @@ package it.polimi.ingsw.gc19.View.ClientController;
 import it.polimi.ingsw.gc19.Networking.Server.Message.GameEvents.StartPlayingGameMessage;
 
 /**
- * This class represents a state represents where a client
+ * This class represents a state where a client
  * is connected and is in a game currently {@link ViewState#SETUP} state.
  */
 class Setup extends ClientState {

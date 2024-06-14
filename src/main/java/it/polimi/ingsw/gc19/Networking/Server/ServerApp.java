@@ -26,9 +26,24 @@ import java.util.Scanner;
  */
 public class ServerApp {
 
+    /**
+     * Connected {@link TCPConnectionAcceptor}
+     */
     private static TCPConnectionAcceptor TCPConnectionAcceptor;
+
+    /**
+     * The {@link MainServerRMI} for this server
+     */
     private static MainServerTCP mainServerTCP;
+
+    /**
+     * The {@link MainServerTCP} for this server
+     */
     private static MainServerRMI mainServerRMI;
+
+    /**
+     * The RMI registry used by the server
+     */
     private static Registry registry;
 
     public static void main(String[] args){

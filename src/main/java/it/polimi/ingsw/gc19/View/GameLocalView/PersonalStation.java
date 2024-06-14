@@ -57,18 +57,18 @@ public class PersonalStation extends LocalStationPlayer {
 
     /**
      * To add a card in the player hand.
-     * @param cardToAdd, the {@link PlayableCard} that the user wants to add in the hand
+     * @param cardToAdd the {@link PlayableCard} that the user wants to add in the hand
      */
     public void updateCardsInHand(PlayableCard cardToAdd){
         cardsInHand.add(cardToAdd);
     }
 
     /**
-     * To ask if a card is placeable in the personal station of the client.
-     * @param toPlace, the card the client wants to place.
-     * @param anchor, the anchor from which the client wants to place the card.
-     * @param direction, the direction of the cardToPlace from the anchor.
-     * @return a boolean containing True only if the card is placeable.
+     * To ask if a card is placeable in the {@link PersonalStation} of the client.
+     * @param toPlace the card the client wants to place.
+     * @param anchor the anchor from which the client wants to place the card.
+     * @param direction the direction of the cardToPlace from the anchor.
+     * @return a boolean containing {@code true} only if the card is placeable.
      */
     @Override
     public boolean cardIsPlaceable(PlayableCard anchor, PlayableCard toPlace, Direction direction) {
@@ -135,13 +135,13 @@ public class PersonalStation extends LocalStationPlayer {
     }
 
     /**
-     * Method used to place a card in the Personal Station given:
-     * @param anchorCardCode, the anchor card code of the card we want to place the card from.
-     * @param cardToPlace, the card we want to place.
-     * @param direction, the direction in which we want to place the card, given the anchor card.
+     * Method used to place a card in the {@link PersonalStation} given:
+     * @param anchorCardCode the anchor card code of the card we want to place the card from.
+     * @param cardToPlace the card we want to place.
+     * @param direction the direction in which we want to place the card, given the anchor card.
      */
     public void placeCard(PlayableCard cardToPlace, String anchorCardCode, Direction direction){
-        Tuple<Integer, Integer> coord = getCoord(anchorCardCode);
+        Tuple<Integer, Integer> coord = getCoords(anchorCardCode);
         coord = new Tuple<>(direction.getX() + coord.x(), direction.getY() + coord.y());
 
         /*
@@ -157,8 +157,8 @@ public class PersonalStation extends LocalStationPlayer {
     }
 
     /**
-     * To return the initial card of the Personal Station.
-     * @return the initial card of the Personal Station.
+     * To return the initial card of the {@link PersonalStation}.
+     * @return the initial card of the {@link PersonalStation}.
      */
     public PlayableCard getInitialCard() {
         return initialCard;

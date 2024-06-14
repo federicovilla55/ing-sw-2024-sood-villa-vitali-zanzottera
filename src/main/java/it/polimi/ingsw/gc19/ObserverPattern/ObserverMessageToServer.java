@@ -7,7 +7,7 @@ import java.net.Socket;
 
 public interface ObserverMessageToServer<T extends MessageToServer>{
     /**
-     * This method is used by {@link ObservableMessageToServer<T>} (e.g. {@link MessageToServerDispatcher}
+     * This method is used by {@link ObservableMessageToServer<T>} (e.g. {@link MessageToServerDispatcher})
      * to notify the object that a new message has arrived
      * @param senderSocket {@link Socket} from which message has arrived
      * @param message {@link MessageToServer} arrived

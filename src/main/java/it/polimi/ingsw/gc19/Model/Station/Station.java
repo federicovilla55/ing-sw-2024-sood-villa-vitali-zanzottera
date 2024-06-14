@@ -327,7 +327,7 @@ public class Station extends Publisher{
     }
 
     /**
-     * This method returns the number of specified pattern in card schema
+     * This method returns the number of specified pattern in{@link CardSchema}
      * @param moves the Arraylist of movement inside card schema
      * @param requiredSymbol the ArrayList of required seeds of each card in the pattern
      * @return the number of the specified pattern found

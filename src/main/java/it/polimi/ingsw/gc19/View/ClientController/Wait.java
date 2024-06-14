@@ -37,7 +37,7 @@ public class Wait extends ClientState {
 
     /**
      * This method handles {@link TurnStateMessage}. It sets {@link ViewState} of
-     * {@link ClientController} to {@link Pick} or {@link OtherTurn} depending on {@param message}
+     * {@link ClientController} to {@link Pick} or {@link OtherTurn} depending on <code>message</code>
      * @param message the {@link TurnStateMessage} to be handled
      */
     @Override
@@ -100,7 +100,6 @@ public class Wait extends ClientState {
             this.clientController.getView().setLocalModel(localModel);
         }
     }
-
 
     /**
      * This method handles {@link CreatedGameMessage}. It builds a new {@link LocalModel}

@@ -18,8 +18,9 @@ import java.util.Map;
  * It is created by the {@link LocalModel} class.
  */
 public class OtherStation extends LocalStationPlayer{
+
     /**
-     * Object uses as a Lock for the changes in the backCardHand list.
+     * Object uses as a lock for the changes in the {@link #backCardHand} list.
      */
     private final Object backHandLock;
 
@@ -59,7 +60,7 @@ public class OtherStation extends LocalStationPlayer{
 
     /**
      * To add a Tuple of {@link Symbol} and {@link PlayableCardType}
-     * @param cardToAdd, the Tuple of {@link Symbol} and {@link PlayableCardType} to add
+     * @param cardToAdd the {@link Tuple} of {@link Symbol} and {@link PlayableCardType} to add
      *                   to the cards in hand.
      */
     public void addBackCard(Tuple<Symbol,PlayableCardType> cardToAdd){
@@ -70,12 +71,12 @@ public class OtherStation extends LocalStationPlayer{
 
     /**
      * To place a card in the station given:
-     * @param cardToPlace, the {@link PlayableCard} to place.
-     * @param anchorCardCode, the card code of the anchor from which to place the card.
-     * @param direction, the direction in which the player want to place its card.
+     * @param cardToPlace the {@link PlayableCard} to place.
+     * @param anchorCardCode the card code of the anchor from which to place the card.
+     * @param direction the direction in which the player want to place its card.
      */
     public void placeCard(PlayableCard cardToPlace, String anchorCardCode, Direction direction){
-        Tuple<Integer, Integer> coord = getCoord(anchorCardCode);
+        Tuple<Integer, Integer> coord = getCoords(anchorCardCode);
         coord = new Tuple<>(direction.getX() + coord.x(), direction.getY() + coord.y());
 
         Tuple<Symbol,PlayableCardType> cardToRemove = new Tuple<>(cardToPlace.getSeed(),cardToPlace.getCardType());
@@ -88,11 +89,11 @@ public class OtherStation extends LocalStationPlayer{
     }
 
     /**
-     * To ask if a card is placeable given. For other stations it returns always false.
-     * @param cardToPlace, the card we want to place.
-     * @param anchor, the anchor card from which we want to place the card.
-     * @param direction, the direction in which we want to place the card.
-     * @return a boolean that is true only if the card can be placed in that position.
+     * To ask if a card is placeable given. For other stations it returns always {@code false}.
+     * @param cardToPlace the card we want to place.
+     * @param anchor the anchor card from which we want to place the card.
+     * @param direction the direction in which we want to place the card.
+     * @return a boolean that is {code true} only if the card can be placed in that position.
      */
     @Override
     public boolean cardIsPlaceable(PlayableCard cardToPlace, PlayableCard anchor, Direction direction) {
@@ -100,28 +101,28 @@ public class OtherStation extends LocalStationPlayer{
     }
 
     /**
-     * Returns a UnsupportedOperationException because the Client cannot have access to which card
-     * another player has chosen as their private Goal card.
-     * @param goalCard the wrongly chosen GoalCard from the array of private goal cards.
+     *
+     * @param goalCard the chosen {@link GoalCard} from the array of private goal cards.
+     * @throws UnsupportedOperationException because setting private goal cards is not possible for {@link OtherStation}
      */
     @Override
-    public void setPrivateGoalCard(GoalCard goalCard) {
+    public void setPrivateGoalCard(GoalCard goalCard) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * Returns a UnsupportedOperationException because the Client cannot have access to which card
-     * another player has chosen as their private Goal card.
-     * @param cardIdx the wrongly chosen index of the card from the array of private goal cards.
+     *
+     * @param cardIdx the index of the card from the array of private goal cards.
+     * @throws UnsupportedOperationException because setting private goal cards is not possible for {@link OtherStation}
      */
     @Override
-    public void setPrivateGoalCard(int cardIdx) {
+    public void setPrivateGoalCard(int cardIdx) throws UnsupportedOperationException{
         throw new UnsupportedOperationException();
     }
 
     /**
      * To set the cards that another player has in its hand.
-     * @param backCardHand, the list of Tuple of {@link Symbol} and {@link PlayableCardType}
+     * @param backCardHand the list of Tuple of {@link Symbol} and {@link PlayableCardType}
      *                      containing the hand of another player.
      */
     public void setBackCardHand(ArrayList<Tuple<Symbol,PlayableCardType>> backCardHand) {

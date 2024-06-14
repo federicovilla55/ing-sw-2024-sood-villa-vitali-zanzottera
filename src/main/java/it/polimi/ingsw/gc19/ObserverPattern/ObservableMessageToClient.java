@@ -43,7 +43,7 @@ public interface ObservableMessageToClient<T extends MessageToClient>{
 
     /**
      * This method is used by {@link ObservableMessageToServer<T>} to notify named
-     * observers (e.g. {@link ClientHandler} with a {@link MessageToClient}.
+     * observers (e.g. {@link ClientHandler}) with a {@link MessageToClient}.
      * @param message the {@link MessageToClient} to be broadcast.
      */
     void notifyNamedObservers(MessageToClient message);

@@ -180,6 +180,10 @@ public class TUIView implements UI, GeneralListener {
         }
     }
 
+    /**
+     * Prints to screen all the available configurations
+     * @param configs all the available configurations to be printed
+     */
     private static void printAvailableConfigs(List<Configuration> configs) {
         int confNumber = 1;
         for (Configuration config : configs) {
@@ -191,10 +195,6 @@ public class TUIView implements UI, GeneralListener {
         }
     }
 
-    /**
-     * Constructs a new TUIView instance with a given command parser.
-     * @param commandParser The command parser for parsing the commands a user gives.
-     */
     public TUIView(CommandParser commandParser) {
         this.commandParser = commandParser;
         this.clientController = commandParser.getClientController();
@@ -211,7 +211,7 @@ public class TUIView implements UI, GeneralListener {
 
     /**
      * Sets the local model of the TUI game.
-     * @param localModel The local model of the current game.
+     * @param localModel The {@link LocalModel} of the current game.
      */
     public void setLocalModel(LocalModel localModel){
         this.localModel = localModel;
@@ -464,9 +464,9 @@ public class TUIView implements UI, GeneralListener {
     }
 
     /**
-     * Creates a dummy PlayableCard with the specified symbol.
-     * @param symbol The symbol for the dummy card.
-     * @return A dummy PlayableCard instance.
+     * Creates a dummy {@link PlayableCard} with the specified symbol.
+     * @param symbol The {@link Symbol} for the dummy card.
+     * @return A dummy {@link PlayableCard} instance.
      */
     private PlayableCard dummyPlayableCard(Symbol symbol) {
         return new PlayableCard(
@@ -490,7 +490,7 @@ public class TUIView implements UI, GeneralListener {
     /**
      * Generates a textual representation of the player area for the TUI.
      *
-     * @param placedCardSequence a list containing PlayableCards and their relative positions.
+     * @param placedCardSequence a list containing {@link PlayableCard}s and their relative positions.
      * @return A matrix of strings representing the player area for the TUI.
      */
     String[][] playerAreaTUIView(List<Tuple<PlayableCard, Tuple<Integer, Integer>>> placedCardSequence) {
@@ -753,7 +753,7 @@ public class TUIView implements UI, GeneralListener {
     /**
      * Generates a textual representation of the scoreboard for a single player to display in the TUI.
      *
-     * @param localStationPlayer The local stations from which the scoreboard is generated.
+     * @param localStationPlayer Th{@link LocalStationPlayer}  from which the scoreboard is generated.
      * @return A matrix of strings representing the scoreboard for the player for the TUI.
      */
     String[][] scoreboardTUIView(LocalStationPlayer... localStationPlayer) {
@@ -874,7 +874,7 @@ public class TUIView implements UI, GeneralListener {
 
     /**
      * Generates a description of a goal card and its effect to display in the TUI.
-     * @param card The goal card to be displayed.
+     * @param card The {@link GoalCard} to be displayed.
      * @return A matrix of strings representing the goal card in the TUI.
      */
     public String[][] goalCardEffectTUIView(GoalCard card) {
@@ -882,9 +882,9 @@ public class TUIView implements UI, GeneralListener {
     }
 
     /**
-     * Generates a description of a playable card for display in the TUI.
-     * @param card The playable card to be displayed.
-     * @return A matrix of strings representing the playable card.
+     * Generates a description of a {@link PlayableCard} for display in the TUI.
+     * @param card The {@link PlayableCard} to be displayed.
+     * @return A matrix of strings representing the {@link PlayableCard}.
      */
     public String[][] playableCardEffectTUIView(PlayableCard card) {
         return card.getEffectView(this);
@@ -929,7 +929,7 @@ public class TUIView implements UI, GeneralListener {
     }
 
     /**
-     * Generates a textual representation of the effect of a goal card with its symbol effect
+     * Generates a textual representation of the effect of a {@link GoalCard} with its symbol effect
      * for display in the user interface. The symbol effect consist of having a required number
      * of symbols that give points to the player.
      * @param symbolEffect the symbol effect that will be printed in the TUI
@@ -1422,6 +1422,9 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
+    /**
+     * To render {@link PersonalStation} in a TUI manner
+     */
     private void printPersonalStation(){
         if(this.localModel == null) return;
 
@@ -1438,6 +1441,11 @@ public class TUIView implements UI, GeneralListener {
         System.out.println("\n");
     }
 
+    /**
+     * Gets all {@link LocalStationPlayer} for the associated game
+     * @return a {@link Record} describing all the {@link LocalStationPlayer} of the
+     * players connected to the game
+     */
     @NotNull
     private TUIView.StationInfos getStations() {
         PersonalStation personalStation = this.localModel.getPersonalStation();
@@ -1450,7 +1458,7 @@ public class TUIView implements UI, GeneralListener {
 
     /**
      * To print the station of another player, the scoreboard and the table.
-     * The player's nickname whose station is printed is saved in currentViewPlayer.
+     * The player's nickname whose station is printed is saved in {@link #currentViewPlayer}.
      */
     private void printOtherStation(){
         if(this.localModel == null) return;
@@ -1564,7 +1572,6 @@ public class TUIView implements UI, GeneralListener {
         System.out.println();
     }
 
-
     /**
      * To print the helper of a specific state of the game.
      * This helper will print just the actions that the client can actually use in a
@@ -1615,7 +1622,10 @@ public class TUIView implements UI, GeneralListener {
         }
     }
 
-    public void printCommonPlayingActions(){
+    /**
+     * To print common commands in all TUI states
+     */
+    private void printCommonPlayingActions(){
         System.out.println("-> " + CommandType.SEND_CHAT_MESSAGE.getCommandName() + "(message content): to send the 'content' of the message (receiver1, ...) to send the message to one or more players;");
         System.out.println("-> show_private_goal_card(): to show your private goal card/s;");
         System.out.println("-> show_public_goal_cards(): to show the public goal cards;");

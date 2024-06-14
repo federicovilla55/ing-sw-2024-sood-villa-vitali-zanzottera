@@ -32,8 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link PersonalStation}
  * {@link LocalTable}
  */
-
 public class LocalModel {
+
     /**
      * The attribute contains the Local Stations ({@link LocalStationPlayer})
      * of each player of the game the client is currently playing in.
@@ -132,20 +132,20 @@ public class LocalModel {
     }
 
     /**
-     * Method used to set the ListenersManager, used to handle the listeners
+     * Method used to set the {@link ListenersManager}, used to handle the listeners
      * that listen and notify the view of changes or events generated
      * during the game.
-     * @param listenersManager, the ListenersManager that will notify the view.
+     * @param listenersManager the ListenersManager that will notify the view.
      */
     public void setListenersManager(ListenersManager listenersManager){
         this.listenersManager = listenersManager;
     }
 
     /**
-     * To set the personal station after a
+     * To set the {@link PersonalStation} after a
      * {@link OwnStationConfigurationMessage}
      * is arrived.
-     * @param localStation, PersonalStation instance created by the
+     * @param localStation {@link PersonalStation} instance created by the
      *                      {@link MessageHandler}
      *                      after the message cited above is arrived.
      */
@@ -181,8 +181,8 @@ public class LocalModel {
 
     /**
      * Message used to add the cards contained in a station to the map
-     * that contains all the Cards that have been played so far.
-     * @param station, LocalStationPlayer from which retrieve the cards.
+     * that contains all the {@link PlayableCard} that have been played so far.
+     * @param station {@link LocalStationPlayer} from which retrieve the cards.
      */
     private void addCardsFromStationToMap(LocalStationPlayer station){
         synchronized (previousPlayableCards){
@@ -195,9 +195,9 @@ public class LocalModel {
     }
 
     /**
-     * To return the Personal Station.
-     * @return the element of the playerStations whose key is equal
-     * to the nickname of the client, so its PersonalStation.
+     * To return the {@link PersonalStation}.
+     * @return the element of the {@link #playerStations} whose key is equal
+     * to the nickname of the client, so its {@link PersonalStation}.
      */
     public PersonalStation getPersonalStation() {
         synchronized (playerStations) {
@@ -214,7 +214,7 @@ public class LocalModel {
     }
 
     /**
-     * To add the station of another player to the map containing all the Stations.
+     * To add the station of another player to the map containing all the stations.
      * @param nickname the nickname whose map we want to add.
      * @param otherStation the station we want to save.
      */
@@ -229,8 +229,8 @@ public class LocalModel {
     }
 
     /**
-     * To change the state {@link State} of a player to INACTIVE.
-     * @param nickname, the nickname of the player we want to set inactive.
+     * To change the state {@link State} of a player to {@link State#INACTIVE}.
+     * @param nickname the nickname of the player we want to set inactive.
      */
     public void setPlayerInactive(String nickname){
         synchronized (playerState) {
@@ -240,8 +240,8 @@ public class LocalModel {
     }
 
     /**
-     * To set the state {@link State} of a player to ACTIVE.
-     * @param nickname the nickname of the player to set its state to ACTIVE.
+     * To set the state {@link State} of a player to {@link State#ACTIVE}.
+     * @param nickname the nickname of the player to set its state to {@link State#ACTIVE}.
      */
     public void setPlayerActive(String nickname){
         if(this.playerState.get(nickname) == State.INACTIVE) {
@@ -273,7 +273,7 @@ public class LocalModel {
 
     /**
      * To set the color of the pawn in the personal station.
-     * @param color, the color of the pawn the client chose.
+     * @param color the color of the pawn the client chose.
      */
     public void setColor(Color color){
         synchronized (this.playerStations) {
@@ -289,6 +289,11 @@ public class LocalModel {
         }
     }
 
+    /**
+     * To set the color of the pawn in the personal station.
+     * @param color the color of the pawn the client chose.
+     * @param nick the nickname of the player who choose the {@link Color}
+     */
     public void setColor(String nick, Color color){
         synchronized (this.playerStations) {
             this.playerStations.get(nick).setChosenColor(color);
@@ -301,7 +306,7 @@ public class LocalModel {
     /**
      * To control if the client has already chosen its pawn color.
      * @return a boolean that is true if the {@link Color} associated
-     * to the Client's personal station is not null.
+     * to the client's personal station is not <code>null</code>>.
      */
     public boolean isColorChosen(){
         synchronized (this.playerStations){
@@ -312,10 +317,10 @@ public class LocalModel {
     /**
      * This method is called after a {@link AcceptedPlacePlayableCardMessage} is received
      * Method used to place a card in a Station ({@link LocalStationPlayer}) given:
-     * @param nickname, the name of the player in which station we want to place the card.
-     * @param anchorCode, the anchor card code of the card we want to place the card from.
-     * @param cardToPlace, the card we want to place.
-     * @param direction, the direction in which we want to place the card, given the anchor card.
+     * @param nickname the name of the player in which station we want to place the card.
+     * @param anchorCode the anchor card code of the card we want to place the card from.
+     * @param cardToPlace the card we want to place.
+     * @param direction the direction in which we want to place the card, given the anchor card.
      */
     public void placeCard(String nickname, String anchorCode, PlayableCard cardToPlace, Direction direction) {
         synchronized (this.playerStations) {
@@ -340,7 +345,7 @@ public class LocalModel {
     /**
      * To place the initial card given:
      * @param nickname the nickname of the player that wants its initial card to be placed.
-     * @param initialCard the {@link PlayableCard} containing the initialcard the user wants to place.
+     * @param initialCard the {@link PlayableCard} containing the initial card the user wants to place.
      */
     public void placeInitialCard(String nickname, PlayableCard initialCard){
         synchronized (playerStations) {
@@ -366,14 +371,14 @@ public class LocalModel {
     /**
      * To check if the client has finished its local setup actions: choosing color,
      * setting the private goal and placing the initial card.
-     * @return a boolean containing True if the setup phase is ended.
+     * @return a boolean containing {@code true} if the setup phase is ended.
      */
     private boolean finishedLocalSetup(){
         return this.getPersonalStation().getChosenColor() != null && this.getPersonalStation().getPrivateGoalCardInStation() != null && !this.getPersonalStation().getPlacedCardSequence().isEmpty();
     }
 
     /**
-     * To set the nickname of the Client.
+     * To set the nickname of the client.
      * @param nickname the nickname of the client.
      */
     public void setNickname(String nickname) {
@@ -389,11 +394,11 @@ public class LocalModel {
     }
 
     /**
-     * To ask if a card is placeable in the personal station of the client.
-     * @param cardToPlace, the card the client wants to place.
-     * @param anchor, the anchor from which the client wants to place the card.
-     * @param direction, the direction of the cardToPlace from the anchor.
-     * @return a boolean containing True only if the card is placeable.
+     * To ask if a card is placeable in the {@link PersonalStation} of the client.
+     * @param cardToPlace the card the client wants to place.
+     * @param anchor the anchor from which the client wants to place the card.
+     * @param direction the direction of the cardToPlace from the anchor.
+     * @return a boolean containing true only if the card is placeable.
      */
     public boolean isCardPlaceablePersonalStation(PlayableCard cardToPlace, PlayableCard anchor, Direction direction){
         return this.playerStations.get(this.nickname).cardIsPlaceable(anchor, cardToPlace, direction);
@@ -401,7 +406,7 @@ public class LocalModel {
 
     /**
      * To add a playable card in the personal station {@link PersonalStation} hand.
-     * @param playableCard, the playable {@link PlayableCard}
+     * @param playableCard the playable {@link PlayableCard}
      *                      card the client wants to add to its hand.
      */
     public void updateCardsInHand(PlayableCard playableCard){
@@ -433,9 +438,9 @@ public class LocalModel {
     /**
      * After a message {@link AcceptedPickCardFromTable} arrived.
      * To update the cards in table after a card is picked, given:
-     * @param playableCard, the card that is now in the Table.
-     * @param playableCardType, the type of the card that is now in the top of the deck.
-     * @param position, the position from which the card was picked.
+     * @param playableCard the card that is now in the Table.
+     * @param playableCardType the type of the card that is now in the top of the deck.
+     * @param position the position from which the card was picked.
      */
     public void updateCardsInTable(PlayableCard playableCard, PlayableCardType playableCardType, int position){
         synchronized (this.lockTable) {
@@ -466,7 +471,7 @@ public class LocalModel {
 
     /**
      * To return the stations of the other players.
-     * @return an hashmap containing the stations of the other players and their nicknames.
+     * @return a hashmap containing the stations of the other players and their nicknames.
      */
     public ConcurrentHashMap<String, OtherStation> getOtherStations() {
         ConcurrentHashMap<String, OtherStation> otherStations =
@@ -498,7 +503,7 @@ public class LocalModel {
 
     /**
      * To set the table after a message {@link TableConfigurationMessage} is received.
-     * @param table, the table created by the {@link MessageHandler}
+     * @param table the table created by the {@link MessageHandler}
      */
     public void setTable(LocalTable table) {
         synchronized (this.lockTable) {
@@ -534,8 +539,8 @@ public class LocalModel {
 
     /**
      * To return the information of the next card the player can pick from the deck:
-     * @param type, the type of the card.
-     * @param symbol, the symbols of the card.
+     * @param type the type of the card.
+     * @param symbol the symbols of the card.
      */
     public void setNextSeedOfDeck(PlayableCardType type, Symbol symbol) {
         switch (type) {
@@ -548,7 +553,7 @@ public class LocalModel {
 
     /**
      * To set the first player in the game. The first player is the one with the black pawn.
-     * @param firstPlayer, the nickname of the first player.
+     * @param firstPlayer the nickname of the first player.
      */
     public void setFirstPlayer(String firstPlayer) {
         this.firstPlayer = firstPlayer;
@@ -564,7 +569,7 @@ public class LocalModel {
 
     /**
      * To set the:
-     * @param numPlayers, the number of players in the game.
+     * @param numPlayers the number of players in the game.
      */
     public void setNumPlayers(int numPlayers) {
         this.numPlayers = numPlayers;
@@ -588,7 +593,7 @@ public class LocalModel {
 
     /**
      * To set the
-     * @param availableColors, the list of colors from which the client
+     * @param availableColors the list of colors from which the client
      *                         can choose the color of its pawn.
      */
     public void setAvailableColors(List<Color> availableColors) {
@@ -608,7 +613,7 @@ public class LocalModel {
 
     /**
      * To add a message to the list containing the chat messages.
-     * @param message, a new received message.
+     * @param message a new received chat message.
      */
     public void updateMessages(Message message){
         synchronized (this.messages){
@@ -628,9 +633,9 @@ public class LocalModel {
     }
 
     /**
-     * To return the goal card previously chosen or available in the table.
+     * To return the {@link GoalCard} previously chosen or available in the table.
      * @param cardCode, the code of the goal card we want to have information from.
-     * @return the goalcard whoose card code was given as a parameter.
+     * @return the {@link GoalCard} whose card code was given as a parameter.
      */
     public GoalCard getGoalCard(String cardCode){
         synchronized (this.previousGoalCards){
@@ -640,8 +645,8 @@ public class LocalModel {
 
     /**
      * To get a placed or given playable card given its code.
-     * @param cardCode, the code of the available card.
-     * @return the Playable card.
+     * @param cardCode the code of the available card.
+     * @return the {@link PlayableCard}.
      */
     public PlayableCard getPlayableCard(String cardCode){
         synchronized (this.previousPlayableCards){
@@ -680,7 +685,7 @@ public class LocalModel {
     /**
      * To set the visible symbols of a certain station.
      * @param nickname the nickname whose station we want to update.
-     * @param visibleSymbols a map containing for each symbol the numer of times that it is visible in the station.
+     * @param visibleSymbols a map containing for each symbol the number of times that it is visible in the station.
      */
     public void setVisibleSymbols(String nickname, Map<Symbol, Integer> visibleSymbols){
         synchronized (this.playerStations){
@@ -696,7 +701,7 @@ public class LocalModel {
 
     /**
      * To return the state of a player given its nickname.
-     * @param nickname, the nickname from which we want to retrieve the state.
+     * @param nickname the nickname from which we want to retrieve the state.
      * @return the state of the player. {@link State}
      */
     public State getPlayerState(String nickname){
@@ -737,4 +742,5 @@ public class LocalModel {
     public ArrayList<String> getWinners() {
         return winners;
     }
+
 }

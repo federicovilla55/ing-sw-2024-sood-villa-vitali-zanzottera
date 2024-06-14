@@ -68,27 +68,31 @@ public class ScoreboardController extends GUIController implements StationListen
      * The Image contains the image of the blue pawn.
      */
     private final Image bluePawnImage;
+
     /**
      * The Image contains the image of the red pawn.
      */
     private final Image redPawnImage;
+
     /**
      * The Image contains the image of the green pawn.
      */
     private final Image greenPawnImage;
+
     /**
      * The Image contains the image of the yellow pawn.
      */
     private final Image yellowPawnImage;
 
     /**
-     * A hashmap that connects each color, represented as a lowercase string, to its imageview.
+     * A hashmap that connects each color, represented as a lowercase string, to its {@link ImageView}.
      * This is used when updating the position of the pawns on the scoreboard.
      */
     private final HashMap<String, ImageView> pawnScoreboard = new HashMap<>();
+
     /**
      * A hashmap that connects each point in the scoreboard (numbers between 0 and 29) to an array that contains
-     * the ImageView of the pawn in that positions.
+     * the {@link ImageView} of the pawn in that positions.
      */
     private final HashMap<Integer, ArrayList<ImageView>> pawnPositions = new HashMap<>();
 
@@ -98,7 +102,7 @@ public class ScoreboardController extends GUIController implements StationListen
     private Image scoreboardImage;
 
     /**
-     * An ImageView with the scoreboard image
+     * An {@link ImageView} with the scoreboard image
      */
     private ImageView scoreboardView;
 
@@ -330,7 +334,7 @@ public class ScoreboardController extends GUIController implements StationListen
      * The method implements a listener to the location of the mouse so that if a mouse is over a pawn, that pawn
      * is brought behind the scoreboard. This is useful if a user wants to see the points of a player but the pawn
      * is hiding the points number in the scoreboard.
-     * @param pawnImageView the ImageView that we want to be hidden when a mouse is above that.
+     * @param pawnImageView the {@link ImageView} that we want to be hidden when a mouse is above that.
      */
     private void addMouseHoverListener(ImageView pawnImageView) {
         pawnImageView.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
@@ -338,7 +342,7 @@ public class ScoreboardController extends GUIController implements StationListen
 
 
             Timeline beat = new Timeline(
-                    new KeyFrame(Duration.seconds(0.5), e -> {
+                    new KeyFrame(Duration.seconds(1), e -> {
                         pawnImageView.toFront();
                     })
             );

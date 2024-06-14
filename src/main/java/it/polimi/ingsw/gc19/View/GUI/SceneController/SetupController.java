@@ -50,7 +50,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
     private TabPane tabPane;
 
     /**
-     * All sub-scene controllers that {@link SetupController} requires
+     * One of the sub-scene controllers that {@link SetupController} requires
      */
     private GUIController chatController, tableController, localStationController;
 

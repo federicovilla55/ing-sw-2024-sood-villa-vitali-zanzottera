@@ -23,8 +23,8 @@ import java.util.List;
  * From the creation of the player, to the creation of the game, to the various states of the game
  * and the pause or disconnect phases.
  */
-
 public abstract class ClientState {
+
     /**
      * Instance of the class used to forward the actions given by the user
      * through commands to the client network interface.
@@ -179,7 +179,7 @@ public abstract class ClientState {
     }
 
     /**
-     * To update the client after a GameHandlingError is arrived.
+     * To update the client after a {@link GameHandlingErrorMessage} is arrived.
      * The client should return from the WAIT to its previously state.
      * @param message a {@link GameHandlingErrorMessage} from the server.
      */
@@ -188,7 +188,7 @@ public abstract class ClientState {
     }
 
     /**
-     * To update the client state after a Network error happened.
+     * To update the client state after a network error happened.
      * @param message a {@link NetworkHandlingErrorMessage}
      */
     public void nextState(NetworkHandlingErrorMessage message) {
@@ -235,7 +235,7 @@ public abstract class ClientState {
 
     /**
      * Handles a {@link TurnStateMessage} and first player. For example, if
-     * {@param activePlayer} is the user, then it sets current state in
+     * <code>activePlayer</code> is the user, then it sets current state in
      * {@link ClientController} to {@link ViewState#PICK} ot {@link ViewState#PLACE}
      * @param activePlayer the nickname of the player in turn
      * @param nickname the nickname of the user
