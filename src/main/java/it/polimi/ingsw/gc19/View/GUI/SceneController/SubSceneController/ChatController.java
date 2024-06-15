@@ -72,6 +72,10 @@ public class ChatController extends GUIController implements ChatListener, Local
         receivers.getItems().clear();
         if(this.getLocalModel() != null && this.getLocalModel().getOtherStations() != null){
             receivers.getItems().addAll(this.getLocalModel().getOtherStations().keySet());
+            if(receivers.getItems().isEmpty()){
+                receivers.setDisable(true);
+                sendButton.setDisable(true);
+            }
             //receivers.getCheckModel().check(this.getLocalModel().getNickname());
         }
 
@@ -168,8 +172,19 @@ public class ChatController extends GUIController implements ChatListener, Local
     public void notify(LocalModelEvents type, LocalModel localModel, String... varArgs) {
         Platform.runLater(() -> {
             switch (type){
-                case LocalModelEvents.NEW_PLAYER_CONNECTED, LocalModelEvents.RECONNECTED_PLAYER -> this.receivers.getItems().add(varArgs[0]);
-                case LocalModelEvents.DISCONNECTED_PLAYER -> this.receivers.getItems().remove(varArgs[0]);
+                case LocalModelEvents.NEW_PLAYER_CONNECTED,
+                        LocalModelEvents.RECONNECTED_PLAYER -> {
+                    this.receivers.getItems().add(varArgs[0]);
+                    this.receivers.setDisable(false);
+                    this.sendButton.setDisable(true);
+                }
+                case LocalModelEvents.DISCONNECTED_PLAYER -> {
+                    this.receivers.getItems().remove(varArgs[0]);
+                    if(this.receivers.getItems().isEmpty()){
+                        this.receivers.setDisable(true);
+                        this.sendButton.setDisable(true);
+                    }
+                }
             }
         });
     }
