@@ -6,7 +6,7 @@
 Digital version of the board game *Codex Naturalis*.
 </div>
 
-# Screenshots
+## Screenshots
 <p float="left" align="center">
   <img src="assets/lobby.png" width="45%" />
   <img src="assets/setup.png" width="45%" /> 
@@ -46,6 +46,14 @@ Those are the functionalities we have implemented:
 | Chat                         |  :white_check_mark:  |
 
 </div>
+
+# Code Coverage
+
+![Coverage.png](deliverables/Coverage.png)
+
+To obtain code coverage, right click on `src/test/java` folder and run with Coverage
+
+![howtocover.jpg](assets/howtocover.jpg)
 
 # How to compile
 
