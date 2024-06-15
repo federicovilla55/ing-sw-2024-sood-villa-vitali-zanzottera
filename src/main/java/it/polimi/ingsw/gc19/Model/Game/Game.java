@@ -166,10 +166,13 @@ public class Game extends Publisher{
 
         Comparator<Player> byGoalPoints = Comparator.comparing((Player p) -> p.getStation().getPointsFromGoals()).reversed();
         Comparator<Player> byStationPoints = Comparator.comparing((Player p) -> p.getStation().getNumPoints()).reversed();
+        Comparator<Player> byNumberOfSatisfiedGoals = Comparator.comparing(Player::getNumberOfSatisfiedGoals);
 
         List<Player> sortedPlayers;
         sortedPlayers = players.stream()
-                .sorted(byStationPoints.thenComparing(byGoalPoints))
+                .sorted(byStationPoints
+                                .thenComparing(byGoalPoints)
+                                .thenComparing(byNumberOfSatisfiedGoals))
                 .collect(Collectors.toList());
 
         return sortedPlayers;
@@ -602,13 +605,24 @@ public class Game extends Publisher{
      * Update goal points. Public goals and private goal are used.
      */
     public void updateGoalPoints(){
+        int pointsFromGoal1, pointsFromGoal2, pointsFromPrivateGoal;
+
         for(Player p : players){
-            int pointsFromGoals = 0;
+            int numberOfSatisfiedGoals = 0;
+
             Station station = p.getStation();
-            pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[0]);
-            pointsFromGoals += station.updatePoints(this.publicGoalCardsOnTable[1]);
-            pointsFromGoals += station.updatePoints(station.getPrivateGoalCard());
-            p.getStation().setPointsFromGoals(pointsFromGoals);
+
+            pointsFromGoal1 = station.updatePoints(this.publicGoalCardsOnTable[0]);
+            if(pointsFromGoal1 > 0) numberOfSatisfiedGoals++;
+
+            pointsFromGoal2 = station.updatePoints(this.publicGoalCardsOnTable[1]);
+            if(pointsFromGoal2 > 0) numberOfSatisfiedGoals++;
+
+            pointsFromPrivateGoal = station.updatePoints(station.getPrivateGoalCard());
+            if(pointsFromPrivateGoal > 0) numberOfSatisfiedGoals++;
+
+            p.getStation().setPointsFromGoals(pointsFromGoal1 + pointsFromGoal2 + pointsFromPrivateGoal);
+            p.setNumberOfSatisfiedGoals(numberOfSatisfiedGoals);
         }
     }
 

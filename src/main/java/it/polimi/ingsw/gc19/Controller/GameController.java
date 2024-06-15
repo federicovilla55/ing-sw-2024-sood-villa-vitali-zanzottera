@@ -523,7 +523,8 @@ public class GameController{
             winnerPlayers.add(p);
         }while(!sortedPlayers.isEmpty()
                 && sortedPlayers.getFirst().getStation().getNumPoints() == p.getStation().getNumPoints()
-                && sortedPlayers.getFirst().getStation().getPointsFromGoals() == p.getStation().getPointsFromGoals());
+                && sortedPlayers.getFirst().getStation().getPointsFromGoals() == p.getStation().getPointsFromGoals()
+                && sortedPlayers.getFirst().getNumberOfSatisfiedGoals() == p.getNumberOfSatisfiedGoals());
 
         this.gameAssociated.setGameState(GameState.END);
         this.messageFactory.sendMessageToAllGamePlayers(

@@ -14,6 +14,7 @@ import it.polimi.ingsw.gc19.Networking.Server.Message.Action.AcceptedAnswer.Acce
  * Each player has a name, {@link Color}, and a {@link Station}.
  */
 public class Player extends Publisher {
+
     /**
      * The name of the player.
      */
@@ -30,6 +31,11 @@ public class Player extends Publisher {
     private final Station playerStation;
 
     /**
+     * Number of goals (public or private) satisfied by player
+     */
+    private int numberOfSatisfiedGoals;
+
+    /**
      * Constructs a new player with the specified name, initial card and possible private goals.
      *
      * @param name             the name of the player
@@ -41,11 +47,27 @@ public class Player extends Publisher {
         super();
         this.name = name;
         this.playerStation = new Station(this, initialCard, privateGoalCard1, privateGoalCard2);
+        this.numberOfSatisfiedGoals = 0;
+    }
+
+    /**
+     * Setter for {@link #numberOfSatisfiedGoals}
+     * @param numberOfSatisfiedGoals the number of satisfied goals to be set
+     */
+    public void setNumberOfSatisfiedGoals(int numberOfSatisfiedGoals) {
+        this.numberOfSatisfiedGoals = numberOfSatisfiedGoals;
+    }
+
+    /**
+     * Getter for {@link #numberOfSatisfiedGoals}
+     * @return the current {@link #numberOfSatisfiedGoals}
+     */
+    public int getNumberOfSatisfiedGoals() {
+        return numberOfSatisfiedGoals;
     }
 
     /**
      * Sets the message factory for the player and its station.
-     *
      * @param messageFactory the message factory to set
      */
     @Override
