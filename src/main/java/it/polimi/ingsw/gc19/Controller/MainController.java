@@ -253,7 +253,6 @@ public class MainController {
                 try {
                     gameToBuild = new Game(numPlayer, gameName, randomSeed);
                 } catch (IOException exception) {
-                    System.out.println(exception.getClass() + "\n" + exception.getMessage() + "\n " + exception.getCause());
                     player.update(new GameHandlingErrorMessage(Error.CANNOT_BUILD_GAME,
                                                                "Cannot build game because there is an IO Exception. Try later...")
                                           .setHeader(player.getUsername()));

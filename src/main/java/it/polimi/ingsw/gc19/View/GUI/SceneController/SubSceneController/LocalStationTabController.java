@@ -91,7 +91,6 @@ public class LocalStationTabController extends GUIController implements LocalMod
                 if(this.getLocalModel().getNickname().equals(l.getOwnerPlayer())) {
                     this.stations.getTabs().addFirst(tab);
                     stations.getSelectionModel().select(currentTab);
-                    System.out.println(l.getOwnerPlayer());
                 }else {
                     this.stations.getTabs().add(tab);
                 }

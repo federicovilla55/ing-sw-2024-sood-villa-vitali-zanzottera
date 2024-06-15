@@ -154,7 +154,6 @@ public class PaneFireworks {
             }
         }
 
-        System.out.println("Background restored");
         for(Node n : background.getChildrenUnmodifiable()){
             n.setOpacity(1);
         }
