@@ -1344,8 +1344,14 @@ public class TUIView implements UI, GeneralListener {
     @Override
     public void notify(ViewState viewState) {
         switch (viewState){
-            case ViewState.NOT_PLAYER -> printCreationPlayerScene();
-            case ViewState.NOT_GAME -> printEnteringGameScene();
+            case ViewState.NOT_PLAYER -> {
+                printCreationPlayerScene();
+                this.showState = ShowState.NOT_PLAYING;
+            }
+            case ViewState.NOT_GAME -> {
+                printEnteringGameScene();
+                this.showState = ShowState.NOT_PLAYING;
+            }
             case ViewState.SETUP -> {
                 System.out.println("This the setup phase. Choose your setup...");
                 printHelper(ViewState.SETUP);
