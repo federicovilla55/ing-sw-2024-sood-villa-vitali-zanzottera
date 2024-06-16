@@ -369,9 +369,12 @@ public class LocalStationController extends GUIController implements StationList
                 }
             }
 
-            this.draggedCard.getSide().fitWidthProperty().unbind();
-            this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty()
-                                                                               .divide(GUISettings.WIDTH_RATIO));
+
+            if(this.draggedCard != null) {
+                this.draggedCard.getSide().fitWidthProperty().unbind();
+                this.draggedCard.getSide().fitWidthProperty().bind(super.getStage().widthProperty()
+                        .divide(GUISettings.WIDTH_RATIO));
+            }
 
             node.setTranslateX(0);
             node.setTranslateY(0);
