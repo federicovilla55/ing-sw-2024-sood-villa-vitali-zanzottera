@@ -107,6 +107,7 @@ public abstract class ClientState {
                 this.clientController.getLocalModel().setNumPoints(s, message.getUpdatedPoints().get(s));
             }
         }
+        this.clientController.setNextState(new End(clientController), true);
     }
 
     /**

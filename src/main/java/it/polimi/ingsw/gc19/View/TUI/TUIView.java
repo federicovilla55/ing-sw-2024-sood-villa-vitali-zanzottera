@@ -197,7 +197,7 @@ public class TUIView implements UI, GeneralListener {
 
     public TUIView(CommandParser commandParser) {
         this.commandParser = commandParser;
-        this.clientController = commandParser.getClientController();
+        this.clientController = commandParser.clientController();
         this.clientController.getListenersManager().attachListener(this);
         this.clientController.setView(this);
 
@@ -1301,7 +1301,7 @@ public class TUIView implements UI, GeneralListener {
      */
     @Override
     public void notifyErrorStation(String... varArgs) {
-        System.err.println("[ERROR]: card " + varArgs[0] + " is not placeable starting from " + varArgs[1] + " in direction " + varArgs[2] + "! Try again..." + "\n");
+        System.err.println("[ERROR]: card " + varArgs[1] + " is not placeable starting from " + varArgs[2] + " in direction " + varArgs[3] + "! Try again..." + "\n");
     }
 
     /**
@@ -1604,13 +1604,13 @@ public class TUIView implements UI, GeneralListener {
                 System.out.println("-> " + CommandType.PLACE_INITIAL_CARD.getCommandName() + "(card_orientation): to place initial card with the specified orientation (UP, DOWN);");
                 printCommonPlayingActions();
             }
-            case ViewState.PICK ->{
+            case ViewState.PLACE ->{
                 System.out.println("-> " + CommandType.PLACE_CARD.getCommandName() + "(anchor_code, to_place_code, direction, card_orientation): " +
                         "to place card with code 'to_place_code' from card 'anchor_code' with the direction (UP_RIGHT, UP_LEFT, DOWN_LEFT, DOWN_RIGHT) and orientation (UP, DOWN) specified;");
 
                 printCommonPlayingActions();
             }
-            case ViewState.PLACE ->{
+            case ViewState.PICK ->{
                 System.out.println("-> " + CommandType.PICK_CARD_TABLE.getCommandName() + "(name): to pick the card with that name on table;");
                 System.out.println("-> " + CommandType.PICK_CARD_DECK.getCommandName() + "(type): to pick a card of type 'type' (RESOURCE, GOLD) from deck;");
                 printCommonPlayingActions();

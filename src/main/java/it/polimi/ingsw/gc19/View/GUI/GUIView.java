@@ -14,10 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,7 +37,7 @@ public class GUIView extends Application {
         Parent root;
 
         CommandParser commandParser = new CommandParser(new ClientController());
-        ClientController clientController = commandParser.getClientController();
+        ClientController clientController = commandParser.clientController();
 
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/images/logo.png"))));
 

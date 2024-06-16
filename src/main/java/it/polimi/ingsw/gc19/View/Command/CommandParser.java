@@ -12,9 +12,9 @@ import java.util.List;
 
 /**
  * This record based class is used as parser for commands.
- * @param getClientController the {@link ClientController} on which invoke methods
+ * @param clientController the {@link ClientController} on which invoke methods
  */
-public record CommandParser(ClientController getClientController) {
+public record CommandParser(ClientController clientController) {
 
     /**
      * This method is used to parse commands' arguments
@@ -50,19 +50,19 @@ public record CommandParser(ClientController getClientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.getClientController.getView().notifyGenericError("requested color is not in " + List.of(Color.values()));
+            this.clientController.getView().notifyGenericError("requested color is not in " + List.of(Color.values()));
             return;
         }
 
         if (parsedArguments.length == CommandType.CHOOSE_COLOR.getNumArgs()) {
             try {
-                getClientController.chooseColor(Color.valueOf(parsedArguments[0].toUpperCase()));
+                clientController.chooseColor(Color.valueOf(parsedArguments[0].toUpperCase()));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.getClientController.getView().notifyGenericError("requested color is not in " + List.of(Color.values()));
+                this.clientController.getView().notifyGenericError("requested color is not in " + List.of(Color.values()));
             }
         }
         else {
-            this.getClientController.getView().notifyGenericError("required " + CommandType.CHOOSE_COLOR.getNumArgs() + " arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.CHOOSE_COLOR.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -76,19 +76,19 @@ public record CommandParser(ClientController getClientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.getClientController.getView().notifyGenericError("integer expected");
+            this.clientController.getView().notifyGenericError("integer expected");
             return;
         }
 
         if (parsedArguments.length == CommandType.CHOOSE_GOAL.getNumArgs()) {
             try {
-                getClientController.chooseGoal(Math.abs(Integer.parseInt(parsedArguments[0])));
+                clientController.chooseGoal(Math.abs(Integer.parseInt(parsedArguments[0])));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.getClientController.getView().notifyGenericError("integer expected");
+                this.clientController.getView().notifyGenericError("integer expected");
             }
         }
         else {
-            this.getClientController.getView().notifyGenericError("required " + CommandType.CHOOSE_GOAL.getNumArgs() + " arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.CHOOSE_GOAL.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -102,20 +102,20 @@ public record CommandParser(ClientController getClientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.getClientController.getView().notifyGenericError("non-empty arguments expected");
+            this.clientController.getView().notifyGenericError("non-empty arguments expected");
             return;
         }
 
         if (parsedArguments.length == CommandType.CREATE_GAME.getNumArgs()) {
             try {
-                getClientController.createGame(parsedArguments[0],
-                                               Math.abs(Integer.parseInt(parsedArguments[1])));
+                clientController.createGame(parsedArguments[0],
+                                            Math.abs(Integer.parseInt(parsedArguments[1])));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.getClientController.getView().notifyGenericError("integer expected as second argument");
+                this.clientController.getView().notifyGenericError("integer expected as second argument");
             }
         }
         else {
-            this.getClientController.getView().notifyGenericError("required " + CommandType.CREATE_GAME.getNumArgs() + " arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.CREATE_GAME.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -129,15 +129,15 @@ public record CommandParser(ClientController getClientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.getClientController.getView().notifyGenericError("non-empty arguments expected");
+            this.clientController.getView().notifyGenericError("non-empty arguments expected");
             return;
         }
 
         if (parsedArguments.length == CommandType.JOIN_GAME.getNumArgs()) {
-            getClientController.joinGame(parsedArguments[0]);
+            clientController.joinGame(parsedArguments[0]);
         }
         else {
-            this.getClientController.getView().notifyGenericError("required " + CommandType.JOIN_GAME.getNumArgs() + " arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.JOIN_GAME.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -151,19 +151,19 @@ public record CommandParser(ClientController getClientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.getClientController.getView().notifyGenericError("non-empty arguments expected");
+            this.clientController.getView().notifyGenericError("non-empty arguments expected");
             return;
         }
 
         if (parsedArguments.length == CommandType.PLACE_INITIAL_CARD.getNumArgs()) {
             try {
-                getClientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0].toUpperCase()));
+                clientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0].toUpperCase()));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.getClientController.getView().notifyGenericError("card orientation argument must be in " + List.of(CardOrientation.values()));
+                this.clientController.getView().notifyGenericError("card orientation argument must be in " + List.of(CardOrientation.values()));
             }
         }
         else {
-            this.getClientController.getView().notifyGenericError("required " + CommandType.JOIN_FIRST_GAME.getNumArgs() + " arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.JOIN_FIRST_GAME.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -177,7 +177,7 @@ public record CommandParser(ClientController getClientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.getClientController.getView().notifyGenericError("expected non-empty arguments");
+            this.clientController.getView().notifyGenericError("expected non-empty arguments");
             return;
         }
 
@@ -188,21 +188,21 @@ public record CommandParser(ClientController getClientController) {
             try {
                 direction = Direction.valueOf(parsedArguments[2].toUpperCase());
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.getClientController.getView().notifyGenericError("direction argument must be in " + List.of(Direction.values()));
+                this.clientController.getView().notifyGenericError("direction argument must be in " + List.of(Direction.values()));
                 return;
             }
 
             try {
                 cardOrientation = CardOrientation.valueOf(parsedArguments[3].toUpperCase());
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.getClientController.getView().notifyGenericError("card orientation argument must be in " + List.of(CardOrientation.values()));
+                this.clientController.getView().notifyGenericError("card orientation argument must be in " + List.of(CardOrientation.values()));
                 return;
             }
 
-            getClientController.placeCard(parsedArguments[0], parsedArguments[1], direction, cardOrientation);
+            clientController.placeCard(parsedArguments[0], parsedArguments[1], direction, cardOrientation);
         }
         else {
-            this.getClientController.getView().notifyGenericError("required " + CommandType.PLACE_CARD.getNumArgs() + " arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.PLACE_CARD.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -216,7 +216,7 @@ public record CommandParser(ClientController getClientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.getClientController.getView().notifyGenericError("non-empty arguments required");
+            this.clientController.getView().notifyGenericError("non-empty arguments required");
             return;
         }
 
@@ -231,7 +231,7 @@ public record CommandParser(ClientController getClientController) {
                     case "res" -> type = PlayableCardType.RESOURCE;
                     case "gold" -> type = PlayableCardType.GOLD;
                     default -> {
-                        this.getClientController.getView().notifyGenericError("card type must be in [res, gold]");
+                        this.clientController.getView().notifyGenericError("card type must be in [res, gold]");
                         return;
                     }
                 }
@@ -240,19 +240,19 @@ public record CommandParser(ClientController getClientController) {
                     cardNumber = Integer.parseInt(card[1] ) - 1;
                 }
                 catch (NumberFormatException numberFormatException){
-                    this.getClientController.getView().notifyGenericError("card position must be integer");
+                    this.clientController.getView().notifyGenericError("card position must be integer");
                     return;
                 }
 
-                getClientController.pickCardFromTable(type, cardNumber);
+                clientController.pickCardFromTable(type, cardNumber);
             }
             else{
-                this.getClientController.getView().notifyGenericError("card to pick argument must be of the form 'type'_'number'");
+                this.clientController.getView().notifyGenericError("card to pick argument must be of the form 'type'_'number'");
             }
 
         }
         else {
-            this.getClientController.getView().notifyGenericError("required " + CommandType.PICK_CARD_TABLE.getNumArgs() + " arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.PICK_CARD_TABLE.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -266,19 +266,19 @@ public record CommandParser(ClientController getClientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.getClientController.getView().notifyGenericError("non-empty arguments required");
+            this.clientController.getView().notifyGenericError("non-empty arguments required");
             return;
         }
 
         if (parsedArguments.length == CommandType.PICK_CARD_DECK.getNumArgs()) {
             try {
-                getClientController.pickCardFromDeck(PlayableCardType.valueOf(parsedArguments[0].toUpperCase()));
+                clientController.pickCardFromDeck(PlayableCardType.valueOf(parsedArguments[0].toUpperCase()));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.getClientController.getView().notifyGenericError("card type must be in " + List.of(PlayableCardType.values()));
+                this.clientController.getView().notifyGenericError("card type must be in " + List.of(PlayableCardType.values()));
             }
         }
         else {
-            this.getClientController.getView().notifyGenericError("required " + CommandType.PICK_CARD_DECK.getNumArgs() + " arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.PICK_CARD_DECK.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -292,15 +292,15 @@ public record CommandParser(ClientController getClientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.getClientController.getView().notifyGenericError("non-empty arguments required");
+            this.clientController.getView().notifyGenericError("non-empty arguments required");
             return;
         }
 
         if (parsedArguments.length == CommandType.CREATE_PLAYER.getNumArgs()) {
-            getClientController.createPlayer(parsedArguments[0]);
+            clientController.createPlayer(parsedArguments[0]);
         }
         else{
-            this.getClientController.getView().notifyGenericError("required " + CommandType.CREATE_PLAYER.getNumArgs() + " arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.CREATE_PLAYER.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -314,15 +314,15 @@ public record CommandParser(ClientController getClientController) {
         try {
             parsedArguments = parseArguments(commandArgs, false);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.getClientController.getView().notifyGenericError("provided arguments are not correct");
+            this.clientController.getView().notifyGenericError("provided arguments are not correct");
             return;
         }
 
         if (parsedArguments.length >= CommandType.SEND_CHAT_MESSAGE.getNumArgs()) {
-            getClientController.sendChatMessage(parsedArguments[0], new ArrayList<>(List.of(parsedArguments)).subList(1, parsedArguments.length));
+            clientController.sendChatMessage(parsedArguments[0], new ArrayList<>(List.of(parsedArguments)).subList(1, parsedArguments.length));
         }
         else {
-            this.getClientController.getView().notifyGenericError("required " + CommandType.SEND_CHAT_MESSAGE.getNumArgs() + " arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.SEND_CHAT_MESSAGE.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 
@@ -336,19 +336,19 @@ public record CommandParser(ClientController getClientController) {
         try {
             parsedArguments = parseArguments(commandArgs, true);
         } catch (IllegalArgumentException illegalArgumentException) {
-            this.getClientController.getView().notifyGenericError("non-empty arguments required");
+            this.clientController.getView().notifyGenericError("non-empty arguments required");
             return;
         }
 
         if (parsedArguments.length >= CommandType.PLACE_INITIAL_CARD.getNumArgs()) {
             try {
-                getClientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0].toUpperCase()));
+                clientController.placeInitialCard(CardOrientation.valueOf(parsedArguments[0].toUpperCase()));
             } catch (IllegalArgumentException illegalArgumentException) {
-                this.getClientController.getView().notifyGenericError("card orientation parameter must be in " + List.of(CardOrientation.values()));
+                this.clientController.getView().notifyGenericError("card orientation parameter must be in " + List.of(CardOrientation.values()));
             }
         }
         else {
-            this.getClientController.getView().notifyGenericError("required " + CommandType.PLACE_INITIAL_CARD.getNumArgs() + " arguments, provided " + parsedArguments.length);
+            this.clientController.getView().notifyGenericError("required " + CommandType.PLACE_INITIAL_CARD.getNumArgs() + " arguments, provided " + parsedArguments.length);
         }
     }
 }

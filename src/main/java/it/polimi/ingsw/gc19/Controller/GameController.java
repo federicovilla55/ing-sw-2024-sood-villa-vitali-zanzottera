@@ -546,6 +546,9 @@ public class GameController{
                         // the Map is empty because there is no score to update
                         new EndGameMessage(new ArrayList<>(this.connectedClients.keySet()), new HashMap<>())
                 );
+
+                MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());
+
                 return;
             }
             this.gameAssociated.setGameState(GameState.END);
