@@ -176,7 +176,7 @@ public class ChatController extends GUIController implements ChatListener, Local
                         LocalModelEvents.RECONNECTED_PLAYER -> {
                     this.receivers.getItems().add(varArgs[0]);
                     this.receivers.setDisable(false);
-                    this.sendButton.setDisable(true);
+                    this.sendButton.setDisable(false);
                 }
                 case LocalModelEvents.DISCONNECTED_PLAYER -> {
                     this.receivers.getItems().remove(varArgs[0]);

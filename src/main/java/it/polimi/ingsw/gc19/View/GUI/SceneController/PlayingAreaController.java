@@ -299,7 +299,10 @@ public class PlayingAreaController extends GUIController implements StateListene
         });
 
         switch (viewState){
-            case ViewState.END -> endGame();
+            case ViewState.END -> {
+                endGame();
+                return;
+            }
             case ViewState.DISCONNECT -> super.notifyPossibleDisconnection(stackPane);
             case ViewState.NOT_PLAYER -> super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
             case ViewState.NOT_GAME -> super.changeToNextScene(SceneStatesEnum.GAME_SELECTION_SCENE);
