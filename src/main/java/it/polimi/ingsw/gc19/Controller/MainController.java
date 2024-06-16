@@ -349,7 +349,7 @@ public class MainController {
         synchronized (this.gamesInfo) {
             if (!this.gamesInfo.containsKey(gameName)) {
                 player.update(new GameHandlingErrorMessage(Error.GAME_NOT_FOUND,
-                                                           "Game " + gameName + "not found!")
+                                                           "Game " + gameName + " not found!")
                                       .setHeader(player.getUsername()));
                 return false;
             }

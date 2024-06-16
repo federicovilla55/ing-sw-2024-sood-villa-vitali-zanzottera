@@ -107,7 +107,7 @@ public class ChatController extends GUIController implements ChatListener, Local
 
             textFlow.getChildren().clear();
 
-            for(Message m : msg){
+            for(Message m : new ArrayList<Message>(msg)){
                 Text sender = new Text(), message = new Text();
 
                 for(LocalStationPlayer l : new ArrayList<>(this.getLocalModel().getStations().values())){
