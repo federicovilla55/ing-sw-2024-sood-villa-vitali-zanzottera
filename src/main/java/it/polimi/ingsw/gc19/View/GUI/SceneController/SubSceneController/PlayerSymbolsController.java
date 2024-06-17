@@ -24,6 +24,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerSymbolsController extends GUIController implements TurnStateListener, StationListener {
 
@@ -36,23 +37,27 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
     /**
      * A hashmap that connects the name of each {@link Symbol} to the corresponding image.
      */
-    private HashMap<String, Image> symbolImages;
+    private final ConcurrentHashMap<String, Image> symbolImages;
 
     /**
      * A hashmap that connects the name of each player to the corresponding {@link Tab}.
      */
-    private HashMap<String, Tab> playerTabs;
+    private final ConcurrentHashMap<String, Tab> playerTabs;
 
     /**
      * A hashmap that connects the name of each symbol to the corresponding element in the GridPanel.
      */
-    private HashMap<String, GridPane> tableElements;
+    private final ConcurrentHashMap<String, GridPane> tableElements;
 
     public PlayerSymbolsController(GUIController controller) {
         super(controller);
 
         getClientController().getListenersManager().attachListener(ListenerType.STATION_LISTENER, this);
         getClientController().getListenersManager().attachListener(ListenerType.TURN_LISTENER, this);
+
+        tableElements = new ConcurrentHashMap<>();
+        playerTabs = new ConcurrentHashMap<>();
+        symbolImages = new ConcurrentHashMap<>();
     }
 
     /**
@@ -72,7 +77,6 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
      * The method initializes the images of the symbols and save them in the hashmap.
      */
     private void initializeImages(){
-        symbolImages = new HashMap<>();
         for (Symbol s : Symbol.values()) {
             Image symbolImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("it/polimi/ingsw/gc19/symbols/" + s.toString().toLowerCase() + ".png")));
             symbolImages.put(s.toString().toLowerCase(), symbolImage);
@@ -92,12 +96,10 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
     /**
      * To initialize the table with the player symbols and their relative value.
      */
-    public void initializeVisibleSymbolsTable() {
-        tableElements = new HashMap<>();
-        playerTabs = new HashMap<>();
+    private void initializeVisibleSymbolsTable() {
         this.tabPane.getTabs().clear();
 
-        for(String nickname : getLocalModel().getStations().keySet()) {
+        for(String nickname : new ArrayList<>(getLocalModel().getStations().keySet())) {
             Tab symbolsContainer = new Tab(nickname);
 
             VBox symbolsBorderVBOX = new VBox();
@@ -146,7 +148,7 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
      * To update the number of each symbol of a player given its nickname
      * @param nick the nickname of the player we want to update its symbol numbers.
      */
-    public void updatePlayerState(String nick){
+    private void updatePlayerState(String nick){
         GridPane grid = tableElements.get(nick);
 
         ObservableList<Node> children = grid.getChildren();
