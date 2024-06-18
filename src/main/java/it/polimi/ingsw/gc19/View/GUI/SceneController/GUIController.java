@@ -102,7 +102,7 @@ public class GUIController implements UI, Listener{
                 this.clientController.getState() != ViewState.NOT_PLAYER &&
                 this.clientController.getState() != ViewState.DISCONNECT) {
             Dialog<ButtonType> closeDialog = new Dialog<>();
-            closeDialog.initOwner(stage.getOwner());
+            closeDialog.initOwner(stage.getScene().getWindow());
             closeDialog.setTitle("Closing Codex Naturalis");
 
             ButtonType lobbyButton = new ButtonType("Return to Lobby", ButtonBar.ButtonData.LEFT);
