@@ -151,7 +151,7 @@ public class TUIView implements UI, GeneralListener {
         } catch (IllegalStateException e) {
             System.out.println("No valid configuration found... creating new client");
             reconnectChoice = "n";
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             System.out.println("Error while creating client... aborting");
             System.exit(1);
             return;
