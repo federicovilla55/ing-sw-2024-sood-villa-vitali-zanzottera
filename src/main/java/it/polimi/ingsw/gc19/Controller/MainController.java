@@ -135,21 +135,19 @@ public class MainController {
         String gameName;
         synchronized (this.playerInfo){
             playerInfo = this.playerInfo.get(nickname);
-        if(playerInfo == null) return;
-        if(playerInfo.x() == State.ACTIVE && playerInfo.y() == null){
-            synchronized (this.playerInfo){
-                this.playerInfo.put(nickname, new Tuple<>(State.INACTIVE, null));
-                return;
+            if(playerInfo == null) return;
+            if(playerInfo.x() == State.ACTIVE && playerInfo.y() == null){
+                synchronized (this.playerInfo){
+                    this.playerInfo.put(nickname, new Tuple<>(State.INACTIVE, null));
+                    return;
+                }
             }
-        }
-        if(playerInfo.x() == State.ACTIVE){
-            synchronized (this.playerInfo){
-                gameName = this.playerInfo.get(nickname).y();
-                this.playerInfo.put(nickname, new Tuple<>(State.INACTIVE, gameName));
-            }
-            synchronized (this.gamesInfo) {
-                System.err.println("removing " + nickname);
-            }
+            if(playerInfo.x() == State.ACTIVE){
+                synchronized (this.playerInfo){
+                    gameName = this.playerInfo.get(nickname).y();
+                    this.playerInfo.put(nickname, new Tuple<>(State.INACTIVE, gameName));
+                }
+
                 this.gamesInfo.get(gameName).removeClient(nickname);
             }
         }
