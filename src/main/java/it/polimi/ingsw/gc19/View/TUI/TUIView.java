@@ -72,9 +72,9 @@ public class TUIView implements UI, GeneralListener {
      * Represents information related to a station, given the personal station of the
      * player and a list of all the stations of the game.
      * @param personalStation, the personal station of the player.
-     * @param allStations, the list containing all the stations in the game.
+     * @param otherStations the list containing all the other stations in the game.
      */
-    private record StationInfos(PersonalStation personalStation, List<LocalStationPlayer> allStations) { }
+    private record StationInfos(PersonalStation personalStation, List<LocalStationPlayer> otherStations) { }
 
     /**
      * Ask the user which type of connection he wants to use (RMI or TCP) to connect to the game server.
@@ -1438,7 +1438,7 @@ public class TUIView implements UI, GeneralListener {
         StationInfos stationInfos = getStations();
 
         this.clearTerminal();
-        printScoreBoard(stationInfos.allStations());
+        printScoreBoard(stationInfos.otherStations());
         System.out.println("Your station:");
         System.out.println();
         printTUIView(playerAreaTUIView(stationInfos.personalStation().getPlacedCardSequence()));
@@ -1483,7 +1483,7 @@ public class TUIView implements UI, GeneralListener {
                                    localModel.getOtherStations().get(this.currentViewPlayer).getOwnerPlayer() +
                                    color.map(Color::colorReset).orElse("") + "\n");
         StationInfos stationInfos = getStations();
-        printScoreBoard(stationInfos.allStations);
+        printScoreBoard(stationInfos.otherStations);
         System.out.println(color.map(Color::stringColor).orElse("") +
                         localModel.getOtherStations().get(this.currentViewPlayer).getOwnerPlayer() +
                 color.map(Color::colorReset).orElse("") + " station:");
