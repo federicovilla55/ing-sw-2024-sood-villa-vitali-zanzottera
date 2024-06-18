@@ -981,6 +981,7 @@ public class TUIView implements UI, GeneralListener {
      */
     private void TUIViewCommands(Matcher matcher){
         switch (matcher.group(1)) {
+            case "clear" -> clearTerminal();
             case "show_private_goal_card" -> choosePrivateGoalCardScene();
             case "show_public_goal_cards" -> showPublicGoalCardScene();
             case "help" -> printHelper(this.clientController.getState());
@@ -1590,6 +1591,7 @@ public class TUIView implements UI, GeneralListener {
         switch (viewState){
             case ViewState.NOT_PLAYER -> {
                 System.out.println("-> " + CommandType.CREATE_PLAYER.getCommandName() + "(nick): to register your player;");
+                System.out.println("-> clear(): to clear terminal");
                 System.out.println();
 
             }
@@ -1598,7 +1600,7 @@ public class TUIView implements UI, GeneralListener {
                 System.out.println("-> " + CommandType.JOIN_GAME.getCommandName() + "(game name): to join the specified game;");
                 System.out.println("-> " + CommandType.JOIN_FIRST_GAME.getCommandName() + "(): to join first available game;");
                 System.out.println("-> " + CommandType.AVAILABLE_GAMES.getCommandName() + "(): to display the available games;");
-
+                System.out.println("-> clear(): to clear terminal");
                 System.out.println();
 
             }
@@ -1608,20 +1610,27 @@ public class TUIView implements UI, GeneralListener {
                 System.out.println("-> " + CommandType.CHOOSE_COLOR.getCommandName() + "(color): to pick choose your color;");
                 System.out.println("-> " + CommandType.CHOOSE_GOAL.getCommandName() + "(idx): to choose your private goal card: idx is the index of the card;");
                 System.out.println("-> " + CommandType.PLACE_INITIAL_CARD.getCommandName() + "(card_orientation): to place initial card with the specified orientation (UP, DOWN);");
+                System.out.println("-> clear(): to clear terminal");
+
                 printCommonPlayingActions();
             }
             case ViewState.PLACE ->{
                 System.out.println("-> " + CommandType.PLACE_CARD.getCommandName() + "(anchor_code, to_place_code, direction, card_orientation): " +
                         "to place card with code 'to_place_code' from card 'anchor_code' with the direction (UP_RIGHT, UP_LEFT, DOWN_LEFT, DOWN_RIGHT) and orientation (UP, DOWN) specified;");
+                System.out.println("-> clear(): to clear terminal");
 
                 printCommonPlayingActions();
             }
             case ViewState.PICK ->{
                 System.out.println("-> " + CommandType.PICK_CARD_TABLE.getCommandName() + "(name): to pick the card with that name on table;");
                 System.out.println("-> " + CommandType.PICK_CARD_DECK.getCommandName() + "(type): to pick a card of type 'type' (RESOURCE, GOLD) from deck;");
+                System.out.println("-> clear(): to clear terminal");
+
                 printCommonPlayingActions();
             }
             case ViewState.END, ViewState.PAUSE, ViewState.OTHER_TURN, ViewState.WAIT -> {
+                System.out.println("-> clear(): to clear terminal");
+
                 printCommonPlayingActions();
             }
             default -> {}
