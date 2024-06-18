@@ -42,6 +42,7 @@ import javafx.scene.transform.Translate;
 import it.polimi.ingsw.gc19.View.GameLocalView.LocalStationPlayer;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.gc19.View.GUI.GUISettings.*;
 
@@ -237,10 +238,21 @@ public class LocalStationController extends GUIController implements StationList
                                            (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO));
             }
 
+            HashMap<String, CardOrientation> prevCardsOrientation = new HashMap<>();
+
+            for(Node n : List.copyOf(this.leftVBox.getChildren())){
+                PlayableCardButton p = (PlayableCardButton) n;
+                prevCardsOrientation.put(p.getCard().getCardCode(), p.getCardOrientation());
+            }
+
             this.leftVBox.getChildren().clear();
 
             for(PlayableCard p : List.copyOf(this.getLocalModel().getPersonalStation().getCardsInHand())){
                 PlayableCardButton button = new PlayableCardButton(p, super.getStage(), (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO);
+
+                if(prevCardsOrientation.containsKey(p.getCardCode()) && prevCardsOrientation.get(p.getCardCode()) == CardOrientation.DOWN){
+                    button.swap();
+                }
 
                 button.setOnMouseClicked(button.getDefaultMouseClickedHandler());
 
