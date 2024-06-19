@@ -71,6 +71,8 @@ public class PlayingAreaController extends GUIController implements StateListene
      */
     @FXML
     private void initialize(){
+        super.getStage().setMinWidth(1397.0);
+        super.getStage().setMinHeight(906.0);
         buildInfoHBox();
 
         leftVBox.prefWidthProperty().bind(super.getStage().widthProperty().multiply(0.75));

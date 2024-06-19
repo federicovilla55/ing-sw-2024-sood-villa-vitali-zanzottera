@@ -72,7 +72,7 @@ public class SetupController extends GUIController implements SetupListener, Sta
     @FXML
     private void initialize(){
         super.getStage().setMinWidth(1280.0);
-        super.getStage().setMinHeight(820.0);
+        super.getStage().setMinHeight(906.0);
 
         buildAvailableColorsPane();
         buildPrivateGoalCardSelectionHBox();
