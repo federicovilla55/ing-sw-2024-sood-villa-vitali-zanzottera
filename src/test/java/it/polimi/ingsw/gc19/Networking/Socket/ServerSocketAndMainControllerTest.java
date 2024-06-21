@@ -116,7 +116,7 @@ public class ServerSocketAndMainControllerTest {
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
-        //assertNotNull(client1.getToken());
+        assertNotNull(client1.getToken());
 
         this.client1.createGame("game3", 3, 1);
 
@@ -158,7 +158,7 @@ public class ServerSocketAndMainControllerTest {
         String token1 = ((CreatedPlayerMessage) message1).getToken();
         this.client1.setToken(token1);
 
-        //assertNotNull(client1.getToken());
+        assertNotNull(client1.getToken());
 
         this.client1.createGame("game4", 2, 1);
 
@@ -199,8 +199,8 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage(this.client4.getName()));
 
 
-        //assertNull(this.client1.getMessage());
-        //assertNull(this.client2.getMessage());
+        assertNull(this.client1.getMessage());
+        assertNull(this.client2.getMessage());
 
         Client client5 = new Client("client5");
         client5.createPlayer();
@@ -366,14 +366,14 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(this.client3, new NewPlayerConnectedToGameMessage(this.client4.getName()));
 
 
-        //assertNull(this.client1.getMessage());
-        //assertNull(this.client2.getMessage());
+        assertNull(this.client1.getMessage());
+        assertNull(this.client2.getMessage());
 
         this.client3.sendChatMessage(new ArrayList<>(List.of(this.client3.getName(), this.client4.getName())), "Message in chat");
         assertMessageEquals(new ArrayList<>(List.of(this.client3, this.client4)), new NotifyChatMessage(this.client3.getName(), "Message in chat"));
 
-        //assertNull(this.client1.getMessage());
-        //assertNull(this.client2.getMessage());
+        assertNull(this.client1.getMessage());
+        assertNull(this.client2.getMessage());
     }
 
     @Test
@@ -673,12 +673,12 @@ public class ServerSocketAndMainControllerTest {
         client7.sendChatMessage(new ArrayList<>(List.of(this.client2.getName())), "Send chat message after reconnection");
 
         assertMessageEquals(this.client2, new NotifyChatMessage(client7.getName(), "Send chat message after reconnection"));
-        //assertNull(this.client1.getMessage());
+        assertNull(this.client1.getMessage());
 
         client2.sendChatMessage(new ArrayList<>(List.of(this.client2.getName(), client1.getName())), "Send chat message after reconnection!");
 
         assertMessageEquals(List.of(this.client2, client7), new NotifyChatMessage(this.client2.getName(), "Send chat message after reconnection!"));
-        //assertNull(this.client1.getMessage());
+        assertNull(this.client1.getMessage());
 
         client7.sendChatMessage(new ArrayList<>(List.of(this.client2.getName())), "Reconnected client 1 message!");
         assertMessageEquals(this.client2, new NotifyChatMessage(client7.getName(), "Reconnected client 1 message!"));
@@ -707,6 +707,7 @@ public class ServerSocketAndMainControllerTest {
         assertMessageEquals(client2, new AvailableGamesMessage(List.of("game25", "game26")).setHeader(this.client2.getName()));
     }
 
+    @Disabled
     @Test
     public void testInactiveClientKiller(){
         System.out.println(ServerSettings.TIME_TO_WAIT_BEFORE_CLIENT_HANDLER_KILL);

@@ -633,7 +633,9 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
                     }
                 }
 
-                clientHandlerSocket.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerSocket.getUsername()));
+                if(clientHandlerSocket != null) {
+                    clientHandlerSocket.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerSocket.getUsername()));
+                }
 
                 synchronized (pendingSocketToKill){
                     pendingSocketToKill.remove(clientSocket);
