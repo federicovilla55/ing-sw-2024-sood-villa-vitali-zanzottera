@@ -28,10 +28,7 @@ jobs:
           java-version: '21'
           distribution: 'oracle'
 
-      - name: Build
-        run: mvn --batch-mode package
-
-      - name: Test
+      - name: Build and Test
         run: mvn --batch-mode test
 
       - name: Publish Test Report
