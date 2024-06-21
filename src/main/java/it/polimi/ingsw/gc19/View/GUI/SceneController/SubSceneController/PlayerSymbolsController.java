@@ -151,16 +151,18 @@ public class PlayerSymbolsController extends GUIController implements TurnStateL
     private void updatePlayerState(String nick){
         GridPane grid = tableElements.get(nick);
 
-        ObservableList<Node> children = grid.getChildren();
-        children.removeIf(node -> GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) == 1);
+        if(grid != null) {
+            ObservableList<Node> children = grid.getChildren();
+            children.removeIf(node -> GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) == 1);
 
-        for (Symbol s : Symbol.values()) {
-            Label countLabel = new Label(String.valueOf(
-                    this.getLocalModel().getStations().get(nick).getVisibleSymbols().get(s)
-            ));
-            grid.add(countLabel, s.ordinal(), 1);
-            GridPane.setHalignment(countLabel, HPos.CENTER);
-            GridPane.setValignment(countLabel, VPos.CENTER);
+            for (Symbol s : Symbol.values()) {
+                Label countLabel = new Label(String.valueOf(
+                        this.getLocalModel().getStations().get(nick).getVisibleSymbols().get(s)
+                ));
+                grid.add(countLabel, s.ordinal(), 1);
+                GridPane.setHalignment(countLabel, HPos.CENTER);
+                GridPane.setValignment(countLabel, VPos.CENTER);
+            }
         }
     }
 
