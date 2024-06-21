@@ -151,7 +151,7 @@ public abstract class ClientState {
      * @param message a {@link DisconnectFromGameMessage} from the server.
      */
     public void nextState(DisconnectFromGameMessage message) {
-        this.clientController.getView().notify("You leave the game!");
+        if(this.clientController.getView() != null) this.clientController.getView().notify("You leave the game!");
         this.clientController.setLocalModel(null);
         this.clientInterface.getMessageHandler().setLocalModel(null);
         this.clientController.setNextState(new NotGame(clientController), true);
@@ -162,7 +162,7 @@ public abstract class ClientState {
      * @param message a {@link DisconnectFromGameMessage} from the server.
      */
     public void nextState(DisconnectFromServerMessage message){
-        this.clientController.getView().notify("You leave the server!");
+        if(this.clientController.getView() != null) this.clientController.getView().notify("You leave the server!");
         this.clientController.setLocalModel(null);
         this.clientInterface.getMessageHandler().setLocalModel(null);
         this.clientInterface.getMessageHandler().interruptMessageHandler();

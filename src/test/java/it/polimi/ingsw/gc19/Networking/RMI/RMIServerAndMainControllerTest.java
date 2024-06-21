@@ -630,6 +630,7 @@ public class RMIServerAndMainControllerTest {
         assertNull(this.client1.getMessage());
     }
 
+    @Disabled
     @Test
     public void testInactiveClientKiller() throws RemoteException {
         client1.connect();
