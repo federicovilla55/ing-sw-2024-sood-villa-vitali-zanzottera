@@ -239,17 +239,12 @@ public class LocalStationController extends GUIController implements StationList
 
             HashMap<String, CardOrientation> prevCardsOrientation = new HashMap<>();
 
-            System.out.println(this.leftVBox.getChildren());
-
             for(Node n : List.copyOf(this.leftVBox.getChildren())){
                 PlayableCardButton p = (PlayableCardButton) n;
                 prevCardsOrientation.put(p.getCard().getCardCode(), p.getCardOrientation());
-                System.out.println(p.getCard().getCardCode() + "  "  + p.getCardOrientation());
             }
 
             this.leftVBox.getChildren().clear();
-
-            System.out.println(prevCardsOrientation);
 
             for(PlayableCard p : List.copyOf(this.getLocalModel().getPersonalStation().getCardsInHand())){
                 PlayableCardButton button = new PlayableCardButton(p, super.getStage(), (double) 1 / GUISettings.WIDTH_RATIO, (double) 1 / GUISettings.HEIGHT_RATIO);
