@@ -58,10 +58,24 @@ public class ServerSocketAndMainControllerTest {
         this.client4 = new Client("client4");
 
         this.stressTestClient = overloadTest(5);
+
+        try {
+            TimeUnit.MILLISECONDS.sleep(100);
+        }
+        catch (InterruptedException e){
+            Thread.currentThread().interrupt();
+        }
     }
 
     @AfterEach
     public void tearDown(){
+        try {
+            TimeUnit.MILLISECONDS.sleep(100);
+        }
+        catch (InterruptedException e){
+            Thread.currentThread().interrupt();
+        }
+
         this.client1.disconnect();
         this.client1.stopClient();
         this.client2.disconnect();
