@@ -31,9 +31,6 @@ jobs:
       - name: Build
         run: mvn --batch-mode package
 
-      - name: Wait before start test
-        run: sleep 1
-
       - name: Test
         run: mvn --batch-mode test
 
