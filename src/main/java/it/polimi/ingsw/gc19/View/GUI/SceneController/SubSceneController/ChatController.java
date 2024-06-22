@@ -144,7 +144,7 @@ public class ChatController extends GUIController implements ChatListener, Local
                                             -fx-border-color: red;
                                             -fx-border-radius: 5px;
                                             -fx-background-insets: 0 0 -7 0;
-                                            -fx-background-color: linear-gradient(from 0% red, to 100% #ff0000);
+                                            -fx-background-color: linear-gradient(to bottom, red, #ff0000);
                                         """);
             return;
         }
