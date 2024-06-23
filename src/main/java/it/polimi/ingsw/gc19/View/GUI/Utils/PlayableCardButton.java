@@ -127,10 +127,6 @@ public class PlayableCardButton extends Button{
         rectangle.arcWidthProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
         rectangle.arcHeightProperty().bind(cardImage.fitWidthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
 
-        rectangle.widthProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue);
-        });
-
         cardImage.setClip(rectangle);
     }
 
