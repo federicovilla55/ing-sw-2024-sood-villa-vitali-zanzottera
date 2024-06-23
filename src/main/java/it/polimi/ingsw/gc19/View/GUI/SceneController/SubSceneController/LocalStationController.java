@@ -705,7 +705,7 @@ public class LocalStationController extends GUIController implements StationList
             Platform.runLater(() -> {
                 error = new Rectangle();
 
-                error.widthProperty().bind(super.getStage().widthProperty().divide(WIDTH_RATIO).multiply(scale));
+                error.widthProperty().bind(super.getStage().widthProperty().divide(WIDTH_RATIO));
                 error.heightProperty().bind(error.widthProperty().multiply(CARD_PIXEL_HEIGHT).divide(CARD_PIXEL_WIDTH));
 
                 error.arcWidthProperty().bind(error.widthProperty().multiply(2 * CORNER_RADIUS / CARD_PIXEL_WIDTH));
