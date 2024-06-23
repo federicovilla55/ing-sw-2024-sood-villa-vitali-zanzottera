@@ -64,6 +64,19 @@ public class GameController{
     private final Game gameAssociated;
 
     /**
+     * The nicknames of the winners of the game
+     */
+    private List<String> winnerNicks;
+
+    /**
+     * The final scoreboard when game finishes. Note that to build
+     * this map isn't sufficient to call {@link Game#computeFinalScoreboard()} because,
+     * for example, when only one player remains connected he is the winner even if
+     * his points are less than the others
+     */
+    private Map<String, Integer> finalPoints;
+
+    /**
      * This constructor creates a GameController to manage a game
      * @param gameAssociated the game managed by the controller
      */
@@ -83,6 +96,8 @@ public class GameController{
         gameAssociated.setMessageFactory(this.messageFactory);
         this.connectedClients = new HashMap<>();
         this.timeout = timeout;
+        this.winnerNicks = new ArrayList<>();
+        this.finalPoints = new HashMap<>();
     }
 
     public Game getGameAssociated() {
@@ -128,6 +143,9 @@ public class GameController{
                                 this.gameAssociated.getActivePlayer().getName()
                         ));
                     }
+                }
+                if(this.gameAssociated.getGameState() == GameState.END){
+                    this.messageFactory.sendMessageToPlayer(nickname, new EndGameMessage(this.winnerNicks, this.finalPoints).setHeader(nickname));
                 }
             }
         } catch (PlayerNotFoundException e) {
@@ -527,8 +545,12 @@ public class GameController{
                 && sortedPlayers.getFirst().getNumberOfSatisfiedGoals() == p.getNumberOfSatisfiedGoals());
 
         this.gameAssociated.setGameState(GameState.END);
+
+        this.winnerNicks = winnerPlayers.stream().map(Player::getName).collect(Collectors.toCollection(ArrayList::new));
+        this.finalPoints = scoreboard;
+
         this.messageFactory.sendMessageToAllGamePlayers(
-                new EndGameMessage(winnerPlayers.stream().map(Player::getName).collect(Collectors.toList()), scoreboard)
+                new EndGameMessage(this.winnerNicks, this.finalPoints)
         );
 
         MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());
@@ -542,9 +564,13 @@ public class GameController{
             if (this.connectedClients.size() == 1) {
                 this.gameAssociated.setGameState(GameState.END);
                 //Notify winner
+
+                this.finalPoints = new HashMap<>();
+                this.winnerNicks = new ArrayList<>(this.connectedClients.keySet());
+
                 this.messageFactory.sendMessageToAllGamePlayers(
                         // the Map is empty because there is no score to update
-                        new EndGameMessage(new ArrayList<>(this.connectedClients.keySet()), new HashMap<>())
+                        new EndGameMessage(this.winnerNicks, new HashMap<>())
                 );
 
                 MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());
@@ -553,8 +579,11 @@ public class GameController{
             }
             this.gameAssociated.setGameState(GameState.END);
 
+            this.finalPoints = new HashMap<>();
+            this.winnerNicks = new ArrayList<>();
+
             this.messageFactory.sendMessageToAllGamePlayers(
-                    new EndGameMessage(new ArrayList<>(), new HashMap<>())
+                    new EndGameMessage(new ArrayList<>(), this.finalPoints)
             );
 
             MainController.getMainController().fireGameAndPlayer(getGameAssociated().getGameName());

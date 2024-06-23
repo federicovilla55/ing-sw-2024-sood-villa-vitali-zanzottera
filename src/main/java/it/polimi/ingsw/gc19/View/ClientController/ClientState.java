@@ -219,11 +219,12 @@ public abstract class ClientState {
                 clientController.setNextState(new Pause(clientController), true);
                 return;
             }
-            
-            if(message.getGameState() == GameState.END){
+
+            //FOR ERRORS, CHECK HERE
+            /*if(message.getGameState() == GameState.END){
                 clientController.setNextState(new End(clientController), true);
                 return;
-            }
+            }*/
 
             if(message.getFinalRound()){
                 clientController.getView().notify("Final round has begun!");
