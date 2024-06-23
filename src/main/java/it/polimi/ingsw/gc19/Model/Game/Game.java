@@ -135,6 +135,19 @@ public class Game extends Publisher{
     private final Chat chat;
 
     /**
+     * The nicknames of the winners of the game
+     */
+    private List<String> winnerNicks;
+
+    /**
+     * The final scoreboard when game finishes. Note that to build
+     * this map isn't sufficient to call {@link Game#computeFinalScoreboard()} because,
+     * for example, when only one player remains connected he is the winner even if
+     * his points are less than the others
+     */
+    private Map<String, Integer> finalPoints;
+
+    /**
      * Gets players.
      *
      * @return the players
@@ -190,7 +203,6 @@ public class Game extends Publisher{
         this(numPlayers, gameName, new Random().nextLong());
     }
 
-
     /**
      * This constructor is called directly for testing, removing randomness by fixing the seed of the rng
      *
@@ -233,6 +245,9 @@ public class Game extends Publisher{
 
         this.gameState = GameState.SETUP;
         this.turnState = null;
+
+        this.winnerNicks = new ArrayList<>();
+        this.finalPoints = new HashMap<>();
     }
 
     @Override
@@ -250,6 +265,38 @@ public class Game extends Publisher{
     public boolean hasPlayer(String nick){
         return this.getPlayers().stream()
                    .anyMatch(p -> p.getName().equals(nick));
+    }
+
+    /**
+     * Getter for {@link #winnerNicks}
+     * @return the list of winner players
+     */
+    public List<String> getWinnerNicks() {
+        return winnerNicks;
+    }
+
+    /**
+     * Setter for {@link #winnerNicks}
+     * @param winnerNicks the list of nicknames of winners
+     */
+    public void setWinnerNicks(List<String> winnerNicks) {
+        this.winnerNicks = winnerNicks;
+    }
+
+    /**
+     * Setter for {@link #finalPoints}
+     * @param finalPoints the <code>Map<String, Integer></code> to be set in {@link #finalPoints}
+     */
+    public void setFinalPoints(Map<String, Integer> finalPoints) {
+        this.finalPoints = finalPoints;
+    }
+
+    /**
+     * Getter for {@link #finalPoints}
+     * @return the updated points after game ends
+     */
+    public Map<String, Integer> getFinalPoints() {
+        return finalPoints;
     }
 
     /**
