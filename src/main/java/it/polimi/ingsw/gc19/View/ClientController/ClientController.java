@@ -403,10 +403,13 @@ public class ClientController {
                 return;
             }
             case Error.PLAYER_ALREADY_REGISTERED_TO_SOME_GAME -> {
-                setNextState(new Disconnect(this), false);
+                this.getListenersManager().notifyErrorGameHandlingListener(message.getDescription());
+                return;
             }
             default -> {
-                setNextState(new NotGame(this), false);
+                this.viewState = new NotGame(this);
+                this.listenersManager.notifyStateListener(ViewState.NOT_GAME);
+                ((NotGame) viewState).startGameSearch();
             }
         }
         this.getListenersManager().notifyErrorGameHandlingListener(message.getDescription());

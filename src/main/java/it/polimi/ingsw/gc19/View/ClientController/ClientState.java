@@ -86,6 +86,7 @@ public abstract class ClientState {
      */
     public void nextState(CreatedGameMessage message) {
         this.listenersManager.notifyGameHandlingListener(GameHandlingEvents.CREATED_GAME, List.of(message.getGameName()));
+        this.clientController.setNextState(new Setup(clientController), false);
     }
 
     /**

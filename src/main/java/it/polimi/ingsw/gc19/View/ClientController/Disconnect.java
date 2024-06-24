@@ -45,9 +45,9 @@ public class Disconnect extends ClientState {
         super.clientInterface.startSendingHeartbeat();
         clientController.setNextState(new Wait(clientController), false);
 
-        if(clientController.getLocalModel() == null){
-            this.clientController.getView().notify("All has gone right. You are reconnected to server!");
+        this.clientController.getView().notify("Network problems solved. You are reconnected to server!");
 
+        if(clientController.getLocalModel() == null){
             LocalModel localModel = new LocalModel();
             localModel.setListenersManager(listenersManager);
             localModel.setGameName(message.getGameName());
@@ -56,9 +56,6 @@ public class Disconnect extends ClientState {
             clientController.setLocalModel(localModel);
             clientController.getView().setLocalModel(localModel);
             clientController.getClientInterface().getMessageHandler().setLocalModel(localModel);
-        }
-        else{
-            this.clientController.getView().notify("Network problems solved. You are reconnected to server!");
         }
     }
 
