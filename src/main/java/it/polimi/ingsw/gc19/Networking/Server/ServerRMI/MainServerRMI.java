@@ -448,21 +448,14 @@ public class MainServerRMI extends Server implements VirtualMainServer{
             this.lastHeartBeatOfClients.put(virtualClient, new Date().getTime());
 
             synchronized (this.connectedClients){
-                if(this.connectedClients.containsKey(virtualClient)) {
-                    clientHandlerRMI = this.connectedClients.get(virtualClient).x();
-                }
-                else{
-                    return;
-                }
+                clientHandlerRMI = this.connectedClients.get(virtualClient).x();
             }
 
             synchronized (this.pendingVirtualClientToKill){
                 this.pendingVirtualClientToKill.remove(virtualClient);
             }
 
-            if(clientHandlerRMI != null) {
-                clientHandlerRMI.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerRMI.getUsername()));
-            }
+            clientHandlerRMI.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerRMI.getUsername()));
         }
     }
 

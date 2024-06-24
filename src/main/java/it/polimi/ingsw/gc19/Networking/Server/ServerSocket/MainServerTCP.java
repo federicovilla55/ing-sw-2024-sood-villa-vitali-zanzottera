@@ -623,20 +623,10 @@ public class MainServerTCP extends Server implements ObserverMessageToServer<Mes
 
             if (lastHeartBeatOfClients.containsKey(clientSocket)) {
                 lastHeartBeatOfClients.put(clientSocket, new Date().getTime());
-
                 synchronized (connectedClients){
-                    if(connectedClients.containsKey(clientSocket)) {
-                        clientHandlerSocket = connectedClients.get(clientSocket).x();
-                    }
-                    else{
-                        return;
-                    }
+                    clientHandlerSocket = connectedClients.get(clientSocket).x();
                 }
-
-                if(clientHandlerSocket != null) {
-                    clientHandlerSocket.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerSocket.getUsername()));
-                }
-
+                clientHandlerSocket.sendMessageToClient(new ServerHeartBeatMessage().setHeader(clientHandlerSocket.getUsername()));
                 synchronized (pendingSocketToKill){
                     pendingSocketToKill.remove(clientSocket);
                 }
