@@ -700,6 +700,7 @@ public class LocalStationController extends GUIController implements StationList
 
             Tuple<Integer, Integer> coords = super.getLocalModel().getPersonalStation().getCoords(varArgs[2]);
             int rowIndex = coords.x() + direction.getX() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().x()).min().orElse(0) - 1);
+            System.err.println(rowIndex);
             int columnIndex = coords.y() + direction.getY() - (super.getLocalModel().getPersonalStation().getPlacedCardSequence().stream().mapToInt(t -> t.y().y()).min().orElse(0) - 1);
 
             Platform.runLater(() -> {
@@ -722,7 +723,7 @@ public class LocalStationController extends GUIController implements StationList
 
                 error.setEffect(dropShadow);
 
-                this.cardGrid.add(error, columnIndex, rowIndex);
+                if(rowIndex >= 0 && columnIndex >= 0) this.cardGrid.add(error, columnIndex, rowIndex);
             });
         }
     }

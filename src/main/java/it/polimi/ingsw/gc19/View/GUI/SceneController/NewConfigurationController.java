@@ -90,7 +90,7 @@ public class NewConfigurationController extends GUIController implements StateLi
     /**
      * When user press "RMI" button, this methods will build
      * a new {@link ClientRMI} using {@link ClientFactory}. If an error
-     * occurs during the process an {@link Alert} is shown and application shuts down
+     * occurs during the process, application shuts down
      */
     public void RMIPress()  {
         ClientRMIFactory connectionRMI = new ClientRMIFactory();
@@ -100,16 +100,6 @@ public class NewConfigurationController extends GUIController implements StateLi
                 this.client = connectionRMI.createClient(super.getClientController());
             }
             catch (RemoteException | RuntimeException ex) {
-                Platform.runLater(() -> {
-                                      Alert alert = new Alert(Alert.AlertType.ERROR);
-                                      alert.setTitle("RMI network problems");
-                                      alert.setContentText(ex.getMessage());
-
-                                      alert.initOwner(super.getStage().getScene().getWindow());
-
-                                      alert.showAndWait();
-                                  });
-
                 System.exit(1);
             }
         });
@@ -129,7 +119,7 @@ public class NewConfigurationController extends GUIController implements StateLi
     /**
      * When user press "TCP" button, this methods will build
      * a new {@link ClientTCP} using {@link ClientFactory}. If an error
-     * occurs during the process an {@link Alert} is shown and application shuts down
+     * occurs during the process, application shuts down
      */
     public void TCPPress(){
         ClientTCPFactory connectionTCP = new ClientTCPFactory();
@@ -139,15 +129,6 @@ public class NewConfigurationController extends GUIController implements StateLi
                 this.client = connectionTCP.createClient(super.getClientController());
             }
             catch (IOException ex) {
-                Platform.runLater(() -> {
-                                      Alert alert = new Alert(Alert.AlertType.ERROR);
-                                      alert.setTitle("TCP network problems");
-                                      alert.setContentText(ex.getMessage());
-                                      alert.initOwner(super.getStage().getScene().getWindow());
-
-                                      alert.showAndWait();
-                                  });
-
                 System.exit(1);
             }
         });

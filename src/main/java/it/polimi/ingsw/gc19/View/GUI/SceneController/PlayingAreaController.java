@@ -210,7 +210,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
             this.infoHBox.getChildren().add(new Label("Game name: " + super.getLocalModel().getGameName()));
 
-            this.infoHBox.getChildren().add(new Label("Current number of players: " + super.getLocalModel().getStations().size()));
+            this.infoHBox.getChildren().add(new Label("Number of players: " + super.getLocalModel().getStations().size()));
 
             this.infoHBox.getChildren().add(new Label("Current game state: " + super.getClientController().getState().toString().toLowerCase().replace('_', ' ')));
 
@@ -228,7 +228,7 @@ public class PlayingAreaController extends GUIController implements StateListene
 
             ((Label) infoHBox.getChildren().get(1)).setText("Game name: " + super.getLocalModel().getGameName());
 
-            ((Label) infoHBox.getChildren().get(2)).setText("Current number of players: " + super.getLocalModel().getStations().size());
+            ((Label) infoHBox.getChildren().get(2)).setText("Number of players: " + super.getLocalModel().getStations().size());
 
             ((Label) infoHBox.getChildren().get(3)).setText("Current game state: " + super.getClientController().getState().toString().toLowerCase().replace('_', ' '));
 

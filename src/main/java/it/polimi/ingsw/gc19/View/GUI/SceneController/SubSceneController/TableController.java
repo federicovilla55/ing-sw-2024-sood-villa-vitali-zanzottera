@@ -129,7 +129,7 @@ public class TableController extends GUIController implements TableListener {
 
         for(int i = 0; i < 2; i++){
             for(int k = 0; k < 2; k++){
-                if(this.drawableTableCards[i][k] != null) {
+                if(this.drawableTableCards != null && this.drawableTableCards[i][k] != null) {
                     this.gridPane.add(this.drawableTableCards[i][k], k, i);
                 }
                 else {
@@ -144,7 +144,7 @@ public class TableController extends GUIController implements TableListener {
         }
 
         for(int i = 0; i < 2; i++){
-            if(this.publicGoals != null) {
+            if(this.publicGoals != null && this.publicGoals[i] != null) {
                 this.gridPane.add(this.publicGoals[i], i, 2);
             }
             else {
@@ -158,7 +158,7 @@ public class TableController extends GUIController implements TableListener {
         }
 
         for(int i = 0; i < 2; i++){
-            if (this.decks[i] != null) {
+            if (this.decks != null && this.decks[i] != null) {
                 this.gridPane.add(this.decks[i], 2, i);
             }
             else {
@@ -171,7 +171,7 @@ public class TableController extends GUIController implements TableListener {
             }
         }
 
-        if(!this.gridPane.getChildren().contains(factoryUpperDeckCard())){
+        if(!this.gridPane.getChildren().contains(factoryUpperDeckCard()) && this.decks != null){
             this.gridPane.add(this.decks[2], 2, 2);
         }
     }

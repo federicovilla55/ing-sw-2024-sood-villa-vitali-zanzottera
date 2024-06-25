@@ -126,7 +126,7 @@ public class OldConfigurationController extends GUIController implements StateLi
      * This method is executed when user press the reconnection button.
      * It signals {@link ClientController} to try to reconnect the user
      * using the specified configuration.
-     * An {@link Alert} is shown if an error occurs during this process
+     * Application shuts down if an error occurs during this process
      * @param e the {@link ActionEvent} of the mouse pressed
      */
     private void onReconnectPress(ActionEvent e) {
@@ -141,15 +141,6 @@ public class OldConfigurationController extends GUIController implements StateLi
                     client = connectionType.getClientFactory().createClient(super.getClientController());
                 }
                 catch (IOException | RuntimeException ex) {
-                    Platform.runLater(() -> {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle(connectionType.toString().toUpperCase() + " network problems");
-                        alert.setContentText(ex.getMessage());
-                        alert.initOwner(super.getStage().getScene().getWindow());
-
-                        alert.showAndWait();
-                    });
-
                     System.exit(1);
                 }
             });
