@@ -10,6 +10,7 @@ import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -41,6 +42,11 @@ public class OldConfigurationController extends GUIController implements StateLi
      * They will be displayed by controller to let user reconnect
      */
     private ArrayList<Configuration> configs;
+
+    /**
+     * The {@link ClientInterface} to be built
+     */
+    private ClientInterface client;
 
     @FXML
     private TableView<Configuration> confTable;
@@ -123,27 +129,29 @@ public class OldConfigurationController extends GUIController implements StateLi
      * @param e the {@link ActionEvent} of the mouse pressed
      */
     private void onReconnectPress(ActionEvent e) {
-        ClientInterface client;
         Configuration config = confTable.getSelectionModel().getSelectedItem();
         Configuration.ConnectionType connectionType;
+
         if(config != null) {
             connectionType = config.getConnectionType();
 
-            try {
-                client = connectionType.getClientFactory().createClient(super.getClientController());
-            }
-            catch (IOException | RuntimeException ex) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle(connectionType.toString().toUpperCase() + " network problems");
-                alert.setContentText(ex.getMessage());
+            new Thread(() -> {
+                try {
+                    client = connectionType.getClientFactory().createClient(super.getClientController());
+                }
+                catch (IOException | RuntimeException ex) {
+                    Platform.runLater(() -> {
+                                          Alert alert = new Alert(Alert.AlertType.ERROR);
+                                          alert.setTitle(connectionType.toString().toUpperCase() + " network problems");
+                                          alert.setContentText(ex.getMessage());
+                                          alert.initOwner(super.getStage().getScene().getWindow());
 
-                alert.initOwner(super.getStage().getScene().getWindow());
+                                          alert.showAndWait();
+                                      });
 
-                alert.showAndWait();
-
-                System.exit(1);
-                return;
-            }
+                    System.exit(1);
+                }
+            }).start();
 
             client.configure(config.getNick(), config.getToken());
 

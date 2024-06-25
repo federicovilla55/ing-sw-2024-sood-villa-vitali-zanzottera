@@ -9,6 +9,7 @@ import it.polimi.ingsw.gc19.View.Command.CommandParser;
 import it.polimi.ingsw.gc19.View.GUI.SceneStatesEnum;
 import it.polimi.ingsw.gc19.View.Listeners.ListenerType;
 import it.polimi.ingsw.gc19.View.Listeners.StateListener.StateListener;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import it.polimi.ingsw.gc19.Networking.Client.ClientTCP.ClientTCP;
 import it.polimi.ingsw.gc19.Networking.Client.ClientRMI.ClientRMI;
@@ -94,21 +95,24 @@ public class NewConfigurationController extends GUIController implements StateLi
     public void RMIPress()  {
         ClientRMIFactory connectionRMI = new ClientRMIFactory();
 
-        try {
-            this.client = connectionRMI.createClient(super.getClientController());
-        }
-        catch (RemoteException | RuntimeException ex) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("RMI network problems");
-            alert.setContentText(ex.getMessage());
+        new Thread(() -> {
+            try {
+                this.client = connectionRMI.createClient(super.getClientController());
+            }
+            catch (RemoteException | RuntimeException ex) {
+                Platform.runLater(() -> {
+                                      Alert alert = new Alert(Alert.AlertType.ERROR);
+                                      alert.setTitle("RMI network problems");
+                                      alert.setContentText(ex.getMessage());
 
-            alert.initOwner(super.getStage().getScene().getWindow());
+                                      alert.initOwner(super.getStage().getScene().getWindow());
 
-            alert.showAndWait();
+                                      alert.showAndWait();
+                                  });
 
-            System.exit(1);
-            return;
-        }
+                System.exit(1);
+            }
+        }).start();
 
         super.getClientController().setClientInterface(client);
     }
@@ -121,20 +125,23 @@ public class NewConfigurationController extends GUIController implements StateLi
     public void TCPPress(){
         ClientTCPFactory connectionTCP = new ClientTCPFactory();
 
-        try {
-            this.client = connectionTCP.createClient(super.getClientController());
-        }
-        catch (IOException ex) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("TCP network problems");
-            alert.setContentText(ex.getMessage());
-            alert.initOwner(super.getStage().getScene().getWindow());
+        new Thread(() -> {
+            try {
+                this.client = connectionTCP.createClient(super.getClientController());
+            }
+            catch (IOException ex) {
+                Platform.runLater(() -> {
+                                      Alert alert = new Alert(Alert.AlertType.ERROR);
+                                      alert.setTitle("TCP network problems");
+                                      alert.setContentText(ex.getMessage());
+                                      alert.initOwner(super.getStage().getScene().getWindow());
 
-            alert.showAndWait();
+                                      alert.showAndWait();
+                                  });
 
-            System.exit(1);
-            return;
-        }
+                System.exit(1);
+            }
+        }).start();
 
         super.getClientController().setClientInterface(client);
     }
@@ -146,8 +153,10 @@ public class NewConfigurationController extends GUIController implements StateLi
      */
     @Override
     public void notify(ViewState viewState) {
-        super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
+        if(viewState == ViewState.NOT_PLAYER) {
+            super.getClientController().getListenersManager().removeListener(ListenerType.STATE_LISTENER, this);
 
-        super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
+            super.changeToNextScene(SceneStatesEnum.LOGIN_SCENE);
+        }
     }
 }
