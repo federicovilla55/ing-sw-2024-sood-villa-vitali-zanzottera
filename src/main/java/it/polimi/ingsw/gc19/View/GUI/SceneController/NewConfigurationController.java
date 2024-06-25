@@ -95,7 +95,7 @@ public class NewConfigurationController extends GUIController implements StateLi
     public void RMIPress()  {
         ClientRMIFactory connectionRMI = new ClientRMIFactory();
 
-        new Thread(() -> {
+        Thread builder = new Thread(() -> {
             try {
                 this.client = connectionRMI.createClient(super.getClientController());
             }
@@ -112,7 +112,16 @@ public class NewConfigurationController extends GUIController implements StateLi
 
                 System.exit(1);
             }
-        }).start();
+        });
+
+        builder.start();
+
+        try{
+            builder.join();
+        }
+        catch (InterruptedException e){
+            throw new RuntimeException(e);
+        }
 
         super.getClientController().setClientInterface(client);
     }
@@ -125,7 +134,7 @@ public class NewConfigurationController extends GUIController implements StateLi
     public void TCPPress(){
         ClientTCPFactory connectionTCP = new ClientTCPFactory();
 
-        new Thread(() -> {
+        Thread builder = new Thread(() -> {
             try {
                 this.client = connectionTCP.createClient(super.getClientController());
             }
@@ -141,7 +150,16 @@ public class NewConfigurationController extends GUIController implements StateLi
 
                 System.exit(1);
             }
-        }).start();
+        });
+
+        builder.start();
+
+        try{
+            builder.join();
+        }
+        catch (InterruptedException e){
+            throw new RuntimeException(e);
+        }
 
         super.getClientController().setClientInterface(client);
     }

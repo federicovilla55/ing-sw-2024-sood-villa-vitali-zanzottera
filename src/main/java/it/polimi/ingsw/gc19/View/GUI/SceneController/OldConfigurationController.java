@@ -24,6 +24,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import it.polimi.ingsw.gc19.Networking.Client.ClientSettings;
+import org.jetbrains.annotations.NotNull;
 
 
 import java.io.IOException;
@@ -135,23 +136,32 @@ public class OldConfigurationController extends GUIController implements StateLi
         if(config != null) {
             connectionType = config.getConnectionType();
 
-            new Thread(() -> {
+            Thread builder = new Thread(() -> {
                 try {
                     client = connectionType.getClientFactory().createClient(super.getClientController());
                 }
                 catch (IOException | RuntimeException ex) {
                     Platform.runLater(() -> {
-                                          Alert alert = new Alert(Alert.AlertType.ERROR);
-                                          alert.setTitle(connectionType.toString().toUpperCase() + " network problems");
-                                          alert.setContentText(ex.getMessage());
-                                          alert.initOwner(super.getStage().getScene().getWindow());
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle(connectionType.toString().toUpperCase() + " network problems");
+                        alert.setContentText(ex.getMessage());
+                        alert.initOwner(super.getStage().getScene().getWindow());
 
-                                          alert.showAndWait();
-                                      });
+                        alert.showAndWait();
+                    });
 
                     System.exit(1);
                 }
-            }).start();
+            });
+
+            builder.start();
+
+            try{
+                builder.join();
+            }
+            catch (InterruptedException ex){
+                throw new RuntimeException(ex);
+            }
 
             client.configure(config.getNick(), config.getToken());
 
