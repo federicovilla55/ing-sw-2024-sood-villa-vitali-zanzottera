@@ -92,7 +92,6 @@ public class GUIView extends Application {
         stage.show();
         stage.setMaximized(false);
         stage.sizeToScene();
-        stage.setResizable(false);
         scene.getWindow().centerOnScreen();
     }
 

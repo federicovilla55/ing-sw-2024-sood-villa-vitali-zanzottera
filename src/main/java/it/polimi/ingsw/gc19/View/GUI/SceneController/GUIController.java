@@ -260,7 +260,6 @@ public class GUIController implements UI, Listener{
                          LOGIN_SCENE,
                          GAME_SELECTION_SCENE -> {
 
-                        this.getStage().setResizable(false);
                         this.getStage().setMaximized(false);
                         this.getStage().sizeToScene();
                         this.getStage().getScene().getWindow().centerOnScreen();
@@ -274,7 +273,6 @@ public class GUIController implements UI, Listener{
                         this.getStage().setWidth(bounds.getWidth());
                         this.getStage().setHeight(bounds.getHeight());
 
-                        this.getStage().setResizable(true);
                         this.getStage().setMaximized(false);
                     }
                 }
