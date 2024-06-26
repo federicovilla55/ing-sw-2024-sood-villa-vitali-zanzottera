@@ -104,8 +104,12 @@ public class SetupController extends GUIController implements SetupListener, Sta
             throw new RuntimeException(e);
         }
 
-        ((Region) chat.getChildren().getFirst()).setPrefHeight(super.getStage().getHeight() -
-                                                                           (this.availableColorsPane.getHeight() + this.privateGoalCardSelectionPane.getHeight() + this.privateGoalCardSelectionPane.getHeight()));
+        /*((Region) chat.getChildren().getFirst()).setPrefHeight(super.getStage().getHeight() -
+                                                                           (this.availableColorsPane.getHeight() + this.privateGoalCardSelectionPane.getHeight() + this.privateGoalCardSelectionPane.getHeight()));*/
+
+        //((Region) chat.getChildren().getFirst()).setPrefHeight(Double.MAX_VALUE);
+
+        resizeChat();
 
         try{
             FXMLLoader loader = new FXMLLoader();
@@ -138,6 +142,8 @@ public class SetupController extends GUIController implements SetupListener, Sta
         }
 
         setBackgrounds();
+
+        resizeChat();
     }
 
     /**
@@ -212,6 +218,9 @@ public class SetupController extends GUIController implements SetupListener, Sta
                 });
             }
         }
+        else{
+            rightVBox.getChildren().remove(initialCardOrientationPane);
+        }
     }
 
     /**
@@ -238,6 +247,9 @@ public class SetupController extends GUIController implements SetupListener, Sta
 
             this.goalCardsHBox.getChildren().addAll(cardButtons);
         }
+        else{
+            rightVBox.getChildren().remove(privateGoalCardSelectionPane);
+        }
     }
 
     /**
@@ -250,12 +262,10 @@ public class SetupController extends GUIController implements SetupListener, Sta
             this.hbox.getChildren().clear();
             hbox.getChildren().addAll(colorButtonFactory(this.getLocalModel().getAvailableColors()));
         }
-
-        if(getLocalModel().getPersonalStation().getChosenColor() != null){
-            ArrayList<Button> button = colorButtonFactory(List.of(this.getLocalModel().getPersonalStation().getChosenColor()));
-
-            this.hbox.getChildren().clear();
-            this.hbox.getChildren().add(button.getFirst());
+        else{
+            if(getLocalModel().getPersonalStation() != null && getLocalModel().getPersonalStation().getChosenColor() != null) {
+                rightVBox.getChildren().remove(availableColorsPane);
+            }
         }
     }
 
@@ -328,7 +338,13 @@ public class SetupController extends GUIController implements SetupListener, Sta
      * Resizes {@link #chat} to fill empty space on {@link #rightVBox}.
      */
     private void resizeChat(){
-        ((Region) chat.getChildren().getFirst()).setPrefHeight(((ScrollPane) chat.getChildren().getFirst()).getHeight() + 0.25 * ((Region) chat.getParent()).getHeight());
+        //((Region) chat.getChildren().getFirst()).setPrefHeight(((ScrollPane) chat.getChildren().getFirst()).getHeight() + 0.25 * ((Region) chat.getParent()).getHeight());
+
+        ((Region) chat.getChildren().getFirst()).setPrefHeight(super.getStage().getHeight() -
+                                                                       this.rightVBox.getChildren().stream()
+                                                                                                   .filter(f -> !f.equals(chat))
+                                                                                                   .mapToDouble(f -> ((Region) f).getHeight())
+                                                                                                   .sum());
     }
 
     /**
