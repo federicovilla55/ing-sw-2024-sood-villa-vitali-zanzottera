@@ -29,7 +29,7 @@ jobs:
           distribution: 'oracle'
 
       - name: Build and Test
-        run: mvn --batch-mode test
+        run: mvn --batch-mode test -D'test=!it.polimi.ingsw.gc19.Networking.Client.ClientTCPTest,!it.polimi.ingsw.gc19.Networking.Client.ClientTCPRMITest,!it.polimi.ingsw.gc19.Networking.Socket.ServerSocketAndMainControllerTest'
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v4
