@@ -151,6 +151,7 @@ public class ChatController extends GUIController implements ChatListener, Local
 
         if(!this.receivers.getCheckModel().getCheckedItems().isEmpty()){
             this.getClientController().sendChatMessage(this.textAreaSend.getText(), this.receivers.getCheckModel().getCheckedItems());
+            this.textAreaSend.clear();
         }
         else{
             Alert noReceiversAlert = new Alert(Alert.AlertType.ERROR);
