@@ -6,6 +6,10 @@
 Digital version of the board game *Codex Naturalis*.
 </div>
 
+<div align="center">
+Final mark: 30 / 30 cum Laude
+</div>
+
 ## Screenshots
 <p float="left" align="center">
   <img src="assets/lobby.png" width="45%" />
